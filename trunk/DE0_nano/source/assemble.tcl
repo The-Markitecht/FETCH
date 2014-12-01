@@ -91,7 +91,7 @@ dict set ::adest leds 0xa
 set ::asmcode {
     // write some data on the UART.    
     
-    leds = 0x01 
+    leds = 0b00000001 
     atx_load = 0 
     
     // using x as pass counter.  shows on LEDs.
@@ -122,13 +122,24 @@ set ::asmcode {
     a = 1
 :wait_for_busy    
     b = atx_busy
-    leds = 0x04
+    leds = 0b00000100 
     x = ad2
     br and0z :wait_for_busy
 
     atx_load = 0 
     
     br always :again
+    
+:test_pattern
+    0x55
+    0xaa
+    0x55
+    0xaa
+    0b01000100
+    0
+    
+:msg
+    "testes, testes,\n\t 1...\n\t 2...\n\t 3?? \n"
 }    
 
 # assembler functions.
@@ -142,7 +153,7 @@ proc parse {dest eq src} {
             # source is named.
             lappend opcodes [expr ([dict get $::asrc $src] << $::src_shift) | ([dict get $::adest $dest] << $::dest_shift)]
         } elseif {[string is integer -strict $src]} {
-            # source is small immediate value.
+            # source is small immediate value in hex 0x, binary 0b, or decimal (no prefix)
             if {$src > $::small_const_max || $src < 0} {
                 error "constant out of range: $dest $eq $src"
             }
@@ -179,19 +190,35 @@ proc emitline {lin} {
     if {[string equal -length 2 $lin {//}]} {
         # comment line
         puts $::f $lin
-    } elseif {[string equal -length 2 $lin {0x}]} {
-        # 16-bit constant in hex
-        if {[scan [string range $lin 2 end] %04x num] != 1} {
-            error "illegal 16-bit constant: $lin"
+    } elseif {[string is integer -strict $lin]} {
+        # 16-bit constant in hex 0x, binary 0b, or decimal (no prefix)
+        emitword $lin $lin
+    } elseif {[string equal -length 1 $lin \" ]} {
+        # string constant line
+        if { ! [string equal [string index $lin end] \" ]} {
+            error "string missing final quote mark: $lin"
         }
-        emitword $num $lin
+        puts $::f "// $lin"
+        set lin [subst [string range $lin 1 end-1]]
+        if {[string length $lin] != ([string length $lin] / 2 * 2)} {
+            append lin "\x0" ;# zero-pad to an even number of bytes, because the ROM description file is word-addressed.  all addressible data must be word-aligned.
+        }
+        foreach {lo_char hi_char} [split $lin {}] {
+            scan "$lo_char$hi_char" %c%c lo hi
+            set w [expr {(($hi & 0xff) << 8) | ($lo & 0xff)}]
+            set echo {} ;# eliminate newlines, tabs, etc from the echo.
+            if {[string is print $hi_char]} {append echo $hi_char} else {append echo { }}
+            if {[string is print $lo_char]} {append echo $lo_char} else {append echo { }}
+            emitword $w $echo
+        }
     } elseif {[string equal -length 1 $lin {:}]} {
         # label line
         dict set ::labels [string trim $lin {:}] $::ipr
-        puts $::f "// $lin  // = 0x[format %02x $::ipr]"
+        puts $::f "// $lin // = 0x[format %02x $::ipr]"
     } else {
         set words [regexp -all -inline -nocase {\S+} $lin]
         if {[llength $words] == 3} {
+            # parse a 3-word line.  this includes assignments and branches.
             set opcodes [parse [lindex $words 0] [lindex $words 1] [lindex $words 2]]
             foreach op $opcodes {
                 emitword $op $lin
