@@ -41,6 +41,8 @@ set ::small_const_shift 0
 set ::small_const_max 0xff
 set ::flagsrc_shift 0
 
+set ::labels [dict create]
+
 # common register aliases.
 proc alias_both {name addr} {
     dict set ::asrc $name $addr
@@ -62,7 +64,9 @@ alias_both g12 12
 alias_both g13 13
 alias_both g14 14
 alias_both g15 15
-dict set ::asrc + [dict get $::asrc ad0]
+dict set ::asrc a+b [dict get $::asrc ad0]
+dict set ::asrc i+j [dict get $::asrc ad1]
+dict set ::asrc x+y [dict get $::asrc ad2]
 dict set ::asrc and [dict get $::asrc and0]
 dict set ::asrc or [dict get $::asrc or0]
 dict set ::asrc xor [dict get $::asrc xor0]
@@ -94,14 +98,16 @@ set ::asmcode {
     x = 0x40
     y = 1
     
+:again
     // wait for UART to be idle (not busy).
     a = x
     a = a>>4    
     leds = a>>4
     a = 1
+:wait_for_idle
     b = atx_busy
     nop = nop
-    bn and0z 0x08
+    bn and0z :wait_for_idle
     
     // write a byte to UART.  
     // can't use the actual register load strobe that occurs here, because it's 
@@ -114,14 +120,15 @@ set ::asmcode {
     
     // wait until UART is busy, as acknowledgement.
     a = 1
+:wait_for_busy    
     b = atx_busy
     leds = 0x04
     x = ad2
-    br and0z 0x10
+    br and0z :wait_for_busy
 
     atx_load = 0 
     
-    br always 4
+    br always :again
 }    
 
 # assembler functions.
@@ -148,6 +155,9 @@ proc parse {dest eq src} {
         set instruction $dest
         set flagname $eq
         set addr $src
+        if {[string equal -length 1 $addr {:}]} {
+            set addr [dict get $::labels [string trim $addr {:}]]
+        }
         lappend opcodes [expr ([dict get $::flagsrc $flagname] << $::flagsrc_shift) | ([dict get $::adest $instruction] << $::dest_shift)]
         lappend opcodes $addr
     } else {
@@ -175,6 +185,10 @@ proc emitline {lin} {
             error "illegal 16-bit constant: $lin"
         }
         emitword $num $lin
+    } elseif {[string equal -length 1 $lin {:}]} {
+        # label line
+        dict set ::labels [string trim $lin {:}] $::ipr
+        puts $::f "// $lin  // = 0x[format %02x $::ipr]"
     } else {
         set words [regexp -all -inline -nocase {\S+} $lin]
         if {[llength $words] == 3} {
