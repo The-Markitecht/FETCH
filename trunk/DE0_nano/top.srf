@@ -1,0 +1,59 @@
+{ "" "" "" "Warning (10037): Verilog HDL or VHDL warning at qsys1_nios.v(1501): conditional expression evaluates to a constant" {  } {  } 0 10037 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (10037): Verilog HDL or VHDL warning at qsys1_nios.v(1503): conditional expression evaluates to a constant" {  } {  } 0 10037 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (10037): Verilog HDL or VHDL warning at qsys1_nios.v(1659): conditional expression evaluates to a constant" {  } {  } 0 10037 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (10037): Verilog HDL or VHDL warning at qsys1_nios.v(2578): conditional expression evaluates to a constant" {  } {  } 0 10037 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (12158): Entity \"qsys1_nios_oci_test_bench\" contains only dangling pins" {  } {  } 0 12158 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332060): Node: qsys1:u0\|TERASIC_ADC_READ:terasic_adc_read_0\|ADC_READ:ADC_READ_Inst\|st.st_02 was determined to be a clock but was found without an associated clock assignment." {  } {  } 0 332060 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332060): Node: qsys1:u0\|TERASIC_ADC_READ:terasic_adc_read_0\|Start was determined to be a clock but was found without an associated clock assignment." {  } {  } 0 332060 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (171167): Found invalid Fitter assignments. See the Ignored Assignments panel in the Fitter Compilation Report for more information." {  } {  } 0 171167 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (15705): Ignored locations or region assignments to the following nodes" {  } {  } 0 15705 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (15709): Ignored I/O standard assignments to the following nodes" {  } {  } 0 15709 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (15714): Some pins have incomplete I/O assignments. Refer to the I/O Assignment Warnings report for details" {  } {  } 0 15714 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (13009): TRI or OPNDRN buffers permanently enabled" {  } {  } 0 13009 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (13034): The following nodes have both tri-state and non-tri-state drivers" {  } {  } 0 13034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (10492): VHDL Process Statement warning at ADC_READ.vhd(144): signal \"read_data\" is read inside the Process Statement but isn't in the Process Statement's sensitivity list" {  } {  } 0 10492 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *altera_avalon_st_clock_crosser:*\|out_data_buffer* could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *altera_avalon_st_clock_crosser:*\|in_data_buffer* could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (10036): Verilog HDL or VHDL warning at qsys1_jtag_master_timing_adt.v(31): object \"in_ready\" assigned a value but never read" {  } {  } 0 10036 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (10036): Verilog HDL or VHDL warning at qsys1_jtag_master_b2p_adapter.v(28): object \"out_channel\" assigned a value but never read" {  } {  } 0 10036 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (10230): Verilog HDL assignment warning at qsys1_jtag_master_b2p_adapter.v(40): truncated value with size 8 to match size of target (1)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|alt_jtag_atlantic:*\|jupdate could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|alt_jtag_atlantic:*\|jupdate1* could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|alt_jtag_atlantic:*\|read could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|alt_jtag_atlantic:*\|read1* could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|alt_jtag_atlantic:*\|read_req could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|t_dav could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|alt_jtag_atlantic:*\|rvalid0* could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|alt_jtag_atlantic:*\|wdata\[*\] could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|alt_jtag_atlantic:*\|write could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|alt_jtag_atlantic:*\|write1* could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|alt_jtag_atlantic:*\|t_ena* could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|alt_jtag_atlantic:*\|t_pause* could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332174): Ignored filter at qsta_default_script.tcl(1028): *\|alt_jtag_atlantic:*\|write_valid could not be matched with a register" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|alt_jtag_atlantic:*\|jupdate could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|alt_jtag_atlantic:*\|jupdate1* could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|alt_jtag_atlantic:*\|read could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|alt_jtag_atlantic:*\|read1* could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|alt_jtag_atlantic:*\|read_req could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|t_dav could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|alt_jtag_atlantic:*\|rvalid0* could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|alt_jtag_atlantic:*\|wdata\[*\] could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|alt_jtag_atlantic:*\|write could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|alt_jtag_atlantic:*\|write1* could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|alt_jtag_atlantic:*\|t_ena* could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|alt_jtag_atlantic:*\|t_pause* could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Warning (332173): Ignored filter: *\|alt_jtag_atlantic:*\|write_valid could not be matched with a register" {  } {  } 0 332173 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Found invalid Fitter assignments. See the Ignored Assignments panel in the Fitter Compilation Report for more information." {  } {  } 0 171167 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "VHDL Process Statement warning at ADC_READ.vhd(144): signal \"read_data\" is read inside the Process Statement but isn't in the Process Statement's sensitivity list" {  } {  } 0 10492 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Entity \"qsys1_nios_oci_test_bench\" contains only dangling pins" {  } {  } 0 12158 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "*" {  } {  } 0 169177 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "*" {  } {  } 0 332048 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "*" {  } {  } 0 332049 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "*" {  } {  } 0 15714 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "*" {  } {  } 0 332174 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "*" {  } {  } 0 15709 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "*" {  } {  } 0 15705 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "*" {  } {  } 0 10037 "" 0 0 "Quartus II" 0 -1 0 ""}

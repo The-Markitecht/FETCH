@@ -1,0 +1,74 @@
+[*]
+[*] GTKWave Analyzer v3.3.48 (w)1999-2013 BSI
+[*] Mon Dec 01 06:18:45 2014
+[*]
+[dumpfile] "J:\personal\2014\camaro_ecm\trunk\DE0_nano\icarus\testbench.vcd"
+[dumpfile_mtime] "Mon Dec 01 06:15:18 2014"
+[dumpfile_size] 23206
+[savefile] "J:\personal\2014\camaro_ecm\trunk\DE0_nano\icarus\settings.GTKWave"
+[timestart] 0
+[size] 1795 691
+[pos] -1 -1
+*-11.876817 12500 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] testbench.
+[sst_width] 197
+[signals_width] 190
+[sst_expanded] 1
+[sst_vpaned_height] 185
+@22
+testbench.code_addr[15:0]
+testbench.code_in[15:0]
+testbench.chip.exr[15:0]
+@28
+testbench.chip.enable_exec
+testbench.chip.const16cycle1
+testbench.chip.branching_cycle
+testbench.chip.selected_flag
+testbench.chip.branch_accept
+testbench.chip.flags[15:0]
+testbench.chip.ad0_carry_flag
+@22
+testbench.chip.ad0[15:0]
+testbench.chip.ad0_comb[16:0]
+testbench.chip.small_constant[15:0]
+testbench.chip.muxa_src_addr[9:0]
+testbench.chip.muxa_comb[15:0]
++{r10} testbench.regs[10].r[15:0]
+@c00028
+testbench.chip.r_load[15:0]
+@28
+(0)testbench.chip.r_load[15:0]
+(1)testbench.chip.r_load[15:0]
+(2)testbench.chip.r_load[15:0]
+(3)testbench.chip.r_load[15:0]
+(4)testbench.chip.r_load[15:0]
+(5)testbench.chip.r_load[15:0]
+(6)testbench.chip.r_load[15:0]
+(7)testbench.chip.r_load[15:0]
+(8)testbench.chip.r_load[15:0]
+(9)testbench.chip.r_load[15:0]
+(10)testbench.chip.r_load[15:0]
+(11)testbench.chip.r_load[15:0]
+(12)testbench.chip.r_load[15:0]
+(13)testbench.chip.r_load[15:0]
+(14)testbench.chip.r_load[15:0]
+(15)testbench.chip.r_load[15:0]
+@1401200
+-group_end
+@22
++{x} testbench.regs[4].r[15:0]
++{y} testbench.regs[5].r[15:0]
+testbench.chip.ad2[15:0]
++{a} testbench.regs[0].r[15:0]
++{b} testbench.regs[1].r[15:0]
+@200
+-UART
+@28
+testbench.clk_async
+@22
+testbench.utx.parallel_in[7:0]
+@28
+testbench.utx.load_data
+testbench.utx.tx_busy
+[pattern_trace] 1
+[pattern_trace] 0
