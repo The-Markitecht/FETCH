@@ -18,7 +18,7 @@ set ::asrc [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     sh4l0   0x352   \
     sh4r0   0x353   \
     -1      0x360   \
-    imm16   0x3a0   \
+    _imm16_ 0x3a0   \
     nop     0       \
     ]
 
@@ -90,7 +90,7 @@ dict set ::adest leds 0xa
 # assembly source code.    
 set ::asmcode {
     // write some data on the UART.    
-    
+
     leds = 0b00000001 
     atx_load = 0 
     
@@ -113,8 +113,7 @@ set ::asmcode {
     // can't use the actual register load strobe that occurs here, because it's 
     // much too fast for the UART to sample.
     // instead use a dedicated output word atx_load.
-    atx_data = imm16
-    0x55
+    atx_data = 0x55
     // that doesn't have to be a imm16 any more.  it could be a small-constant assign.
     atx_load = 1
     
@@ -152,12 +151,22 @@ proc parse {dest eq src} {
         if {[dict exists $::asrc $src]} {
             # source is named.
             lappend opcodes [expr ([dict get $::asrc $src] << $::src_shift) | ([dict get $::adest $dest] << $::dest_shift)]
+        } elseif {[string equal -length 1 $src {:}]} {
+            # resolve label as 16-bit immediate, stored in the next program word.
+            lappend opcodes [expr ([dict get $::adest $dest] << $::dest_shift) | ([dict get $::asrc _imm16_] << $::src_shift)]
+            lappend opcodes [get_label $src]
         } elseif {[string is integer -strict $src]} {
-            # source is small immediate value in hex 0x, binary 0b, or decimal (no prefix)
-            if {$src > $::small_const_max || $src < 0} {
+            # source is immediate value in hex 0x, binary 0b, or decimal (no prefix)
+            if {$src > $::small_const_max} {
+                # 16-bit immediate, stored in the next program word.
+                lappend opcodes [expr ([dict get $::adest $dest] << $::dest_shift) | ([dict get $::asrc _imm16_] << $::src_shift)]
+                lappend opcodes $src
+            } elseif {$src < 0} {
                 error "constant out of range: $dest $eq $src"
+            } else {
+                # 8-bit immediate, stored in the same program word.
+                lappend opcodes [expr ([dict get $::adest $dest] << $::dest_shift) | $::small_const_opcode | ($src << $::small_const_shift)]
             }
-            lappend opcodes [expr ([dict get $::adest $dest] << $::dest_shift) | $::small_const_opcode | ($src << $::small_const_shift)]
         } else {
             error "source is not recognized: $dest $eq $src"
         }
@@ -167,7 +176,7 @@ proc parse {dest eq src} {
         set flagname $eq
         set addr $src
         if {[string equal -length 1 $addr {:}]} {
-            set addr [dict get $::labels [string trim $addr {:}]]
+            set addr [get_label $addr]
         }
         lappend opcodes [expr ([dict get $::flagsrc $flagname] << $::flagsrc_shift) | ([dict get $::adest $instruction] << $::dest_shift)]
         lappend opcodes $addr
@@ -177,28 +186,22 @@ proc parse {dest eq src} {
     return $opcodes
 }
     
-proc emitword {w comment} {
-    puts "    [format %02x $::ipr] : [format %04x $w] // $comment"
-    puts $::f "addr == 8'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // $comment"
-    incr ::ipr
-}
-
 proc emitline {lin} {
     set lin [string trim $lin]
-    puts $lin
+    console $lin
     if {[string length $lin] == 0} return
     if {[string equal -length 2 $lin {//}]} {
         # comment line
-        puts $::f $lin
+        emit $lin
     } elseif {[string is integer -strict $lin]} {
-        # 16-bit constant in hex 0x, binary 0b, or decimal (no prefix)
-        emitword $lin $lin
+        # 16-bit constant in hex 0x, binary 0b, or decimal (no prefix) on a line by itself.
+        emitword $lin $lin ;# simply insert it into the ROM as-is.
     } elseif {[string equal -length 1 $lin \" ]} {
         # string constant line
         if { ! [string equal [string index $lin end] \" ]} {
             error "string missing final quote mark: $lin"
         }
-        puts $::f "// $lin"
+        emit "// $lin"
         set lin [subst [string range $lin 1 end-1]]
         if {[string length $lin] != ([string length $lin] / 2 * 2)} {
             append lin "\x0" ;# zero-pad to an even number of bytes, because the ROM description file is word-addressed.  all addressible data must be word-aligned.
@@ -214,7 +217,7 @@ proc emitline {lin} {
     } elseif {[string equal -length 1 $lin {:}]} {
         # label line
         dict set ::labels [string trim $lin {:}] $::ipr
-        puts $::f "// $lin // = 0x[format %02x $::ipr]"
+        emit "// $lin // = 0x[format %02x $::ipr]"
     } else {
         set words [regexp -all -inline -nocase {\S+} $lin]
         if {[llength $words] == 3} {
@@ -229,11 +232,47 @@ proc emitline {lin} {
     }
 }
 
+proc emitword {w comment} {
+    console "    [format %02x $::ipr] : [format %04x $w] // $comment"
+    emit "addr == 8'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // $comment"
+    incr ::ipr
+}
+
+proc console {args} {
+#    if {$::asm_pass == 1} {
+        eval puts $args
+#    }
+}
+
+proc emit {args} {
+    if {$::asm_pass == 2} {
+        eval puts $::f $args
+    }
+}
+
+proc get_label {name} {
+    if {$::asm_pass == 1} {
+        return 0
+    }
+    return [dict get $::labels [string trim $name {:}]]
+}
+
 # #########################################################################
 
 #proc report args {puts [info level 0]}
 #trace add execution parse enterstep report
 
+# first pass is only to compute label addresses, and print the echo text to console.
+set ::asm_pass 1
+set ::ipr 0
+foreach lin [split $::asmcode \n] {
+    emitline $lin
+}
+
+# second pass is to utilize real label addresses, and write the ROM file.
+set ::asm_pass 2 
+set ::ipr 0
+console {####################   SECOND PASS   ####################}
 set ::f [open ../source/program.v w]
 puts $::f {
     `timescale 1 ns / 1 ns
