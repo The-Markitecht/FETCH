@@ -49,6 +49,14 @@ set ::flagsrc_shift 0
 
 set ::labels [dict create]
 
+proc src {src_name} {
+    return [dict get $::asrc $src_name]
+}
+
+proc dest {dest_name} {
+    return [dict get $::adest $dest_name]
+}
+
 # common register aliases.
 proc alias_both {name addr} {
     dict set ::asrc $name $addr
@@ -70,16 +78,16 @@ alias_both g12 12
 alias_both g13 13
 alias_both g14 14
 alias_both g15 15
-dict set ::asrc a+b [dict get $::asrc ad0]
-dict set ::asrc i+j [dict get $::asrc ad1]
-dict set ::asrc x+y [dict get $::asrc ad2]
-dict set ::asrc and [dict get $::asrc and0]
-dict set ::asrc or [dict get $::asrc or0]
-dict set ::asrc xor [dict get $::asrc xor0]
-dict set ::asrc a>>1 [dict get $::asrc sh1r0]
-dict set ::asrc a<<1 [dict get $::asrc sh1l0]
-dict set ::asrc a<<4 [dict get $::asrc sh4l0]
-dict set ::asrc a>>4 [dict get $::asrc sh4r0]
+dict set ::asrc a+b [src ad0]
+dict set ::asrc i+j [src ad1]
+dict set ::asrc x+y [src ad2]
+dict set ::asrc and [src and0]
+dict set ::asrc or  [src or0]
+dict set ::asrc xor [src xor0]
+dict set ::asrc a>>1 [src sh1r0]
+dict set ::asrc a<<1 [src sh1l0]
+dict set ::asrc a<<4 [src sh4l0]
+dict set ::asrc a>>4 [src sh4r0]
 dict set ::flagsrc c [dict get $::flagsrc ad0c]
 dict set ::flagsrc z [dict get $::flagsrc ad0z]
 dict set ::flagsrc 1z [dict get $::flagsrc ad1z]
@@ -195,22 +203,22 @@ proc parse {dest eq src} {
         # assignment.
         if {[dict exists $::asrc $src]} {
             # source is named.
-            lappend opcodes [expr ([dict get $::asrc $src] << $::src_shift) | ([dict get $::adest $dest] << $::dest_shift)]
+            lappend opcodes [pack [dest $dest] [src $src]]
         } elseif {[string equal -length 1 $src {:}]} {
             # resolve label as 16-bit immediate, stored in the next program word.
-            lappend opcodes [expr ([dict get $::adest $dest] << $::dest_shift) | ([dict get $::asrc _imm16_] << $::src_shift)]
+            lappend opcodes [pack [dest $dest] [src _imm16_]]
             lappend opcodes [get_label $src]
         } elseif {[string is integer -strict $src]} {
             # source is immediate value in hex 0x, binary 0b, or decimal (no prefix)
             if {$src > $::small_const_max} {
                 # 16-bit immediate, stored in the next program word.
-                lappend opcodes [expr ([dict get $::adest $dest] << $::dest_shift) | ([dict get $::asrc _imm16_] << $::src_shift)]
+                lappend opcodes [pack [dest $dest] [src _imm16_]]
                 lappend opcodes $src
             } elseif {$src < 0} {
                 error "constant out of range: $dest $eq $src"
             } else {
                 # 8-bit immediate, stored in the same program word.
-                lappend opcodes [expr ([dict get $::adest $dest] << $::dest_shift) | $::small_const_opcode | ($src << $::small_const_shift)]
+                lappend opcodes [expr ([dest $dest] << $::dest_shift) | $::small_const_opcode | ($src << $::small_const_shift)]
             }
         } else {
             error "source is not recognized: $dest $eq $src"
@@ -223,7 +231,7 @@ proc parse {dest eq src} {
         if {[string equal -length 1 $addr {:}]} {
             set addr [get_label $addr]
         }
-        lappend opcodes [expr ([dict get $::flagsrc $flagname] << $::flagsrc_shift) | ([dict get $::adest $instruction] << $::dest_shift)]
+        lappend opcodes [expr ([dict get $::flagsrc $flagname] << $::flagsrc_shift) | ([dest $instruction] << $::dest_shift)]
         lappend opcodes $addr
     } else {
         error "syntax error: $dest $eq $src"
@@ -308,14 +316,6 @@ proc get_label {name} {
 
 proc pack {dest_addr src_addr} {
     return [expr ($src_addr << $::src_shift) | ($dest_addr << $::dest_shift)]
-}
-
-proc src {src_name} {
-    return [dict get $::asrc $src_name]
-}
-
-proc dest {dest_name} {
-    return [dict get $::adest $dest_name]
 }
 
 # #########################################################################
