@@ -34,28 +34,22 @@ module synapse316 #(
 
     ,output[IPR_TOP:0]           code_addr         
     ,input[15:0]                 code_in     
-    ,input                       code_ready
+    ,input                       code_ready // NOT SUPPORTED IN THIS VERSION. 
+    // code memory MUST settle code_in in less than 1 sysclk period after each sysclk posedge,
+    // even when code_addr has changed at random each sysclk cycle.
 
-    // this can run as a 2-dimensional in Quartus.  but that's a syntax error in Icarus, regardless of options.
+    // i/o ports can run as a 2-dimensional in Quartus.  but that's a syntax error in Icarus, regardless of options.
     // so here it's flattened to 1 dimension.
-    ,output[REGS_FLAT_WIDTH-1:0]     r_flat
+    ,output[REGS_FLAT_WIDTH-1:0] r_flat
     ,output[TOP_REG:0]           r_load
     
-    ,input[DATA_INPUT_FLAT_WIDTH-1:0]                 data_in_flat
+    ,input[DATA_INPUT_FLAT_WIDTH-1:0]  data_in_flat
     
 ); 
 
     // declarations & wires
-    wire[15:0] muxa_comb;
-    
-    // executing instruction register
-    reg[15:0] exr; 
-    always @(posedge sysreset or posedge sysclk) begin
-        if (sysreset)
-            exr <= 0;
-        else if (sysclk)
-            exr <= code_in;
-    end
+    wire[15:0] muxa_comb;    
+    reg[15:0] exr; // executing instruction register
     
     // 316 instruction format:
     // [15:10] 6' muxa_dest_addr.
@@ -73,35 +67,54 @@ module synapse316 #(
     wire[15:0] small_constant = {8'h0, exr[7:0]};
     wire[3:0] selected_flag_addr = muxa_src_addr[3:0];
     reg branching_cycle = 1'b0; // exr contains the wrong opcode on this cycle.  skip it.
-    reg const16cycle1 = 1'b0; // exr registering data from program space on this cycle.  skip it.
-    wire enable_exec = ! (const16cycle1 || branching_cycle); 
+    reg const16cycle1 = 1'b0; // exr registering inline data from program space on this cycle.  skip it.
+    reg random_fetch_cycle = 1'b0; // exr stalled while code memory fetches data with random access.  hold exr's opcode until the next cycle for execution.  then the code memory is ready to replenish exr again.
+    wire load_exr = ! random_fetch_cycle;
+    wire enable_exec = ! (const16cycle1 || branching_cycle || random_fetch_cycle); 
     wire muxa_do_copy = enable_exec;    
-    wire clrf_operator = muxa_do_copy && (muxa_dest_addr == 6'h30);
-    wire setf_operator = muxa_do_copy && (muxa_dest_addr == 6'h31);
-    wire br_operator   = muxa_do_copy && (muxa_dest_addr == 6'h38);
-    wire bn_operator  = muxa_do_copy && (muxa_dest_addr == 6'h39);
+    wire clrf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h30);
+    wire setf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h31);
+    wire random_fetch_operator  = muxa_do_copy && (muxa_dest_addr == 6'h34); // this indicates a 16-bit value should be read from the program with random access.
+    wire br_operator            = muxa_do_copy && (muxa_dest_addr == 6'h38);
+    wire bn_operator            = muxa_do_copy && (muxa_dest_addr == 6'h39);
     wire binary_operator0 = r_load[0] || r_load[1];
-        
-    // instruction pointer
-    reg[IPR_TOP:0] ipr; 
+    wire muxa_source_imm16 = muxa_src_addr == 10'h3a0;
+
+    // instruction pointer, executing instruction register, and more control logic.
+    reg[IPR_TOP:0] ipr = 0;
+    reg[15:0] random_fetch_addr = 0; // this can temporarily override ipr to assert a different code_addr to the code memory.
+    reg[15:0] random_fetch_result = 0;
     wire branch_accept;
     wire load_ipr = branch_accept; 
-    //wire[IPR_TOP:0] const_fetch_addr = next_code_addr;
-    assign code_addr = ipr; // const_fetch ? const_fetch_addr : ipr;
+    wire hold_ipr = random_fetch_cycle;
+    assign code_addr = random_fetch_cycle ? random_fetch_addr : ipr;
     wire[IPR_TOP:0] next_code_addr = ipr + {{IPR_TOP{1'b0}}, 1'd1};   
-    wire muxa_source_imm16 = muxa_src_addr == 10'h3a0;
     always @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
             ipr <= 0;
+            exr <= 0;
             const16cycle1 <= 0;
             branching_cycle <= 0;
+            random_fetch_cycle <= 0;
+            random_fetch_addr <= 0;
+            random_fetch_result <= 0;
         end else if (sysclk) begin
-            ipr <= load_ipr ? code_in : next_code_addr;  
+            if (load_ipr)
+                ipr <= code_in;
+            else if ( ! hold_ipr)
+                ipr <= next_code_addr;  
+            if (load_exr)
+                exr <= code_in;
+            if (random_fetch_cycle)
+                random_fetch_result <= code_in;
+            if (random_fetch_operator)
+                random_fetch_addr <= muxa_comb;
             const16cycle1 <= muxa_source_imm16 && ! branching_cycle;
             branching_cycle <= branch_accept;
+            random_fetch_cycle <= random_fetch_operator;
         end
-    end
-
+    end    
+    
     // register file r.  for operands, and general use.
     // registers r0 and r1 are the operands for ad0 and certain other binary operators.
     genvar i;
@@ -295,10 +308,12 @@ module synapse316 #(
         
         muxa_src_addr == 10'h360 ? const_neg1 :
 
-        muxa_src_addr == 10'h3a0 ? code_in :  // this indicates a 16-bit immediate value should be read from the program on the next cycle.
+        muxa_src_addr == 10'h3a0 ? code_in :  // this indicates a 16-bit immediate value should be read inline from the program on the next cycle.
             //patch: using code_in behind a 32-way muxer like this may reduce clock rate.  
             // may need a 2-cycle state machine instead, to implement constant loads.        
-        
+
+        muxa_src_addr == 10'h3b0 ? random_fetch_result :
+            
         // there are many more spare addresses down here too
         16'hxxxx;
         

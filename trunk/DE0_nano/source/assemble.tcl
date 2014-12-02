@@ -19,6 +19,7 @@ set ::asrc [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     sh4r0   0x353   \
     -1      0x360   \
     _imm16_ 0x3a0   \
+    fetchd  0x3b0   \
     nop     0       \
     ]
 
@@ -26,6 +27,7 @@ set ::adest [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     r8 8 r9 9 r10 10 r11 11 r12 12 r13 13 r14 14 r15 15 \
     clrf    0x30    \
     setf    0x31    \
+    fetcha  0x34    \
     br      0x38    \
     bn      0x39    \
     nop     0x32    \
@@ -94,9 +96,15 @@ set ::asmcode {
     leds = 0b00000001 
     atx_load = 0 
     
+fetcha = 0x2a
+b = fetchd
+    
     // using x as pass counter.  shows on LEDs.
     x = 0x40
     y = 1
+
+fetcha = :test_pattern
+b = fetchd
     
 :again
     // wait for UART to be idle (not busy).
