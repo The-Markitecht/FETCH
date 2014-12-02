@@ -68,9 +68,10 @@ module synapse316 #(
     wire[3:0] selected_flag_addr = muxa_src_addr[3:0];
     reg branching_cycle = 1'b0; // exr contains the wrong opcode on this cycle.  skip it.
     reg const16cycle1 = 1'b0; // exr registering inline data from program space on this cycle.  skip it.
-    reg random_fetch_cycle = 1'b0; // exr stalled while code memory fetches data with random access.  hold exr's opcode until the next cycle for execution.  then the code memory is ready to replenish exr again.
-    wire load_exr = ! random_fetch_cycle;
-    wire enable_exec = ! (const16cycle1 || branching_cycle || random_fetch_cycle); 
+    reg random_fetch_cycle1 = 1'b0; // exr stalled while code memory fetches data with random access.  hold exr's opcode until the next cycle for execution.  then the code memory is ready to replenish exr again.
+    reg random_fetch_cycle2 = 1'b0; // exr stalled for 1 extra cycle after random_fetch_cycle1 coincided with const16cycle1, as often happens.  then exr contains the constant fetched during the const16cycle1, not a valid opcode.
+    wire load_exr = ! random_fetch_cycle1;
+    wire enable_exec = ! (const16cycle1 || branching_cycle || random_fetch_cycle1 || random_fetch_cycle2); 
     wire muxa_do_copy = enable_exec;    
     wire clrf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h30);
     wire setf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h31);
@@ -78,7 +79,7 @@ module synapse316 #(
     wire br_operator            = muxa_do_copy && (muxa_dest_addr == 6'h38);
     wire bn_operator            = muxa_do_copy && (muxa_dest_addr == 6'h39);
     wire binary_operator0 = r_load[0] || r_load[1];
-    wire muxa_source_imm16 = muxa_src_addr == 10'h3a0;
+    wire muxa_source_imm16 = muxa_do_copy && muxa_src_addr == 10'h3a0;
 
     // instruction pointer, executing instruction register, and more control logic.
     reg[IPR_TOP:0] ipr = 0;
@@ -86,8 +87,8 @@ module synapse316 #(
     reg[15:0] random_fetch_result = 0;
     wire branch_accept;
     wire load_ipr = branch_accept; 
-    wire hold_ipr = random_fetch_cycle;
-    assign code_addr = random_fetch_cycle ? random_fetch_addr : ipr;
+    wire hold_ipr = random_fetch_cycle1;
+    assign code_addr = random_fetch_cycle1 ? random_fetch_addr : ipr;
     wire[IPR_TOP:0] next_code_addr = ipr + {{IPR_TOP{1'b0}}, 1'd1};   
     always @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
@@ -95,7 +96,8 @@ module synapse316 #(
             exr <= 0;
             const16cycle1 <= 0;
             branching_cycle <= 0;
-            random_fetch_cycle <= 0;
+            random_fetch_cycle1 <= 0;
+            random_fetch_cycle2 <= 0;
             random_fetch_addr <= 0;
             random_fetch_result <= 0;
         end else if (sysclk) begin
@@ -105,13 +107,14 @@ module synapse316 #(
                 ipr <= next_code_addr;  
             if (load_exr)
                 exr <= code_in;
-            if (random_fetch_cycle)
+            if (random_fetch_cycle1)
                 random_fetch_result <= code_in;
             if (random_fetch_operator)
                 random_fetch_addr <= muxa_comb;
-            const16cycle1 <= muxa_source_imm16 && ! branching_cycle;
-            branching_cycle <= branch_accept;
-            random_fetch_cycle <= random_fetch_operator;
+            const16cycle1 <= muxa_source_imm16;
+            branching_cycle <= br_operator || bn_operator; // branching_cycle activates after every branch instruction, regardless of branch_accept, because in either case exr has been loaded with the branch target, not an opcode.
+            random_fetch_cycle1 <= random_fetch_operator;
+            random_fetch_cycle2 <= random_fetch_cycle1 && const16cycle1;
         end
     end    
     
@@ -264,6 +267,8 @@ module synapse316 #(
         
         // the block 0x10 thru 0x3f is reserved for more registers.
         // most of those would be i/o rather than gp.  
+        // note that 0x30 thru 0x3f IN THE DESTINATION SPACE contains control operators.
+        // so for symmetry it would be best to avoid that region in source space as well.
 
         // the block 0x40 thru 0x1ff is reserved for i/o inputs.
         // so they're located above the 64 (0x40) possible destination addresses.

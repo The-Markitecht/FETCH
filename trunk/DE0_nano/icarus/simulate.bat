@@ -14,4 +14,7 @@ vvp testbench
 rem start gtkwave testbench.vcd
 rem press Ctrl-Shift-R on existing instance instead.
 
+exit /b 0
+
 :done
+exit /b 255

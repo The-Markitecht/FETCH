@@ -96,33 +96,42 @@ set ::asmcode {
     leds = 0b00000001 
     atx_load = 0 
     
-fetcha = 0x2a
-b = fetchd
-    
     // using x as pass counter.  shows on LEDs.
-    x = 0x40
-    y = 1
+    x = 0xff00
+    y = -1
 
-fetcha = :test_pattern
-b = fetchd
+    // using i as index into string.
+    i = 0
+    
+    // cache the string limit.
+    a = 5
+    b = 0xffff
+    nop = nop
+    g6 = xor0
     
 :again
-    // wait for UART to be idle (not busy).
+    x = x+y
+    nop = nop
     a = x
     a = a>>4    
     leds = a>>4
+    
+    // wait for UART to be idle (not busy).
     a = 1
 :wait_for_idle
     b = atx_busy
     nop = nop
     bn and0z :wait_for_idle
     
-    // write a byte to UART.  
+    // fetch a word from test pattern to the UART.  its low byte is a character.
+    j = :test_pattern
+    nop = nop
+    fetcha = i+j
+    atx_data = fetchd
+        
     // can't use the actual register load strobe that occurs here, because it's 
     // much too fast for the UART to sample.
     // instead use a dedicated output word atx_load.
-    atx_data = 0x55
-    // that doesn't have to be a imm16 any more.  it could be a small-constant assign.
     atx_load = 1
     
     // wait until UART is busy, as acknowledgement.
@@ -130,23 +139,33 @@ b = fetchd
 :wait_for_busy    
     b = atx_busy
     leds = 0b00000100 
-    x = ad2
     br and0z :wait_for_busy
 
     atx_load = 0 
+
+    // increment index & wrap around end of pattern.
+    j = 1
+    nop = nop
+    i = i+j
+    j = g6
+    nop = nop
+    bn 1z :no_wrap
+    i = 0
+:no_wrap
     
-    br always :again
+    // repeat forever.
+    br always :again        
     
 :test_pattern
     0x55
     0xaa
-    0x55
-    0xaa
-    0b01000100
-    0
+    0b01000001
+    66
+    0x0d
+    0x0a   
     
 :msg
-    "testes, testes,\n\t 1...\n\t 2...\n\t 3?? \n"
+    "testes, testes,\n\t 1...\n\t 2...\n\t 3?? \n\x00"
 }    
 
 # assembler functions.
