@@ -31,6 +31,7 @@ proc shell {args} {
         set f [open $efn r]
         dump error [read $f]
         close $f
+        exit 255
     }
 }
 

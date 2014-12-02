@@ -78,11 +78,14 @@ module synapse316 #(
     wire random_fetch_operator  = muxa_do_copy && (muxa_dest_addr == 6'h34); // this indicates a 16-bit value should be read from the program with random access.
     wire br_operator            = muxa_do_copy && (muxa_dest_addr == 6'h38);
     wire bn_operator            = muxa_do_copy && (muxa_dest_addr == 6'h39);
+    wire return_operator        = muxa_do_copy && (muxa_dest_addr == 6'h3f); // swaps ipr and return_addr.  this allows for subroutine call and return, as well as computed jump.
     wire binary_operator0 = r_load[0] || r_load[1];
-    wire muxa_source_imm16 = muxa_do_copy && muxa_src_addr == 10'h3a0;
+    wire muxa_source_imm16 = muxa_do_copy && (muxa_src_addr == 10'h3a0);
+    wire muxa_dest_return_addr = muxa_do_copy && (muxa_dest_addr == 6'h2f);
 
     // instruction pointer, executing instruction register, and more control logic.
     reg[IPR_TOP:0] ipr = 0;
+    reg[IPR_TOP:0] return_addr = 0;
     reg[15:0] random_fetch_addr = 0; // this can temporarily override ipr to assert a different code_addr to the code memory.
     reg[15:0] random_fetch_result = 0;
     wire branch_accept;
@@ -103,16 +106,27 @@ module synapse316 #(
         end else if (sysclk) begin
             if (load_ipr)
                 ipr <= code_in;
+            else if (return_operator)
+                ipr <= return_addr;
             else if ( ! hold_ipr)
                 ipr <= next_code_addr;  
+
+            if (return_operator) 
+                return_addr <= ipr;
+            else if (muxa_dest_return_addr)
+                return_addr <= muxa_comb;
+
             if (load_exr)
                 exr <= code_in;
+                
             if (random_fetch_cycle1)
                 random_fetch_result <= code_in;
+                
             if (random_fetch_operator)
                 random_fetch_addr <= muxa_comb;
+                
             const16cycle1 <= muxa_source_imm16;
-            branching_cycle <= br_operator || bn_operator; // branching_cycle activates after every branch instruction, regardless of branch_accept, because in either case exr has been loaded with the branch target, not an opcode.
+            branching_cycle <= br_operator || bn_operator || return_operator; // branching_cycle activates after every branch instruction, regardless of branch_accept, because in either case exr has been loaded with the branch target, not an opcode.
             random_fetch_cycle1 <= random_fetch_operator;
             random_fetch_cycle2 <= random_fetch_cycle1 && const16cycle1;
         end
@@ -227,7 +241,7 @@ module synapse316 #(
     wire[15:0] sh4l0 = {regs[0].r[11:0], 4'b0};  
     wire[15:0] sh1r0 = {1'b0, regs[0].r[15:1]};  
     wire[15:0] sh4r0 = {4'b0, regs[0].r[15:4]};
-
+    
     // constants unit.
     wire[15:0] const_neg1 = 16'hffff;
     
@@ -267,6 +281,7 @@ module synapse316 #(
         
         // the block 0x10 thru 0x3f is reserved for more registers.
         // most of those would be i/o rather than gp.  
+        muxa_src_addr == 10'h2f ? return_addr :
         // note that 0x30 thru 0x3f IN THE DESTINATION SPACE contains control operators.
         // so for symmetry it would be best to avoid that region in source space as well.
 

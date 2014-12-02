@@ -1,9 +1,11 @@
 
 # assembler, with assembly source code for Synapse316 mcu.
 
+# #########################################################################
 # muxer source & destination maps.
 set ::asrc [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     r8 8 r9 9 r10 10 r11 11 r12 12 r13 13 r14 14 r15 15 \
+    rtna 0x2f \
     in0 0x40 in1 0x41 in2 0x42 in3 0x43 in4 0x44 in5 0x45 in6 0x46 in7 0x47 \
     in8 0x48 in9 0x49 in10 0x4a in11 0x4b in12 0x4c in13 0x4d in14 0x4e in15 0x4f \
     ad0     0x300   \
@@ -25,12 +27,14 @@ set ::asrc [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
 
 set ::adest [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     r8 8 r9 9 r10 10 r11 11 r12 12 r13 13 r14 14 r15 15 \
+    rtna    0x2f    \
     clrf    0x30    \
     setf    0x31    \
+    nop     0x32    \
     fetcha  0x34    \
     br      0x38    \
     bn      0x39    \
-    nop     0x32    \
+    swapra  0x3f    \
     ]    
 
 set ::flagsrc [dict create always 5 \
@@ -81,14 +85,16 @@ dict set ::flagsrc z [dict get $::flagsrc ad0z]
 dict set ::flagsrc 1z [dict get $::flagsrc ad1z]
 dict set ::flagsrc 2z [dict get $::flagsrc ad2z]
 
+# #########################################################################
 # application-specific register aliases.    
 dict set ::adest atx_data 0x8
 dict set ::adest atx_load 0x9
 
-dict set ::asrc  atx_busy 0x40
+dict set ::asrc  atx_busy [dict get $::asrc in0]
 
 dict set ::adest leds 0xa
 
+# #########################################################################
 # assembly source code.    
 set ::asmcode {
     // write some data on the UART.    
@@ -107,7 +113,7 @@ set ::asmcode {
     a = 5
     b = 0xffff
     nop = nop
-    g6 = xor0
+    g6 = xor
     
 :again
     x = x+y
@@ -115,7 +121,31 @@ set ::asmcode {
     a = x
     a = a>>4    
     leds = a>>4
+
+    // fetch a word from test pattern to the UART.  its low byte is a character.
+    j = :test_pattern
+    nop = nop
+    fetcha = i+j
+    g7 = fetchd
+    call :putchar
+
+    // increment index & wrap around end of pattern.
+    j = 1
+    nop = nop
+    i = i+j
+    j = g6
+    nop = nop
+    bn 1z :no_wrap
+    i = 0
+:no_wrap
     
+    // repeat forever.
+    br always :again        
+
+    
+// routine sends out the low byte from g7 to the UART.  blocks until the UART accepts the byte.
+:putchar    
+
     // wait for UART to be idle (not busy).
     a = 1
 :wait_for_idle
@@ -123,11 +153,8 @@ set ::asmcode {
     nop = nop
     bn and0z :wait_for_idle
     
-    // fetch a word from test pattern to the UART.  its low byte is a character.
-    j = :test_pattern
-    nop = nop
-    fetcha = i+j
-    atx_data = fetchd
+    // push word to the UART.  its low byte is a character.
+    atx_data = g7
         
     // can't use the actual register load strobe that occurs here, because it's 
     // much too fast for the UART to sample.
@@ -142,19 +169,8 @@ set ::asmcode {
     br and0z :wait_for_busy
 
     atx_load = 0 
-
-    // increment index & wrap around end of pattern.
-    j = 1
-    nop = nop
-    i = i+j
-    j = g6
-    nop = nop
-    bn 1z :no_wrap
-    i = 0
-:no_wrap
+    return
     
-    // repeat forever.
-    br always :again        
     
 :test_pattern
     0x55
@@ -168,7 +184,9 @@ set ::asmcode {
     "testes, testes,\n\t 1...\n\t 2...\n\t 3?? \n\x00"
 }    
 
+# #########################################################################
 # assembler functions.
+
 proc parse {dest eq src} {
     set dest [string tolower $dest]
     set src [string tolower $src]
@@ -247,12 +265,16 @@ proc emitline {lin} {
         emit "// $lin // = 0x[format %02x $::ipr]"
     } else {
         set words [regexp -all -inline -nocase {\S+} $lin]
+        set cmd "asm_[lindex $words 0]"
         if {[llength $words] == 3} {
             # parse a 3-word line.  this includes assignments and branches.
             set opcodes [parse [lindex $words 0] [lindex $words 1] [lindex $words 2]]
             foreach op $opcodes {
                 emitword $op $lin
             }
+        } elseif {[llength [info commands $cmd]] > 0} {
+            # run tcl command, like a super-powered macro.  insert the whole source line as the first argument.
+            eval $cmd [list $lin] [lrange $words 1 end]
         } else {
             error "syntax error: $lin"
         }    
@@ -284,7 +306,33 @@ proc get_label {name} {
     return [dict get $::labels [string trim $name {:}]]
 }
 
+proc pack {dest_addr src_addr} {
+    return [expr ($src_addr << $::src_shift) | ($dest_addr << $::dest_shift)]
+}
+
+proc src {src_name} {
+    return [dict get $::asrc $src_name]
+}
+
+proc dest {dest_name} {
+    return [dict get $::adest $dest_name]
+}
+
 # #########################################################################
+# macro functions for calling in assembly source code.
+
+proc asm_call {lin label} {
+    emitword [pack [dest rtna] [src _imm16_]] $lin
+    emitword [get_label $label] $lin
+    emitword [pack [dest swapra] [src nop]] $lin
+}
+
+proc asm_return {lin} {
+    emitword [pack [dest swapra] [src nop]] $lin
+}
+
+# #########################################################################
+# main script
 
 #proc report args {puts [info level 0]}
 #trace add execution parse enterstep report
