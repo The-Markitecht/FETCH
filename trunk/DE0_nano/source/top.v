@@ -80,6 +80,11 @@ end
 // a2 =15   7       gpio_22     c14     gpio_2[2]   2
 // a1 =16   5       gpio_20     a14     gpio_2[0]   1
 // a0 =1    6       gpio_21     b16     gpio_2[1]   0
+wire[3:0] anmux_ctrl =0; // dg408 pins en, a2, a1, a0
+assign GPIO_2[3] = anmux_ctrl[3];
+assign GPIO_2[2] = anmux_ctrl[2];
+assign GPIO_2[0] = anmux_ctrl[1];
+assign GPIO_2[1] = anmux_ctrl[0];
 
 // qsys1 u0 (
     // .clk_clk           (clk50m),          

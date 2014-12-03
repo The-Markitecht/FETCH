@@ -34,7 +34,7 @@ module synapse316 #(
 
     ,output[IPR_TOP:0]           code_addr         
     ,input[15:0]                 code_in     
-    ,input                       code_ready // NOT SUPPORTED IN THIS VERSION. 
+    ,input                       code_ready // NOT TESTED IN THIS VERSION.  without this signal,
     // code memory MUST settle code_in in less than 1 sysclk period after each sysclk posedge,
     // even when code_addr has changed at random each sysclk cycle.
 
@@ -70,8 +70,8 @@ module synapse316 #(
     reg const16cycle1 = 1'b0; // exr registering inline data from program space on this cycle.  skip it.
     reg random_fetch_cycle1 = 1'b0; // exr stalled while code memory fetches data with random access.  hold exr's opcode until the next cycle for execution.  then the code memory is ready to replenish exr again.
     reg random_fetch_cycle2 = 1'b0; // exr stalled for 1 extra cycle after random_fetch_cycle1 coincided with const16cycle1, as often happens.  then exr contains the constant fetched during the const16cycle1, not a valid opcode.
-    wire load_exr = ! random_fetch_cycle1;
-    wire enable_exec = ! (const16cycle1 || branching_cycle || random_fetch_cycle1 || random_fetch_cycle2); 
+    wire load_exr = code_ready && ! random_fetch_cycle1;
+    wire enable_exec = code_ready && ! (const16cycle1 || branching_cycle || random_fetch_cycle1 || random_fetch_cycle2); 
     wire muxa_do_copy = enable_exec;    
     wire clrf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h30);
     wire setf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h31);
@@ -89,8 +89,8 @@ module synapse316 #(
     reg[15:0] random_fetch_addr = 0; // this can temporarily override ipr to assert a different code_addr to the code memory.
     reg[15:0] random_fetch_result = 0;
     wire branch_accept;
-    wire load_ipr = branch_accept; 
-    wire hold_ipr = random_fetch_cycle1;
+    wire load_ipr = code_ready && branch_accept; 
+    wire hold_ipr = random_fetch_cycle1 || ! code_ready;
     assign code_addr = random_fetch_cycle1 ? random_fetch_addr : ipr;
     wire[IPR_TOP:0] next_code_addr = ipr + {{IPR_TOP{1'b0}}, 1'd1};   
     always @(posedge sysreset or posedge sysclk) begin
@@ -127,7 +127,7 @@ module synapse316 #(
                 
             const16cycle1 <= muxa_source_imm16;
             branching_cycle <= br_operator || bn_operator || return_operator; // branching_cycle activates after every branch instruction, regardless of branch_accept, because in either case exr has been loaded with the branch target, not an opcode.
-            random_fetch_cycle1 <= random_fetch_operator;
+            random_fetch_cycle1 <= random_fetch_operator || (random_fetch_cycle1 && ! code_ready); // repeat this cycle if the code memory wasn't ready.
             random_fetch_cycle2 <= random_fetch_cycle1 && const16cycle1;
         end
     end    
