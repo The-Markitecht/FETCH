@@ -49,6 +49,9 @@ set ::flagsrc_shift 0
 
 set ::labels [dict create]
 
+# #########################################################################
+# assembler functions.
+
 proc src {src_name} {
     return [dict get $::asrc $src_name]
 }
@@ -57,145 +60,14 @@ proc dest {dest_name} {
     return [dict get $::adest $dest_name]
 }
 
-# common register aliases.
-proc alias_both {name addr} {
-    dict set ::asrc $name $addr
-    dict set ::adest $name $addr
+proc flag {flag_name} {
+    return [dict get $::flagsrc $flag_name]
 }
-alias_both a 0
-alias_both b 1
-alias_both i 2
-alias_both j 3
-alias_both x 4
-alias_both y 5
-alias_both g6  6
-alias_both g7  7
-alias_both g8  8
-alias_both g9  9
-alias_both g10 10
-alias_both g11 11
-alias_both g12 12
-alias_both g13 13
-alias_both g14 14
-alias_both g15 15
-dict set ::asrc a+b [src ad0]
-dict set ::asrc i+j [src ad1]
-dict set ::asrc x+y [src ad2]
-dict set ::asrc and [src and0]
-dict set ::asrc or  [src or0]
-dict set ::asrc xor [src xor0]
-dict set ::asrc a>>1 [src sh1r0]
-dict set ::asrc a<<1 [src sh1l0]
-dict set ::asrc a<<4 [src sh4l0]
-dict set ::asrc a>>4 [src sh4r0]
-dict set ::flagsrc c [dict get $::flagsrc ad0c]
-dict set ::flagsrc z [dict get $::flagsrc ad0z]
-dict set ::flagsrc 1z [dict get $::flagsrc ad1z]
-dict set ::flagsrc 2z [dict get $::flagsrc ad2z]
 
-# #########################################################################
-# application-specific register aliases.    
-dict set ::adest atx_data 0x8
-dict set ::adest atx_load 0x9
-
-dict set ::asrc  atx_busy [dict get $::asrc in0]
-
-dict set ::adest leds 0xa
-
-# #########################################################################
-# assembly source code.    
-set ::asmcode {
-    // write some data on the UART.    
-
-    leds = 0b00000001 
-    atx_load = 0 
+proc parse_assignment {dest eq src} {
+    # parse and return list of opcodes from a phrase of 3 tokens of text.  this includes assignments and branches.
+    # this list will be more than one ROM word if e.g. a 16-bit immediate constant or a branch target is found.
     
-    // using x as pass counter.  shows on LEDs.
-    x = 0xff00
-    y = -1
-
-    // using i as index into string.
-    i = 0
-    
-    // cache the string limit.
-    a = 5
-    b = 0xffff
-    nop = nop
-    g6 = xor
-    
-:again
-    x = x+y
-    nop = nop
-    a = x
-    a = a>>4    
-    leds = a>>4
-
-    // fetch a word from test pattern to the UART.  its low byte is a character.
-    j = :test_pattern
-    nop = nop
-    fetcha = i+j
-    g7 = fetchd
-    call :putchar
-
-    // increment index & wrap around end of pattern.
-    j = 1
-    nop = nop
-    i = i+j
-    j = g6
-    nop = nop
-    bn 1z :no_wrap
-    i = 0
-:no_wrap
-    
-    // repeat forever.
-    br always :again        
-
-    
-// routine sends out the low byte from g7 to the UART.  blocks until the UART accepts the byte.
-:putchar    
-
-    // wait for UART to be idle (not busy).
-    a = 1
-:wait_for_idle
-    b = atx_busy
-    nop = nop
-    bn and0z :wait_for_idle
-    
-    // push word to the UART.  its low byte is a character.
-    atx_data = g7
-        
-    // can't use the actual register load strobe that occurs here, because it's 
-    // much too fast for the UART to sample.
-    // instead use a dedicated output word atx_load.
-    atx_load = 1
-    
-    // wait until UART is busy, as acknowledgement.
-    a = 1
-:wait_for_busy    
-    b = atx_busy
-    leds = 0b00000100 
-    br and0z :wait_for_busy
-
-    atx_load = 0 
-    return
-    
-    
-:test_pattern
-    0x55
-    0xaa
-    0b01000001
-    66
-    0x0d
-    0x0a   
-    
-:msg
-    "testes, testes,\n\t 1...\n\t 2...\n\t 3?? \n\x00"
-}    
-
-# #########################################################################
-# assembler functions.
-
-proc parse {dest eq src} {
     set dest [string tolower $dest]
     set src [string tolower $src]
     set opcodes [list]
@@ -205,19 +77,19 @@ proc parse {dest eq src} {
             # source is named.
             lappend opcodes [pack [dest $dest] [src $src]]
         } elseif {[string equal -length 1 $src {:}]} {
-            # resolve label as 16-bit immediate, stored in the next program word.
+            # resolve label as 16-bit immediate, stored in the next ROM word.
             lappend opcodes [pack [dest $dest] [src _imm16_]]
             lappend opcodes [get_label $src]
         } elseif {[string is integer -strict $src]} {
             # source is immediate value in hex 0x, binary 0b, or decimal (no prefix)
             if {$src > $::small_const_max} {
-                # 16-bit immediate, stored in the next program word.
+                # 16-bit immediate, stored in the next ROM word.
                 lappend opcodes [pack [dest $dest] [src _imm16_]]
                 lappend opcodes $src
             } elseif {$src < 0} {
                 error "constant out of range: $dest $eq $src"
             } else {
-                # 8-bit immediate, stored in the same program word.
+                # 8-bit immediate, stored in the same ROM word.
                 lappend opcodes [expr ([dest $dest] << $::dest_shift) | $::small_const_opcode | ($src << $::small_const_shift)]
             }
         } else {
@@ -239,7 +111,17 @@ proc parse {dest eq src} {
     return $opcodes
 }
     
-proc emitline {lin} {
+proc parse3 {dest eq src lin} {
+    # parse and emit the given source line, containing the given
+    # 3 tokens of text.  this includes assignments and branches.
+    set opcodes [parse_assignment $dest $eq $src]
+    foreach op $opcodes {
+        emit_word $op $lin
+    }
+}  
+    
+proc parse_line {lin} {
+    # parse a whole line of assembler file as input.  emit any resulting bytes into the ROM file.
     set lin [string trim $lin]
     console $lin
     if {[string length $lin] == 0} return
@@ -248,7 +130,7 @@ proc emitline {lin} {
         emit $lin
     } elseif {[string is integer -strict $lin]} {
         # 16-bit constant in hex 0x, binary 0b, or decimal (no prefix) on a line by itself.
-        emitword $lin $lin ;# simply insert it into the ROM as-is.
+        emit_word $lin $lin ;# simply insert it into the ROM as-is.
     } elseif {[string equal -length 1 $lin \" ]} {
         # string constant line
         if { ! [string equal [string index $lin end] \" ]} {
@@ -265,49 +147,49 @@ proc emitline {lin} {
             set echo {} ;# eliminate newlines, tabs, etc from the echo.
             if {[string is print $hi_char]} {append echo $hi_char} else {append echo { }}
             if {[string is print $lo_char]} {append echo $lo_char} else {append echo { }}
-            emitword $w $echo
+            emit_word $w $echo
         }
     } elseif {[string equal -length 1 $lin {:}]} {
         # label line
         dict set ::labels [string trim $lin {:}] $::ipr
         emit "// $lin // = 0x[format %02x $::ipr]"
     } else {
-        set words [regexp -all -inline -nocase {\S+} $lin]
-        set cmd "asm_[lindex $words 0]"
-        if {[llength $words] == 3} {
-            # parse a 3-word line.  this includes assignments and branches.
-            set opcodes [parse [lindex $words 0] [lindex $words 1] [lindex $words 2]]
-            foreach op $opcodes {
-                emitword $op $lin
-            }
-        } elseif {[llength [info commands $cmd]] > 0} {
+        set tokens [regexp -all -inline -nocase {\S+} $lin]
+        set cmd "asm_[lindex $tokens 0]"
+        if {[llength [info commands $cmd]] > 0} {
             # run tcl command, like a super-powered macro.  insert the whole source line as the first argument.
-            eval $cmd [list $lin] [lrange $words 1 end]
+            eval $cmd [list $lin] [lrange $tokens 1 end]
+        } elseif {[llength $tokens] == 3} {
+            parse3 [lindex $tokens 0] [lindex $tokens 1] [lindex $tokens 2] $lin
         } else {
             error "syntax error: $lin"
         }    
     }
 }
 
-proc emitword {w comment} {
+proc emit_word {w comment} {
+    # emit the given 16-bit integer into the ROM, with the given comment.
     console "    [format %02x $::ipr] : [format %04x $w] // $comment"
     emit "addr == 8'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // $comment"
     incr ::ipr
 }
 
 proc console {args} {
+    # "puts" given args on the console.
 #    if {$::asm_pass == 1} {
         eval puts $args
 #    }
 }
 
 proc emit {args} {
+    # "puts" given args into the ROM description file.
     if {$::asm_pass == 2} {
         eval puts $::f $args
     }
 }
 
 proc get_label {name} {
+    # translate given label name into its address (a Tcl integer).
     if {$::asm_pass == 1} {
         return 0
     }
@@ -315,40 +197,39 @@ proc get_label {name} {
 }
 
 proc pack {dest_addr src_addr} {
+    # pack the given dest and src into a 16-bit assignment opcode (a Tcl integer).
     return [expr ($src_addr << $::src_shift) | ($dest_addr << $::dest_shift)]
-}
-
-# #########################################################################
-# macro functions for calling in assembly source code.
-
-proc asm_call {lin label} {
-    emitword [pack [dest rtna] [src _imm16_]] $lin
-    emitword [get_label $label] $lin
-    emitword [pack [dest swapra] [src nop]] $lin
-}
-
-proc asm_return {lin} {
-    emitword [pack [dest swapra] [src nop]] $lin
 }
 
 # #########################################################################
 # main script
 
+source system_macros.tcl
+source program_macros.tcl
+
+set f [open program.asm r]
+set asm_lines [split [read $f] \n]
+close $f
+
 #proc report args {puts [info level 0]}
 #trace add execution parse enterstep report
+
+#patch: show line numbers in all error messages.  make it a global.
+#no, better: use a global catch.  so all Tcl errors also show line number.
+# or, just output the line number before echoing each line on console??
 
 # first pass is only to compute label addresses, and print the echo text to console.
 set ::asm_pass 1
 set ::ipr 0
-foreach lin [split $::asmcode \n] {
-    emitline $lin
+foreach lin $asm_lines {
+    parse_line $lin
 }
 
 # second pass is to utilize real label addresses, and write the ROM file.
 set ::asm_pass 2 
 set ::ipr 0
 console {####################   SECOND PASS   ####################}
-set ::f [open ../source/program.v w]
+set ::f [open program.v w]
 puts $::f {
     `timescale 1 ns / 1 ns
 
@@ -360,8 +241,8 @@ puts $::f {
 }
 
 set ::ipr 0
-foreach lin [split $::asmcode \n] {
-    emitline $lin
+foreach lin $asm_lines {
+    parse_line $lin
 }
 
 puts $::f {        
