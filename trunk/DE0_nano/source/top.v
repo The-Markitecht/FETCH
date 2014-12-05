@@ -109,23 +109,27 @@ async_pll async_pll_inst (
 );
 
 // Synapse 316 with code ROM.
-wire[15:0] code_addr;
-wire[15:0] code_fetched;
-wire[REGS_FLAT_WIDTH-1:0]     r_flat;
-wire[TOP_REG:0] r_load;
+wire[15:0]                 rom_code_in;
+wire                       rom_code_ready;
+wire[15:0]                 tg_code_addr;
+wire[15:0]                 tg_code_in;
+wire                       tg_code_ready;
+wire[REGS_FLAT_WIDTH-1:0]  tg_r_flat;
+wire[TOP_REG:0]            tg_r_load;
 wire[DATA_INPUT_FLAT_WIDTH-1:0]   data_in_flat;
-coderom rom(
+wire                       tg_reset;
+program rom(
     .addr(code_addr),
     .data(code_fetched)
 );
 synapse316 mcu(
     .sysclk          (clk50m      ) ,
-    .sysreset        (1'b0    ) ,
-    .code_addr       (code_addr   ) ,
-    .code_in         (code_fetched) ,
-    .code_ready      (1'b1  ) ,
-    .r_flat          (r_flat),
-    .r_load          (r_load),
+    .sysreset        (tg_reset    ) ,
+    .code_addr       (tg_code_addr   ) ,
+    .code_in         (tg_code_in) ,
+    .code_ready      (tg_code_ready  ) ,
+    .r_flat          (tg_r_flat),
+    .r_load          (tg_r_load),
     .data_in_flat    (data_in_flat)
 );    
 genvar i;
@@ -141,7 +145,25 @@ generate
     end  
 endgenerate     
 
-assign LED[7:0] = regs[10].r[7:0];
+// debugging supervisor.
+visor vis(
+    ,sysclk          (clk50m)
+    ,sysreset        (1'b0)
+                     
+    ,led             (LED)
+                     
+    ,rom_code_in     (rom_code_in   )
+    ,rom_code_ready  (rom_code_ready)
+                                          
+    ,tg_code_addr    (tg_code_addr  )
+    ,tg_code_in      (tg_code_in    )
+    ,tg_code_ready   (tg_code_ready )
+    ,tg_r_flat       (tg_r_flat     )
+    ,tg_r_load       (tg_r_load     )
+    ,tg_reset        (tg_reset      )
+);
+
+
 
 // UART
 wire txbsy; // this wire was ineffective in fixing ambiguous muxa_comb.

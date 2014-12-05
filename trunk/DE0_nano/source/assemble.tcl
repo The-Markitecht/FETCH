@@ -239,7 +239,7 @@ set ::f [open $::rom_fn w]
 puts $::f {
     `timescale 1 ns / 1 ns
 
-    module coderom (
+    module [file rootname [file tail $src_fn]] (
         input[15:0] addr
         ,output[15:0] data
     );
