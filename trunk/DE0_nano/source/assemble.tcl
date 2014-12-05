@@ -123,7 +123,7 @@ proc parse3 {dest eq src lin} {
 proc parse_line {lin} {
     # parse a whole line of assembler file as input.  emit any resulting bytes into the ROM file.
     set lin [string trim $lin]
-    console $lin
+    console "<[format %04d ${::lnum}]> $lin"
     if {[string length $lin] == 0} return
     if {[string equal -length 2 $lin {//}]} {
         # comment line
@@ -169,8 +169,8 @@ proc parse_line {lin} {
 
 proc emit_word {w comment} {
     # emit the given 16-bit integer into the ROM, with the given comment.
-    console "    [format %02x $::ipr] : [format %04x $w] // $comment"
-    emit "addr == 8'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // $comment"
+    console "    0x[format %04x $::ipr] : [format %04x $w] // <[format %04d ${::lnum}]> $comment"
+    emit "addr == 8'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // <[format %04d ${::lnum}]> $comment"
     incr ::ipr
 }
 
@@ -202,12 +202,17 @@ proc pack {dest_addr src_addr} {
 }
 
 # #########################################################################
-# main script
+# main script.
+
+set ::src_fn [lindex $argv end-1]
+set ::rom_fn [lindex $argv end]
+puts "Assembling: $::src_fn"
+puts "        To: $::rom_fn"
 
 source system_macros.tcl
 source program_macros.tcl
 
-set f [open program.asm r]
+set f [open $::src_fn r]
 set asm_lines [split [read $f] \n]
 close $f
 
@@ -221,15 +226,16 @@ close $f
 # first pass is only to compute label addresses, and print the echo text to console.
 set ::asm_pass 1
 set ::ipr 0
+set ::lnum 0
 foreach lin $asm_lines {
+    incr ::lnum
     parse_line $lin
 }
 
 # second pass is to utilize real label addresses, and write the ROM file.
 set ::asm_pass 2 
-set ::ipr 0
 console {####################   SECOND PASS   ####################}
-set ::f [open program.v w]
+set ::f [open $::rom_fn w]
 puts $::f {
     `timescale 1 ns / 1 ns
 
@@ -241,7 +247,9 @@ puts $::f {
 }
 
 set ::ipr 0
+set ::lnum 0
 foreach lin $asm_lines {
+    incr ::lnum
     parse_line $lin
 }
 
