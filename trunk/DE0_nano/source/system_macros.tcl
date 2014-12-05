@@ -48,18 +48,22 @@ asm_alias_flag {} 2z [flag ad2z]
 
 # subroutine macros.
 proc asm_call {lin label} {
-    emitword [pack [dest rtna] [src _imm16_]] $lin
-    emitword [get_label $label] $lin
-    emitword [pack [dest swapra] [src nop]] $lin
+    emit_word [pack [dest rtna] [src _imm16_]] $lin
+    emit_word [get_label $label] $lin
+    emit_word [pack [dest swapra] [src nop]] $lin
 }
 
 proc asm_return {lin} {
-    emitword [pack [dest swapra] [src nop]] $lin
+    emit_word [pack [dest swapra] [src nop]] $lin
 }
 
 # branching macros.
 proc asm_jmp {lin label} {
     parse3 br always $label $lin
+}
+
+proc asm_nop {lin} {
+    parse3 nop = nop $lin
 }
 
 # data handling macros.

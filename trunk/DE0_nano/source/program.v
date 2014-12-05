@@ -7,7 +7,11 @@
     );
         assign data = 
 
-// write some data on the UART.
+// #########################################################################
+// assembly source code.
+// to write some data on the UART.
+// application-specific register aliases.
+// :begin // = 0x00
 addr == 8'h00 ? 16'h2a01 :  // leds = 0b00000001
 addr == 8'h01 ? 16'h2600 :  // atx_load = 0
 // using x as pass counter.  shows on LEDs.
@@ -20,29 +24,29 @@ addr == 8'h05 ? 16'h0a00 :  // i = 0
 addr == 8'h06 ? 16'h0205 :  // a = 5
 addr == 8'h07 ? 16'h07a0 :  // b = 0xffff
 addr == 8'h08 ? 16'hffff :  // b = 0xffff
-addr == 8'h09 ? 16'hc800 :  // nop = nop
+addr == 8'h09 ? 16'hc800 :  // nop
 addr == 8'h0a ? 16'h1b38 :  // g6 = xor
 // :again // = 0x0b
 addr == 8'h0b ? 16'h1320 :  // x = x+y
-addr == 8'h0c ? 16'hc800 :  // nop = nop
+addr == 8'h0c ? 16'hc800 :  // nop
 addr == 8'h0d ? 16'h0004 :  // a = x
 addr == 8'h0e ? 16'h0353 :  // a = a>>4
 addr == 8'h0f ? 16'h2b53 :  // leds = a>>4
 // fetch a word from test pattern to the UART.  its low byte is a character.
 addr == 8'h10 ? 16'h0fa0 :  // j = :test_pattern
 addr == 8'h11 ? 16'h0030 :  // j = :test_pattern
-addr == 8'h12 ? 16'hc800 :  // nop = nop
-addr == 8'h13 ? 16'hd310 :  // fetcha = i+j
-addr == 8'h14 ? 16'h1fb0 :  // g7 = fetchd
+addr == 8'h12 ? 16'hc800 :  // nop
+addr == 8'h13 ? 16'hd310 :  // fetch g7 = i+j
+addr == 8'h14 ? 16'h1fb0 :  // fetch g7 = i+j
 addr == 8'h15 ? 16'hbfa0 :  // call :putchar
 addr == 8'h16 ? 16'h0022 :  // call :putchar
 addr == 8'h17 ? 16'hfc00 :  // call :putchar
 // increment index & wrap around end of pattern.
 addr == 8'h18 ? 16'h0e01 :  // j = 1
-addr == 8'h19 ? 16'hc800 :  // nop = nop
+addr == 8'h19 ? 16'hc800 :  // nop
 addr == 8'h1a ? 16'h0b10 :  // i = i+j
 addr == 8'h1b ? 16'h0c06 :  // j = g6
-addr == 8'h1c ? 16'hc800 :  // nop = nop
+addr == 8'h1c ? 16'hc800 :  // nop
 addr == 8'h1d ? 16'he401 :  // bn 1z :no_wrap
 addr == 8'h1e ? 16'h0020 :  // bn 1z :no_wrap
 addr == 8'h1f ? 16'h0a00 :  // i = 0
@@ -56,7 +60,7 @@ addr == 8'h21 ? 16'h000b :  // br always :again
 addr == 8'h22 ? 16'h0201 :  // a = 1
 // :wait_for_idle // = 0x23
 addr == 8'h23 ? 16'h0440 :  // b = atx_busy
-addr == 8'h24 ? 16'hc800 :  // nop = nop
+addr == 8'h24 ? 16'hc800 :  // nop
 addr == 8'h25 ? 16'he402 :  // bn and0z :wait_for_idle
 addr == 8'h26 ? 16'h0023 :  // bn and0z :wait_for_idle
 // push word to the UART.  its low byte is a character.

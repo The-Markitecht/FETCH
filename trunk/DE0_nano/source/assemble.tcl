@@ -155,10 +155,10 @@ proc parse_line {lin} {
         emit "// $lin // = 0x[format %02x $::ipr]"
     } else {
         set tokens [regexp -all -inline -nocase {\S+} $lin]
-        set cmd "asm_[lindex $tokens 0]"
-        if {[llength [info commands $cmd]] > 0} {
+        set cmd [lindex $tokens 0]
+        if {[llength [info commands "asm_$cmd"]] > 0} {
             # run tcl command, like a super-powered macro.  insert the whole source line as the first argument.
-            eval $cmd [list $lin] [lrange $tokens 1 end]
+            eval "asm_$cmd {$lin} [string range $lin [string length $cmd] end]"
         } elseif {[llength $tokens] == 3} {
             parse3 [lindex $tokens 0] [lindex $tokens 1] [lindex $tokens 2] $lin
         } else {
