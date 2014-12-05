@@ -1,87 +1,43 @@
 [*]
 [*] GTKWave Analyzer v3.3.48 (w)1999-2013 BSI
-[*] Tue Dec 02 07:51:04 2014
+[*] Fri Dec 05 04:57:25 2014
 [*]
 [dumpfile] "J:\personal\2014\camaro_ecm\trunk\DE0_nano\icarus\testbench.vcd"
-[dumpfile_mtime] "Tue Dec 02 07:44:15 2014"
-[dumpfile_size] 70349
+[dumpfile_mtime] "Fri Dec 05 04:53:08 2014"
+[dumpfile_size] 539887
 [savefile] "J:\personal\2014\camaro_ecm\trunk\DE0_nano\icarus\settings.GTKWave"
-[timestart] 43474
+[timestart] 3910
 [size] 1812 1061
 [pos] -1 -1
-*-10.876817 45500 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-10.876817 7500 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] testbench.
 [sst_width] 197
-[signals_width] 230
+[signals_width] 247
 [sst_expanded] 1
 [sst_vpaned_height] 315
+@28
+testbench.mcu.sysreset
+testbench.mcu.sysclk
 @22
-testbench.chip.next_code_addr[15:0]
-testbench.chip.ipr[15:0]
 testbench.code_addr[15:0]
 testbench.code_in[15:0]
+@28
+testbench.mcu.code_ready
 @23
-testbench.chip.exr[15:0]
+[color] 3
+testbench.mcu.exr[15:0]
 @28
-testbench.chip.enable_exec
-testbench.chip.muxa_do_copy
-testbench.chip.const16cycle1
-testbench.chip.random_fetch_cycle1
-testbench.chip.random_fetch_cycle2
-testbench.chip.load_ipr
+testbench.mcu.enable_exec
+testbench.mcu.const16cycle1
+testbench.mcu.branching_cycle
+testbench.mcu.random_fetch_cycle1
+testbench.mcu.random_fetch_cycle2
+testbench.mcu.load_exr
 @22
 [color] 2
-testbench.chip.return_addr[15:0]
-@28
-testbench.chip.muxa_source_imm16
-[color] 2
-testbench.chip.muxa_dest_return_addr
-[color] 2
-testbench.chip.return_operator
-@22
-testbench.chip.random_fetch_addr[15:0]
-testbench.chip.random_fetch_result[15:0]
-@28
-testbench.chip.random_fetch_operator
-testbench.chip.branching_cycle
-testbench.chip.selected_flag
-testbench.chip.branch_accept
-testbench.chip.flags[15:0]
-testbench.chip.ad0_carry_flag
-@22
-testbench.chip.ad0[15:0]
-testbench.chip.ad0_comb[16:0]
-testbench.chip.small_constant[15:0]
-testbench.chip.muxa_src_addr[9:0]
-[color] 2
-testbench.chip.muxa_comb[15:0]
-testbench.chip.muxa_dest_addr[5:0]
 +{r10} testbench.regs[10].r[15:0]
-@c00028
-testbench.chip.r_load[15:0]
-@28
-(0)testbench.chip.r_load[15:0]
-(1)testbench.chip.r_load[15:0]
-(2)testbench.chip.r_load[15:0]
-(3)testbench.chip.r_load[15:0]
-(4)testbench.chip.r_load[15:0]
-(5)testbench.chip.r_load[15:0]
-(6)testbench.chip.r_load[15:0]
-(7)testbench.chip.r_load[15:0]
-(8)testbench.chip.r_load[15:0]
-(9)testbench.chip.r_load[15:0]
-(10)testbench.chip.r_load[15:0]
-(11)testbench.chip.r_load[15:0]
-(12)testbench.chip.r_load[15:0]
-(13)testbench.chip.r_load[15:0]
-(14)testbench.chip.r_load[15:0]
-(15)testbench.chip.r_load[15:0]
-@1401200
--group_end
-@22
 +{x} testbench.regs[4].r[15:0]
 +{y} testbench.regs[5].r[15:0]
-testbench.chip.ad2[15:0]
 +{a} testbench.regs[0].r[15:0]
 +{b} testbench.regs[1].r[15:0]
 @200

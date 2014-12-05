@@ -34,9 +34,7 @@ module synapse316 #(
 
     ,output[IPR_TOP:0]           code_addr         
     ,input[15:0]                 code_in     
-    ,input                       code_ready // NOT TESTED IN THIS VERSION.  without this signal,
-    // code memory MUST settle code_in in less than 1 sysclk period after each sysclk posedge,
-    // even when code_addr has changed at random each sysclk cycle.
+    ,input                       code_ready
 
     // i/o ports can run as a 2-dimensional in Quartus.  but that's a syntax error in Icarus, regardless of options.
     // so here it's flattened to 1 dimension.
@@ -66,6 +64,7 @@ module synapse316 #(
     wire[9:0] muxa_src_addr = exr[9:0];
     wire[15:0] small_constant = {8'h0, exr[7:0]};
     wire[3:0] selected_flag_addr = muxa_src_addr[3:0];
+    //reg code_ready_cycle = 1'b0;
     reg branching_cycle = 1'b0; // exr contains the wrong opcode on this cycle.  skip it.
     reg const16cycle1 = 1'b0; // exr registering inline data from program space on this cycle.  skip it.
     reg random_fetch_cycle1 = 1'b0; // exr stalled while code memory fetches data with random access.  hold exr's opcode until the next cycle for execution.  then the code memory is ready to replenish exr again.
@@ -97,6 +96,7 @@ module synapse316 #(
         if (sysreset) begin
             ipr <= 0;
             exr <= 0;
+            //code_ready_cycle <= 0;
             const16cycle1 <= 0;
             branching_cycle <= 0;
             random_fetch_cycle1 <= 0;
@@ -125,10 +125,11 @@ module synapse316 #(
             if (random_fetch_operator)
                 random_fetch_addr <= muxa_comb;
                 
-            const16cycle1 <= muxa_source_imm16;
-            branching_cycle <= br_operator || bn_operator || return_operator; // branching_cycle activates after every branch instruction, regardless of branch_accept, because in either case exr has been loaded with the branch target, not an opcode.
+            const16cycle1 <= muxa_source_imm16 || (const16cycle1 && ! code_ready); // repeat the const16cycle1 as long as not code_ready.
+            branching_cycle <= br_operator || bn_operator || return_operator || (branching_cycle && ! code_ready); // branching_cycle activates after every branch instruction, regardless of branch_accept, because in either case exr has been loaded with the branch target, not an opcode.
             random_fetch_cycle1 <= random_fetch_operator || (random_fetch_cycle1 && ! code_ready); // repeat this cycle if the code memory wasn't ready.
             random_fetch_cycle2 <= random_fetch_cycle1 && const16cycle1;
+            //code_ready_cycle <= code_ready;
         end
     end    
     

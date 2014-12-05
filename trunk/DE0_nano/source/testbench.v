@@ -11,22 +11,24 @@ module testbench #(
     parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16
 ) ();
 
-wire[15:0] code_addr, code_in, code_fetched;
+wire[15:0] code_addr, code_fetched;
+reg[15:0] code_in;
 wire[REGS_FLAT_WIDTH-1:0]     r_flat;
 wire[TOP_REG:0] r_load;
 wire[DATA_INPUT_FLAT_WIDTH-1:0]   data_in_flat;
 wire async_out;
 //wire[15:0] code[90:0];
-reg code_ready = 1;
+reg[7:0] code_ready_cnt = 0;
+wire code_ready = code_ready_cnt != 0;
 reg sysreset = 0;
 reg clk50m = 0;
 reg clk_async = 0;
+
 coderom rom(
     .addr(code_addr),
     .data(code_fetched)
 );
-assign #300 code_in = code_fetched;
-synapse316 chip(
+synapse316 mcu(
     .sysclk          (clk50m      ) ,
     .sysreset        (sysreset    ) ,
     .code_addr       (code_addr   ) ,
@@ -48,6 +50,7 @@ generate
         assign data_in_flat[i*16+15:i*16] = d;
     end  
 endgenerate     
+
 // UART
 wire txbsy; // this wire was ineffective in fixing ambiguous muxa_comb.
 uart_v2_tx utx (
@@ -59,17 +62,38 @@ uart_v2_tx utx (
 );    
 assign data_in[0].d = {15'd0, txbsy};
 
+integer serial_file; 
+integer trace_file; 
+integer trace_compare_file;
 initial	begin
     $dumpfile("testbench.vcd");
     $dumpvars;
+
+    serial_file = $fopen("serial.txt");
+    $fdisplay(serial_file, "\n\n================= POWER UP ================");
+    trace_file = $fopen("trace.txt");
+    $fdisplay(trace_file, "\n\n================= POWER UP ================");
+    trace_compare_file = $fopen("trace_compare.txt", "r");
+
     #3000 sysreset = 1;
     #2000 sysreset = 0;
-    #100000 $finish;
+    #1000000 $finish;
 end
+
+// `define assert(condition, message) if(condition) begin $diplay(message); $finish(1); end
 
 always begin
     // run at 1 MHz for easy viewing.
-    #500 clk50m = ! clk50m;
+    #500 clk50m = 1;
+        
+    #300
+    if (code_ready_cnt == 0)
+        code_ready_cnt = 1;
+    else
+        code_ready_cnt = code_ready_cnt - 1;
+    code_in = code_ready ? code_fetched : 16'hffff;
+        
+    #200 clk50m = 0;    
 end
    
 always begin
@@ -77,5 +101,30 @@ always begin
     #1085 clk_async = ! clk_async;
 end
 
+always @(posedge clk_async) begin
+    // write output and check for trouble.
+    
+    if ( utx.load_data && ! txbsy )
+        $fwrite(serial_file, "%c", utx.parallel_in);   
+end
+
+reg[15:0] compare_addr, compare_exr;
+integer junk;
+always @(posedge clk50m) begin
+    // write output and check for trouble.
+    
+    if ( mcu.enable_exec ) begin
+        // this is an executing instruction cycle.  trace it.    
+        if (mcu.code_addr != 0)
+            junk = $fscanf(trace_compare_file, "%x : %x\n", compare_addr, compare_exr); 
+        $fwrite(trace_file, "%04x : %04x     vs. %04x : %04x\n", mcu.code_addr, mcu.exr, compare_addr, compare_exr);   
+        if (mcu.code_addr != 0) begin
+            if( mcu.exr == 16'hffff ) 
+                $fwrite(trace_file, "       ^^^^ ERROR INVALID INSTRUCTION\n");   
+            if (mcu.code_addr != compare_addr || mcu.exr != compare_exr)
+                $fwrite(trace_file, "       ^^^^ ERROR TRACE MISMATCH\n");   
+        end
+    end
+end
     
 endmodule    
