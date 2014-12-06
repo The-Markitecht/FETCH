@@ -27,7 +27,9 @@ module synapse316 #(
     parameter REGS_FLAT_WIDTH = NUM_REGS * 16,
     parameter NUM_DATA_INPUTS = 16,
     parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
-    parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16
+    parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16,
+    parameter DEBUG_IN_WIDTH = 1,
+    parameter DEBUG_OUT_WIDTH = 6
 ) (
      input                       sysclk            
     ,input                       sysreset          
@@ -36,6 +38,10 @@ module synapse316 #(
     ,input[15:0]                 code_in     
     ,input                       code_ready
 
+    // signals for use only by a debugging supervisor.
+    ,input[DEBUG_IN_WIDTH-1:0]   debug_in // connect to 0 if supervisor not present.
+    ,output[DEBUG_OUT_WIDTH-1:0] debug_out // do not connect if supervisor not present.
+    
     // i/o ports can run as a 2-dimensional in Quartus.  but that's a syntax error in Icarus, regardless of options.
     // so here it's flattened to 1 dimension.
     ,output[REGS_FLAT_WIDTH-1:0] r_flat
@@ -59,6 +65,9 @@ module synapse316 #(
     // implement multi-word add/subtract by copying the carry out flag to the carry in flag, between word adds.
     // that way i don't set/clr carry before EVERY operation.  and all tricky flag logic goes away.
     
+    // debugger input flattener.
+    wire debug_hold = debug_in[0];
+    
     // instruction decoder.
     wire[5:0] muxa_dest_addr = exr[15:10];
     wire[9:0] muxa_src_addr = exr[9:0];
@@ -70,7 +79,8 @@ module synapse316 #(
     reg random_fetch_cycle1 = 1'b0; // exr stalled while code memory fetches data with random access.  hold exr's opcode until the next cycle for execution.  then the code memory is ready to replenish exr again.
     reg random_fetch_cycle2 = 1'b0; // exr stalled for 1 extra cycle after random_fetch_cycle1 coincided with const16cycle1, as often happens.  then exr contains the constant fetched during the const16cycle1, not a valid opcode.
     wire load_exr = code_ready && ! random_fetch_cycle1;
-    wire enable_exec = code_ready && ! (const16cycle1 || branching_cycle || random_fetch_cycle1 || random_fetch_cycle2); 
+    wire enable_exec = code_ready && ! (const16cycle1 || branching_cycle 
+        || random_fetch_cycle1 || random_fetch_cycle2 || debug_hold); 
     wire muxa_do_copy = enable_exec;    
     wire clrf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h30);
     wire setf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h31);
@@ -81,7 +91,7 @@ module synapse316 #(
     wire binary_operator0 = r_load[0] || r_load[1];
     wire muxa_source_imm16 = muxa_do_copy && (muxa_src_addr == 10'h3a0);
     wire muxa_dest_return_addr = muxa_do_copy && (muxa_dest_addr == 6'h2f);
-
+ 
     // instruction pointer, executing instruction register, and more control logic.
     reg[IPR_TOP:0] ipr = 0;
     reg[IPR_TOP:0] return_addr = 0;
@@ -132,6 +142,10 @@ module synapse316 #(
             //code_ready_cycle <= code_ready;
         end
     end    
+    
+    // debugger output flattener.
+    assign debug_out = {branching_cycle, const16cycle1, random_fetch_cycle1, 
+        random_fetch_cycle2, load_exr, enable_exec};
     
     // register file r.  for operands, and general use.
     // registers r0 and r1 are the operands for ad0 and certain other binary operators.

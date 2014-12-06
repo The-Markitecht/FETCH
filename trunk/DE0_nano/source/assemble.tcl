@@ -236,15 +236,15 @@ foreach lin $asm_lines {
 set ::asm_pass 2 
 console {####################   SECOND PASS   ####################}
 set ::f [open $::rom_fn w]
-puts $::f {
+puts $::f "
     `timescale 1 ns / 1 ns
 
     module [file rootname [file tail $src_fn]] (
-        input[15:0] addr
-        ,output[15:0] data
+        input\[15:0\] addr
+        ,output\[15:0\] data
     );
         assign data = 
-}
+"
 
 set ::ipr 0
 set ::lnum 0

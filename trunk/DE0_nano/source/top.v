@@ -6,7 +6,9 @@ module top #(
     parameter REGS_FLAT_WIDTH = NUM_REGS * 16,
     parameter NUM_DATA_INPUTS = 16,
     parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
-    parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16
+    parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16,
+    parameter DEBUG_IN_WIDTH = 1,
+    parameter DEBUG_OUT_WIDTH = 6
 ) (
     //////////// CLOCK //////////
     input 		          		clk50m,
@@ -65,16 +67,6 @@ module top #(
 
 ////////////////////////////////////////////////////////////////////////////
 
-wire[31:0] junk;
-
-// LED counter
-reg[31:0] cnt = 32'd0;
-always @(posedge clk50m) begin
-    cnt <= cnt + 32'd1;    
-end
-//assign LED[7] = cnt[26];
-//assign LED[6] = cnt[25];
-
 // dg408 -  JP3 -   schem -     fpga -  verilog -   nios bit
 // en =2    8       gpio_23     c16     gpio_2[3]   3
 // a2 =15   7       gpio_22     c14     gpio_2[2]   2
@@ -86,6 +78,7 @@ assign GPIO_2[2] = anmux_ctrl[2];
 assign GPIO_2[0] = anmux_ctrl[1];
 assign GPIO_2[1] = anmux_ctrl[0];
 
+//wire[31:0] junk;
 // qsys1 u0 (
     // .clk_clk           (clk50m),          
     // .reset_reset_n  (1'b1),   
@@ -108,28 +101,15 @@ async_pll async_pll_inst (
     .locked (  )
 );
 
-// Synapse 316 with code ROM.
-wire[15:0]                 rom_code_in;
-wire                       rom_code_ready;
-wire[15:0]                 tg_code_addr;
-wire[15:0]                 tg_code_in;
-wire                       tg_code_ready;
-wire[REGS_FLAT_WIDTH-1:0]  tg_r_flat;
-wire[TOP_REG:0]            tg_r_load;
+// MCU target plus debugging supervisor and a code ROM for each.
+wire[REGS_FLAT_WIDTH-1:0]     r_flat;
+wire[TOP_REG:0] r_load;
 wire[DATA_INPUT_FLAT_WIDTH-1:0]   data_in_flat;
-wire                       tg_reset;
-program rom(
-    .addr(code_addr),
-    .data(code_fetched)
-);
-synapse316 mcu(
+supervised_synapse316 mcu(
     .sysclk          (clk50m      ) ,
-    .sysreset        (tg_reset    ) ,
-    .code_addr       (tg_code_addr   ) ,
-    .code_in         (tg_code_in) ,
-    .code_ready      (tg_code_ready  ) ,
-    .r_flat          (tg_r_flat),
-    .r_load          (tg_r_load),
+    .sysreset        (0    ) ,
+    .r_flat          (r_flat),
+    .r_load          (r_load),
     .data_in_flat    (data_in_flat)
 );    
 genvar i;
@@ -144,26 +124,6 @@ generate
         assign data_in_flat[i*16+15:i*16] = d;
     end  
 endgenerate     
-
-// debugging supervisor.
-visor vis(
-    ,sysclk          (clk50m)
-    ,sysreset        (1'b0)
-                     
-    ,led             (LED)
-                     
-    ,rom_code_in     (rom_code_in   )
-    ,rom_code_ready  (rom_code_ready)
-                                          
-    ,tg_code_addr    (tg_code_addr  )
-    ,tg_code_in      (tg_code_in    )
-    ,tg_code_ready   (tg_code_ready )
-    ,tg_r_flat       (tg_r_flat     )
-    ,tg_r_load       (tg_r_load     )
-    ,tg_reset        (tg_reset      )
-);
-
-
 
 // UART
 wire txbsy; // this wire was ineffective in fixing ambiguous muxa_comb.

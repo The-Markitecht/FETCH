@@ -1,7 +1,7 @@
 
     `timescale 1 ns / 1 ns
 
-    module coderom (
+    module visor_program (
         input[15:0] addr
         ,output[15:0] data
     );

@@ -11,11 +11,8 @@ module testbench #(
     parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16
 ) ();
 
-wire[15:0] code_addr, code_fetched;
-reg[15:0] code_in;
-wire[REGS_FLAT_WIDTH-1:0]     r_flat;
-wire[TOP_REG:0] r_load;
-wire[DATA_INPUT_FLAT_WIDTH-1:0]   data_in_flat;
+serious trouble here.  i just lost my means of simulating slow ROMs.
+
 wire async_out;
 //wire[15:0] code[90:0];
 reg[7:0] code_ready_cnt = 0;
@@ -24,16 +21,13 @@ reg sysreset = 0;
 reg clk50m = 0;
 reg clk_async = 0;
 
-coderom rom(
-    .addr(code_addr),
-    .data(code_fetched)
-);
-synapse316 mcu(
+// MCU target plus debugging supervisor and a code ROM for each.
+wire[REGS_FLAT_WIDTH-1:0]     r_flat;
+wire[TOP_REG:0] r_load;
+wire[DATA_INPUT_FLAT_WIDTH-1:0]   data_in_flat;
+supervised_synapse316 mcu(
     .sysclk          (clk50m      ) ,
-    .sysreset        (sysreset    ) ,
-    .code_addr       (code_addr   ) ,
-    .code_in         (code_in     ) ,
-    .code_ready      (code_ready  ) ,
+    .sysreset        (0    ) ,
     .r_flat          (r_flat),
     .r_load          (r_load),
     .data_in_flat    (data_in_flat)

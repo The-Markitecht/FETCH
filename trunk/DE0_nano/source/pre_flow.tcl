@@ -47,7 +47,8 @@ foreach asm_fn [glob -nocomplain *.asm] {
 post_message -type info "Simulating design."
 # -pfileline=1
 shell iverilog -g2005 -gxtypes -o {..\icarus\testbench} \
-    testbench.v  program.v  synapse316.v my_uart_v2.v
+    testbench.v  target_program.v  synapse316.v  visor.v  visor_program.v \
+    supervised_synapse316.v  my_uart_v2.v
 
 cd [file join $::project_dir icarus]
 file delete testbench.vcd
