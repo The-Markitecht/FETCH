@@ -16,13 +16,12 @@ module visor #(
     parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
     parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16,
     parameter DEBUG_IN_WIDTH = 1,
-    parameter DEBUG_OUT_WIDTH = 6
+    parameter DEBUG_OUT_WIDTH = 6,
+    parameter DEBUG_REG_NUM = TOP_REG,
+    parameter DEBUG_DATA_INPUT_NUM = TOP_DATA_INPUT    
 ) (
      input 		          		sysclk
     ,input 		          		sysreset
-    
-    // status LEDs output by the supervisor.
-    ,output[7:0]		         led
     
     // signals from target's code ROM.
     ,input[15:0]                 rom_code_in
@@ -95,30 +94,31 @@ assign data_in[2].d[DEBUG_OUT_WIDTH-1:0] = tg_debug_out;
 assign data_in[3].d = exr_shadow; 
 
 // plumbing of target inputs, visor outputs.
-reg break = 0;
+reg bp_hit = 0;
 assign tg_debug_in = {regs[15].r[0]}; // {debug_hold}
 wire divert_code_bus = regs[15].r[14];
 assign tg_reset =  sysreset || regs[15].r[15];
 assign tg_from_visor_reg = regs[14].r;
 assign tg_code_in = divert_code_bus ? regs[13].r : rom_code_in;
-assign tg_code_ready = divert_code_bus ? regs[15].r[13] : (rom_code_ready && ! break);
+assign tg_code_ready = divert_code_bus ? regs[15].r[13] : (rom_code_ready && ! bp_hit);
 wire[15:0] bp3_addr = regs[12].r;
 wire[15:0] bp2_addr = regs[11].r;
 wire[15:0] bp1_addr = regs[10].r;
 wire[15:0] bp0_addr = regs[9].r;
-assign led[7:0] = regs[8].r[7:0];
 
 // debugger logic
 always @(posedge sysreset or posedge sysclk) begin
     if (sysreset) begin
         exr_shadow <= 0;
-        break <= 0;
+        bp_hit <= 0;
     end else if (sysclk) begin
         if (tg_loading_exr)
             exr_shadow <= rom_code_in;
-        if (tg_code_addr == bp0_addr || tg_code_addr == bp1_addr || 
+        if (r_load[9] || r_load[10] || r_load[11] || r_load[12])
+            bp_hit <= 0;
+        else if (tg_code_addr == bp0_addr || tg_code_addr == bp1_addr || 
             tg_code_addr == bp2_addr || tg_code_addr == bp3_addr)
-            break <= 1;
+            bp_hit <= 1;
     end
 end    
 

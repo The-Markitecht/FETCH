@@ -170,7 +170,7 @@ proc parse_line {lin} {
 proc emit_word {w comment} {
     # emit the given 16-bit integer into the ROM, with the given comment.
     console "    0x[format %04x $::ipr] : [format %04x $w] // <[format %04d ${::lnum}]> $comment"
-    emit "addr == 8'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // <[format %04d ${::lnum}]> $comment"
+    emit "addr == 16'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // <[format %04d ${::lnum}]> $comment"
     incr ::ipr
 }
 

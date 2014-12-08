@@ -1,3 +1,7 @@
+
+////////////////////////////////////////////////////////////////////////////
+// Synapse316 with attached debugging supervisor.
+
 module supervised_synapse316 #(
     parameter IPR_WIDTH = 16,
     parameter IPR_TOP = IPR_WIDTH - 1,
@@ -8,7 +12,9 @@ module supervised_synapse316 #(
     parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
     parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16,
     parameter DEBUG_IN_WIDTH = 1,
-    parameter DEBUG_OUT_WIDTH = 6
+    parameter DEBUG_OUT_WIDTH = 6,
+    parameter DEBUG_REG_NUM = TOP_REG,
+    parameter DEBUG_DATA_INPUT_NUM = TOP_DATA_INPUT
 ) (
      input                       sysclk            
     ,input                       sysreset          
@@ -18,26 +24,27 @@ module supervised_synapse316 #(
     ,output[REGS_FLAT_WIDTH-1:0] r_flat
     ,output[TOP_REG:0]           r_load
     
-    ,input[DATA_INPUT_FLAT_WIDTH-1:0]  data_in_flat
+    ,input[DEBUG_DATA_INPUT_NUM*16-1:0]  data_in_flat
 ); 
 
-////////////////////////////////////////////////////////////////////////////
-
-// Synapse 316 with code ROM.
+// Synapse316 with code ROM.
 wire[15:0]                 rom_code_in;
-wire                       rom_code_ready;
+wire                       rom_code_ready = 1;
+reg                        rom_wait = 0; // useful for simulation only.
 wire[15:0]                 tg_code_addr;
 wire[15:0]                 tg_code_in;
 wire                       tg_code_ready;
 wire[REGS_FLAT_WIDTH-1:0]  tg_r_flat;
 wire[TOP_REG:0]            tg_r_load;
-wire[DATA_INPUT_FLAT_WIDTH-1:0]   data_in_flat;
 wire                       tg_reset;
 wire[DEBUG_IN_WIDTH-1:0]   tg_debug_in;
 wire[DEBUG_OUT_WIDTH-1:0]  tg_debug_out; 
-program rom(
-    .addr(code_addr),
-    .data(code_fetched)
+wire[15:0]                 tg_from_visor;
+assign r_flat = tg_r_flat;
+assign r_load = tg_r_load;
+target_program rom(
+    .addr(tg_code_addr),
+    .data(rom_code_in)
 );
 synapse316 target(
     .sysclk          (sysclk      ) ,
@@ -47,41 +54,25 @@ synapse316 target(
     .code_ready      (tg_code_ready  ) ,
     .r_flat          (tg_r_flat),
     .r_load          (tg_r_load),
-    .data_in_flat    (data_in_flat),
+    .data_in_flat    ({tg_from_visor, data_in_flat}),
     .debug_out       (tg_debug_out),
     .debug_in        (tg_debug_in)
 );    
-genvar i;
-generate  
-    for (i=0; i < NUM_REGS; i=i+1) begin: regs
-        wire[15:0] r = r_flat[i*16+15:i*16];
-    end  
-endgenerate     
-generate  
-    for (i=0; i < NUM_DATA_INPUTS; i=i+1) begin: data_in
-        wire[15:0] d;
-        assign data_in_flat[i*16+15:i*16] = d;
-    end  
-endgenerate     
 
 // debugging supervisor.
 visor visr(
-    ,sysclk          (clk50m)
-    ,sysreset        (sysreset)
-                     
-    ,led             (LED)
-                     
-    ,rom_code_in     (rom_code_in   )
-    ,rom_code_ready  (rom_code_ready)
-                                          
-    ,tg_code_addr    (tg_code_addr  )
-    ,tg_code_in      (tg_code_in    )
-    ,tg_code_ready   (tg_code_ready )
-    ,tg_r_flat       (tg_r_flat     )
-    ,tg_r_load       (tg_r_load     )
-    ,tg_reset        (tg_reset      )
-    ,tg_to_visor_reg (regs[15].r    )
-    ,tg_from_visor_reg(data_in[15].r)
+     .sysclk          (sysclk)
+    ,.sysreset        (sysreset)
+    ,.rom_code_in     (rom_wait ? 16'hffff : rom_code_in)
+    ,.rom_code_ready  (rom_code_ready && ! rom_wait)
+    ,.tg_code_addr    (tg_code_addr  )
+    ,.tg_code_in      (tg_code_in    )
+    ,.tg_code_ready   (tg_code_ready )
+    ,.tg_debug_in     (tg_debug_in   )
+    ,.tg_debug_out    (tg_debug_out  )
+    ,.tg_reset        (tg_reset      )
+    ,.tg_to_visor_reg (r_flat[DEBUG_REG_NUM*16+15:DEBUG_REG_NUM*16]    )
+    ,.tg_from_visor_reg(tg_from_visor)
 );
 
 endmodule

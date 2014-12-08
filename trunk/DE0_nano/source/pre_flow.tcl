@@ -44,19 +44,22 @@ foreach asm_fn [glob -nocomplain *.asm] {
     shell tclsh85.exe assemble.tcl $asm_fn "[file rootname $asm_fn].v"
 }
 
-post_message -type info "Simulating design."
-# -pfileline=1
-shell iverilog -g2005 -gxtypes -o {..\icarus\testbench} \
-    testbench.v  target_program.v  synapse316.v  visor.v  visor_program.v \
-    supervised_synapse316.v  my_uart_v2.v
+# post_message -type info "Simulating design."
+# # -pfileline=1
+# shell iverilog -g2005 -gxtypes -o {..\icarus\testbench} \
+    # testbench.v  target_program.v  synapse316.v  visor.v  visor_program.v \
+    # supervised_synapse316.v  my_uart_v2.v
 
-cd [file join $::project_dir icarus]
-file delete testbench.vcd
-# -v
-shell vvp testbench
+# cd [file join $::project_dir icarus]
+# file delete testbench.vcd
+# # -v
+# shell vvp testbench
 
 # exec gtkwave testbench.vcd
 # press Ctrl-Shift-R on existing instance instead.
+
+# modelsim:
+# do ../../source/modelsim.tcl
     
 post_message -type info "Pre-flow script done."
 

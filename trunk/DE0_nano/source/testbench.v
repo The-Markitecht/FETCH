@@ -8,15 +8,15 @@ module testbench #(
     parameter REGS_FLAT_WIDTH = NUM_REGS * 16,
     parameter NUM_DATA_INPUTS = 16,
     parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
-    parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16
+    parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16,
+    parameter DEBUG_IN_WIDTH = 1,
+    parameter DEBUG_OUT_WIDTH = 6,
+    parameter DEBUG_REG_NUM = TOP_REG,
+    parameter DEBUG_DATA_INPUT_NUM = TOP_DATA_INPUT
 ) ();
-
-serious trouble here.  i just lost my means of simulating slow ROMs.
 
 wire async_out;
 //wire[15:0] code[90:0];
-reg[7:0] code_ready_cnt = 0;
-wire code_ready = code_ready_cnt != 0;
 reg sysreset = 0;
 reg clk50m = 0;
 reg clk_async = 0;
@@ -24,10 +24,10 @@ reg clk_async = 0;
 // MCU target plus debugging supervisor and a code ROM for each.
 wire[REGS_FLAT_WIDTH-1:0]     r_flat;
 wire[TOP_REG:0] r_load;
-wire[DATA_INPUT_FLAT_WIDTH-1:0]   data_in_flat;
+wire[DEBUG_DATA_INPUT_NUM*16-1:0]   data_in_flat;
 supervised_synapse316 mcu(
     .sysclk          (clk50m      ) ,
-    .sysreset        (0    ) ,
+    .sysreset        (sysreset    ) ,
     .r_flat          (r_flat),
     .r_load          (r_load),
     .data_in_flat    (data_in_flat)
@@ -39,7 +39,7 @@ generate
     end  
 endgenerate     
 generate  
-    for (i=0; i < NUM_DATA_INPUTS; i=i+1) begin: data_in
+    for (i=0; i < DEBUG_DATA_INPUT_NUM; i=i+1) begin: data_in
         wire[15:0] d;
         assign data_in_flat[i*16+15:i*16] = d;
     end  
@@ -76,16 +76,17 @@ end
 
 // `define assert(condition, message) if(condition) begin $diplay(message); $finish(1); end
 
+reg[7:0] code_ready_cnt = 0;
 always begin
     // run at 1 MHz for easy viewing.
     #500 clk50m = 1;
         
     #300
     if (code_ready_cnt == 0)
-        code_ready_cnt = 1;
+        code_ready_cnt = 5;
     else
         code_ready_cnt = code_ready_cnt - 1;
-    code_in = code_ready ? code_fetched : 16'hffff;
+    mcu.rom_wait = code_ready_cnt == 0;
         
     #200 clk50m = 0;    
 end
@@ -107,15 +108,15 @@ integer junk;
 always @(posedge clk50m) begin
     // write output and check for trouble.
     
-    if ( mcu.enable_exec ) begin
+    if ( mcu.target.enable_exec ) begin
         // this is an executing instruction cycle.  trace it.    
-        if (mcu.code_addr != 0)
+        if (mcu.tg_code_addr != 0)
             junk = $fscanf(trace_compare_file, "%x : %x\n", compare_addr, compare_exr); 
-        $fwrite(trace_file, "%04x : %04x     vs. %04x : %04x\n", mcu.code_addr, mcu.exr, compare_addr, compare_exr);   
-        if (mcu.code_addr != 0) begin
-            if( mcu.exr == 16'hffff ) 
+        $fwrite(trace_file, "%04x : %04x     vs. %04x : %04x\n", mcu.tg_code_addr, mcu.target.exr, compare_addr, compare_exr);   
+        if (mcu.tg_code_addr != 0) begin
+            if( mcu.target.exr == 16'hffff ) 
                 $fwrite(trace_file, "       ^^^^ ERROR INVALID INSTRUCTION\n");   
-            if (mcu.code_addr != compare_addr || mcu.exr != compare_exr)
+            if (mcu.tg_code_addr != compare_addr || mcu.target.exr != compare_exr)
                 $fwrite(trace_file, "       ^^^^ ERROR TRACE MISMATCH\n");   
         end
     end

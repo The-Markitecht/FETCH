@@ -8,7 +8,9 @@ module top #(
     parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
     parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16,
     parameter DEBUG_IN_WIDTH = 1,
-    parameter DEBUG_OUT_WIDTH = 6
+    parameter DEBUG_OUT_WIDTH = 6,
+    parameter DEBUG_REG_NUM = TOP_REG,
+    parameter DEBUG_DATA_INPUT_NUM = TOP_DATA_INPUT    
 ) (
     //////////// CLOCK //////////
     input 		          		clk50m,
@@ -104,7 +106,7 @@ async_pll async_pll_inst (
 // MCU target plus debugging supervisor and a code ROM for each.
 wire[REGS_FLAT_WIDTH-1:0]     r_flat;
 wire[TOP_REG:0] r_load;
-wire[DATA_INPUT_FLAT_WIDTH-1:0]   data_in_flat;
+wire[DEBUG_DATA_INPUT_NUM*16-1:0]   data_in_flat;
 supervised_synapse316 mcu(
     .sysclk          (clk50m      ) ,
     .sysreset        (0    ) ,
@@ -119,11 +121,13 @@ generate
     end  
 endgenerate     
 generate  
-    for (i=0; i < NUM_DATA_INPUTS; i=i+1) begin: data_in
+    for (i=0; i < DEBUG_DATA_INPUT_NUM; i=i+1) begin: data_in
         wire[15:0] d;
         assign data_in_flat[i*16+15:i*16] = d;
     end  
 endgenerate     
+
+assign LED = regs[10].r[7:0];
 
 // UART
 wire txbsy; // this wire was ineffective in fixing ambiguous muxa_comb.

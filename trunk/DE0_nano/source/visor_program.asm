@@ -1,93 +1,35 @@
 // #########################################################################
 // assembly source code.    
-// to write some data on the UART.    
+// for debugging supervisor mcu.
 
     // application-specific register aliases.    
-    alias_dest atx_data 0x8
-    alias_dest atx_load 0x9
-    alias_src  atx_busy [src in0]
-    alias_dest leds 0xa    
+    alias_both tg_ctrl 	15
+        // tg_reset 		0x8000
+        // divert_code_bus 	0x4000
+        // tg_code_ready	0x2000
+    alias_both tg_from_visor_reg 14
+    alias_both tg_code_in	13    
+    alias_both bp3_addr	12
+    alias_both bp2_addr	11
+    alias_both bp1_addr	10
+    alias_both bp0_addr	9
+    alias_src  tg_code_addr 0x40
+    alias_src  tg_to_visor_reg 0x41
+    alias_src  tg_debug_out	0x42
+    alias_src  exr_shadow	0x43    
     
-:begin    
-    leds = 0b00000001 
-    atx_load = 0 
+:begin
+    // put target into reset.
+    tg_ctrl = 0x8000
     
-    // using x as pass counter.  shows on LEDs.
-    x = 0xff00
-    y = -1
-
-    // using i as index into string.
-    i = 0
+    // init visor.
+    bp3_addr = 0xffff
+    bp2_addr = 0xffff
+    bp1_addr = 0xffff
+    bp0_addr = 0xffff
     
-    // cache the string limit.
-    a = 5
-    b = 0xffff
-    nop
-    g6 = xor
+    // release target to run.
+    tg_ctrl = 0
     
-:again
-    x = x+y
-    nop 
-    a = x
-    a = a>>4    
-    leds = a>>4
-
-    // fetch a word from test pattern to the UART.  its low byte is a character.
-    j = :test_pattern
-    nop
-    fetch g7 = i+j
-    call :putchar
-
-    // increment index & wrap around end of pattern.
-    j = 1
-    nop
-    i = i+j
-    j = g6
-    nop
-    bn 1z :no_wrap
-    i = 0
-:no_wrap
-    
-    // repeat forever.
-    br always :again        
-
-    
-// routine sends out the low byte from g7 to the UART.  blocks until the UART accepts the byte.
-:putchar    
-
-    // wait for UART to be idle (not busy).
-    a = 1
-:wait_for_idle
-    b = atx_busy
-    nop
-    bn and0z :wait_for_idle
-    
-    // push word to the UART.  its low byte is a character.
-    atx_data = g7
-        
-    // can't use the actual register load strobe that occurs here, because it's 
-    // much too fast for the UART to sample.
-    // instead use a dedicated output word atx_load.
-    atx_load = 1
-    
-    // wait until UART is busy, as acknowledgement.
-    a = 1
-:wait_for_busy    
-    b = atx_busy
-    leds = 0b00000100 
-    br and0z :wait_for_busy
-
-    atx_load = 0 
-    return
-    
-    
-:test_pattern
-    0x55
-    0xaa
-    0b01000001
-    66
-    0x0d
-    0x0a   
-    
-:msg
-    "testes, testes,\n\t 1...\n\t 2...\n\t 3?? \n\x00"
+:halt    
+    jmp :halt
