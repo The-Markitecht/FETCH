@@ -67,8 +67,8 @@ proc asm_nop {lin} {
 }
 
 # data handling macros.
-proc asm_fetch {lin dest eq data_address_reg} {
-    if { ! [string equal $eq {=}]} {
+proc asm_fetch {lin dest from data_address_reg} {
+    if { ! [string equal -nocase $from {from}]} {
         error "syntax error: $lin"
     }
     parse3 fetcha = $data_address_reg $lin

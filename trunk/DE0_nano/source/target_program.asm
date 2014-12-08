@@ -35,7 +35,7 @@
     // fetch a word from test pattern to the UART.  its low byte is a character.
     j = :test_pattern
     nop
-    fetch g7 = i+j
+    fetch g7 from i+j
     call :putchar
 
     // increment index & wrap around end of pattern.

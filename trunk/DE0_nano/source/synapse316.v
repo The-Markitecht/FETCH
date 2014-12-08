@@ -49,6 +49,11 @@ module synapse316 #(
     
     ,input[DATA_INPUT_FLAT_WIDTH-1:0]  data_in_flat
     
+//patch: need a way to write to externally implemented registers.  
+//might be enough to simply declare a certain threshold, above which all are external.    
+// and expose the muxa comb data.  address is not needed since its decoding is still internal here.
+// that might eliminate to_visor_reg also.
+    
 ); 
 
     // declarations & wires
