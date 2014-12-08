@@ -46,14 +46,19 @@ generate
 endgenerate     
 
 // UART
-wire txbsy; // this wire was ineffective in fixing ambiguous muxa_comb.
-uart_v2_tx utx (
-     .uart_sample_clk(clk_async) // clocked at 4x bit rate.
-    ,.parallel_in    (regs[8].r[7:0])
-    ,.load_data      (regs[9].r[0])
-    ,.tx_line        (async_out)
-    ,.tx_busy        (txbsy)
-);    
+// wire txbsy; // this wire was ineffective in fixing ambiguous muxa_comb.
+// uart_v2_tx utx (
+     // .uart_sample_clk(clk_async) // clocked at 4x bit rate.
+    // ,.parallel_in    (regs[8].r[7:0])
+    // ,.load_data      (regs[9].r[0])
+    // ,.tx_line        (async_out)
+    // ,.tx_busy        (txbsy)
+// );    
+// assign data_in[0].d = {15'd0, txbsy};
+wire[7:0] atx_parallel_in = regs[8].r[7:0];
+wire atx_load_data = regs[9].r[0];
+wire txbsy;
+assign #5000 txbsy = atx_load_data;
 assign data_in[0].d = {15'd0, txbsy};
 
 integer serial_file; 
@@ -67,7 +72,7 @@ initial	begin
     $fdisplay(serial_file, "\n\n================= POWER UP ================");
     trace_file = $fopen("trace.txt");
     $fdisplay(trace_file, "\n\n================= POWER UP ================");
-    trace_compare_file = $fopen("trace_compare.txt", "r");
+    trace_compare_file = $fopen("../../icarus/trace_compare.txt", "r");
 
     #3000 sysreset = 1;
     #2000 sysreset = 0;
@@ -96,12 +101,12 @@ always begin
     #1085 clk_async = ! clk_async;
 end
 
-always @(posedge clk_async) begin
-    // write output and check for trouble.
+// always @(posedge clk_async) begin
+    // // write output and check for trouble.
     
-    if ( utx.load_data && ! txbsy )
-        $fwrite(serial_file, "%c", utx.parallel_in);   
-end
+    // if ( utx.load_data && ! txbsy )
+        // $fwrite(serial_file, "%c", utx.parallel_in);   
+// end
 
 reg[15:0] compare_addr, compare_exr;
 integer junk;
