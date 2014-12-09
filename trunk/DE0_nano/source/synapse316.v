@@ -28,7 +28,7 @@ module synapse316 #(
     parameter NUM_DATA_INPUTS = 16,
     parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
     parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16,
-    parameter DEBUG_IN_WIDTH = 1,
+    parameter DEBUG_IN_WIDTH = 3,
     parameter DEBUG_OUT_WIDTH = 6
 ) (
      input                       sysclk            
@@ -72,6 +72,8 @@ module synapse316 #(
     
     // debugger input flattener.
     wire debug_hold = debug_in[0];
+    wire debug_force_load_exr = debug_in[1];
+    wire debug_force_exec = debug_in[2];
     
     // instruction decoder.
     wire[5:0] muxa_dest_addr = exr[15:10];
@@ -83,9 +85,9 @@ module synapse316 #(
     reg const16cycle1 = 1'b0; // exr registering inline data from program space on this cycle.  skip it.
     reg random_fetch_cycle1 = 1'b0; // exr stalled while code memory fetches data with random access.  hold exr's opcode until the next cycle for execution.  then the code memory is ready to replenish exr again.
     reg random_fetch_cycle2 = 1'b0; // exr stalled for 1 extra cycle after random_fetch_cycle1 coincided with const16cycle1, as often happens.  then exr contains the constant fetched during the const16cycle1, not a valid opcode.
-    wire load_exr = code_ready && ! random_fetch_cycle1;
-    wire enable_exec = code_ready && ! (const16cycle1 || branching_cycle 
-        || random_fetch_cycle1 || random_fetch_cycle2 || debug_hold); 
+    wire load_exr = (code_ready && ! random_fetch_cycle1) || debug_force_load_exr;
+    wire enable_exec = (code_ready && ! (const16cycle1 || branching_cycle 
+        || random_fetch_cycle1 || random_fetch_cycle2 || debug_hold)) || debug_force_exec; 
     wire muxa_do_copy = enable_exec;    
     wire clrf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h30);
     wire setf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h31);
@@ -119,32 +121,36 @@ module synapse316 #(
             random_fetch_addr <= 0;
             random_fetch_result <= 0;
         end else if (sysclk) begin
-            if (load_ipr)
-                ipr <= code_in;
-            else if (return_operator)
-                ipr <= return_addr;
-            else if ( ! hold_ipr)
-                ipr <= next_code_addr;  
-
-            if (return_operator) 
-                return_addr <= ipr;
-            else if (muxa_dest_return_addr)
-                return_addr <= muxa_comb;
 
             if (load_exr)
                 exr <= code_in;
                 
-            if (random_fetch_cycle1)
-                random_fetch_result <= code_in;
-                
-            if (random_fetch_operator)
-                random_fetch_addr <= muxa_comb;
-                
-            const16cycle1 <= muxa_source_imm16 || (const16cycle1 && ! code_ready); // repeat the const16cycle1 as long as not code_ready.
-            branching_cycle <= br_operator || bn_operator || return_operator || (branching_cycle && ! code_ready); // branching_cycle activates after every branch instruction, regardless of branch_accept, because in either case exr has been loaded with the branch target, not an opcode.
-            random_fetch_cycle1 <= random_fetch_operator || (random_fetch_cycle1 && ! code_ready); // repeat this cycle if the code memory wasn't ready.
-            random_fetch_cycle2 <= random_fetch_cycle1 && const16cycle1;
-            //code_ready_cycle <= code_ready;
+            if ( ! debug_hold) begin
+                // during debug_hold the ipr does not advance, nor do most of the control registers.
+                if (load_ipr)
+                    ipr <= code_in;
+                else if (return_operator)
+                    ipr <= return_addr;
+                else if ( ! hold_ipr)
+                    ipr <= next_code_addr;  
+                    
+                if (return_operator) 
+                    return_addr <= ipr;
+                else if (muxa_dest_return_addr)
+                    return_addr <= muxa_comb;
+                    
+                if (random_fetch_cycle1)
+                    random_fetch_result <= code_in;
+                    
+                if (random_fetch_operator)
+                    random_fetch_addr <= muxa_comb;
+                    
+                const16cycle1 <= muxa_source_imm16 || (const16cycle1 && ! code_ready); // repeat the const16cycle1 as long as not code_ready.
+                branching_cycle <= br_operator || bn_operator || return_operator || (branching_cycle && ! code_ready); // branching_cycle activates after every branch instruction, regardless of branch_accept, because in either case exr has been loaded with the branch target, not an opcode.
+                random_fetch_cycle1 <= random_fetch_operator || (random_fetch_cycle1 && ! code_ready); // repeat this cycle if the code memory wasn't ready.
+                random_fetch_cycle2 <= random_fetch_cycle1 && const16cycle1;
+                //code_ready_cycle <= code_ready;
+            end            
         end
     end    
     

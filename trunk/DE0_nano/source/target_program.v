@@ -36,8 +36,8 @@ addr == 16'h0f ? 16'h2b53 :  // <0033> leds = a>>4
 addr == 16'h10 ? 16'h0fa0 :  // <0036> j = :test_pattern
 addr == 16'h11 ? 16'h0030 :  // <0036> j = :test_pattern
 addr == 16'h12 ? 16'hc800 :  // <0037> nop
-addr == 16'h13 ? 16'hd310 :  // <0038> fetch g7 = i+j
-addr == 16'h14 ? 16'h1fb0 :  // <0038> fetch g7 = i+j
+addr == 16'h13 ? 16'hd310 :  // <0038> fetch g7 from i+j
+addr == 16'h14 ? 16'h1fb0 :  // <0038> fetch g7 from i+j
 addr == 16'h15 ? 16'hbfa0 :  // <0039> call :putchar
 addr == 16'h16 ? 16'h0022 :  // <0039> call :putchar
 addr == 16'h17 ? 16'hfc00 :  // <0039> call :putchar

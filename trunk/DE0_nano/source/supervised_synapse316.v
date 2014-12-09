@@ -11,7 +11,7 @@ module supervised_synapse316 #(
     parameter NUM_DATA_INPUTS = 16,
     parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
     parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16,
-    parameter DEBUG_IN_WIDTH = 1,
+    parameter DEBUG_IN_WIDTH = 3,
     parameter DEBUG_OUT_WIDTH = 6,
     parameter DEBUG_REG_NUM = TOP_REG,
     parameter DEBUG_DATA_INPUT_NUM = TOP_DATA_INPUT
