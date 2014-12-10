@@ -1,4 +1,4 @@
-`timescale 1 ns / 1 ns
+`include "header.v"
 
 // synthesize with SystemVerilog
 
@@ -20,14 +20,16 @@ module std_reg
 endmodule
 
 module synapse316 #(
-    parameter IPR_WIDTH = 16,
-    parameter IPR_TOP = IPR_WIDTH - 1,
-    parameter NUM_REGS = 16,
-    parameter TOP_REG = NUM_REGS - 1,
-    parameter NUM_DATA_INPUTS = 16,
-    parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
-    parameter DEBUG_IN_WIDTH = 3,
-    parameter DEBUG_OUT_WIDTH = 6
+    // this module alone offers parameters instead of using the system-wide define's directly.
+    // that allows for different dimensions of different instances.
+    parameter IPR_WIDTH         = `IPR_WIDTH      
+    parameter IPR_TOP           = `IPR_TOP        
+    parameter NUM_REGS          = `NUM_REGS       
+    parameter TOP_REG           = `TOP_REG        
+    parameter NUM_DATA_INPUTS   = `NUM_DATA_INPUTS
+    parameter TOP_DATA_INPUT    = `TOP_DATA_INPUT 
+    parameter DEBUG_IN_WIDTH    = `DEBUG_IN_WIDTH 
+    parameter DEBUG_OUT_WIDTH   = `DEBUG_OUT_WIDTH
 ) (
      input                       sysclk            
     ,input                       sysreset          

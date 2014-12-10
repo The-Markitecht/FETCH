@@ -1,15 +1,6 @@
-module top #(
-    parameter IPR_WIDTH = 16,
-    parameter IPR_TOP = IPR_WIDTH - 1,
-    parameter NUM_REGS = 16,
-    parameter TOP_REG = NUM_REGS - 1,
-    parameter NUM_DATA_INPUTS = 16,
-    parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
-    parameter DEBUG_IN_WIDTH = 3,
-    parameter DEBUG_OUT_WIDTH = 6,
-    parameter DEBUG_REG_NUM = TOP_REG,
-    parameter DEBUG_DATA_INPUT_NUM = TOP_DATA_INPUT    
-) (
+`include "header.v"
+
+module top (
     //////////// CLOCK //////////
     input 		          		clk50m,
 
@@ -87,9 +78,9 @@ async_pll async_pll_inst (
 );
 
 // MCU target plus debugging supervisor and a code ROM for each.
-wire[15:0]     r[TOP_REG:0];
-wire[TOP_REG:0] r_load;
-wire[15:0]   data_in[DEBUG_DATA_INPUT_NUM-1:0];
+wire[15:0]     r[`TOP_REG:0];
+wire[`TOP_REG:0] r_load;
+wire[15:0]   data_in[`DEBUG_DATA_INPUT_NUM-1:0];
 wire[15:0]                dbg_av_address;
 wire                      dbg_av_waitrequest;
 wire[15:0]                dbg_av_writedata;

@@ -1,4 +1,4 @@
-`timescale 1 ns / 1 ns
+`include "header.v"
 
 // synthesize with SystemVerilog
 
@@ -6,18 +6,7 @@
 // debugging supervisor module.  
 // to be inserted between Synapse316 MCU and its code ROM.
 
-module visor #(
-    parameter IPR_WIDTH = 16,
-    parameter IPR_TOP = IPR_WIDTH - 1,
-    parameter NUM_REGS = 16,
-    parameter TOP_REG = NUM_REGS - 1,
-    parameter NUM_DATA_INPUTS = 16,
-    parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
-    parameter DEBUG_IN_WIDTH = 3,
-    parameter DEBUG_OUT_WIDTH = 6,
-    parameter DEBUG_REG_NUM = TOP_REG,
-    parameter DEBUG_DATA_INPUT_NUM = TOP_DATA_INPUT    
-) (
+module visor (
      input 		          		sysclk
     ,input 		          		sysreset
     
@@ -29,8 +18,8 @@ module visor #(
     ,input[15:0]                 tg_code_addr
     ,output[15:0]                tg_code_in
     ,output                      tg_code_ready
-    ,output[DEBUG_IN_WIDTH-1:0]  tg_debug_in
-    ,input[DEBUG_OUT_WIDTH-1:0]  tg_debug_out
+    ,output[`DEBUG_IN_WIDTH-1:0]  tg_debug_in
+    ,input[`DEBUG_OUT_WIDTH-1:0]  tg_debug_out
     ,output                      tg_reset
     ,input[15:0]                 tg_to_visor_reg
     ,output[15:0]                tg_from_visor_reg
@@ -45,9 +34,9 @@ module visor #(
 // supervisor Synapse 316 with its own code ROM.  totally independent of the target MCU.
 wire[15:0] code_addr;
 wire[15:0] code_fetched;
-wire[15:0]     r[TOP_REG:0];
-wire[TOP_REG:0] r_load;
-wire[15:0]   data_in[TOP_DATA_INPUT:0];
+wire[15:0]     r[`TOP_REG:0];
+wire[`TOP_REG:0] r_load;
+wire[15:0]   data_in[`TOP_DATA_INPUT:0];
 visor_program rom(
     .addr(code_addr),
     .data(code_fetched)
@@ -73,13 +62,13 @@ wire tg_loading_exr = tg_debug_out[1];
 wire tg_enable_exec = tg_debug_out[0];
 assign data_in[0] = tg_code_addr;
 assign data_in[1] = tg_to_visor_reg;
-assign data_in[2][DEBUG_OUT_WIDTH-1:0] = tg_debug_out;
+assign data_in[2][`DEBUG_OUT_WIDTH-1:0] = tg_debug_out;
 assign data_in[3] = exr_shadow; 
 assign data_in[4] = {15'h0, bp_hit}; 
 assign data_in[5] = {15'h0, av_waitrequest}; 
 
 // plumbing of target inputs, visor outputs.
-assign tg_debug_in = {r[15][DEBUG_IN_WIDTH-1:0]}; // {debug_force_exec, debug_force_load_exr, debug_hold}
+assign tg_debug_in = {r[15][`DEBUG_IN_WIDTH-1:0]}; // {debug_force_exec, debug_force_load_exr, debug_hold}
 //wire step_cmd = regs[14][3];
 //reg last_step_cmd = 0;
 wire divert_code_bus = r[14][2];

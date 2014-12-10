@@ -1,26 +1,16 @@
+`include "header.v"
 
 ////////////////////////////////////////////////////////////////////////////
 // Synapse316 with attached debugging supervisor.
 
-module supervised_synapse316 #(
-    parameter IPR_WIDTH = 16,
-    parameter IPR_TOP = IPR_WIDTH - 1,
-    parameter NUM_REGS = 16,
-    parameter TOP_REG = NUM_REGS - 1,
-    parameter NUM_DATA_INPUTS = 16,
-    parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
-    parameter DEBUG_IN_WIDTH = 3,
-    parameter DEBUG_OUT_WIDTH = 6,
-    parameter DEBUG_REG_NUM = TOP_REG,
-    parameter DEBUG_DATA_INPUT_NUM = TOP_DATA_INPUT
-) (
+module supervised_synapse316 (
      input                       sysclk            
     ,input                       sysreset          
 
-    ,output[15:0]                r[TOP_REG:0]
-    ,output[TOP_REG:0]           r_load
+    ,output[15:0]                r[`TOP_REG:0]
+    ,output[`TOP_REG:0]           r_load
     
-    ,input[15:0]                 data_in[TOP_DATA_INPUT:0]
+    ,input[15:0]                 data_in[`TOP_DATA_INPUT:0]
     
     // Avalon MM master
     ,output[15:0]                dbg_av_address
@@ -37,11 +27,11 @@ reg                        rom_wait = 0; // useful for simulation only.
 wire[15:0]                 tg_code_addr;
 wire[15:0]                 tg_code_in;
 wire                       tg_code_ready;
-wire[15:0]                 tg_r[TOP_REG:0];
-wire[TOP_REG:0]            tg_r_load;
+wire[15:0]                 tg_r[`TOP_REG:0];
+wire[`TOP_REG:0]            tg_r_load;
 wire                       tg_reset;
-wire[DEBUG_IN_WIDTH-1:0]   tg_debug_in;
-wire[DEBUG_OUT_WIDTH-1:0]  tg_debug_out; 
+wire[`DEBUG_IN_WIDTH-1:0]   tg_debug_in;
+wire[`DEBUG_OUT_WIDTH-1:0]  tg_debug_out; 
 wire[15:0]                 tg_from_visor;
 assign r = tg_r;
 assign r_load = tg_r_load;
@@ -74,7 +64,7 @@ visor visr(
     ,.tg_debug_in     (tg_debug_in   )
     ,.tg_debug_out    (tg_debug_out  )
     ,.tg_reset        (tg_reset      )
-    ,.tg_to_visor_reg (r[DEBUG_REG_NUM]    )
+    ,.tg_to_visor_reg (r[`DEBUG_REG_NUM]    )
     ,.tg_from_visor_reg(tg_from_visor)
     ,.av_address      (dbg_av_address     )
     ,.av_waitrequest  (dbg_av_waitrequest )
