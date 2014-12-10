@@ -1,5 +1,5 @@
 
-# assembler, with assembly source code for Synapse316 mcu.
+# assembler library for Synapse316 mcu.
 
 # #########################################################################
 # muxer source & destination maps.
@@ -64,6 +64,14 @@ proc flag {flag_name} {
     return [dict get $::flagsrc $flag_name]
 }
 
+proc label {name} {
+    # translate given label name into its address (a Tcl integer).
+    if {$::asm_pass == 1} {
+        return 0
+    }
+    return [dict get $::labels [string trim $name {: }]]
+}
+
 proc parse_assignment {dest eq src} {
     # parse and return list of opcodes from a phrase of 3 tokens of text.  this includes assignments and branches.
     # this list will be more than one ROM word if e.g. a 16-bit immediate constant or a branch target is found.
@@ -79,7 +87,7 @@ proc parse_assignment {dest eq src} {
         } elseif {[string equal -length 1 $src {:}]} {
             # resolve label as 16-bit immediate, stored in the next ROM word.
             lappend opcodes [pack [dest $dest] [src _imm16_]]
-            lappend opcodes [get_label $src]
+            lappend opcodes [label $src]
         } elseif {[string is integer -strict $src]} {
             # source is immediate value in hex 0x, binary 0b, or decimal (no prefix)
             if {$src > $::small_const_max} {
@@ -101,7 +109,7 @@ proc parse_assignment {dest eq src} {
         set flagname $eq
         set addr $src
         if {[string equal -length 1 $addr {:}]} {
-            set addr [get_label $addr]
+            set addr [label $addr]
         }
         lappend opcodes [expr ([dict get $::flagsrc $flagname] << $::flagsrc_shift) | ([dest $instruction] << $::dest_shift)]
         lappend opcodes $addr
@@ -119,6 +127,20 @@ proc parse3 {dest eq src lin} {
         emit_word $op $lin
     }
 }  
+
+proc parse_expressions {lin} {
+    # evaluate any parenthesized expressions in the given string.  return the string with results substituted.
+    # any form of arithmetic supported by Tcl expr command is allowed.
+    while {[set f [string first \( $lin]] >= 0} {
+        set l [string last \) $lin]
+        if {$l < 0} {
+            error "expression missing final parenthesis: $lin"
+        }
+        set result [namespace eval ::asm "expr {[string range $lin $f $l]}"]
+        set lin "[string range $lin 0 [expr $f - 1]]$result[string range $lin [expr $l + 1] end]"
+    }
+    return $lin
+}
     
 proc parse_line {lin} {
     # parse a whole line of assembler file as input.  emit any resulting bytes into the ROM file.
@@ -128,9 +150,6 @@ proc parse_line {lin} {
     if {[string equal -length 2 $lin {//}]} {
         # comment line
         emit $lin
-    } elseif {[string is integer -strict $lin]} {
-        # 16-bit constant in hex 0x, binary 0b, or decimal (no prefix) on a line by itself.
-        emit_word $lin $lin ;# simply insert it into the ROM as-is.
     } elseif {[string equal -length 1 $lin \" ]} {
         # string constant line
         if { ! [string equal [string index $lin end] \" ]} {
@@ -151,18 +170,30 @@ proc parse_line {lin} {
         }
     } elseif {[string equal -length 1 $lin {:}]} {
         # label line
-        dict set ::labels [string trim $lin {:}] $::ipr
+        dict set ::labels [string trim $lin {: }] $::ipr
         emit "// $lin // = 0x[format %02x $::ipr]"
+    } elseif {[string equal -length 1 $lin {[}]} {
+        # explicit Tcl line in brackets.  return value is discarded.
+        if { ! [string equal [string index $lin end] \] ]} {
+            error "Tcl command missing final bracket: $lin"
+        }
+        namespace eval ::asm [string range $lin 1 end-1]
     } else {
-        set tokens [regexp -all -inline -nocase {\S+} $lin]
+        set sublin [string trim [parse_expressions $lin]] ;# parse any parenthesized arithmetic.
+        set sublin [string trim [namespace eval ::asm "subst -nocommands {$sublin}"]] ;# fetches Tcl vars into the line.
+        set tokens [regexp -all -inline -nocase {\S+} $sublin]
         set cmd [lindex $tokens 0]
         if {[llength [info commands "asm_$cmd"]] > 0} {
             # run tcl command, like a super-powered macro.  insert the whole source line as the first argument.
-            eval "asm_$cmd {$lin} [string range $lin [string length $cmd] end]"
+            namespace eval ::asm "asm_$cmd {$lin} [string range $sublin [string length $cmd] end]"
         } elseif {[llength $tokens] == 3} {
+            # 3-part assignment, or branch instruction.
             parse3 [lindex $tokens 0] [lindex $tokens 1] [lindex $tokens 2] $lin
+        } elseif {[string is integer -strict $sublin]} {
+            # 16-bit constant in hex 0x, binary 0b, or decimal (no prefix) on a line by itself.
+            emit_word $sublin $lin ;# simply insert it into the ROM as-is.
         } else {
-            error "syntax error: $lin"
+            error "syntax error: $sublin"
         }    
     }
 }
@@ -188,74 +219,65 @@ proc emit {args} {
     }
 }
 
-proc get_label {name} {
-    # translate given label name into its address (a Tcl integer).
-    if {$::asm_pass == 1} {
-        return 0
-    }
-    return [dict get $::labels [string trim $name {:}]]
-}
-
 proc pack {dest_addr src_addr} {
     # pack the given dest and src into a 16-bit assignment opcode (a Tcl integer).
     return [expr ($src_addr << $::src_shift) | ($dest_addr << $::dest_shift)]
 }
 
-# #########################################################################
-# main script.
+proc assemble {src_fn rom_fn} {
+    # assemble the given source filename, overwriting the given verilog ROM description filename.
 
-set ::src_fn [lindex $argv end-1]
-set ::rom_fn [lindex $argv end]
-puts "Assembling: $::src_fn"
-puts "        To: $::rom_fn"
+    set ::src_fn $src_fn
+    set ::rom_fn $rom_fn
+    puts "Assembling: $::src_fn"
+    puts "        To: $::rom_fn"
 
-source system_macros.tcl
-source program_macros.tcl
+    set f [open $::src_fn r]
+    set asm_lines [split [read $f] \n]
+    close $f
 
-set f [open $::src_fn r]
-set asm_lines [split [read $f] \n]
-close $f
+    #proc report args {puts [info level 0]}
+    #trace add execution parse enterstep report
 
-#proc report args {puts [info level 0]}
-#trace add execution parse enterstep report
+    # first pass is only to compute label addresses, and print the echo text to console.
+    set ::asm_pass 1
+    set ::ipr 0
+    set ::lnum 0
+    catch {namespace delete ::asm}
+    namespace eval ::asm {}
+    foreach lin $asm_lines {
+        incr ::lnum
+        parse_line $lin
+    }
 
-#patch: show line numbers in all error messages.  make it a global.
-#no, better: use a global catch.  so all Tcl errors also show line number.
-# or, just output the line number before echoing each line on console??
+    # second pass is to utilize real label addresses, and write the ROM file.
+    set ::asm_pass 2 
+    console {####################   SECOND PASS   ####################}
+    set ::f [open $::rom_fn w]
+    puts $::f "
+        `timescale 1 ns / 1 ns
 
-# first pass is only to compute label addresses, and print the echo text to console.
-set ::asm_pass 1
-set ::ipr 0
-set ::lnum 0
-foreach lin $asm_lines {
-    incr ::lnum
-    parse_line $lin
+        module [file rootname [file tail $src_fn]] (
+            input\[15:0\] addr
+            ,output\[15:0\] data
+        );
+            assign data = 
+    "
+
+    set ::ipr 0
+    set ::lnum 0
+    catch {namespace delete ::asm}
+    namespace eval ::asm {}
+    foreach lin $asm_lines {
+        incr ::lnum
+        parse_line $lin
+    }
+
+    puts $::f {        
+                16'hxxxx;
+        endmodule
+    }
+
+    close $::f
 }
 
-# second pass is to utilize real label addresses, and write the ROM file.
-set ::asm_pass 2 
-console {####################   SECOND PASS   ####################}
-set ::f [open $::rom_fn w]
-puts $::f "
-    `timescale 1 ns / 1 ns
-
-    module [file rootname [file tail $src_fn]] (
-        input\[15:0\] addr
-        ,output\[15:0\] data
-    );
-        assign data = 
-"
-
-set ::ipr 0
-set ::lnum 0
-foreach lin $asm_lines {
-    incr ::lnum
-    parse_line $lin
-}
-
-puts $::f {        
-            16'hxxxx;
-    endmodule
-}
-
-close $::f

@@ -41,6 +41,7 @@ asm_alias_src  {} a>>1 [src sh1r0]
 asm_alias_src  {} a<<1 [src sh1l0]
 asm_alias_src  {} a<<4 [src sh4l0]
 asm_alias_src  {} a>>4 [src sh4r0]
+asm_alias_src  {} 0xffff [src -1]
 asm_alias_flag {} c [flag ad0c]
 asm_alias_flag {} z [flag ad0z]
 asm_alias_flag {} 1z [flag ad1z]
@@ -49,7 +50,7 @@ asm_alias_flag {} 2z [flag ad2z]
 # subroutine macros.
 proc asm_call {lin label} {
     emit_word [pack [dest rtna] [src _imm16_]] $lin
-    emit_word [get_label $label] $lin
+    emit_word [label $label] $lin
     emit_word [pack [dest swapra] [src nop]] $lin
 }
 
