@@ -24,10 +24,8 @@ module synapse316 #(
     parameter IPR_TOP = IPR_WIDTH - 1,
     parameter NUM_REGS = 16,
     parameter TOP_REG = NUM_REGS - 1,
-    parameter REGS_FLAT_WIDTH = NUM_REGS * 16,
     parameter NUM_DATA_INPUTS = 16,
     parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
-    parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16,
     parameter DEBUG_IN_WIDTH = 3,
     parameter DEBUG_OUT_WIDTH = 6
 ) (
@@ -42,12 +40,11 @@ module synapse316 #(
     ,input[DEBUG_IN_WIDTH-1:0]   debug_in // connect to 0 if supervisor not present.
     ,output[DEBUG_OUT_WIDTH-1:0] debug_out // do not connect if supervisor not present.
     
-    // i/o ports can run as a 2-dimensional in Quartus.  but that's a syntax error in Icarus, regardless of options.
-    // so here it's flattened to 1 dimension.
-    ,output[REGS_FLAT_WIDTH-1:0] r_flat
+    // i/o ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
+    ,output[15:0]                r[TOP_REG:0]
     ,output[TOP_REG:0]           r_load
     
-    ,input[DATA_INPUT_FLAT_WIDTH-1:0]  data_in_flat
+    ,input[15:0]                 data_in[TOP_DATA_INPUT:0]
     
 //patch: need a way to write to externally implemented registers.  
 //might be enough to simply declare a certain threshold, above which all are external.    
@@ -160,15 +157,7 @@ module synapse316 #(
     
     // register file r.  for operands, and general use.
     // registers r0 and r1 are the operands for ad0 and certain other binary operators.
-    genvar i;
-    generate  
-        for (i=0; i < NUM_REGS; i=i+1) begin: regs
-            wire[15:0] r;
-            assign r_flat[i*16+15:i*16] = r;
-            assign r_load[i] = muxa_do_copy && muxa_dest_addr == i;
-            std_reg r_reg (sysclk, sysreset, r, muxa_comb, r_load[i]);
-        end  
-    endgenerate     
+    std_reg[TOP_REG:0] r_reg (sysclk, sysreset, r, muxa_comb, r_load);
     
     // adder #0 with carry support
     reg[15:0] ad0; // result register
@@ -279,31 +268,24 @@ module synapse316 #(
         bn_operator ? ! selected_flag :
         1'b0; // must be 0 can't be x.
 
-    // external data input flattener.
-    generate  
-        for (i=0; i < NUM_DATA_INPUTS; i=i+1) begin: data_in
-            wire[15:0] d = data_in_flat[i*16+15:i*16];
-        end  
-    endgenerate     
-                
     // data muxer
     assign muxa_comb = 
-        muxa_src_addr == 10'h00 ? regs[0].r :
-        muxa_src_addr == 10'h01 ? regs[1].r :
-        muxa_src_addr == 10'h02 ? regs[2].r :
-        muxa_src_addr == 10'h03 ? regs[3].r :
-        muxa_src_addr == 10'h04 ? regs[4].r :
-        muxa_src_addr == 10'h05 ? regs[5].r :
-        muxa_src_addr == 10'h06 ? regs[6].r :
-        muxa_src_addr == 10'h07 ? regs[7].r :
-        muxa_src_addr == 10'h08 ? regs[8].r :
-        muxa_src_addr == 10'h09 ? regs[9].r :
-        muxa_src_addr == 10'h0a ? regs[10].r :
-        muxa_src_addr == 10'h0b ? regs[11].r :
-        muxa_src_addr == 10'h0c ? regs[12].r :
-        muxa_src_addr == 10'h0d ? regs[13].r :
-        muxa_src_addr == 10'h0e ? regs[14].r :
-        muxa_src_addr == 10'h0f ? regs[15].r :
+        muxa_src_addr == 10'h00 ? r[0] :
+        muxa_src_addr == 10'h01 ? r[1] :
+        muxa_src_addr == 10'h02 ? r[2] :
+        muxa_src_addr == 10'h03 ? r[3] :
+        muxa_src_addr == 10'h04 ? r[4] :
+        muxa_src_addr == 10'h05 ? r[5] :
+        muxa_src_addr == 10'h06 ? r[6] :
+        muxa_src_addr == 10'h07 ? r[7] :
+        muxa_src_addr == 10'h08 ? r[8] :
+        muxa_src_addr == 10'h09 ? r[9] :
+        muxa_src_addr == 10'h0a ? r[10] :
+        muxa_src_addr == 10'h0b ? r[11] :
+        muxa_src_addr == 10'h0c ? r[12] :
+        muxa_src_addr == 10'h0d ? r[13] :
+        muxa_src_addr == 10'h0e ? r[14] :
+        muxa_src_addr == 10'h0f ? r[15] :
         
         // the block 0x10 thru 0x3f is reserved for more registers.
         // most of those would be i/o rather than gp.  
@@ -315,22 +297,22 @@ module synapse316 #(
         // so they're located above the 64 (0x40) possible destination addresses.
         // typically these would be used for devices that input data with no corresponding outputs.  like buttons.
         // or large blocks of "result" registers, e.g. FIR taps, or stack peeks, or lookup tables, or pre-masked bit fields.
-        muxa_src_addr == 10'h40 ? data_in[0].d : 
-        muxa_src_addr == 10'h41 ? data_in[1].d : 
-        muxa_src_addr == 10'h42 ? data_in[2].d : 
-        muxa_src_addr == 10'h43 ? data_in[3].d : 
-        muxa_src_addr == 10'h44 ? data_in[4].d : 
-        muxa_src_addr == 10'h45 ? data_in[5].d : 
-        muxa_src_addr == 10'h46 ? data_in[6].d : 
-        muxa_src_addr == 10'h47 ? data_in[7].d : 
-        muxa_src_addr == 10'h48 ? data_in[8].d : 
-        muxa_src_addr == 10'h49 ? data_in[9].d : 
-        muxa_src_addr == 10'h4a ? data_in[10].d : 
-        muxa_src_addr == 10'h4b ? data_in[11].d : 
-        muxa_src_addr == 10'h4c ? data_in[12].d : 
-        muxa_src_addr == 10'h4d ? data_in[13].d : 
-        muxa_src_addr == 10'h4e ? data_in[14].d : 
-        muxa_src_addr == 10'h4f ? data_in[15].d : 
+        muxa_src_addr == 10'h40 ? data_in[0] : 
+        muxa_src_addr == 10'h41 ? data_in[1] : 
+        muxa_src_addr == 10'h42 ? data_in[2] : 
+        muxa_src_addr == 10'h43 ? data_in[3] : 
+        muxa_src_addr == 10'h44 ? data_in[4] : 
+        muxa_src_addr == 10'h45 ? data_in[5] : 
+        muxa_src_addr == 10'h46 ? data_in[6] : 
+        muxa_src_addr == 10'h47 ? data_in[7] : 
+        muxa_src_addr == 10'h48 ? data_in[8] : 
+        muxa_src_addr == 10'h49 ? data_in[9] : 
+        muxa_src_addr == 10'h4a ? data_in[10] : 
+        muxa_src_addr == 10'h4b ? data_in[11] : 
+        muxa_src_addr == 10'h4c ? data_in[12] : 
+        muxa_src_addr == 10'h4d ? data_in[13] : 
+        muxa_src_addr == 10'h4e ? data_in[14] : 
+        muxa_src_addr == 10'h4f ? data_in[15] : 
 
         // the block 0x200 thru 0x2ff is reserved for small constant load operation.
         muxa_src_addr[9:8] == 2'h2 ? small_constant : 

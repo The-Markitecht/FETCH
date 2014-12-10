@@ -3,10 +3,8 @@ module top #(
     parameter IPR_TOP = IPR_WIDTH - 1,
     parameter NUM_REGS = 16,
     parameter TOP_REG = NUM_REGS - 1,
-    parameter REGS_FLAT_WIDTH = NUM_REGS * 16,
     parameter NUM_DATA_INPUTS = 16,
     parameter TOP_DATA_INPUT = NUM_DATA_INPUTS - 1,
-    parameter DATA_INPUT_FLAT_WIDTH = NUM_DATA_INPUTS * 16,
     parameter DEBUG_IN_WIDTH = 3,
     parameter DEBUG_OUT_WIDTH = 6,
     parameter DEBUG_REG_NUM = TOP_REG,
@@ -89,9 +87,9 @@ async_pll async_pll_inst (
 );
 
 // MCU target plus debugging supervisor and a code ROM for each.
-wire[REGS_FLAT_WIDTH-1:0]     r_flat;
+wire[15:0]     r[TOP_REG:0];
 wire[TOP_REG:0] r_load;
-wire[DEBUG_DATA_INPUT_NUM*16-1:0]   data_in_flat;
+wire[15:0]   data_in[DEBUG_DATA_INPUT_NUM-1:0];
 wire[15:0]                dbg_av_address;
 wire                      dbg_av_waitrequest;
 wire[15:0]                dbg_av_writedata;
@@ -99,39 +97,27 @@ wire                      dbg_av_write;
 supervised_synapse316 mcu(
     .sysclk          (clk50m      ) ,
     .sysreset        (0    ) ,
-    .r_flat          (r_flat),
+    .r               (r),
     .r_load          (r_load),
-    .data_in_flat    (data_in_flat),
+    .data_in         (data_in),
     .dbg_av_address      (dbg_av_address),
     .dbg_av_waitrequest  (dbg_av_waitrequest),
     .dbg_av_writedata    (dbg_av_writedata),
     .dbg_av_write        (dbg_av_write)
 );    
-genvar i;
-generate  
-    for (i=0; i < NUM_REGS; i=i+1) begin: regs
-        wire[15:0] r = r_flat[i*16+15:i*16];
-    end  
-endgenerate     
-generate  
-    for (i=0; i < DEBUG_DATA_INPUT_NUM; i=i+1) begin: data_in
-        wire[15:0] d;
-        assign data_in_flat[i*16+15:i*16] = d;
-    end  
-endgenerate     
 
-assign LED = regs[10].r[7:0];
+assign LED = r[10][7:0];
 
 // UART
 wire txbsy; // this wire was ineffective in fixing ambiguous muxa_comb.
 uart_v2_tx utx (
      .uart_sample_clk(clk_async) // clocked at 4x bit rate.
-    ,.parallel_in    (regs[8].r[7:0])
-    ,.load_data      (regs[9].r[0])
+    ,.parallel_in    (r[8][7:0])
+    ,.load_data      (r[9][0])
     ,.tx_line        (GPIO_2[11])
     ,.tx_busy        (txbsy)
 );    
-assign data_in[0].d = {15'd0, txbsy};
+assign data_in[0] = {15'd0, txbsy};
 
 // Qsys system including JTAG UART.
 // in a Nios II Command Shell, type nios2-terminal --help, or just nios2-terminal.
