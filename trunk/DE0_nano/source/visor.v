@@ -38,6 +38,12 @@ module visor #(
     ,output                      tg_reset
     ,input[15:0]                 tg_to_visor_reg
     ,output[15:0]                tg_from_visor_reg
+    
+    // Avalon MM master
+    ,output[15:0]                av_address
+    ,input                       av_waitrequest
+    ,output[15:0]                av_writedata
+    ,output                      av_write
 /*    
 use the target's muxer to access ALL its registers, even operator results.
 do that by stuffing an artificial instruction into target, then single-stepping.    
@@ -96,6 +102,7 @@ assign data_in[1].d = tg_to_visor_reg;
 assign data_in[2].d[DEBUG_OUT_WIDTH-1:0] = tg_debug_out;
 assign data_in[3].d = exr_shadow; 
 assign data_in[4].d = {15'h0, bp_hit}; 
+assign data_in[5].d = {15'h0, av_waitrequest}; 
 
 // plumbing of target inputs, visor outputs.
 assign tg_debug_in = {regs[15].r[DEBUG_IN_WIDTH-1:0]}; // {debug_force_exec, debug_force_load_exr, debug_hold}
@@ -110,6 +117,9 @@ wire[15:0] bp3_addr = regs[11].r;
 wire[15:0] bp2_addr = regs[10].r;
 wire[15:0] bp1_addr = regs[9].r;
 wire[15:0] bp0_addr = regs[8].r;
+assign av_writedata = regs[7].r;
+assign av_write     = regs[6].r[15];
+assign av_address   = {1'b0, regs[6].r[14:0]};
 
 // debugger logic
 always @(posedge sysreset or posedge sysclk) begin

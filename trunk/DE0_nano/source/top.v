@@ -80,21 +80,6 @@ assign GPIO_2[2] = anmux_ctrl[2];
 assign GPIO_2[0] = anmux_ctrl[1];
 assign GPIO_2[1] = anmux_ctrl[0];
 
-//wire[31:0] junk;
-// qsys1 u0 (
-    // .clk_clk           (clk50m),          
-    // .reset_reset_n  (1'b1),   
-    // .uart0_rxd         (GPIO_2[10]),       
-    // .uart0_txd         (GPIO_2[11])
-    // //.anmux_ctrl_export ({GPIO_2[3], GPIO_2[2], GPIO_2[0], GPIO_2[1]}), // dg408 pins en, a2, a1, a0
-    // // .gp_out0_export    ({junk[31:8], LED[7:0]}),   
-    // // .gp_in0_export     ({ 30'b0, KEY[1:0]}),    
-    // // .adc_OUT           (ADC_SADDR),         
-    // // .adc_IN            (ADC_SDAT),          
-    // // .adc_CS_n          (ADC_CS_N),          
-    // // .adc_CLK           (ADC_SCLK)           
-// );
-
 // PLL for UARTs.
 wire clk_async;          // 4x desired bit rate.  460,800 hz for 115,200 bps.   38,400 hz for 9,600 bps.
 async_pll async_pll_inst (
@@ -107,12 +92,20 @@ async_pll async_pll_inst (
 wire[REGS_FLAT_WIDTH-1:0]     r_flat;
 wire[TOP_REG:0] r_load;
 wire[DEBUG_DATA_INPUT_NUM*16-1:0]   data_in_flat;
+wire[15:0]                dbg_av_address;
+wire                      dbg_av_waitrequest;
+wire[15:0]                dbg_av_writedata;
+wire                      dbg_av_write;
 supervised_synapse316 mcu(
     .sysclk          (clk50m      ) ,
     .sysreset        (0    ) ,
     .r_flat          (r_flat),
     .r_load          (r_load),
-    .data_in_flat    (data_in_flat)
+    .data_in_flat    (data_in_flat),
+    .dbg_av_address      (dbg_av_address),
+    .dbg_av_waitrequest  (dbg_av_waitrequest),
+    .dbg_av_writedata    (dbg_av_writedata),
+    .dbg_av_write        (dbg_av_write)
 );    
 genvar i;
 generate  
@@ -139,6 +132,21 @@ uart_v2_tx utx (
     ,.tx_busy        (txbsy)
 );    
 assign data_in[0].d = {15'd0, txbsy};
+
+// Qsys system including JTAG UART.
+// in a Nios II Command Shell, type nios2-terminal --help, or just nios2-terminal.
+qsys2 u0 (
+    .clk_clk                      (clk50m),                      
+    .reset_reset_n                (1),                
+    .m0_address                   (dbg_av_address),                   
+    .m0_read                      (0),                      
+    .m0_waitrequest               (dbg_av_waitrequest),               
+    .m0_readdata                  (),                  
+    .m0_write                     (dbg_av_write),                     
+    .m0_writedata                 (dbg_av_writedata),                 
+    .generic_master_0_reset_reset ()  
+);
+
 
 
 endmodule

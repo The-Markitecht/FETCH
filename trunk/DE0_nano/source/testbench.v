@@ -76,7 +76,7 @@ initial	begin
 
     #3000 sysreset = 1;
     #2000 sysreset = 0;
-    #1000000 $finish;
+    #1000000 $stop;
 end
 
 // `define assert(condition, message) if(condition) begin $diplay(message); $finish(1); end

@@ -146,10 +146,10 @@ proc parse_line {lin} {
     # parse a whole line of assembler file as input.  emit any resulting bytes into the ROM file.
     set lin [string trim $lin]
     console "<[format %04d ${::lnum}]> $lin"
-    if {[string length $lin] == 0} return
-    if {[string equal -length 2 $lin {//}]} {
-        # comment line
-        emit $lin
+    if {[string length $lin] == 0} {
+        emit $lin ;# blank line for readability.
+    } elseif {[string equal -length 2 $lin {//}]} {        
+        emit $lin ;# comment line
     } elseif {[string equal -length 1 $lin \" ]} {
         # string constant line
         if { ! [string equal [string index $lin end] \" ]} {

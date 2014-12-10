@@ -18,11 +18,18 @@
     alias_both bp1_addr	9
     alias_both bp0_addr	8
         [set bp_disable 0xffff]
-    alias_src  tg_code_addr 0x40
-    alias_src  tg_to_visor_reg 0x41
-    alias_src  tg_debug_out	0x42
-    alias_src  exr_shadow	0x43    
-    alias_src  bp_status	0x44   
+    alias_both av_writedata	7
+    alias_both av_address   6
+        [set av_write   0x8000]
+        [set jtag_uart_base 0x0100]
+            [set jtag_uart_data $jtag_uart_base]
+    
+    alias_src  tg_code_addr     [src in0]
+    alias_src  tg_to_visor_reg  [src in1]
+    alias_src  tg_debug_out	    [src in2]
+    alias_src  exr_shadow	    [src in3]
+    alias_src  bp_status	    [src in4]
+    alias_src  av_waitrequest   [src in5]
     
 :begin
     // put target into reset.
@@ -39,8 +46,8 @@
     
     // set a breakpoint, wait til it hits.
     bp0_addr = 0x15
-    a = 0
 :wait_for_bp
+    a = 0
     b = bp_status
     nop
     br z :wait_for_bp
@@ -62,6 +69,16 @@
     
     // release target to pass breakpoint once.
     bp0_addr = bp0_addr
+    
+    // send byte on Avalon.
+    av_writedata = tg_to_visor_reg
+    av_address = ($jtag_uart_data | $av_write)
+    a = 0
+:wait_for_slave    
+    b = av_waitrequest
+    nop
+    bn z :wait_for_slave   
+    av_address = 0
     
     jmp :wait_for_bp
     

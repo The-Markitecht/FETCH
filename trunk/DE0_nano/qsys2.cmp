@@ -1,0 +1,14 @@
+	component qsys2 is
+		port (
+			clk_clk                      : in  std_logic                     := 'X';             -- clk
+			reset_reset_n                : in  std_logic                     := 'X';             -- reset_n
+			m0_address                   : in  std_logic_vector(15 downto 0) := (others => 'X'); -- address
+			m0_read                      : in  std_logic                     := 'X';             -- read
+			m0_waitrequest               : out std_logic;                                        -- waitrequest
+			m0_readdata                  : out std_logic_vector(15 downto 0);                    -- readdata
+			m0_write                     : in  std_logic                     := 'X';             -- write
+			m0_writedata                 : in  std_logic_vector(15 downto 0) := (others => 'X'); -- writedata
+			generic_master_0_reset_reset : out std_logic                                         -- reset
+		);
+	end component qsys2;
+

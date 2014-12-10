@@ -25,6 +25,13 @@ module supervised_synapse316 #(
     ,output[TOP_REG:0]           r_load
     
     ,input[DEBUG_DATA_INPUT_NUM*16-1:0]  data_in_flat
+    
+    // Avalon MM master
+    ,output[15:0]                dbg_av_address
+    ,input                       dbg_av_waitrequest
+    ,output[15:0]                dbg_av_writedata
+    ,output                      dbg_av_write
+    
 ); 
 
 // Synapse316 with code ROM.
@@ -73,6 +80,10 @@ visor visr(
     ,.tg_reset        (tg_reset      )
     ,.tg_to_visor_reg (r_flat[DEBUG_REG_NUM*16+15:DEBUG_REG_NUM*16]    )
     ,.tg_from_visor_reg(tg_from_visor)
+    ,.av_address      (dbg_av_address     )
+    ,.av_waitrequest  (dbg_av_waitrequest )
+    ,.av_writedata    (dbg_av_writedata   )
+    ,.av_write        (dbg_av_write       )    
 );
 
 endmodule
