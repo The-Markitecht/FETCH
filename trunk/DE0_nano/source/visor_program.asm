@@ -35,6 +35,45 @@
     // put target into reset.
     bus_ctrl = $tg_reset
     
+// patch
+    a = 0
+:char
+    av_writedata = 67
+    av_address = ($jtag_uart_data | $av_write)
+:wait1
+    b = av_waitrequest
+    nop
+    bn z :wait1
+    av_address = 0
+    nop
+    nop
+    nop
+    nop
+    av_writedata = 68
+    av_address = ($jtag_uart_data | $av_write)
+:wait2 
+    b = av_waitrequest
+    nop
+    bn z :wait2 
+    av_address = 0
+    nop
+    nop
+    nop
+    nop
+    av_writedata = 69
+    av_address = ($jtag_uart_data | $av_write)
+:wait3   
+    b = av_waitrequest
+    nop
+    bn z :wait3 
+    av_address = 0
+    nop
+    nop
+    nop
+    nop
+    jmp :char   
+
+    
     // init visor.
     bp3_addr = $bp_disable
     bp2_addr = $bp_disable
