@@ -213,7 +213,7 @@ proc console {args} {
 proc emit {args} {
     # "puts" given args into the ROM description file.
     if {$::asm_pass == 2} {
-        eval puts $::f $args
+        eval puts $::rom_file $args
     }
 }
 
@@ -251,8 +251,8 @@ proc assemble {src_fn rom_fn} {
     # second pass is to utilize real label addresses, and write the ROM file.
     set ::asm_pass 2 
     console {####################   SECOND PASS   ####################}
-    set ::f [open $::rom_fn w]
-    puts $::f "
+    set ::rom_file [open $::rom_fn w]
+    puts $::rom_file "
         `timescale 1 ns / 1 ns
 
         module [file rootname [file tail $src_fn]] (
@@ -271,11 +271,11 @@ proc assemble {src_fn rom_fn} {
         parse_line $lin
     }
 
-    puts $::f {        
+    puts $::rom_file {        
                 16'hxxxx;
         endmodule
     }
 
-    close $::f
+    close $::rom_file
 }
 

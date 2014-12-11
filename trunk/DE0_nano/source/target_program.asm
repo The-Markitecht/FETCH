@@ -2,14 +2,19 @@
 // assembly source code.    
 // to write some data on the UART.    
 
+    // register file configuration
+    vdefine NUM_REGS 32
+    vdefine TOP_REG ($NUM_REGS - 1)
+    vdefine NUM_GP 8
+    vdefine TOP_GP ($NUM_GP - 1)
+    vdefine IO $NUM_GP
+
     // application-specific register aliases.    
     alias_both g6                   6 
     alias_both g7                   7
-    [set num_gp    8]
-    [set io $num_gp]
-    alias_both leds                 ($io + 0)  
-    alias_both atx_data             ($io + 1)
-    alias_both atx_ctrl             ($io + 2)
+    alias_both leds                 ($IO + 0)  
+    alias_both atx_data             ($IO + 1)
+    alias_both atx_ctrl             ($IO + 2)
         [set atx_load           0x0001]
         [set atx_busy           0x0002]
     

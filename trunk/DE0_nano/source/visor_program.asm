@@ -2,39 +2,46 @@
 // assembly source code.    
 // for debugging supervisor mcu.
 
+    // register file configuration
+    vdefine VISOR_NUM_REGS 25
+    vdefine VISOR_TOP_REG ($VISOR_NUM_REGS - 1)
+    vdefine VISOR_NUM_GP 8
+    vdefine VISOR_TOP_GP ($VISOR_NUM_GP - 1)
+    vdefine VIO $VISOR_NUM_GP    
+
     // application-specific register aliases.    
     alias_both g6                   6 
     alias_both g7                   7
     [set visor_num_gp    8]
     [set io $visor_num_gp]
-    alias_both bp3_addr	        ($io + 3)
-    alias_both bp2_addr	        ($io + 2)
-    alias_both bp1_addr	        ($io + 1)
-    alias_both bp0_addr	        ($io + 0)
+    alias_both bp3_addr	        ($VIO + 3)
+    alias_both bp2_addr	        ($VIO + 2)
+    alias_both bp1_addr	        ($VIO + 1)
+    alias_both bp0_addr	        ($VIO + 0)
         [set bp_disable                 0xffff]
-    alias_both force_opcode	    ($io + 4)
-    alias_both poke_data        ($io + 5)
-    alias_both av_writedata	    ($io + 6)
-    alias_both av_address       ($io + 7)
+    alias_both force_opcode	    ($VIO + 4)
+    alias_both poke_data        ($VIO + 5)
+    alias_both av_writedata	    ($VIO + 6)
+    alias_both av_address       ($VIO + 7)
         [set jtag_uart_base             0x0100]
             [set jtag_uart_data $jtag_uart_base]
-    alias_both bus_ctrl	        ($io + 8)
+    alias_both bus_ctrl	        ($VIO + 8)
         [set divert_code_bus 	        0x0004]
         [set tg_reset 		            0x0002]
         [set tg_code_ready	            0x0001]
-    alias_both tg_force	        ($io + 9)
+    alias_both tg_force	        ($VIO + 9)
         [set tg_debug_force_exec        0x0004]
         [set tg_debug_force_load_exr    0x0002]
         [set tg_debug_hold              0x0001]    
-    alias_both av_ctrl          ($io + 10)
+    alias_both av_ctrl          ($VIO + 10)
         [set av_write                   0x0001]
     
-    alias_src  exr_shadow	    ($io + 11)
-    alias_src  tg_code_addr     ($io + 12)
-    alias_src  peek_data        ($io + 13)
-    alias_src  tg_debug_out	    ($io + 14)
-    alias_src  bp_status	    ($io + 15)
-    alias_src  av_waitrequest   ($io + 16)
+    alias_src  exr_shadow	    ($VIO + 11)
+    alias_src  tg_code_addr     ($VIO + 12)
+    alias_src  peek_data        ($VIO + 13)
+    alias_src  tg_debug_out	    ($VIO + 14)
+    alias_src  bp_status	    ($VIO + 15)
+    alias_src  av_waitrequest   ($VIO + 16)
     
 :begin
     // put target into reset.

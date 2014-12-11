@@ -66,6 +66,20 @@ proc asm_fetch {lin dest from data_address_reg} {
     parse3 $dest = fetchd $lin
 }
 
+# verilog integration functions.
+proc verilog_define_labels {label_pattern prefix} {
+    # return a block of Verilog code `define'ing each assembly label matching the given string pattern.
+    # prefix each one with the given prefix.
+    set vlg {}
+    dict for {lbl addr} $::labels {
+        if {[string match -nocase $label_pattern $lbl]} {
+            append vlg "`define $prefix$lbl 16'h[format %04x $addr]\n"
+        }
+    }
+    return $vlg
+}
+
+
 #patch: create a stack, and macros to auto-push and auto-pop on it, depending on the list of registers used by the current function.
 # 2-pass assembler makes that easy.  build list on first pass.  implement on 2nd pass.
 # but that messes up labels, because auto-push might take any number of cycles.

@@ -7,8 +7,8 @@
 // MIN_NUM_REGS <= NUM_REGS <= MAX_NUM_REGS.
 `define MIN_NUM_REGS            2
 `define MAX_NUM_REGS            48
-`define NUM_REGS                32
-`define TOP_REG                 `NUM_REGS - 1
+//`define NUM_REGS                32
+//`define TOP_REG                 `NUM_REGS - 1
 
 `define DEBUG_IN_WIDTH          3
 `define DEBUG_OUT_WIDTH         6
@@ -16,6 +16,10 @@
 // `define DEBUG_POKE_REG       `TOP_REG - 1   
 
 // clear some macros that are commonly used locally in some files.
+`undef NUM_REGS
+`undef TOP_REG
 `undef NUM_GP
 `undef TOP_GP
 `undef IO 
+
+`include "asm_defines.v"
