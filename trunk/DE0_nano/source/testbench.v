@@ -32,7 +32,7 @@ supervised_synapse316 mcu(
     .dbg_av_write        (dbg_av_write)
 );    
 
-std_reg[`TOP_GP:0] gp_reg(sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
+std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
 
 // UART
 // wire txbsy; // this wire was ineffective in fixing ambiguous muxa_comb.

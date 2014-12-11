@@ -14,3 +14,8 @@
 `define DEBUG_OUT_WIDTH         6
 `define DEBUG_PEEK_REG          `TOP_REG
 // `define DEBUG_POKE_REG       `TOP_REG - 1   
+
+// clear some macros that are commonly used locally in some files.
+`undef NUM_GP
+`undef TOP_GP
+`undef IO 

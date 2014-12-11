@@ -58,6 +58,9 @@ module top (
 
 ////////////////////////////////////////////////////////////////////////////
 
+wire sysclk = clk50m;
+wire sysreset = 1'b0;
+
 // dg408 -  JP3 -   schem -     fpga -  verilog -   nios bit
 // en =2    8       gpio_23     c16     gpio_2[3]   3
 // a2 =15   7       gpio_22     c14     gpio_2[2]   2
@@ -72,7 +75,7 @@ assign GPIO_2[1] = anmux_ctrl[0];
 // PLL for UARTs.
 wire clk_async;          // 4x desired bit rate.  460,800 hz for 115,200 bps.   38,400 hz for 9,600 bps.
 async_pll async_pll_inst (
-    .inclk0 ( clk50m ),
+    .inclk0 ( sysclk ),
     .c0 ( clk_async ),
     .locked (  )
 );
@@ -90,8 +93,8 @@ wire                      dbg_av_waitrequest;
 wire[15:0]                dbg_av_writedata;
 wire                      dbg_av_write;
 supervised_synapse316 mcu(
-    .sysclk          (clk50m      ) ,
-    .sysreset        (0    ) ,
+    .sysclk          (sysclk      ) ,
+    .sysreset        (sysreset    ) ,
     .r               (r),
     .r_read          (r_read),
     .r_load          (r_load),
@@ -102,15 +105,15 @@ supervised_synapse316 mcu(
     .dbg_av_write        (dbg_av_write)
 );    
 
-std_reg[`TOP_GP:0] gp_reg(sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
+std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
 
 // plumbing of target MCU outputs.
-std_reg #(WIDTH=8) led_reg(sysclk, sysreset, r[`IO + 0][7:0], r_load_data[7:0], r_load[`IO + 0]);
+std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`IO + 0][7:0], r_load_data[7:0], r_load[`IO + 0]);
 assign LED = r[`IO + 0][7:0];
 
 // UART
-std_reg #(WIDTH=8) atx_data_reg(sysclk, sysreset, r[`IO + 1][7:0], r_load_data[7:0], r_load[`IO + 1]);
-std_reg #(WIDTH=1) atx_ctrl_reg(sysclk, sysreset, r[`IO + 2][0], r_load_data[0], r_load[`IO + 2]);
+std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, r[`IO + 1][7:0], r_load_data[7:0], r_load[`IO + 1]);
+std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, r[`IO + 2][0], r_load_data[0], r_load[`IO + 2]);
 uart_v2_tx utx (
      .uart_sample_clk(clk_async) // clocked at 4x bit rate.
     ,.parallel_in    (r[`IO + 1][7:0])
@@ -122,8 +125,8 @@ uart_v2_tx utx (
 // Qsys system including JTAG UART.
 // in a Nios II Command Shell, type nios2-terminal --help, or just nios2-terminal.
 qsys2 u0 (
-    .clk_clk                      (clk50m),                      
-    .reset_reset_n                (1),                
+    .clk_clk                      (sysclk),                      
+    .reset_reset_n                ( ! sysreset),                
     .m0_address                   (dbg_av_address),                   
     .m0_read                      (0),                      
     .m0_waitrequest               (dbg_av_waitrequest),               

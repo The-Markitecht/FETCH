@@ -29,14 +29,12 @@ reg                        rom_wait = 0; // useful for simulation only.
 wire[15:0]                 tg_code_addr;
 wire[15:0]                 tg_code_in;
 wire                       tg_code_ready;
-wire[15:0]                tg_r[`VISOR_TOP_REG:0];
-wire[`VISOR_TOP_REG:0]    tg_r_read;  
-wire[`VISOR_TOP_REG:0]    tg_r_load;
+wire[15:0]                 tg_r[`TOP_REG:0];
+wire[`TOP_REG:0]           tg_r_read;  
+wire[`TOP_REG:0]           tg_r_load;
 wire                       tg_reset;
-wire[`DEBUG_IN_WIDTH-1:0]   tg_debug_in;
-wire[`DEBUG_OUT_WIDTH-1:0]  tg_debug_out; 
-assign r = tg_r;
-assign r_load = tg_r_load;
+wire[`DEBUG_IN_WIDTH-1:0]  tg_debug_in;
+wire[`DEBUG_OUT_WIDTH-1:0] tg_debug_out; 
 target_program rom(
     .addr(tg_code_addr),
     .data(rom_code_in)
@@ -56,10 +54,11 @@ synapse316 target(
 );    
 // slice DEBUG_PEEK_REG off the top of the target's register file.
 wire[15:0] peek_data;
-assign tg_r = {peek_data, r[`DEBUG_PEEK_REG-1:0]};
+assign tg_r[`DEBUG_PEEK_REG] = peek_data;
+assign tg_r[`DEBUG_PEEK_REG-1:0] = r[`DEBUG_PEEK_REG-1:0];
 assign r_read = {1'b0, tg_r_read[`DEBUG_PEEK_REG-1:0]};
 assign r_load = {1'b0, tg_r_load[`DEBUG_PEEK_REG-1:0]};
-std_reg peek_data_reg (sysclk, sysreset, peek_data, tg_r_load_data, tg_r_load[`DEBUG_PEEK_REG]);
+std_reg peek_data_reg (sysclk, sysreset, peek_data, r_load_data, tg_r_load[`DEBUG_PEEK_REG]);
     
 // debugging supervisor.
 visor visr(

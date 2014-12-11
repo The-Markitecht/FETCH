@@ -50,6 +50,16 @@
 { "" "" "" "Verilog HDL warning at visor.v(83): object d used but never assigned" {  } {  } 0 10858 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Verilog HDL or VHDL warning at top.v(120): object \"r\" assigned a value but never read" {  } {  } 0 10036 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Verilog HDL warning at top.v(125): object d used but never assigned" {  } {  } 0 10858 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[10\]\[15..2\]\" at top.v(84) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[31..11\]\" at top.v(84) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[9\]\[15..8\]\" at top.v(84) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[8\]\[15..8\]\" at top.v(84) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL or VHDL warning at visor.v(72): object \"poke_data\" assigned a value but never read" {  } {  } 0 10036 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[22\]\[15..6\]\" at visor.v(42) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[18\]\[15..2\]\" at visor.v(42) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[17\]\[15..3\]\" at visor.v(42) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[16\]\[15..3\]\" at visor.v(42) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Output port \"tg_poke_data\" at visor.v(28) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

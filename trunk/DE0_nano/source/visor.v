@@ -48,7 +48,7 @@ visor_program rom(
     .data(code_fetched)
 );
 synapse316 #(
-    .NUM_REGS = `VISOR_NUM_REGS
+    .NUM_REGS(`VISOR_NUM_REGS)
 ) mcu(
     .sysclk          (sysclk      ) ,
     .sysreset        (sysreset   ) ,
@@ -63,11 +63,15 @@ synapse316 #(
     .debug_in        (0)    
 );    
 
-std_reg[`VISOR_TOP_GP:0] gp_reg(sysclk, sysreset, r[`VISOR_TOP_GP:0], r_load_data[`VISOR_TOP_GP:0], r_load[`VISOR_TOP_GP:0]);
+std_reg gp_reg[`VISOR_TOP_GP:0](sysclk, sysreset, r[`VISOR_TOP_GP:0], r_load_data, r_load[`VISOR_TOP_GP:0]);
 
 // plumbing of visor outputs, target inputs.
-std_reg[7:0] output_reg(sysclk, sysreset, r[`IO+7:`IO], r_load_data[`IO+7:`IO], r_load[`IO+7:`IO]);
-wire[15:0] bp_addr[3:0]         = r[`IO + 3:`IO];
+std_reg output_reg[7:0](sysclk, sysreset, r[`IO+7:`IO], r_load_data, r_load[`IO+7:`IO]);
+wire[15:0] bp_addr[3:0];
+assign bp_addr[0]               = r[`IO + 0];
+assign bp_addr[1]               = r[`IO + 1];
+assign bp_addr[2]               = r[`IO + 2];
+assign bp_addr[3]               = r[`IO + 3];
 wire[15:0] force_opcode         = r[`IO + 4];
 wire[15:0] poke_data            = r[`IO + 5];
 assign av_writedata             = r[`IO + 6];
@@ -79,12 +83,12 @@ wire divert_code_bus = r[`IO + 8][2];
 assign tg_reset      =  sysreset || r[`IO + 8][1];
 assign tg_code_ready = divert_code_bus ? (r[`IO + 8][0] /* || step_cycle */ ) : (rom_code_ready && ! bp_hit);
 assign tg_code_in = divert_code_bus ? force_opcode : rom_code_in;
-std_reg #(WIDTH=3) bus_ctrl_reg(sysclk, sysreset, r[`IO + 8][2:0], r_load_data[2:0], r_load[`IO + 8]);
+std_reg #(.WIDTH(3)) bus_ctrl_reg(sysclk, sysreset, r[`IO + 8][2:0], r_load_data[2:0], r_load[`IO + 8]);
 
-std_reg #(WIDTH=3) force_reg(sysclk, sysreset, r[`IO + 9][`DEBUG_IN_WIDTH-1:0], r_load_data[`DEBUG_IN_WIDTH-1:0], r_load[`IO + 9]);
+std_reg #(.WIDTH(3)) force_reg(sysclk, sysreset, r[`IO + 9][`DEBUG_IN_WIDTH-1:0], r_load_data[`DEBUG_IN_WIDTH-1:0], r_load[`IO + 9]);
 assign tg_debug_in   = r[`IO + 9][`DEBUG_IN_WIDTH-1:0]; // {debug_force_exec, debug_force_load_exr, debug_hold}
 
-std_reg #(WIDTH=2) av_ctrl_reg(sysclk, sysreset, r[`IO + 10][1:0], r_load_data[1:0], r_load[`IO + 10]);
+std_reg #(.WIDTH(2)) av_ctrl_reg(sysclk, sysreset, r[`IO + 10][1:0], r_load_data[1:0], r_load[`IO + 10]);
 assign av_write      = r[`IO + 10][0];
 
 // plumbing of visor inputs, target outputs.
@@ -117,8 +121,8 @@ always @(posedge sysreset or posedge sysclk) begin
             
         if (r_load[8] || r_load[9] || r_load[10] || r_load[11])
             bp_hit <= 0;
-        else if ((tg_code_addr == bp0_addr || tg_code_addr == bp1_addr || 
-            tg_code_addr == bp2_addr || tg_code_addr == bp3_addr) && tg_enable_exec)
+        else if ((tg_code_addr == bp_addr[0] || tg_code_addr == bp_addr[1] || 
+            tg_code_addr == bp_addr[2] || tg_code_addr == bp_addr[3]) && tg_enable_exec)
             bp_hit <= 1;
         
         // if (step_cmd && ! last_step_cmd)

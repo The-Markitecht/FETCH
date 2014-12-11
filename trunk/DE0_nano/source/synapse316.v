@@ -8,7 +8,7 @@ module std_reg #(
      input                       sysclk            
     ,input                       sysreset          
 
-    ,output reg[15:0]            data_out
+    ,output reg[15:0]            data_out = 0
     ,input[15:0]                 data_in           
     ,input                       load
 );      
@@ -23,10 +23,10 @@ endmodule
 module synapse316 #(
     // this module alone offers parameters instead of using the system-wide define's directly.
     // that allows for different dimensions of different instances.
-    parameter IPR_WIDTH         = `IPR_WIDTH      
-    parameter IPR_TOP           = IPR_WIDTH - 1       
-    parameter NUM_REGS          = `NUM_REGS       
-    parameter TOP_REG           = NUM_REGS - 1       
+     parameter IPR_WIDTH         = `IPR_WIDTH      
+    ,parameter IPR_TOP           = IPR_WIDTH - 1       
+    ,parameter NUM_REGS          = `NUM_REGS       
+    ,parameter TOP_REG           = NUM_REGS - 1       
 ) (
      input                       sysclk            
     ,input                       sysreset          
@@ -152,10 +152,11 @@ module synapse316 #(
     // plumbing for register file r.  for operands, general use, and i/o.
     // registers r0 and r1 are the operands for ad0 and certain other binary operators.
     assign r_load_data = muxa_comb;
-    wire r_full[`MAX_NUM_REGS-1:0]; // a fully populated register space.  some portion of this will be fake registers, unconnected.
+    wire[15:0] r_full[`MAX_NUM_REGS-1:0]; // a fully populated register space.  some portion of this will be fake registers, unconnected.
     genvar i;
     generate  
-        for (i=0; i < NUM_REGS; i=i+1) begin: reg_read_decoder
+        for (i=0; i < NUM_REGS; i=i+1) begin: reg_ctrl_decoder
+            assign r_load[i] = muxa_do_copy && (muxa_dest_addr == i);
             assign r_read[i] = muxa_do_copy && (muxa_src_addr == i);
             assign r_full[i] = r[i];
         end  
@@ -257,10 +258,11 @@ module synapse316 #(
     end
 
     // shifter unit
-    wire[15:0] sh1l0 = {r_full[0][14:0], 1'b0};
-    wire[15:0] sh4l0 = {r_full[0][11:0], 4'b0};  
-    wire[15:0] sh1r0 = {1'b0, r_full[0][15:1]};  
-    wire[15:0] sh4r0 = {4'b0, r_full[0][15:4]};
+    wire[15:0] rf0 = r_full[0];
+    wire[15:0] sh1l0 = {rf0[14:0], 1'b0};
+    wire[15:0] sh4l0 = {rf0[11:0], 4'b0};  
+    wire[15:0] sh1r0 = {1'b0, rf0[15:1]};  
+    wire[15:0] sh4r0 = {4'b0, rf0[15:4]};
     
     // constants unit.
     wire[15:0] const_neg1 = 16'hffff;
