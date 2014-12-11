@@ -21,16 +21,6 @@ asm_alias_both {} i 2
 asm_alias_both {} j 3
 asm_alias_both {} x 4
 asm_alias_both {} y 5
-asm_alias_both {} g6  6
-asm_alias_both {} g7  7
-asm_alias_both {} g8  8
-asm_alias_both {} g9  9
-asm_alias_both {} g10 10
-asm_alias_both {} g11 11
-asm_alias_both {} g12 12
-asm_alias_both {} g13 13
-asm_alias_both {} g14 14
-asm_alias_both {} g15 15
 asm_alias_src  {} a+b [src ad0]
 asm_alias_src  {} i+j [src ad1]
 asm_alias_src  {} x+y [src ad2]

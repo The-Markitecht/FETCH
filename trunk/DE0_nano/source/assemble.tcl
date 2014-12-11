@@ -5,9 +5,7 @@
 # muxer source & destination maps.
 set ::asrc [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     r8 8 r9 9 r10 10 r11 11 r12 12 r13 13 r14 14 r15 15 \
-    rtna 0x2f \
-    in0 0x40 in1 0x41 in2 0x42 in3 0x43 in4 0x44 in5 0x45 in6 0x46 in7 0x47 \
-    in8 0x48 in9 0x49 in10 0x4a in11 0x4b in12 0x4c in13 0x4d in14 0x4e in15 0x4f \
+    rtna 0x3e \
     ad0     0x300   \
     ad1     0x310   \
     ad2     0x320   \
@@ -27,13 +25,13 @@ set ::asrc [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
 
 set ::adest [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     r8 8 r9 9 r10 10 r11 11 r12 12 r13 13 r14 14 r15 15 \
-    rtna    0x2f    \
     clrf    0x30    \
     setf    0x31    \
     nop     0x32    \
     fetcha  0x34    \
     br      0x38    \
     bn      0x39    \
+    rtna    0x3e    \
     swapra  0x3f    \
     ]    
 

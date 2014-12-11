@@ -7,10 +7,12 @@ module supervised_synapse316 (
      input                       sysclk            
     ,input                       sysreset          
 
-    ,output[15:0]                r[`TOP_REG:0]
-    ,output[`TOP_REG:0]           r_load
-    
-    ,input[15:0]                 data_in[`TOP_DATA_INPUT:0]
+    // register file, for any combination of general-purpose registers and i/o addressing.
+    // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
+    ,input[15:0]                 r[`TOP_REG:0]
+    ,output[`TOP_REG:0]          r_read    
+    ,output[`TOP_REG:0]          r_load
+    ,output[15:0]                r_load_data    
     
     // Avalon MM master
     ,output[15:0]                dbg_av_address
@@ -27,12 +29,12 @@ reg                        rom_wait = 0; // useful for simulation only.
 wire[15:0]                 tg_code_addr;
 wire[15:0]                 tg_code_in;
 wire                       tg_code_ready;
-wire[15:0]                 tg_r[`TOP_REG:0];
-wire[`TOP_REG:0]            tg_r_load;
+wire[15:0]                tg_r[`VISOR_TOP_REG:0];
+wire[`VISOR_TOP_REG:0]    tg_r_read;  
+wire[`VISOR_TOP_REG:0]    tg_r_load;
 wire                       tg_reset;
 wire[`DEBUG_IN_WIDTH-1:0]   tg_debug_in;
 wire[`DEBUG_OUT_WIDTH-1:0]  tg_debug_out; 
-wire[15:0]                 tg_from_visor;
 assign r = tg_r;
 assign r_load = tg_r_load;
 target_program rom(
@@ -46,12 +48,19 @@ synapse316 target(
     .code_in         (tg_code_in) ,
     .code_ready      (tg_code_ready  ) ,
     .r               (tg_r),
+    .r_read          (tg_r_read),
     .r_load          (tg_r_load),
-    .data_in         ({tg_from_visor, data_in}),
+    .r_load_data     (r_load_data),
     .debug_out       (tg_debug_out),
     .debug_in        (tg_debug_in)
 );    
-
+// slice DEBUG_PEEK_REG off the top of the target's register file.
+wire[15:0] peek_data;
+assign tg_r = {peek_data, r[`DEBUG_PEEK_REG-1:0]};
+assign r_read = {1'b0, tg_r_read[`DEBUG_PEEK_REG-1:0]};
+assign r_load = {1'b0, tg_r_load[`DEBUG_PEEK_REG-1:0]};
+std_reg peek_data_reg (sysclk, sysreset, peek_data, tg_r_load_data, tg_r_load[`DEBUG_PEEK_REG]);
+    
 // debugging supervisor.
 visor visr(
      .sysclk          (sysclk)
@@ -64,8 +73,8 @@ visor visr(
     ,.tg_debug_in     (tg_debug_in   )
     ,.tg_debug_out    (tg_debug_out  )
     ,.tg_reset        (tg_reset      )
-    ,.tg_to_visor_reg (r[`DEBUG_REG_NUM]    )
-    ,.tg_from_visor_reg(tg_from_visor)
+    ,.tg_peek_data    (peek_data     )
+    ,.tg_poke_data    ()
     ,.av_address      (dbg_av_address     )
     ,.av_waitrequest  (dbg_av_waitrequest )
     ,.av_writedata    (dbg_av_writedata   )

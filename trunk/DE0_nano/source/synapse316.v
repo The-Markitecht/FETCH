@@ -2,8 +2,9 @@
 
 // synthesize with SystemVerilog
 
-module std_reg 
-(
+module std_reg #(
+    parameter WIDTH = 16
+) (
      input                       sysclk            
     ,input                       sysreset          
 
@@ -23,13 +24,9 @@ module synapse316 #(
     // this module alone offers parameters instead of using the system-wide define's directly.
     // that allows for different dimensions of different instances.
     parameter IPR_WIDTH         = `IPR_WIDTH      
-    parameter IPR_TOP           = `IPR_TOP        
+    parameter IPR_TOP           = IPR_WIDTH - 1       
     parameter NUM_REGS          = `NUM_REGS       
-    parameter TOP_REG           = `TOP_REG        
-    parameter NUM_DATA_INPUTS   = `NUM_DATA_INPUTS
-    parameter TOP_DATA_INPUT    = `TOP_DATA_INPUT 
-    parameter DEBUG_IN_WIDTH    = `DEBUG_IN_WIDTH 
-    parameter DEBUG_OUT_WIDTH   = `DEBUG_OUT_WIDTH
+    parameter TOP_REG           = NUM_REGS - 1       
 ) (
      input                       sysclk            
     ,input                       sysreset          
@@ -39,24 +36,19 @@ module synapse316 #(
     ,input                       code_ready
 
     // signals for use only by a debugging supervisor.
-    ,input[DEBUG_IN_WIDTH-1:0]   debug_in // connect to 0 if supervisor not present.
-    ,output[DEBUG_OUT_WIDTH-1:0] debug_out // do not connect if supervisor not present.
+    ,input[`DEBUG_IN_WIDTH-1:0]   debug_in // connect to 0 if supervisor not present.
+    ,output[`DEBUG_OUT_WIDTH-1:0] debug_out // do not connect if supervisor not present.
     
-    // i/o ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
-    ,output[15:0]                r[TOP_REG:0]
+    // register file, for any combination of general-purpose registers and i/o addressing.
+    // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
+    ,input[15:0]                 r[TOP_REG:0]
+    ,output[TOP_REG:0]           r_read    
     ,output[TOP_REG:0]           r_load
-    
-    ,input[15:0]                 data_in[TOP_DATA_INPUT:0]
-    
-//patch: need a way to write to externally implemented registers.  
-//might be enough to simply declare a certain threshold, above which all are external.    
-// and expose the muxa comb data.  address is not needed since its decoding is still internal here.
-// that might eliminate to_visor_reg also.
-    
+    ,output[15:0]                r_load_data    
 ); 
 
     // declarations & wires
-    wire[15:0] muxa_comb;    
+    wire[15:0] muxa_comb;      
     reg[15:0] exr; // executing instruction register
     
     // 316 instruction format:
@@ -93,10 +85,10 @@ module synapse316 #(
     wire random_fetch_operator  = muxa_do_copy && (muxa_dest_addr == 6'h34); // this indicates a 16-bit value should be read from the program with random access.
     wire br_operator            = muxa_do_copy && (muxa_dest_addr == 6'h38);
     wire bn_operator            = muxa_do_copy && (muxa_dest_addr == 6'h39);
+    wire muxa_dest_return_addr  = muxa_do_copy && (muxa_dest_addr == 6'h3e);
     wire return_operator        = muxa_do_copy && (muxa_dest_addr == 6'h3f); // swaps ipr and return_addr.  this allows for subroutine call and return, as well as computed jump.
     wire binary_operator0 = r_load[0] || r_load[1];
     wire muxa_source_imm16 = muxa_do_copy && (muxa_src_addr == 10'h3a0);
-    wire muxa_dest_return_addr = muxa_do_copy && (muxa_dest_addr == 6'h2f);
  
     // instruction pointer, executing instruction register, and more control logic.
     reg[IPR_TOP:0] ipr = 0;
@@ -157,9 +149,20 @@ module synapse316 #(
     assign debug_out = {branching_cycle, const16cycle1, random_fetch_cycle1, 
         random_fetch_cycle2, load_exr, enable_exec};
     
-    // register file r.  for operands, and general use.
+    // plumbing for register file r.  for operands, general use, and i/o.
     // registers r0 and r1 are the operands for ad0 and certain other binary operators.
-    std_reg[TOP_REG:0] r_reg (sysclk, sysreset, r, muxa_comb, r_load);
+    assign r_load_data = muxa_comb;
+    wire r_full[`MAX_NUM_REGS-1:0]; // a fully populated register space.  some portion of this will be fake registers, unconnected.
+    genvar i;
+    generate  
+        for (i=0; i < NUM_REGS; i=i+1) begin: reg_read_decoder
+            assign r_read[i] = muxa_do_copy && (muxa_src_addr == i);
+            assign r_full[i] = r[i];
+        end  
+        for (i=NUM_REGS; i < `MAX_NUM_REGS; i=i+1) begin: fake_reg
+            assign r_full[i] = 16'hxxxx;
+        end  
+    endgenerate     
     
     // adder #0 with carry support
     reg[15:0] ad0; // result register
@@ -167,7 +170,7 @@ module synapse316 #(
     reg ad0_carry_flag;
     reg ad0_zero_flag;
     wire ad0_zero_comb = ! ( | ad0_comb[15:0]);
-    assign ad0_comb = {1'd0, regs[0].r} + {1'd0, regs[1].r} + {15'd0, ad0_carry_flag};
+    assign ad0_comb = {1'd0, r_full[0]} + {1'd0, r_full[1]} + {15'd0, ad0_carry_flag};
     wire ad0_carry_out_comb = ad0_comb[16];
     reg load_carry = 1'd0;
     always @(posedge sysreset or posedge sysclk) begin
@@ -192,7 +195,7 @@ module synapse316 #(
 
     // adder #1 with NO carry support.
     reg[15:0] ad1; // result register
-    wire[15:0] ad1_comb = regs[2].r + regs[3].r;
+    wire[15:0] ad1_comb = r_full[2] + r_full[3];
     reg ad1_zero_flag;
     wire ad1_zero_comb = ! ( | ad1_comb[15:0]);
     always @(posedge sysreset or posedge sysclk) begin
@@ -207,7 +210,7 @@ module synapse316 #(
 
     // adder #2 with NO carry support.
     reg[15:0] ad2; // result register
-    wire[15:0] ad2_comb = regs[4].r + regs[5].r;
+    wire[15:0] ad2_comb = r_full[4] + r_full[5];
     reg ad2_zero_flag;
     wire ad2_zero_comb = ! ( | ad2_comb[15:0]);
     always @(posedge sysreset or posedge sysclk) begin
@@ -233,12 +236,12 @@ module synapse316 #(
 
     // bitwise operators and0, or0, xor0
     reg[15:0] and0; // result register
-    wire[15:0] and0_comb = regs[0].r & regs[1].r;
+    wire[15:0] and0_comb = r_full[0] & r_full[1];
     reg and0_zero_flag = 1'b0;
     reg[15:0] or0; // result register
-    wire[15:0] or0_comb = regs[0].r | regs[1].r;
+    wire[15:0] or0_comb = r_full[0] | r_full[1];
     reg[15:0] xor0; // result register
-    wire[15:0] xor0_comb = regs[0].r ^ regs[1].r;
+    wire[15:0] xor0_comb = r_full[0] ^ r_full[1];
     always @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
             and0 <= 0;
@@ -254,10 +257,10 @@ module synapse316 #(
     end
 
     // shifter unit
-    wire[15:0] sh1l0 = {regs[0].r[14:0], 1'b0};
-    wire[15:0] sh4l0 = {regs[0].r[11:0], 4'b0};  
-    wire[15:0] sh1r0 = {1'b0, regs[0].r[15:1]};  
-    wire[15:0] sh4r0 = {4'b0, regs[0].r[15:4]};
+    wire[15:0] sh1l0 = {r_full[0][14:0], 1'b0};
+    wire[15:0] sh4l0 = {r_full[0][11:0], 4'b0};  
+    wire[15:0] sh1r0 = {1'b0, r_full[0][15:1]};  
+    wire[15:0] sh4r0 = {4'b0, r_full[0][15:4]};
     
     // constants unit.
     wire[15:0] const_neg1 = 16'hffff;
@@ -272,49 +275,64 @@ module synapse316 #(
 
     // data muxer
     assign muxa_comb = 
-        muxa_src_addr == 10'h00 ? r[0] :
-        muxa_src_addr == 10'h01 ? r[1] :
-        muxa_src_addr == 10'h02 ? r[2] :
-        muxa_src_addr == 10'h03 ? r[3] :
-        muxa_src_addr == 10'h04 ? r[4] :
-        muxa_src_addr == 10'h05 ? r[5] :
-        muxa_src_addr == 10'h06 ? r[6] :
-        muxa_src_addr == 10'h07 ? r[7] :
-        muxa_src_addr == 10'h08 ? r[8] :
-        muxa_src_addr == 10'h09 ? r[9] :
-        muxa_src_addr == 10'h0a ? r[10] :
-        muxa_src_addr == 10'h0b ? r[11] :
-        muxa_src_addr == 10'h0c ? r[12] :
-        muxa_src_addr == 10'h0d ? r[13] :
-        muxa_src_addr == 10'h0e ? r[14] :
-        muxa_src_addr == 10'h0f ? r[15] :
-        
-        // the block 0x10 thru 0x3f is reserved for more registers.
-        // most of those would be i/o rather than gp.  
-        muxa_src_addr == 10'h2f ? return_addr :
+        // register file.
+        muxa_src_addr == 10'h00 ? r_full[0] :
+        muxa_src_addr == 10'h01 ? r_full[1] :
+        muxa_src_addr == 10'h02 ? r_full[2] :
+        muxa_src_addr == 10'h03 ? r_full[3] :
+        muxa_src_addr == 10'h04 ? r_full[4] :
+        muxa_src_addr == 10'h05 ? r_full[5] :
+        muxa_src_addr == 10'h06 ? r_full[6] :
+        muxa_src_addr == 10'h07 ? r_full[7] :
+        muxa_src_addr == 10'h08 ? r_full[8] :
+        muxa_src_addr == 10'h09 ? r_full[9] :
+        muxa_src_addr == 10'h0a ? r_full[10] :
+        muxa_src_addr == 10'h0b ? r_full[11] :
+        muxa_src_addr == 10'h0c ? r_full[12] :
+        muxa_src_addr == 10'h0d ? r_full[13] :
+        muxa_src_addr == 10'h0e ? r_full[14] :
+        muxa_src_addr == 10'h0f ? r_full[15] :
+        muxa_src_addr == 10'h10 ? r_full[16] :
+        muxa_src_addr == 10'h11 ? r_full[17] :
+        muxa_src_addr == 10'h12 ? r_full[18] :
+        muxa_src_addr == 10'h13 ? r_full[19] :
+        muxa_src_addr == 10'h14 ? r_full[20] :
+        muxa_src_addr == 10'h15 ? r_full[21] :
+        muxa_src_addr == 10'h16 ? r_full[22] :
+        muxa_src_addr == 10'h17 ? r_full[23] :
+        muxa_src_addr == 10'h18 ? r_full[24] :
+        muxa_src_addr == 10'h19 ? r_full[25] :
+        muxa_src_addr == 10'h1a ? r_full[26] :
+        muxa_src_addr == 10'h1b ? r_full[27] :
+        muxa_src_addr == 10'h1c ? r_full[28] :
+        muxa_src_addr == 10'h1d ? r_full[29] :
+        muxa_src_addr == 10'h1e ? r_full[30] :
+        muxa_src_addr == 10'h1f ? r_full[31] :
+        muxa_src_addr == 10'h20 ? r_full[32] :
+        muxa_src_addr == 10'h21 ? r_full[33] :
+        muxa_src_addr == 10'h22 ? r_full[34] :
+        muxa_src_addr == 10'h23 ? r_full[35] :
+        muxa_src_addr == 10'h24 ? r_full[36] :
+        muxa_src_addr == 10'h25 ? r_full[37] :
+        muxa_src_addr == 10'h26 ? r_full[38] :
+        muxa_src_addr == 10'h27 ? r_full[39] :
+        muxa_src_addr == 10'h28 ? r_full[40] :
+        muxa_src_addr == 10'h29 ? r_full[41] :
+        muxa_src_addr == 10'h2a ? r_full[42] :
+        muxa_src_addr == 10'h2b ? r_full[43] :
+        muxa_src_addr == 10'h2c ? r_full[44] :
+        muxa_src_addr == 10'h2d ? r_full[45] :
+        muxa_src_addr == 10'h2e ? r_full[46] :
+        muxa_src_addr == 10'h2f ? r_full[47] :
+                             
         // note that 0x30 thru 0x3f IN THE DESTINATION SPACE contains control operators.
         // so for symmetry it would be best to avoid that region in source space as well.
+        muxa_src_addr == 10'h3e ? return_addr :
 
         // the block 0x40 thru 0x1ff is reserved for i/o inputs.
         // so they're located above the 64 (0x40) possible destination addresses.
         // typically these would be used for devices that input data with no corresponding outputs.  like buttons.
         // or large blocks of "result" registers, e.g. FIR taps, or stack peeks, or lookup tables, or pre-masked bit fields.
-        muxa_src_addr == 10'h40 ? data_in[0] : 
-        muxa_src_addr == 10'h41 ? data_in[1] : 
-        muxa_src_addr == 10'h42 ? data_in[2] : 
-        muxa_src_addr == 10'h43 ? data_in[3] : 
-        muxa_src_addr == 10'h44 ? data_in[4] : 
-        muxa_src_addr == 10'h45 ? data_in[5] : 
-        muxa_src_addr == 10'h46 ? data_in[6] : 
-        muxa_src_addr == 10'h47 ? data_in[7] : 
-        muxa_src_addr == 10'h48 ? data_in[8] : 
-        muxa_src_addr == 10'h49 ? data_in[9] : 
-        muxa_src_addr == 10'h4a ? data_in[10] : 
-        muxa_src_addr == 10'h4b ? data_in[11] : 
-        muxa_src_addr == 10'h4c ? data_in[12] : 
-        muxa_src_addr == 10'h4d ? data_in[13] : 
-        muxa_src_addr == 10'h4e ? data_in[14] : 
-        muxa_src_addr == 10'h4f ? data_in[15] : 
 
         // the block 0x200 thru 0x2ff is reserved for small constant load operation.
         muxa_src_addr[9:8] == 2'h2 ? small_constant : 

@@ -78,9 +78,13 @@ async_pll async_pll_inst (
 );
 
 // MCU target plus debugging supervisor and a code ROM for each.
-wire[15:0]     r[`TOP_REG:0];
-wire[`TOP_REG:0] r_load;
-wire[15:0]   data_in[`DEBUG_DATA_INPUT_NUM-1:0];
+`define NUM_GP    8
+`define TOP_GP    `NUM_GP - 1
+`define IO        `NUM_GP
+wire[15:0]                r[`TOP_REG:0];
+wire[`TOP_REG:0]          r_read;  
+wire[`TOP_REG:0]          r_load;
+wire[15:0]                r_load_data;  
 wire[15:0]                dbg_av_address;
 wire                      dbg_av_waitrequest;
 wire[15:0]                dbg_av_writedata;
@@ -89,26 +93,31 @@ supervised_synapse316 mcu(
     .sysclk          (clk50m      ) ,
     .sysreset        (0    ) ,
     .r               (r),
+    .r_read          (r_read),
     .r_load          (r_load),
-    .data_in         (data_in),
+    .r_load_data     (r_load_data),
     .dbg_av_address      (dbg_av_address),
     .dbg_av_waitrequest  (dbg_av_waitrequest),
     .dbg_av_writedata    (dbg_av_writedata),
     .dbg_av_write        (dbg_av_write)
 );    
 
-assign LED = r[10][7:0];
+std_reg[`TOP_GP:0] gp_reg(sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
+
+// plumbing of target MCU outputs.
+std_reg #(WIDTH=8) led_reg(sysclk, sysreset, r[`IO + 0][7:0], r_load_data[7:0], r_load[`IO + 0]);
+assign LED = r[`IO + 0][7:0];
 
 // UART
-wire txbsy; // this wire was ineffective in fixing ambiguous muxa_comb.
+std_reg #(WIDTH=8) atx_data_reg(sysclk, sysreset, r[`IO + 1][7:0], r_load_data[7:0], r_load[`IO + 1]);
+std_reg #(WIDTH=1) atx_ctrl_reg(sysclk, sysreset, r[`IO + 2][0], r_load_data[0], r_load[`IO + 2]);
 uart_v2_tx utx (
      .uart_sample_clk(clk_async) // clocked at 4x bit rate.
-    ,.parallel_in    (r[8][7:0])
-    ,.load_data      (r[9][0])
+    ,.parallel_in    (r[`IO + 1][7:0])
+    ,.load_data      (r[`IO + 2][0])
     ,.tx_line        (GPIO_2[11])
-    ,.tx_busy        (txbsy)
+    ,.tx_busy        (r[`IO + 2][1])
 );    
-assign data_in[0] = {15'd0, txbsy};
 
 // Qsys system including JTAG UART.
 // in a Nios II Command Shell, type nios2-terminal --help, or just nios2-terminal.

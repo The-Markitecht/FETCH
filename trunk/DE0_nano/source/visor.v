@@ -18,11 +18,11 @@ module visor (
     ,input[15:0]                 tg_code_addr
     ,output[15:0]                tg_code_in
     ,output                      tg_code_ready
-    ,output[`DEBUG_IN_WIDTH-1:0]  tg_debug_in
-    ,input[`DEBUG_OUT_WIDTH-1:0]  tg_debug_out
+    ,output[`DEBUG_IN_WIDTH-1:0] tg_debug_in
+    ,input[`DEBUG_OUT_WIDTH-1:0] tg_debug_out
     ,output                      tg_reset
-    ,input[15:0]                 tg_to_visor_reg
-    ,output[15:0]                tg_from_visor_reg
+    ,input[15:0]                 tg_peek_data
+    ,output[15:0]                tg_poke_data
     
     // Avalon MM master
     ,output[15:0]                av_address
@@ -32,59 +32,79 @@ module visor (
 );
 
 // supervisor Synapse 316 with its own code ROM.  totally independent of the target MCU.
+`define VISOR_NUM_REGS  25
+`define VISOR_TOP_REG   `VISOR_NUM_REGS - 1
+`define VISOR_NUM_GP    8
+`define VISOR_TOP_GP    `VISOR_NUM_GP - 1
+`define IO              `VISOR_NUM_GP
 wire[15:0] code_addr;
 wire[15:0] code_fetched;
-wire[15:0]     r[`TOP_REG:0];
-wire[`TOP_REG:0] r_load;
-wire[15:0]   data_in[`TOP_DATA_INPUT:0];
+wire[15:0]                r[`VISOR_TOP_REG:0];
+wire[`VISOR_TOP_REG:0]    r_read;  
+wire[`VISOR_TOP_REG:0]    r_load;
+wire[15:0]                r_load_data;  
 visor_program rom(
     .addr(code_addr),
     .data(code_fetched)
 );
-synapse316 mcu(
+synapse316 #(
+    .NUM_REGS = `VISOR_NUM_REGS
+) mcu(
     .sysclk          (sysclk      ) ,
     .sysreset        (sysreset   ) ,
     .code_addr       (code_addr   ) ,
     .code_in         (code_fetched) ,
     .code_ready      (1'b1  ) ,
     .r               (r),
+    .r_read          (r_read),
     .r_load          (r_load),
-    .data_in         (data_in),
+    .r_load_data     (r_load_data),
     .debug_out       (),
     .debug_in        (0)    
 );    
 
-// plumbing of target outputs, visor inputs.
-reg bp_hit = 0;
-//reg step_cycle = 0;
-reg[15:0] exr_shadow = 0;    
-wire tg_loading_exr = tg_debug_out[1];
-wire tg_enable_exec = tg_debug_out[0];
-assign data_in[0] = tg_code_addr;
-assign data_in[1] = tg_to_visor_reg;
-assign data_in[2][`DEBUG_OUT_WIDTH-1:0] = tg_debug_out;
-assign data_in[3] = exr_shadow; 
-assign data_in[4] = {15'h0, bp_hit}; 
-assign data_in[5] = {15'h0, av_waitrequest}; 
+std_reg[`VISOR_TOP_GP:0] gp_reg(sysclk, sysreset, r[`VISOR_TOP_GP:0], r_load_data[`VISOR_TOP_GP:0], r_load[`VISOR_TOP_GP:0]);
 
-// plumbing of target inputs, visor outputs.
-assign tg_debug_in = {r[15][`DEBUG_IN_WIDTH-1:0]}; // {debug_force_exec, debug_force_load_exr, debug_hold}
+// plumbing of visor outputs, target inputs.
+std_reg[7:0] output_reg(sysclk, sysreset, r[`IO+7:`IO], r_load_data[`IO+7:`IO], r_load[`IO+7:`IO]);
+wire[15:0] bp_addr[3:0]         = r[`IO + 3:`IO];
+wire[15:0] force_opcode         = r[`IO + 4];
+wire[15:0] poke_data            = r[`IO + 5];
+assign av_writedata             = r[`IO + 6];
+assign av_address               = r[`IO + 7];
+
+// irregular sized outputs.
+reg bp_hit = 0;
+wire divert_code_bus = r[`IO + 8][2];
+assign tg_reset      =  sysreset || r[`IO + 8][1];
+assign tg_code_ready = divert_code_bus ? (r[`IO + 8][0] /* || step_cycle */ ) : (rom_code_ready && ! bp_hit);
+assign tg_code_in = divert_code_bus ? force_opcode : rom_code_in;
+std_reg #(WIDTH=3) bus_ctrl_reg(sysclk, sysreset, r[`IO + 8][2:0], r_load_data[2:0], r_load[`IO + 8]);
+
+std_reg #(WIDTH=3) force_reg(sysclk, sysreset, r[`IO + 9][`DEBUG_IN_WIDTH-1:0], r_load_data[`DEBUG_IN_WIDTH-1:0], r_load[`IO + 9]);
+assign tg_debug_in   = r[`IO + 9][`DEBUG_IN_WIDTH-1:0]; // {debug_force_exec, debug_force_load_exr, debug_hold}
+
+std_reg #(WIDTH=2) av_ctrl_reg(sysclk, sysreset, r[`IO + 10][1:0], r_load_data[1:0], r_load[`IO + 10]);
+assign av_write      = r[`IO + 10][0];
+
+// plumbing of visor inputs, target outputs.
+reg[15:0] exr_shadow = 0;    
+assign r[`IO + 11] = exr_shadow; 
+assign r[`IO + 12] = tg_code_addr; 
+assign r[`IO + 13] = tg_peek_data; 
+
+// irregular sized inputs.
+assign r[`IO + 14][`DEBUG_OUT_WIDTH-1:0] = tg_debug_out;
+assign r[`IO + 15] = {15'h0, bp_hit}; 
+assign r[`IO + 16] = {15'h0, av_waitrequest}; 
+
+//reg step_cycle = 0;
 //wire step_cmd = regs[14][3];
 //reg last_step_cmd = 0;
-wire divert_code_bus = r[14][2];
-assign tg_reset =  sysreset || r[14][1];
-assign tg_code_ready = divert_code_bus ? (r[14][0] /* || step_cycle */ ) : (rom_code_ready && ! bp_hit);
-assign tg_from_visor_reg = r[13];
-assign tg_code_in = divert_code_bus ? r[12] : rom_code_in;
-wire[15:0] bp3_addr = r[11];
-wire[15:0] bp2_addr = r[10];
-wire[15:0] bp1_addr = r[9];
-wire[15:0] bp0_addr = r[8];
-assign av_writedata = r[7];
-assign av_write     = r[6][15];
-assign av_address   = {1'b0, r[6][14:0]};
 
 // debugger logic
+wire tg_loading_exr = tg_debug_out[1];
+wire tg_enable_exec = tg_debug_out[0];
 always @(posedge sysreset or posedge sysclk) begin
     if (sysreset) begin
         exr_shadow <= 0;

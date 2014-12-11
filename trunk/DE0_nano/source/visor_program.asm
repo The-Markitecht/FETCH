@@ -3,33 +3,38 @@
 // for debugging supervisor mcu.
 
     // application-specific register aliases.    
-    alias_both tg_force	15
-        [set tg_debug_force_exec        0x0004]
-        [set tg_debug_force_load_exr    0x0002]
-        [set tg_debug_hold              0x0001]
-    alias_both bus_ctrl	14
+    alias_both g6                   6 
+    alias_both g7                   7
+    [set visor_num_gp    8]
+    [set io $visor_num_gp]
+    alias_both bp3_addr	        ($io + 3)
+    alias_both bp2_addr	        ($io + 2)
+    alias_both bp1_addr	        ($io + 1)
+    alias_both bp0_addr	        ($io + 0)
+        [set bp_disable                 0xffff]
+    alias_both force_opcode	    ($io + 4)
+    alias_both poke_data        ($io + 5)
+    alias_both av_writedata	    ($io + 6)
+    alias_both av_address       ($io + 7)
+        [set jtag_uart_base             0x0100]
+            [set jtag_uart_data $jtag_uart_base]
+    alias_both bus_ctrl	        ($io + 8)
         [set divert_code_bus 	        0x0004]
         [set tg_reset 		            0x0002]
         [set tg_code_ready	            0x0001]
-    alias_both tg_from_visor_reg 13
-    alias_both tg_code_in	12
-    alias_both bp3_addr	11
-    alias_both bp2_addr	10
-    alias_both bp1_addr	9
-    alias_both bp0_addr	8
-        [set bp_disable 0xffff]
-    alias_both av_writedata	7
-    alias_both av_address   6
-        [set av_write   0x8000]
-        [set jtag_uart_base 0x0100]
-            [set jtag_uart_data $jtag_uart_base]
+    alias_both tg_force	        ($io + 9)
+        [set tg_debug_force_exec        0x0004]
+        [set tg_debug_force_load_exr    0x0002]
+        [set tg_debug_hold              0x0001]    
+    alias_both av_ctrl          ($io + 10)
+        [set av_write                   0x0001]
     
-    alias_src  tg_code_addr     [src in0]
-    alias_src  tg_to_visor_reg  [src in1]
-    alias_src  tg_debug_out	    [src in2]
-    alias_src  exr_shadow	    [src in3]
-    alias_src  bp_status	    [src in4]
-    alias_src  av_waitrequest   [src in5]
+    alias_src  exr_shadow	    ($io + 11)
+    alias_src  tg_code_addr     ($io + 12)
+    alias_src  peek_data        ($io + 13)
+    alias_src  tg_debug_out	    ($io + 14)
+    alias_src  bp_status	    ($io + 15)
+    alias_src  av_waitrequest   ($io + 16)
     
 :begin
     // put target into reset.
@@ -94,14 +99,14 @@
     // observe a register.
     bus_ctrl = $divert_code_bus
     tg_force = $tg_debug_hold
-    fetch tg_code_in from ([label observe] + 7)
+    fetch force_opcode from ([label observe] + 7)
     tg_force = ($tg_debug_hold | $tg_debug_force_load_exr)
     tg_force = ($tg_debug_hold | $tg_debug_force_exec)
     tg_force = $tg_debug_hold
-    // target's r7 value is now in tg_to_visor_reg.
+    // target's r7 value is now in peek_data.
     
     // refill target exr so it can resume seamlessly.
-    tg_code_in = exr_shadow
+    force_opcode = exr_shadow
     tg_force = ($tg_debug_hold | $tg_debug_force_load_exr)
     tg_force = 0
     bus_ctrl = 0
@@ -110,7 +115,7 @@
     bp0_addr = bp0_addr
     
     // send byte on Avalon.
-    av_writedata = tg_to_visor_reg
+    av_writedata = peek_data
     av_address = ($jtag_uart_data | $av_write)
     a = 0
 :wait_for_slave    
@@ -123,19 +128,20 @@
     
 :observe
     // these instructions are assembled in the visor program, but passed to the target to execute.
-    r15 = r0
-    r15 = r1
-    r15 = r2
-    r15 = r3
-    r15 = r4
-    r15 = r5
-    r15 = r6
-    r15 = r7
-    r15 = r8
-    r15 = r9
-    r15 = r10
-    r15 = r11
-    r15 = r12
-    r15 = r13
-    r15 = r14
-    r15 = r15
+    alias_dest debug_peek_reg 31
+    debug_peek_reg = r0
+    debug_peek_reg = r1
+    debug_peek_reg = r2
+    debug_peek_reg = r3
+    debug_peek_reg = r4
+    debug_peek_reg = r5
+    debug_peek_reg = r6
+    debug_peek_reg = r7
+    debug_peek_reg = r8
+    debug_peek_reg = r9
+    debug_peek_reg = r10
+    debug_peek_reg = r11
+    debug_peek_reg = r12
+    debug_peek_reg = r13
+    debug_peek_reg = r14
+    debug_peek_reg = r15

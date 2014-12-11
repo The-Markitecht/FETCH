@@ -8,9 +8,13 @@ reg clk50m = 0;
 reg clk_async = 0;
 
 // MCU target plus debugging supervisor and a code ROM for each.
-wire[15:0]     r[`TOP_REG:0];
-wire[`TOP_REG:0] r_load;
-wire[15:0]   data_in[`DEBUG_DATA_INPUT_NUM-1:0];
+`define NUM_GP    8
+`define TOP_GP    `NUM_GP - 1
+`define IO        `NUM_GP
+wire[15:0]                r[`TOP_REG:0];
+wire[`TOP_REG:0]          r_read;  
+wire[`TOP_REG:0]          r_load;
+wire[15:0]                r_load_data;  
 wire[15:0]                dbg_av_address;
 wire                      dbg_av_waitrequest;
 wire[15:0]                dbg_av_writedata;
@@ -19,29 +23,32 @@ supervised_synapse316 mcu(
     .sysclk          (clk50m      ) ,
     .sysreset        (0    ) ,
     .r               (r),
+    .r_read          (r_read),
     .r_load          (r_load),
-    .data_in         (data_in),
+    .r_load_data     (r_load_data),
     .dbg_av_address      (dbg_av_address),
     .dbg_av_waitrequest  (dbg_av_waitrequest),
     .dbg_av_writedata    (dbg_av_writedata),
     .dbg_av_write        (dbg_av_write)
 );    
 
+std_reg[`TOP_GP:0] gp_reg(sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
+
 // UART
 // wire txbsy; // this wire was ineffective in fixing ambiguous muxa_comb.
 // uart_v2_tx utx (
      // .uart_sample_clk(clk_async) // clocked at 4x bit rate.
-    // ,.parallel_in    (r[8][7:0])
-    // ,.load_data      (r[9][0])
+    // ,.parallel_in    (r[`IO + 1][7:0])
+    // ,.load_data      (r[`IO + 2][0])
     // ,.tx_line        (async_out)
     // ,.tx_busy        (txbsy)
 // );    
 // assign data_in[0] = {15'd0, txbsy};
-wire[7:0] atx_parallel_in = r[8][7:0];
-wire atx_load_data = r[9][0];
+wire[7:0] atx_parallel_in = r[`IO + 1][7:0];
+wire atx_load_data = r[`IO + 2][0];
 wire txbsy;
 assign #5000 txbsy = atx_load_data;
-assign data_in[0] = {15'd0, txbsy};
+assign r[`IO + 2][1] = {15'd0, txbsy};
 
 integer serial_file; 
 integer trace_file; 

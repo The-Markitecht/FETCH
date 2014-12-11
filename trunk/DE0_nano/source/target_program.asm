@@ -3,14 +3,19 @@
 // to write some data on the UART.    
 
     // application-specific register aliases.    
-    alias_dest atx_data 0x8
-    alias_dest atx_load 0x9
-    alias_src  atx_busy [src in0]
-    alias_dest leds 0xa    
+    alias_both g6                   6 
+    alias_both g7                   7
+    [set num_gp    8]
+    [set io $num_gp]
+    alias_both leds                 ($io + 0)  
+    alias_both atx_data             ($io + 1)
+    alias_both atx_ctrl             ($io + 2)
+        [set atx_load           0x0001]
+        [set atx_busy           0x0002]
     
 :begin    
     leds = 0b00000001 
-    atx_load = 0 
+    atx_ctrl = 0 
     
     // using x as pass counter.  shows on LEDs.
     x = 0xff00
@@ -56,9 +61,9 @@
 :putchar    
 
     // wait for UART to be idle (not busy).
-    a = 1
+    a = $atx_busy
 :wait_for_idle
-    b = atx_busy
+    b = atx_ctrl
     nop
     bn and0z :wait_for_idle
     
@@ -67,17 +72,17 @@
         
     // can't use the actual register load strobe that occurs here, because it's 
     // much too fast for the UART to sample.
-    // instead use a dedicated output word atx_load.
-    atx_load = 1
+    // instead use a dedicated output word atx_ctrl.
+    atx_ctrl = $atx_load
     
     // wait until UART is busy, as acknowledgement.
-    a = 1
+    a = $atx_busy
 :wait_for_busy    
-    b = atx_busy
+    b = atx_ctrl
     leds = 0b00000100 
     br and0z :wait_for_busy
 
-    atx_load = 0 
+    atx_ctrl = 0 
     return
     
     
