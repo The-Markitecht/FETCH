@@ -25,18 +25,6 @@
     alias_src  keys             [incr counter]
     
 :begin    
-
-    leds = 2
-:patch
-    a = leds
-    b = 1
-    nop
-    leds = a+b
-    g7 = 100
-    call :spinwait    
-    jmp :patch
-
-
     leds = 1 
     
     // using i as index into string.
