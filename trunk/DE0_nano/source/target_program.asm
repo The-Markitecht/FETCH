@@ -25,6 +25,18 @@
     alias_src  keys             [incr counter]
     
 :begin    
+
+    leds = 2
+:patch
+    a = leds
+    b = 1
+    nop
+    leds = a+b
+    g7 = 100
+    call :spinwait    
+    jmp :patch
+
+
     leds = 1 
     
     // using i as index into string.
@@ -93,16 +105,17 @@
 // routine waits a number of milliseconds given in g7.    
 :spinwait
 :spinwait_outer
-    a = 12500
-    b = -1
+    x = 12500
+    y = -1
+    nop
 :spinwait_inner
+    x = x+y
     nop
-    a = a+b
-    bn z :spinwait_inner
-    a = g7
+    bn 2z :spinwait_inner
+    x = g7
     nop
-    g7 = a+b
-    bn z :spinwait_outer    
+    g7 = x+y
+    bn 2z :spinwait_outer    
     return
         
 :msg
