@@ -21,7 +21,7 @@ wire[15:0]                dbg_av_writedata;
 wire                      dbg_av_write;
 supervised_synapse316 mcu(
     .sysclk          (clk50m      ) ,
-    .sysreset        (0    ) ,
+    .sysreset        (sysreset   ) ,
     .r               (r),
     .r_read          (r_read),
     .r_load          (r_load),

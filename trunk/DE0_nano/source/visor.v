@@ -62,7 +62,7 @@ synapse316 #(
 std_reg gp_reg[`VISOR_TOP_GP:0](sysclk, sysreset, r[`VISOR_TOP_GP:0], r_load_data, r_load[`VISOR_TOP_GP:0]);
 
 // plumbing of visor outputs, target inputs.
-std_reg output_reg[7:0](sysclk, sysreset, r[`DR_AV_ADDRESS:`DR_BP0_ADDR], r_load_data, r_load[`DR_AV_ADDRESS:`DR_BP0_ADDR]);
+std_reg output_reg[5:0](sysclk, sysreset, r[`DR_POKE_DATA:`DR_BP0_ADDR], r_load_data, r_load[`DR_POKE_DATA:`DR_BP0_ADDR]);
 wire[15:0] bp_addr[3:0];
 assign bp_addr[0]               = r[`DR_BP0_ADDR];
 assign bp_addr[1]               = r[`DR_BP1_ADDR];
@@ -70,8 +70,6 @@ assign bp_addr[2]               = r[`DR_BP2_ADDR];
 assign bp_addr[3]               = r[`DR_BP3_ADDR];
 wire[15:0] force_opcode         = r[`DR_FORCE_OPCODE];
 wire[15:0] poke_data            = r[`DR_POKE_DATA];
-assign av_writedata             = r[`DR_AV_WRITEDATA];
-assign av_address               = r[`DR_AV_ADDRESS];
 
 // irregular sized outputs.
 reg bp_hit = 0;
@@ -84,9 +82,6 @@ std_reg #(.WIDTH(3)) bus_ctrl_reg(sysclk, sysreset, r[`DR_BUS_CTRL][2:0], r_load
 std_reg #(.WIDTH(3)) force_reg(sysclk, sysreset, r[`DR_TG_FORCE][`DEBUG_IN_WIDTH-1:0], r_load_data[`DEBUG_IN_WIDTH-1:0], r_load[`DR_TG_FORCE]);
 assign tg_debug_in   = r[`DR_TG_FORCE][`DEBUG_IN_WIDTH-1:0]; // {debug_force_exec, debug_force_load_exr, debug_hold}
 
-std_reg #(.WIDTH(2)) av_ctrl_reg(sysclk, sysreset, r[`DR_AV_CTRL][1:0], r_load_data[1:0], r_load[`DR_AV_CTRL]);
-assign av_write      = r[`DR_AV_CTRL][0];
-
 // plumbing of visor inputs, target outputs.
 reg[15:0] exr_shadow = 0;    
 assign r[`SR_EXR_SHADOW] = exr_shadow; 
@@ -96,7 +91,6 @@ assign r[`SR_PEEK_DATA] = tg_peek_data;
 // irregular sized inputs.
 assign r[`SR_TG_DEBUG_OUT][`DEBUG_OUT_WIDTH-1:0] = tg_debug_out;
 assign r[`SR_BP_STATUS] = {15'h0, bp_hit}; 
-assign r[`SR_AV_WAITREQUEST] = {15'h0, av_waitrequest}; 
 
 //reg step_cycle = 0;
 //wire step_cmd = regs[14][3];

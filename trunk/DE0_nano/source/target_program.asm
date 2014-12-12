@@ -14,41 +14,55 @@
     alias_both g7                   7
     [set counter $TOP_GP]
     alias_both leds                 [incr counter] 
-    alias_both atx_data             [incr counter]
-    alias_both atx_ctrl             [incr counter]
-        vdefine atx_load_mask           0x0001
-        vdefine atx_busy_mask           0x0002
+    alias_both av_writedata	    [incr counter]
+    alias_both av_address       [incr counter]
+        vdefine jtag_uart_base             0x0100
+            vdefine jtag_uart_data ($jtag_uart_base + 0)
+            vdefine jtag_uart_ctrl ($jtag_uart_base + 1)
+    alias_both av_ctrl          [incr counter]
+        vdefine av_write_mask                   0x0001   
+    alias_src  av_waitrequest   [incr counter]
+    alias_src  keys             [incr counter]
     
 :begin    
-    leds = 0b00000001 
-    atx_ctrl = 0 
+    leds = 1 
     
-    // using x as pass counter.  shows on LEDs.
-    x = 0xff00
-    y = -1
-
     // using i as index into string.
     i = 0
     
-    // cache the string limit.
-    a = 5
+    // cache the string limit in g6.
+    a = 16
     b = 0xffff
     nop
     g6 = xor
     
 :again
-    x = x+y
-    nop 
-    a = x
-    a = a>>4    
-    leds = a>>4
-
+    // // wait for keypress.
+// :wait_key_press    
+    // a = 0
+    // b = keys
+    // nop
+    // br z :wait_key_press
+// :wait_key_release   
+    // b = keys
+    // nop
+    // bn z :wait_key_release
+    
+    g7 = 100
+    call :spinwait
+    
+    // increment LEDs
+    a = leds
+    b = 1
+    nop
+    leds = a+b
+    
     // fetch a word from test pattern to the UART.  its low byte is a character.
-    j = :test_pattern
+    j = :msg
     nop
     fetch g7 from i+j
     call :putchar
-
+    
     // increment index & wrap around end of pattern.
     j = 1
     nop
@@ -60,45 +74,36 @@
 :no_wrap
     
     // repeat forever.
-    br always :again        
+    jmp :again        
 
     
 // routine sends out the low byte from g7 to the UART.  blocks until the UART accepts the byte.
 :putchar    
-
-    // wait for UART to be idle (not busy).
-    a = $atx_busy_mask
-:wait_for_idle
-    b = atx_ctrl
+    av_writedata = g7
+    av_address = $jtag_uart_data
+    av_ctrl = $av_write_mask
+    a = 0
+:wait_for_slave    
+    b = av_waitrequest
     nop
-    bn and0z :wait_for_idle
-    
-    // push word to the UART.  its low byte is a character.
-    atx_data = g7
-        
-    // can't use the actual register load strobe that occurs here, because it's 
-    // much too fast for the UART to sample.
-    // instead use a dedicated output word atx_ctrl.
-    atx_ctrl = $atx_load_mask
-    
-    // wait until UART is busy, as acknowledgement.
-    a = $atx_busy_mask
-:wait_for_busy    
-    b = atx_ctrl
-    leds = 0b00000100 
-    br and0z :wait_for_busy
-
-    atx_ctrl = 0 
+    bn z :wait_for_slave   
+    av_ctrl = 0
     return
-    
-    
-:test_pattern
-    0x55
-    0xaa
-    0b01000001
-    66
-    0x0d
-    0x0a   
-    
+
+// routine waits a number of milliseconds given in g7.    
+:spinwait
+:spinwait_outer
+    a = 12500
+    b = -1
+:spinwait_inner
+    nop
+    a = a+b
+    bn z :spinwait_inner
+    a = g7
+    nop
+    g7 = a+b
+    bn z :spinwait_outer    
+    return
+        
 :msg
-    "testes, testes,\n\t 1...\n\t 2...\n\t 3?? \n\x00"
+    "1234567890abcdef\n\x00"
