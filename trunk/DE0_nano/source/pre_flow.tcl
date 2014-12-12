@@ -40,10 +40,7 @@ proc shell {args} {
 post_message -type info "Assembling MCU programs."
 
 cd [file join $::project_dir source]
-shell tclsh85.exe program_macros.tcl 
-#foreach asm_fn [glob -nocomplain *.asm] {
-#    shell tclsh85.exe assemble.tcl $asm_fn "[file rootname $asm_fn].v"
-#}
+shell tclsh85.exe build.tcl 
 
 # post_message -type info "Simulating design."
 # # -pfileline=1

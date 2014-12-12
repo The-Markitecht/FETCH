@@ -22,4 +22,4 @@
 `undef TOP_GP
 `undef IO 
 
-`include "asm_defines.v"
+`include "target_program_defines.v"

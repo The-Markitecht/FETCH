@@ -12,11 +12,12 @@
     // application-specific register aliases.    
     alias_both g6                   6 
     alias_both g7                   7
-    alias_both leds                 ($IO + 0)  
-    alias_both atx_data             ($IO + 1)
-    alias_both atx_ctrl             ($IO + 2)
-        [set atx_load           0x0001]
-        [set atx_busy           0x0002]
+    [set counter $TOP_GP]
+    alias_both leds                 [incr counter] 
+    alias_both atx_data             [incr counter]
+    alias_both atx_ctrl             [incr counter]
+        vdefine atx_load_mask           0x0001
+        vdefine atx_busy_mask           0x0002
     
 :begin    
     leds = 0b00000001 
@@ -66,7 +67,7 @@
 :putchar    
 
     // wait for UART to be idle (not busy).
-    a = $atx_busy
+    a = $atx_busy_mask
 :wait_for_idle
     b = atx_ctrl
     nop
@@ -78,10 +79,10 @@
     // can't use the actual register load strobe that occurs here, because it's 
     // much too fast for the UART to sample.
     // instead use a dedicated output word atx_ctrl.
-    atx_ctrl = $atx_load
+    atx_ctrl = $atx_load_mask
     
     // wait until UART is busy, as acknowledgement.
-    a = $atx_busy
+    a = $atx_busy_mask
 :wait_for_busy    
     b = atx_ctrl
     leds = 0b00000100 

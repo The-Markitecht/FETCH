@@ -81,9 +81,6 @@ async_pll async_pll_inst (
 );
 
 // MCU target plus debugging supervisor and a code ROM for each.
-`define NUM_GP    8
-`define TOP_GP    `NUM_GP - 1
-`define IO        `NUM_GP
 wire[15:0]                r[`TOP_REG:0];
 wire[`TOP_REG:0]          r_read;  
 wire[`TOP_REG:0]          r_load;
@@ -108,18 +105,18 @@ supervised_synapse316 mcu(
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
 
 // plumbing of target MCU outputs.
-std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`IO + 0][7:0], r_load_data[7:0], r_load[`IO + 0]);
-assign LED = r[`IO + 0][7:0];
+std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS][7:0], r_load_data[7:0], r_load[`DR_LEDS]);
+assign LED = r[`dr_leds][7:0];
 
 // UART
-std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, r[`IO + 1][7:0], r_load_data[7:0], r_load[`IO + 1]);
-std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, r[`IO + 2][0], r_load_data[0], r_load[`IO + 2]);
+std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, r[`DR_ATX_DATA][7:0], r_load_data[7:0], r_load[`DR_ATX_DATA]);
+std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, r[`DR_ATX_CTRL][0], r_load_data[0], r_load[`DR_ATX_CTRL]);
 uart_v2_tx utx (
      .uart_sample_clk(clk_async) // clocked at 4x bit rate.
-    ,.parallel_in    (r[`IO + 1][7:0])
-    ,.load_data      (r[`IO + 2][0])
+    ,.parallel_in    (r[`DR_ATX_DATA][7:0])
+    ,.load_data      (r[`DR_ATX_CTRL][0])
     ,.tx_line        (GPIO_2[11])
-    ,.tx_busy        (r[`IO + 2][1])
+    ,.tx_busy        (r[`DR_ATX_CTRL][1])
 );    
 
 // Qsys system including JTAG UART.

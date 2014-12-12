@@ -1,0 +1,17 @@
+`define NUM_REGS  32
+`define TOP_REG  31
+`define NUM_GP  8
+`define TOP_GP  7
+`define IO  8
+`define SR_G6  6
+`define DR_G6  6
+`define SR_G7  7
+`define DR_G7  7
+`define SR_LEDS  8
+`define DR_LEDS  8
+`define SR_ATX_DATA  9
+`define DR_ATX_DATA  9
+`define SR_ATX_CTRL  10
+`define DR_ATX_CTRL  10
+`define ATX_LOAD_MASK  1
+`define ATX_BUSY_MASK  2

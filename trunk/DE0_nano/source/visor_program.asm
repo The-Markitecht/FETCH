@@ -9,76 +9,78 @@
     vdefine VISOR_TOP_GP ($VISOR_NUM_GP - 1)
     vdefine VIO $VISOR_NUM_GP    
 
-    // application-specific register aliases.    
+    // application-specific register aliases.  
     alias_both g6                   6 
     alias_both g7                   7
-    [set visor_num_gp    8]
-    [set io $visor_num_gp]
-    alias_both bp3_addr	        ($VIO + 3)
-    alias_both bp2_addr	        ($VIO + 2)
-    alias_both bp1_addr	        ($VIO + 1)
-    alias_both bp0_addr	        ($VIO + 0)
-        [set bp_disable                 0xffff]
-    alias_both force_opcode	    ($VIO + 4)
-    alias_both poke_data        ($VIO + 5)
-    alias_both av_writedata	    ($VIO + 6)
-    alias_both av_address       ($VIO + 7)
-        [set jtag_uart_base             0x0100]
-            [set jtag_uart_data $jtag_uart_base]
-    alias_both bus_ctrl	        ($VIO + 8)
-        [set divert_code_bus 	        0x0004]
-        [set tg_reset 		            0x0002]
-        [set tg_code_ready	            0x0001]
-    alias_both tg_force	        ($VIO + 9)
-        [set tg_debug_force_exec        0x0004]
-        [set tg_debug_force_load_exr    0x0002]
-        [set tg_debug_hold              0x0001]    
-    alias_both av_ctrl          ($VIO + 10)
-        [set av_write                   0x0001]
-    
-    alias_src  exr_shadow	    ($VIO + 11)
-    alias_src  tg_code_addr     ($VIO + 12)
-    alias_src  peek_data        ($VIO + 13)
-    alias_src  tg_debug_out	    ($VIO + 14)
-    alias_src  bp_status	    ($VIO + 15)
-    alias_src  av_waitrequest   ($VIO + 16)
+    [set counter $VISOR_TOP_GP]
+    alias_both bp0_addr	        [incr counter]
+    alias_both bp1_addr	        [incr counter]
+    alias_both bp2_addr	        [incr counter]
+    alias_both bp3_addr	        [incr counter]
+        vdefine bp_disable                 0xffff
+    alias_both force_opcode	    [incr counter]
+    alias_both poke_data        [incr counter]
+    alias_both av_writedata	    [incr counter]
+    alias_both av_address       [incr counter]
+        vdefine jtag_uart_base             0x0100
+            vdefine jtag_uart_data ($jtag_uart_base + 0)
+            vdefine jtag_uart_ctrl ($jtag_uart_base + 1)
+    alias_both bus_ctrl	        [incr counter]
+        vdefine divert_code_bus_mask 	        0x0004
+        vdefine tg_reset_mask 		            0x0002
+        vdefine tg_code_ready_mask	            0x0001
+    alias_both tg_force	        [incr counter]
+        vdefine tg_debug_force_exec_mask        0x0004
+        vdefine tg_debug_force_load_exr_mask    0x0002
+        vdefine tg_debug_hold_mask              0x0001   
+    alias_both av_ctrl          [incr counter]
+        vdefine av_write_mask                   0x0001   
+    alias_src  exr_shadow	    [incr counter]
+    alias_src  tg_code_addr     [incr counter]
+    alias_src  peek_data        [incr counter]
+    alias_src  tg_debug_out	    [incr counter]
+    alias_src  bp_status	    [incr counter]
+    alias_src  av_waitrequest   [incr counter]
     
 :begin
     // put target into reset.
-    bus_ctrl = $tg_reset
+    bus_ctrl = $tg_reset_mask
     
 // patch
     a = 0
 :char
     av_writedata = 67
-    av_address = ($jtag_uart_data | $av_write)
+    av_address = $jtag_uart_data
+    av_ctrl = $av_write_mask
 :wait1
     b = av_waitrequest
     nop
     bn z :wait1
-    av_address = 0
+    av_ctrl = 0
     nop
     nop
     nop
     nop
     av_writedata = 68
-    av_address = ($jtag_uart_data | $av_write)
+    av_address = $jtag_uart_data
+    av_ctrl = $av_write_mask
 :wait2 
     b = av_waitrequest
     nop
     bn z :wait2 
-    av_address = 0
+    av_ctrl = 0
     nop
     nop
     nop
     nop
     av_writedata = 69
-    av_address = ($jtag_uart_data | $av_write)
+    av_address = $jtag_uart_data
+    av_ctrl = $av_write_mask
 :wait3   
     b = av_waitrequest
     nop
     bn z :wait3 
-    av_address = 0
+    av_ctrl = 0
     nop
     nop
     nop
@@ -104,17 +106,17 @@
     br z :wait_for_bp
     
     // observe a register.
-    bus_ctrl = $divert_code_bus
-    tg_force = $tg_debug_hold
+    bus_ctrl = $divert_code_bus_mask
+    tg_force = $tg_debug_hold_mask
     fetch force_opcode from ([label observe] + 7)
-    tg_force = ($tg_debug_hold | $tg_debug_force_load_exr)
-    tg_force = ($tg_debug_hold | $tg_debug_force_exec)
-    tg_force = $tg_debug_hold
+    tg_force = ($tg_debug_hold_mask | $tg_debug_force_load_exr_mask)
+    tg_force = ($tg_debug_hold_mask | $tg_debug_force_exec_mask)
+    tg_force = $tg_debug_hold_mask
     // target's r7 value is now in peek_data.
     
     // refill target exr so it can resume seamlessly.
     force_opcode = exr_shadow
-    tg_force = ($tg_debug_hold | $tg_debug_force_load_exr)
+    tg_force = ($tg_debug_hold_mask | $tg_debug_force_load_exr_mask)
     tg_force = 0
     bus_ctrl = 0
     
@@ -123,13 +125,14 @@
     
     // send byte on Avalon.
     av_writedata = peek_data
-    av_address = ($jtag_uart_data | $av_write)
+    av_address = $jtag_uart_data
+    av_ctrl = $av_write_mask
     a = 0
 :wait_for_slave    
     b = av_waitrequest
     nop
     bn z :wait_for_slave   
-    av_address = 0
+    av_ctrl = 0
     
     jmp :wait_for_bp
     
