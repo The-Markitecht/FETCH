@@ -114,16 +114,32 @@ std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`T
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS][7:0], r_load_data[7:0], r_load[`DR_LEDS]);
 assign LED = r[`DR_LEDS][7:0];
 
+// std_reg av_writedata_reg(sysclk, sysreset, r[`DR_AV_WRITEDATA][1:0], r_load_data[1:0], r_load[`DR_AV_WRITEDATA]);
+// wire[15:0] av_writedata             = r[`DR_AV_WRITEDATA];
+// std_reg av_address_reg(sysclk, sysreset, r[`DR_AV_ADDRESS][1:0], r_load_data[1:0], r_load[`DR_AV_ADDRESS]);
+// wire[15:0] av_address               = r[`DR_AV_ADDRESS];
+// std_reg #(.WIDTH(2)) av_ctrl_reg(sysclk, sysreset, r[`DR_AV_CTRL][1:0], r_load_data[1:0], r_load[`DR_AV_CTRL]);
+// wire av_write      = r[`DR_AV_CTRL][0];
+
+// Avalon MM master.
+// program should always write the data register last, because writing it triggers the Avalon transaction.
+wire av_waitrequest;
 std_reg av_writedata_reg(sysclk, sysreset, r[`DR_AV_WRITEDATA][1:0], r_load_data[1:0], r_load[`DR_AV_WRITEDATA]);
 wire[15:0] av_writedata             = r[`DR_AV_WRITEDATA];
 std_reg av_address_reg(sysclk, sysreset, r[`DR_AV_ADDRESS][1:0], r_load_data[1:0], r_load[`DR_AV_ADDRESS]);
 wire[15:0] av_address               = r[`DR_AV_ADDRESS];
-std_reg #(.WIDTH(2)) av_ctrl_reg(sysclk, sysreset, r[`DR_AV_CTRL][1:0], r_load_data[1:0], r_load[`DR_AV_CTRL]);
-wire av_write      = r[`DR_AV_CTRL][0];
+reg av_write = 0;
+reg av_read = 0;
+always @(posedge sysclk) begin
+    if (av_write && ! av_waitrequest)
+        av_write <= 0; // write transaction has ended.
+    else if (r_load[`DR_AV_WRITEDATA])
+        av_write <= 1; // begin write transaction.
+end
+wire av_busy = av_write || av_read;
+^^^^ need to AND this into code_ready
 
 // plumbing of target MCU inputs.
-wire av_waitrequest;
-assign r[`SR_AV_WAITREQUEST] = {15'h0, av_waitrequest}; 
 assign r[`SR_KEYS] = {14'h0, KEY}; 
 
 // Qsys system including JTAG UART.

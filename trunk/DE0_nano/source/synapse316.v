@@ -2,6 +2,31 @@
 
 // synthesize with SystemVerilog
 
+interface clock_ifc();
+	logic clk;
+	logic reset;
+	modport m(output clk, output reset); // master
+	modport s(input clk, input reset); // slave
+endinterface
+
+interface code_ifc #(parameter ADDR_WIDTH=8) ();	
+	logic[ADDR_WIDTH-1:0] addr;
+	logic[15:0] content;
+	logic code_ready;
+	modport m(output addr, input content, input code_ready); // master
+	modport s(input addr, output content, output code_ready); // slave
+endinterface
+
+interface reg_ifc #(parameter WIDTH=16) ();
+	logic[WIDTH-1:0] din;
+	logic load_data;
+	logic[WIDTH-1:0] dout;
+	logic read_data;
+	modport m(output din, load_data, read_data, input dout); // slave
+	modport s(input din, load_data, read_data, output dout); // slave
+endinterface
+
+
 module std_reg #(
     parameter WIDTH = 16
 ) (
