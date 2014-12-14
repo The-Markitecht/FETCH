@@ -8,76 +8,53 @@
 // to be inserted between Synapse316 MCU and its code ROM.
 
 module visor (
-     input 		          		sysclk
-    ,input 		          		sysreset
-    
-    // signals from target's code ROM.
-    ,input[15:0]                 rom_code_in
-    ,input                       rom_code_ready
+    clock_ifc.s                  clk
     
     // signals to & from the target MCU.
-    ,input[15:0]                 tg_code_addr
-    ,output[15:0]                tg_code_in
-    ,output                      tg_code_ready
-    ,output[`DEBUG_IN_WIDTH-1:0] tg_debug_in
-    ,input[`DEBUG_OUT_WIDTH-1:0] tg_debug_out
+    ,code_ifc.s                  tg_code
+    ,debug_ifc.m                 tg_debug
     ,output                      tg_reset
     ,input[15:0]                 tg_peek_data
     ,output[15:0]                tg_poke_data
     
-    // Avalon MM master
-    ,output[15:0]                av_address
-    ,input                       av_waitrequest
-    ,output[15:0]                av_writedata
-    ,output                      av_write
+    // signals from target's code ROM.
+    ,code_ifc.m                  tg_rom
+
+    ,avalon_mm_ifc.m             av
 );
 
 // supervisor Synapse 316 with its own code ROM.  totally independent of the target MCU.
-wire[15:0] code_addr;
-wire[15:0] code_fetched;
-wire[15:0]                r[`VISOR_TOP_REG:0];
-wire[`VISOR_TOP_REG:0]    r_read;  
-wire[`VISOR_TOP_REG:0]    r_load;
-wire[15:0]                r_load_data;  
-visor_program rom(
-    .addr(code_addr),
-    .data(code_fetched)
-);
+code_ifc    code;
+reg_ifc     r[`VISOR_TOP_REG:0];
+visor_program rom(.code);
+debug_ifc   vdebug;
+assign vdebug.hold_state = 0;
+assign vdebug.force_load_exr = 0;
+assign vdebug.force_exec = 0;
 synapse316 #(
     .NUM_REGS(`VISOR_NUM_REGS)
 ) mcu(
-    .sysclk          (sysclk      ) ,
-    .sysreset        (sysreset   ) ,
-    .code_addr       (code_addr   ) ,
-    .code_in         (code_fetched) ,
-    .code_ready      (1'b1  ) ,
-    .r               (r),
-    .r_read          (r_read),
-    .r_load          (r_load),
-    .r_load_data     (r_load_data),
-    .debug_out       (),
-    .debug_in        (0)    
-);    
+    .clk,
+    .code,
+    .r,
+    .debug(vdebug)
+);
 
-std_reg gp_reg[`VISOR_TOP_GP:0](sysclk, sysreset, r[`VISOR_TOP_GP:0], r_load_data, r_load[`VISOR_TOP_GP:0]);
+std_reg gp_reg[`VISOR_TOP_GP:0](.clk, .r(r[`VISOR_TOP_GP:0]));
 
 // plumbing of visor outputs, target inputs.
-std_reg output_reg[5:0](sysclk, sysreset, r[`DR_POKE_DATA:`DR_BP0_ADDR], r_load_data, r_load[`DR_POKE_DATA:`DR_BP0_ADDR]);
-wire[15:0] bp_addr[3:0];
-assign bp_addr[0]               = r[`DR_BP0_ADDR];
-assign bp_addr[1]               = r[`DR_BP1_ADDR];
-assign bp_addr[2]               = r[`DR_BP2_ADDR];
-assign bp_addr[3]               = r[`DR_BP3_ADDR];
-wire[15:0] force_opcode         = r[`DR_FORCE_OPCODE];
-wire[15:0] poke_data            = r[`DR_POKE_DATA];
+std_reg output_reg[5:0](.clk, .r(r[`DR_POKE_DATA:`DR_BP0_ADDR]));
+assign tg_poke_data = r[`DR_POKE_DATA].q;
 
 // irregular sized outputs.
 reg bp_hit = 0;
-wire divert_code_bus = r[`DR_BUS_CTRL][2];
-assign tg_reset      =  sysreset || r[`DR_BUS_CTRL][1];
-assign tg_code_ready = divert_code_bus ? (r[`DR_BUS_CTRL][0] /* || step_cycle */ ) : (rom_code_ready && ! bp_hit);
-assign tg_code_in = divert_code_bus ? force_opcode : rom_code_in;
-std_reg #(.WIDTH(3)) bus_ctrl_reg(sysclk, sysreset, r[`DR_BUS_CTRL][2:0], r_load_data[2:0], r_load[`DR_BUS_CTRL]);
+wire divert_code_bus = r[`DR_BUS_CTRL].q[2];
+assign tg_reset      =  sysreset || r[`DR_BUS_CTRL].q[1];
+assign tg_code.code_ready = divert_code_bus ? (r[`DR_BUS_CTRL].q[0] /* || step_cycle */ ) : (tg_rom.code_ready && ! bp_hit);
+assign tg_code.content = divert_code_bus ? r[`DR_FORCE_OPCODE].q : tg_rom.content;
+patch: stopped here.  can't slice a whole interface.  figure out how to wire these odd i/o's.
+make a width-adapter module??  yeah!
+std_reg #(.WIDTH(3)) bus_ctrl_reg(.clk, .r(r[`DR_BUS_CTRL][2:0], r_load_data[2:0], r_load[`DR_BUS_CTRL]);
 
 std_reg #(.WIDTH(3)) force_reg(sysclk, sysreset, r[`DR_TG_FORCE][`DEBUG_IN_WIDTH-1:0], r_load_data[`DEBUG_IN_WIDTH-1:0], r_load[`DR_TG_FORCE]);
 assign tg_debug_in   = r[`DR_TG_FORCE][`DEBUG_IN_WIDTH-1:0]; // {debug_force_exec, debug_force_load_exr, debug_hold}
@@ -97,8 +74,6 @@ assign r[`SR_BP_STATUS] = {15'h0, bp_hit};
 //reg last_step_cmd = 0;
 
 // debugger logic
-wire tg_loading_exr = tg_debug_out[1];
-wire tg_enable_exec = tg_debug_out[0];
 always @(posedge sysreset or posedge sysclk) begin
     if (sysreset) begin
         exr_shadow <= 0;
@@ -106,13 +81,16 @@ always @(posedge sysreset or posedge sysclk) begin
         //step_cycle <= 0;
         //last_step_cmd <= 0;
     end else if (sysclk) begin
-        if (tg_loading_exr && ! divert_code_bus)
-            exr_shadow <= rom_code_in;
+        if (tg_debug.loading_exr && ! divert_code_bus)
+            exr_shadow <= tg_rom.content;
             
-        if (r_load[8] || r_load[9] || r_load[10] || r_load[11])
+        if (r[`DR_BP0_ADDR].load || r[`DR_BP1_ADDR].load || r[`DR_BP2_ADDR].load || r[`DR_BP3_ADDR].load)
             bp_hit <= 0;
-        else if ((tg_code_addr == bp_addr[0] || tg_code_addr == bp_addr[1] || 
-            tg_code_addr == bp_addr[2] || tg_code_addr == bp_addr[3]) && tg_enable_exec)
+        else if ((tg_code_addr == r[`DR_BP0_ADDR].q 
+            || tg_code_addr == r[`DR_BP1_ADDR].q 
+            || tg_code_addr == r[`DR_BP2_ADDR].q 
+            || tg_code_addr == r[`DR_BP3_ADDR].q) 
+            && tg_debug.enable_exec)
             bp_hit <= 1;
         
         // if (step_cmd && ! last_step_cmd)
