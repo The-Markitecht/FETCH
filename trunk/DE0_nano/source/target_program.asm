@@ -108,3 +108,51 @@
         
 :msg
     "1234567890abcdef\n\x00"
+
+// function to print a 16-bit number formatted as 4 hex digits.
+// pass number in a.
+:put_hex16
+    g6 = a
+    b = 0xF000
+    i = :hexdigits
+    a = and
+    a = a>>4
+    a = a>>4
+    j = a>>4
+    nop
+    fetch g7 from i+j
+    call :putchar
+    
+    a = g6
+    b = 0x0F00
+    i = :hexdigits
+    a = and
+    a = a>>4
+    j = a>>4
+    nop
+    fetch g7 from i+j
+    call :putchar
+    
+    a = g6
+    b = 0x00F0
+    i = :hexdigits
+    a = and
+    j = a>>4
+    nop
+    fetch g7 from i+j
+    call :putchar
+    
+    a = g6
+    b = 0x000F
+    i = :hexdigits
+    j = and
+    nop
+    fetch g7 from i+j
+    call :putchar
+    
+    return
+
+:hexdigits
+    "0123456789abcdef"
+    
+        
