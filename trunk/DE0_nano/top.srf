@@ -60,6 +60,15 @@
 { "" "" "" "Net \"r\[17\]\[15..3\]\" at visor.v(42) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Net \"r\[16\]\[15..3\]\" at visor.v(42) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Output port \"tg_poke_data\" at visor.v(28) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Output port \"r\[31\].d\" at supervised_synapse316.v(9) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Output port \"r\[31\].load\" at supervised_synapse316.v(9) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Output port \"r\[31\].read\" at supervised_synapse316.v(9) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Output port \"av.address\" at visor.v(24) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Output port \"av.writedata\" at visor.v(24) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Output port \"av.write\" at visor.v(24) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "PLL \"async_pll:async_pll_inst\|altpll:altpll_component\|async_pll_altpll:auto_generated\|pll1\" has parameter compensate_clock set to clock0 but port CLK\[0\] is not connected" {  } {  } 0 15897 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "PLL \"async_pll:async_pll_inst\|altpll:altpll_component\|async_pll_altpll:auto_generated\|pll1\" has parameters clk0_multiply_by and clk0_divide_by specified but port CLK\[0\] is not connected" {  } {  } 0 15899 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Changed operation mode of PLL \"async_pll:async_pll_inst\|altpll:altpll_component\|async_pll_altpll:auto_generated\|pll1\" to No Compensation" {  } {  } 0 15090 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

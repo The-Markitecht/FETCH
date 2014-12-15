@@ -199,7 +199,7 @@ proc parse_line {lin} {
 proc emit_word {w comment} {
     # emit the given 16-bit integer into the ROM, with the given comment.
     console "    0x[format %04x $::ipr] : [format %04x $w] // <[format %04d ${::lnum}]> $comment"
-    emit "addr == 16'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // <[format %04d ${::lnum}]> $comment"
+    emit "code.addr == 16'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // <[format %04d ${::lnum}]> $comment"
     incr ::ipr
 }
 
@@ -256,10 +256,10 @@ proc assemble {src_fn rom_fn} {
         `timescale 1 ns / 1 ns
 
         module [file rootname [file tail $src_fn]] (
-            input\[15:0\] addr
-            ,output\[15:0\] data
+            clock_ifc clk,
+            code_ifc code
         );
-            assign data = 
+            assign code.content = 
     "
 
     set ::ipr 0
