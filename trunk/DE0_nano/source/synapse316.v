@@ -2,11 +2,22 @@
 
 // synthesize with SystemVerilog
 
+// interface clock_ifc();
+	// wire clk;
+	// wire reset;
+	// modport m(output clk, output reset); // master
+	// modport s(input clk, input reset); // slave
+// endinterface
+
 interface clock_ifc();
-	wire clk;
-	wire reset;
-	modport m(output clk, output reset); // master
-	modport s(input clk, input reset); // slave
+	input m_clk;
+	input m_reset;
+    
+	output s_clk;
+	output s_reset;
+    
+    assign s_clk = m_clk;
+    assign s_reset = m_reset;
 endinterface
 
 interface code_ifc #(parameter ADDR_WIDTH=16) ();	
@@ -17,16 +28,31 @@ interface code_ifc #(parameter ADDR_WIDTH=16) ();
 	modport s(input addr, output content, output code_ready); // slave
 endinterface
 
+// interface reg_ifc #(parameter WIDTH=16) ();
+	// wire[WIDTH-1:0] d;
+	// wire load;
+	// wire[WIDTH-1:0] q;
+	// wire read;
+	// modport m(output d, load, read, input q); 
+	// modport s(input d, load, read, output q); 
+// endinterface
+
 interface reg_ifc #(parameter WIDTH=16) ();
-	wire[WIDTH-1:0] d;
-	wire load;
-	wire[WIDTH-1:0] q;
-	wire read;
-	modport m(output d, load, read, input q); 
-	modport s(input d, load, read, output q); 
-    assign m.d = s.d;
-patch: need a whole bunch of these assignments??  and switch m & s on all ifc's??    
-endinterface
+	input[WIDTH-1:0]    m_d;
+	input               m_load;
+	output[WIDTH-1:0]   m_q;
+	input               m_read;
+    
+	output[WIDTH-1:0]   s_d;
+	output              s_load;
+	input[WIDTH-1:0]    s_q;
+	output              s_read;
+    
+    assign s_d          = m_d;
+    assign s_load       = m_load;
+    assign m_q          = s_q;
+    assign s_read       = m_read;
+endinterface             
 
 interface debug_ifc ();
     wire hold_state;
@@ -53,15 +79,31 @@ interface avalon_mm_ifc #(AWIDTH=16, DWIDTH=16) ();
         output waitrequest);
 endinterface
 
+// module std_reg #(
+    // parameter WIDTH = 16
+// ) (
+    // interface         clk  // clock_ifc.s 
+    // ,interface        r    // ,reg_ifc.s  
+// );      
+    // reg[WIDTH-1:0] content = 0;
+    // assign r.q = content;
+    // always_ff @(posedge clk.reset or posedge clk.clk) begin
+        // if (clk.reset)
+            // content <= 0;
+        // else if (r.load)
+            // content <= r.d;
+    // end
+// endmodule
+
 module std_reg #(
     parameter WIDTH = 16
 ) (
-    clock_ifc.s         clk
-    ,reg_ifc.s           r
+    interface         clk  // clock_ifc.s 
+    ,interface        r    // ,reg_ifc.s  
 );      
     reg[WIDTH-1:0] content = 0;
-    assign r.q = content;
-    always_ff @(posedge clk.reset or posedge clk.clk) begin
+    assign r.s_q = content;
+    always_ff @(posedge clk.s_reset or posedge clk.clk) begin
         if (clk.reset)
             content <= 0;
         else if (r.load)
@@ -72,8 +114,8 @@ endmodule
 module narrow_reg #(
     parameter WIDTH = 16
 ) (
-    clock_ifc.s         clk
-    ,reg_ifc.s           r
+    interface         clk  // clock_ifc.s 
+    ,interface        r    // ,reg_ifc.s  
 );      
     localparam FAKES=16-WIDTH;
     reg[WIDTH-1:0] content = 0;
@@ -100,21 +142,16 @@ endmodule
 module stack_reg #(
     parameter DEPTH = 8
 ) (
-    clock_ifc.s         clk
-    ,reg_ifc.s           r
+    interface         clk  // clock_ifc.s 
+    ,interface        r    // ,reg_ifc.s  
 );      
     localparam TOP=DEPTH-1;
-    reg[15:0] content[TOP:0] = 0;
+    reg[15:0] content[TOP:0];
     assign r.q = content[0];
-    always_ff @(posedge clk.reset or posedge clk.clk) begin
-        if (clk.reset)
-            content[0] <= 0;
-        else if (r.load)
-            content[0] <= r.d;
-        else if (r.read)
-            content[0] <= content[1];
-        generate  
-            for (genvar i=1; i < TOP; i=i+1) begin: middle
+    genvar i;
+    generate  
+        for (i=1; i < TOP; i=i+1) begin: middle
+            always_ff @(posedge clk.reset or posedge clk.clk) begin
                 if (clk.reset)
                     content[i] <= 0;
                 else if (r.load)
@@ -122,7 +159,15 @@ module stack_reg #(
                 else if (r.read)
                     content[i] <= content[i+1];
             end  
-        endgenerate     
+        end
+    endgenerate     
+    always_ff @(posedge clk.reset or posedge clk.clk) begin
+        if (clk.reset)
+            content[0] <= 0;
+        else if (r.load)
+            content[0] <= r.d;
+        else if (r.read)
+            content[0] <= content[1];
         if (clk.reset)
             content[TOP] <= 0;
         else if (r.load)
@@ -131,9 +176,9 @@ module stack_reg #(
 endmodule
 
 module junk316 (
-    clock_ifc.s         clk
-    ,reg_ifc.m          kr
-    ,reg_ifc.m          lr
+    interface         clk
+    ,interface          kr
+    ,interface          lr
 ); 
     always_ff @(posedge clk.clk) begin
         lr.d <= lr.q + kr.q;
@@ -149,16 +194,16 @@ module synapse316 #(
     ,parameter NUM_REGS          = `NUM_REGS       
     ,parameter TOP_REG           = NUM_REGS - 1       
 ) (
-    clock_ifc.s         clk
-    ,code_ifc.m         code
+     interface          clk             // clock_ifc.s
+    ,interface          code            // ,code_ifc.m
     
     // signals for use only by a debugging supervisor.
     // if supervisor not present, connect inputs to 0 and outputs dangle.
-    ,debug_ifc.s        debug
+    ,interface          debug           // ,debug_ifc.s
     
     // register file, for any combination of general-purpose registers and i/o addressing.
     // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
-    ,reg_ifc.m          r[TOP_REG:0]
+    ,interface          r[TOP_REG:0]    // ,reg_ifc.m
 ); 
 
     // declarations & wires

@@ -2,9 +2,12 @@
 
 module top (
 
-// //patch:
-// output[15:0] aout,
-// input[15:0] cin,
+//patch:
+output[15:0] aout,
+input[15:0] cin,
+output[15:0] out0,
+output[15:0] out1,
+
 
     //////////// CLOCK //////////
     input 		          		clk50m,
@@ -91,7 +94,8 @@ assign GPIO_2[3] = anmux_ctrl[3];
 assign GPIO_2[2] = anmux_ctrl[2];
 assign GPIO_2[0] = anmux_ctrl[1];
 assign GPIO_2[1] = anmux_ctrl[0];
-/*
+
+
 // // MCU target plus debugging supervisor and a code ROM for each.
 // reg_ifc                r[`TOP_REG:0]();
 // avalon_mm_ifc          av();
@@ -104,14 +108,21 @@ assign GPIO_2[1] = anmux_ctrl[0];
     // .av,
     // .dbg_av
 // );    
+
+
+//patch: synthesis debugging only.
 code_ifc    code();
 reg_ifc     r[`TOP_REG:0]();
+assign aout = code.addr;
+assign code.content = cin;
+assign out0 = r[`DR_AV_WRITEDATA].q;
+assign out1 = r[`DR_AV_ADDRESS].q;
+
 // target_program rom(
     // .clk, 
     // .code
 // );
-// assign aout = code.addr;
-// assign code.content = cin;
+
 // debug_ifc   debug();
 // assign debug.hold_state = 0;
 // assign debug.force_load_exr = 0;
@@ -125,22 +136,23 @@ reg_ifc     r[`TOP_REG:0]();
     // .debug(debug)
 // );
 
-genvar i;
-generate  
-    for (i=0; i < `NUM_GP; i=i+1) begin: gp
-        std_reg gp_reg(.clk, .r(r[i]));
-    end  
-endgenerate     
+// genvar i;
+// generate  
+    // for (i=0; i < `NUM_GP; i=i+1) begin: gp
+        // std_reg gp_reg(.clk, .r(r[i]));
+    // end  
+// endgenerate     
 
-stack_reg #(DEPTH = 32) rstk(.clk, .r(r[`DR_RSTK]));
+// stack_reg #(.DEPTH(32)) rstk(.clk, .r(r[`DR_RSTK]));
 
-// plumbing of target MCU outputs.
-narrow_reg #(.WIDTH(8)) led_reg(.clk, .r(r[`DR_LEDS]));
-assign LED = r[`DR_LEDS].q[7:0];
+// // plumbing of target MCU outputs.
+// narrow_reg #(.WIDTH(8)) led_reg(.clk, .r(r[`DR_LEDS]));
+// assign LED = r[`DR_LEDS].q[7:0];
 
-// plumbing of target MCU inputs.
-assign r[`SR_KEYS].q = {14'h0, KEY}; 
-*/
+// // plumbing of target MCU inputs.
+// assign r[`SR_KEYS].q = {14'h0, KEY}; 
+
+
 reg_ifc kr();
 assign kr.q = {14'h0, ~ KEY}; 
 reg_ifc lr();

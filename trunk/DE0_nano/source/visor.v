@@ -8,19 +8,19 @@
 // to be inserted between Synapse316 MCU and its code ROM.
 
 module visor (
-    clock_ifc.s                  clk
+     interface            clk            // clock_ifc.s     
     
     // signals to & from the target MCU.
-    ,code_ifc.s                  tg_code
-    ,debug_ifc.m                 tg_debug
-    ,output                      tg_reset
-    ,input[15:0]                 tg_peek_data
-    ,output[15:0]                tg_poke_data
+    ,interface            tg_code        // code_ifc.s      
+    ,interface            tg_debug       // debug_ifc.m     
+    ,output               tg_reset             
+    ,input[15:0]          tg_peek_data      
+    ,output[15:0]         tg_poke_data      
     
     // signals from target's code ROM.
-    ,code_ifc.m                  tg_rom
+    ,interface            tg_rom         // code_ifc.m      
 
-    ,avalon_mm_ifc.m             av
+    ,interface            av             // avalon_mm_ifc.m 
 );
 
 // supervisor Synapse 316 with its own code ROM.  totally independent of the target MCU.

@@ -4,11 +4,11 @@
 // Synapse316 with attached debugging supervisor.
 
 module supervised_synapse316 (
-     clock_ifc.s                clk
-    ,reg_ifc.m                  r[`TOP_REG:0]
-    ,input logic                mcu_wait
-    ,avalon_mm_ifc              av
-    ,avalon_mm_ifc.m            dbg_av
+     interface          clk               // clock_ifc.s      
+    ,interface          r[`TOP_REG:0]     // reg_ifc.m        
+    ,input              mcu_wait          
+    ,interface          av                // avalon_mm_ifc.m    
+    ,interface          dbg_av            // avalon_mm_ifc.m  
 ); 
 
 // Synapse316 with code ROM.

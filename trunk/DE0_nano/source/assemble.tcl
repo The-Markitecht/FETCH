@@ -283,8 +283,8 @@ proc assemble {src_fn rom_fn} {
         `timescale 1 ns / 1 ns
 
         module [file rootname [file tail $src_fn]] (
-            clock_ifc clk,
-            code_ifc code
+            interface   clk,    // clock_ifc.s
+            interface  code     // code_ifc.s 
         );
             assign code.content = 
     "    
