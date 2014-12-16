@@ -1,5 +1,5 @@
 
-        `timescale 1 ns / 1 ns
+        `include "header.v"
 
         module visor_program (
             input[15:0] addr
@@ -14,6 +14,7 @@
 // register file configuration
 
 // application-specific register aliases.
+//alias_src  tg_debug_out	    [incr counter]
 
 // :begin // = 0x00
 // put target into reset.
@@ -36,24 +37,24 @@ addr == 16'h07 ? 16'h0006 :  // <0051> jmp :halt
 addr == 16'h08 ? 16'h2215 :  // <0054> bp0_addr = 0x15
 // :wait_for_bp // = 0x09
 addr == 16'h09 ? 16'h0200 :  // <0056> a = 0
-addr == 16'h0a ? 16'h0414 :  // <0057> b = bp_status
+addr == 16'h0a ? 16'h0413 :  // <0057> b = bp_status
 addr == 16'h0b ? 16'hc800 :  // <0058> nop
 addr == 16'h0c ? 16'he004 :  // <0059> br z :wait_for_bp
 addr == 16'h0d ? 16'h0009 :  // <0059> br z :wait_for_bp
 
 // observe a register.
 addr == 16'h0e ? 16'h3a04 :  // <0062> bus_ctrl = $divert_code_bus_mask
-addr == 16'h0f ? 16'h3e01 :  // <0063> tg_force = $tg_debug_hold_mask
+addr == 16'h0f ? 16'h3e01 :  // <0063> tg_force = $hold_state_mask
 addr == 16'h10 ? 16'hd223 :  // <0064> fetch force_opcode from ([label observe] + 7)
 addr == 16'h11 ? 16'h33b0 :  // <0064> fetch force_opcode from ([label observe] + 7)
-addr == 16'h12 ? 16'h3e03 :  // <0065> tg_force = ($tg_debug_hold_mask | $tg_debug_force_load_exr_mask)
-addr == 16'h13 ? 16'h3e05 :  // <0066> tg_force = ($tg_debug_hold_mask | $tg_debug_force_exec_mask)
-addr == 16'h14 ? 16'h3e01 :  // <0067> tg_force = $tg_debug_hold_mask
+addr == 16'h12 ? 16'h3e03 :  // <0065> tg_force = ($hold_state_mask | $force_load_exr_mask)
+addr == 16'h13 ? 16'h3e05 :  // <0066> tg_force = ($hold_state_mask | $force_exec_mask)
+addr == 16'h14 ? 16'h3e01 :  // <0067> tg_force = $hold_state_mask
 // target's r7 value is now in peek_data.
 
 // refill target exr so it can resume seamlessly.
 addr == 16'h15 ? 16'h3010 :  // <0071> force_opcode = exr_shadow
-addr == 16'h16 ? 16'h3e03 :  // <0072> tg_force = ($tg_debug_hold_mask | $tg_debug_force_load_exr_mask)
+addr == 16'h16 ? 16'h3e03 :  // <0072> tg_force = ($hold_state_mask | $force_load_exr_mask)
 addr == 16'h17 ? 16'h3e00 :  // <0073> tg_force = 0
 addr == 16'h18 ? 16'h3a00 :  // <0074> bus_ctrl = 0
 

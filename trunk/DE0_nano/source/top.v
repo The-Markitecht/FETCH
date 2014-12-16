@@ -73,7 +73,7 @@ async_pll async_pll_inst (
     .locked ( async_pll_lock )
 );
 reg rst0 = 1, rst1 = 1, rst2 = 1;
-always @(posedge sysclk) begin
+always_ff @(posedge sysclk) begin
     rst0 <= ! async_pll_lock; // hold sysreset high until 3 cycles after async_pll_lock.
     rst1 <= rst0;
     rst2 <= rst1;
@@ -114,6 +114,8 @@ supervised_synapse316 mcu(
 );    
 
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
+
+stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK]);
 
 // plumbing of target MCU outputs.
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS][7:0], r_load_data[7:0], r_load[`DR_LEDS]);

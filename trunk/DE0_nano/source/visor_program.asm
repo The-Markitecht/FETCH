@@ -3,7 +3,7 @@
 // for debugging supervisor mcu.
 
     // register file configuration
-    vdefine VISOR_NUM_REGS 21
+    vdefine VISOR_NUM_REGS 20
     vdefine VISOR_TOP_REG ($VISOR_NUM_REGS - 1)
     vdefine VISOR_NUM_GP 8
     vdefine VISOR_TOP_GP ($VISOR_NUM_GP - 1)
@@ -25,13 +25,13 @@
         vdefine tg_reset_mask 		            0x0002
         vdefine tg_code_ready_mask	            0x0001
     alias_both tg_force	        [incr counter]
-        vdefine tg_debug_force_exec_mask        0x0004
-        vdefine tg_debug_force_load_exr_mask    0x0002
-        vdefine tg_debug_hold_mask              0x0001   
+        vdefine force_exec_mask        0x0004
+        vdefine force_load_exr_mask    0x0002
+        vdefine hold_state_mask        0x0001   
     alias_src  exr_shadow	    [incr counter]
     alias_src  tg_code_addr     [incr counter]
     alias_src  peek_data        [incr counter]
-    alias_src  tg_debug_out	    [incr counter]
+    //alias_src  tg_debug_out	    [incr counter]
     alias_src  bp_status	    [incr counter]
     
 :begin
@@ -60,16 +60,16 @@ jmp :halt
     
     // observe a register.
     bus_ctrl = $divert_code_bus_mask
-    tg_force = $tg_debug_hold_mask
+    tg_force = $hold_state_mask
     fetch force_opcode from ([label observe] + 7)
-    tg_force = ($tg_debug_hold_mask | $tg_debug_force_load_exr_mask)
-    tg_force = ($tg_debug_hold_mask | $tg_debug_force_exec_mask)
-    tg_force = $tg_debug_hold_mask
+    tg_force = ($hold_state_mask | $force_load_exr_mask)
+    tg_force = ($hold_state_mask | $force_exec_mask)
+    tg_force = $hold_state_mask
     // target's r7 value is now in peek_data.
     
     // refill target exr so it can resume seamlessly.
     force_opcode = exr_shadow
-    tg_force = ($tg_debug_hold_mask | $tg_debug_force_load_exr_mask)
+    tg_force = ($hold_state_mask | $force_load_exr_mask)
     tg_force = 0
     bus_ctrl = 0
     

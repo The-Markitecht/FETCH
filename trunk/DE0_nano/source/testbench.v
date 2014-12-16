@@ -90,7 +90,7 @@ always begin
     #1085 clk_async = ! clk_async;
 end
 
-// always @(posedge clk_async) begin
+// always_ff @(posedge clk_async) begin
     // // write output and check for trouble.
     
     // if ( utx.load_data && ! txbsy )
@@ -99,7 +99,7 @@ end
 
 reg[15:0] compare_addr, compare_exr;
 integer junk;
-always @(posedge clk50m) begin
+always_ff @(posedge clk50m) begin
     // write output and check for trouble.
     
     if ( mcu.target.enable_exec ) begin

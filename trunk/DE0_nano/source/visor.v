@@ -63,16 +63,12 @@ std_reg gp_reg[`VISOR_TOP_GP:0](sysclk, sysreset, r[`VISOR_TOP_GP:0], r_load_dat
 
 // plumbing of visor outputs, target inputs.
 std_reg output_reg[5:0](sysclk, sysreset, r[`DR_POKE_DATA:`DR_BP0_ADDR], r_load_data, r_load[`DR_POKE_DATA:`DR_BP0_ADDR]);
-wire[15:0] bp_addr[3:0];
-assign bp_addr[0]               = r[`DR_BP0_ADDR];
-assign bp_addr[1]               = r[`DR_BP1_ADDR];
-assign bp_addr[2]               = r[`DR_BP2_ADDR];
-assign bp_addr[3]               = r[`DR_BP3_ADDR];
 wire[15:0] force_opcode         = r[`DR_FORCE_OPCODE];
 wire[15:0] poke_data            = r[`DR_POKE_DATA];
 
 // irregular sized outputs.
 reg bp_hit = 0;
+reg bp_matched = 0;
 wire divert_code_bus = r[`DR_BUS_CTRL][2];
 assign tg_reset      =  sysreset || r[`DR_BUS_CTRL][1];
 assign tg_code_ready = divert_code_bus ? (r[`DR_BUS_CTRL][0] /* || step_cycle */ ) : (rom_code_ready && ! bp_hit);
@@ -80,7 +76,7 @@ assign tg_code_in = divert_code_bus ? force_opcode : rom_code_in;
 std_reg #(.WIDTH(3)) bus_ctrl_reg(sysclk, sysreset, r[`DR_BUS_CTRL][2:0], r_load_data[2:0], r_load[`DR_BUS_CTRL]);
 
 std_reg #(.WIDTH(3)) force_reg(sysclk, sysreset, r[`DR_TG_FORCE][`DEBUG_IN_WIDTH-1:0], r_load_data[`DEBUG_IN_WIDTH-1:0], r_load[`DR_TG_FORCE]);
-assign tg_debug_in   = r[`DR_TG_FORCE][`DEBUG_IN_WIDTH-1:0]; // {debug_force_exec, debug_force_load_exr, debug_hold}
+assign tg_debug_in   = r[`DR_TG_FORCE][`DEBUG_IN_WIDTH-1:0]; // {debug_force_exec, debug_force_load_exr, debug_hold_state}
 
 // plumbing of visor inputs, target outputs.
 reg[15:0] exr_shadow = 0;    
@@ -89,7 +85,7 @@ assign r[`SR_TG_CODE_ADDR] = tg_code_addr;
 assign r[`SR_PEEK_DATA] = tg_peek_data; 
 
 // irregular sized inputs.
-assign r[`SR_TG_DEBUG_OUT][`DEBUG_OUT_WIDTH-1:0] = tg_debug_out;
+//assign r[`SR_TG_DEBUG_OUT][`DEBUG_OUT_WIDTH-1:0] = tg_debug_out;
 assign r[`SR_BP_STATUS] = {15'h0, bp_hit}; 
 
 //reg step_cycle = 0;
@@ -97,23 +93,41 @@ assign r[`SR_BP_STATUS] = {15'h0, bp_hit};
 //reg last_step_cmd = 0;
 
 // debugger logic
-wire tg_loading_exr = tg_debug_out[1];
-wire tg_enable_exec = tg_debug_out[0];
-always @(posedge sysreset or posedge sysclk) begin
+wire tg_debug_loading_exr = tg_debug_out[1];
+wire tg_debug_enable_exec = tg_debug_out[0];
+wire bp_matched_comb =   tg_code_addr == r[`DR_BP0_ADDR] 
+                      || tg_code_addr == r[`DR_BP1_ADDR] 
+                      || tg_code_addr == r[`DR_BP2_ADDR] 
+                      || tg_code_addr == r[`DR_BP3_ADDR];
+wire bp_load_comb =    r_load[`DR_BP0_ADDR] 
+                    || r_load[`DR_BP1_ADDR] 
+                    || r_load[`DR_BP2_ADDR] 
+                    || r_load[`DR_BP3_ADDR];
+always_ff @(posedge sysreset or posedge sysclk) begin
     if (sysreset) begin
         exr_shadow <= 0;
         bp_hit <= 0;
+        bp_matched <= 0;
         //step_cycle <= 0;
         //last_step_cmd <= 0;
     end else if (sysclk) begin
-        if (tg_loading_exr && ! divert_code_bus)
+        if (tg_debug_loading_exr && ! divert_code_bus)
             exr_shadow <= rom_code_in;
             
-        if (r_load[8] || r_load[9] || r_load[10] || r_load[11])
+        if (bp_load_comb) begin
+            bp_matched <= 0;
             bp_hit <= 0;
-        else if ((tg_code_addr == bp_addr[0] || tg_code_addr == bp_addr[1] || 
-            tg_code_addr == bp_addr[2] || tg_code_addr == bp_addr[3]) && tg_enable_exec)
-            bp_hit <= 1;
+        end else begin
+            if (bp_matched_comb) begin
+                bp_matched <= 1;
+            end
+            if (tg_debug_enable_exec && (bp_matched || bp_matched_comb)) begin
+                // bp_hit is delayed until the next enable_exec after any address match.
+                // that way it only hits on ordinary assignment cycles, no special cycles.
+                // that allows the visor to correctly commandeer and later refill exr.
+                bp_hit <= 1;
+            end
+        end        
         
         // if (step_cmd && ! last_step_cmd)
             // step_cycle <= 1;
@@ -122,6 +136,5 @@ always @(posedge sysreset or posedge sysclk) begin
         // last_step_cmd = step_cmd;            
     end
 end    
-
 
 endmodule

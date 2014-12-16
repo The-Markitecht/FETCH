@@ -11,12 +11,54 @@ module std_reg #(
     ,output reg[15:0]            data_out = 0
     ,input[15:0]                 data_in           
     ,input                       load
+    ,input                       read
 );      
-    always @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset)
             data_out <= 16'd0;
         else if (load)
             data_out <= data_in;
+    end
+endmodule
+
+module stack_reg #(
+    parameter DEPTH = 8
+) (
+     input                       sysclk            
+    ,input                       sysreset          
+
+    ,output                      data_out
+    ,input[15:0]                 data_in           
+    ,input                       load
+    ,input                       read
+);      
+    localparam TOP=DEPTH-1;
+    reg[15:0] content[TOP:0];
+    assign data_out = content[0];
+    genvar i;
+    generate  
+        for (i=1; i < TOP; i=i+1) begin: middle
+            always_ff @(posedge sysreset or posedge sysclk) begin
+                if (sysreset)
+                    content[i] <= 0;
+                else if (load)
+                    content[i] <= content[i-1];
+                else if (read)
+                    content[i] <= content[i+1];
+            end  
+        end
+    endgenerate     
+    always_ff @(posedge sysreset or posedge sysclk) begin
+        if (sysreset)
+            content[0] <= 0;
+        else if (load)
+            content[0] <= data_in;
+        else if (read)
+            content[0] <= content[1];
+        if (sysreset)
+            content[TOP] <= 0;
+        else if (load)
+            content[TOP] <= content[i-1];
     end
 endmodule
 
@@ -62,7 +104,7 @@ module synapse316 #(
     // that way i don't set/clr carry before EVERY operation.  and all tricky flag logic goes away.
     
     // debugger input flattener.
-    wire debug_hold = debug_in[0];
+    wire debug_hold_state = debug_in[0];
     wire debug_force_load_exr = debug_in[1];
     wire debug_force_exec = debug_in[2];
     
@@ -78,7 +120,7 @@ module synapse316 #(
     reg random_fetch_cycle2 = 1'b0; // exr stalled for 1 extra cycle after random_fetch_cycle1 coincided with const16cycle1, as often happens.  then exr contains the constant fetched during the const16cycle1, not a valid opcode.
     wire load_exr = (code_ready && ! random_fetch_cycle1) || debug_force_load_exr;
     wire enable_exec = (code_ready && ! (const16cycle1 || branching_cycle 
-        || random_fetch_cycle1 || random_fetch_cycle2 || debug_hold)) || debug_force_exec; 
+        || random_fetch_cycle1 || random_fetch_cycle2 || debug_hold_state)) || debug_force_exec; 
     wire muxa_do_copy = enable_exec;    
     wire clrf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h30);
     wire setf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h31);
@@ -100,7 +142,7 @@ module synapse316 #(
     wire hold_ipr = random_fetch_cycle1 || ! code_ready;
     assign code_addr = random_fetch_cycle1 ? random_fetch_addr : ipr;
     wire[IPR_TOP:0] next_code_addr = ipr + {{IPR_TOP{1'b0}}, 1'd1};   
-    always @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
             ipr <= 0;
             exr <= 0;
@@ -116,8 +158,8 @@ module synapse316 #(
             if (load_exr)
                 exr <= code_in;
                 
-            if ( ! debug_hold) begin
-                // during debug_hold the ipr does not advance, nor do most of the control registers.
+            if ( ! debug_hold_state) begin
+                // during debug_hold_state the ipr does not advance, nor do most of the control registers.
                 if (load_ipr)
                     ipr <= code_in;
                 else if (return_operator)
@@ -174,7 +216,7 @@ module synapse316 #(
     assign ad0_comb = {1'd0, r_full[0]} + {1'd0, r_full[1]} + {15'd0, ad0_carry_flag};
     wire ad0_carry_out_comb = ad0_comb[16];
     reg load_carry = 1'd0;
-    always @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
             ad0 <= 15'd0;
             ad0_zero_flag <= 1'b0;
@@ -199,7 +241,7 @@ module synapse316 #(
     wire[15:0] ad1_comb = r_full[2] + r_full[3];
     reg ad1_zero_flag;
     wire ad1_zero_comb = ! ( | ad1_comb[15:0]);
-    always @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
             ad1 <= 15'd0;
             ad1_zero_flag <= 1'b0;
@@ -214,7 +256,7 @@ module synapse316 #(
     wire[15:0] ad2_comb = r_full[4] + r_full[5];
     reg ad2_zero_flag;
     wire ad2_zero_comb = ! ( | ad2_comb[15:0]);
-    always @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
             ad2 <= 15'd0;
             ad2_zero_flag <= 1'b0;
@@ -227,7 +269,7 @@ module synapse316 #(
     // // 2's complement operator neg0
     // reg[15:0] neg0; // result register
     // wire[15:0] neg0_comb = ( ~ b[0] ) + 16'd1;
-    // always @(sysreset or sysclk) begin
+    // always_ff @(sysreset or sysclk) begin
         // if (sysreset) begin
             // neg0 <= 0;
         // end else if (sysclk) begin
@@ -243,7 +285,7 @@ module synapse316 #(
     wire[15:0] or0_comb = r_full[0] | r_full[1];
     reg[15:0] xor0; // result register
     wire[15:0] xor0_comb = r_full[0] ^ r_full[1];
-    always @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
             and0 <= 0;
             and0_zero_flag <= 0;
