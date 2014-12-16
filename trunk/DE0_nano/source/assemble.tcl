@@ -72,14 +72,13 @@ proc label {name} {
 
 proc uses_reg {reg} {
     # memorize use of a given register by the current function.
-    if { ! [dict exists $::adest rstk]} return
+    if { ! [dict exists $::adest rstk]} return ;# only memorize if program includes a return stack.
+    if { $::asm_pass != $::pass(func) } return ;# only memorize on function examination pass.
     if {[string length $::func] > 0} {
         set reg [string trim $reg]
-        if {[lsearch -exact $::stackable $reg] < 0} return
-        if { ! ([dict exists $::asrc $reg] && [dict exists $::adest $reg])} {
-            error "register is not read/write capable: $reg"
-        }
-        dict lappend $::func_regs $::func $reg
+        if {[lsearch -exact [dict get $::func_regs $::func] $reg] >= 0} return ;# already memorized.
+        console "func $::func uses_reg $reg"
+        dict lappend ::func_regs $::func $reg
     }
 }
 
@@ -183,7 +182,7 @@ proc parse_line {lin} {
     } elseif {[string equal -length 1 $lin {:}]} {
         # label line
         dict set ::labels [string trim $lin {: }] $::ipr
-        emit "// $lin // = 0x[format %02x $::ipr]"
+        emit "// $lin // = 0x[format %04x $::ipr]"
     } elseif {[string equal -length 1 $lin {[}]} {
         # explicit Tcl line in brackets.  return value is discarded.
         if { ! [string equal [string index $lin end] \] ]} {
@@ -242,7 +241,6 @@ proc parse_text {asm_lines pass_num} {
     set ::ipr 0
     set ::lnum 0
     set ::func {}
-    set ::func_regs [dict create]
     set ::stackable [list]
     catch {namespace delete ::asm}
     namespace eval ::asm {}
@@ -274,6 +272,7 @@ proc assemble {src_fn rom_fn} {
     #proc report args {puts [info level 0]}
     #trace add execution parse enterstep report
 
+    set ::func_regs [dict create]
     parse_text $asm_lines $::pass(func) 
     
     parse_text $asm_lines $::pass(label)

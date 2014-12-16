@@ -33,6 +33,9 @@
     alias_src  peek_data        [incr counter]
     //alias_src  tg_debug_out	    [incr counter]
     alias_src  bp_status	    [incr counter]
+
+    // equivalent of convention_gpx
+    stackable rtna i j x y g6 g7
     
 :begin
     // put target into reset.

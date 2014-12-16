@@ -58,6 +58,7 @@ asm_alias_flag {} 2z [flag ad2z]
 
 # subroutine macros.
 proc asm_call {lin label} {
+    uses_reg rtna
     emit_word [pack [dest rtna] [src _imm16_]] $lin
     emit_word [label $label] $lin
     emit_word [pack [dest swapra] [src nop]] $lin
@@ -74,17 +75,20 @@ proc asm_func {lin label} {
 #        error "redefined label: $label"
 #    }
     dict set ::labels $label $::ipr
+    emit "// $lin // = 0x[format %04x $::ipr]"
     set ::func $label
-    dict set ::func_regs $label [list]
+    if { $::asm_pass == $::pass(func) } {
+        dict set ::func_regs $label [list]
+    }
     asm_auto_push $lin
 }
 
 proc asm_push {lin reg} {
-    parse3 rstk = $reg $lin
+    parse3 rstk = $reg "push $reg // $lin"
 }
 
 proc asm_pop {lin reg} {
-    parse3 $reg = rstk $lin
+    parse3 $reg = rstk "pop $reg // $lin"
 }
 
 proc push_order {r1 r2} {
@@ -98,28 +102,46 @@ proc push_order {r1 r2} {
     return 0
 }
 
-# patch: make sure -unique works as expected with -command.
+proc find_stackable {order func_name} {
+    set sa [list] 
+    foreach reg $::stackable {
+        lappend sa [src $reg]
+    }
+    set r [list]
+    set used [dict get $::func_regs $func_name]
+    foreach reg $used {
+        if {[dict exists $::asrc $reg]} {
+            if {[lsearch -integer $sa [src $reg]] >= 0} {
+                lappend r $reg
+            }
+        }
+    }
+    console "stackable $::stackable addresses $sa used $used intersection $r"
+    return [lsort -unique $order -command push_order $r]
+}
+
 proc asm_auto_push {lin} {
     if { ! [dict exists $::adest rstk]} return
-    set regs [dict get $::func_regs $::func]
-    set regs [lsort -unique -command push_order $regs]
-    foreach reg $regs {
+    foreach reg [find_stackable -increasing $::func] {
         asm_push $lin $reg
     }
 }
 
 proc asm_auto_pop {lin} {
     if { ! [dict exists $::adest rstk]} return
-    set regs [dict get $::func_regs $::func]
-    set regs [lsort -unique -decreasing -command push_order $regs]
-    foreach reg $regs {
+    foreach reg [find_stackable -decreasing $::func] {
         asm_pop $lin $reg
     }
 }
 
 proc asm_stackable {lin args} {
-    set ::stackable [concat $::stackable $args]
-    console "all stackable regs: $::stackable"
+    foreach reg $args {
+        if { ! ([dict exists $::asrc $reg] && [dict exists $::adest $reg])} {
+            error "register is not read/write capable: $reg"
+        }
+        lappend ::stackable $reg
+    }
+    # console "all stackable regs: $::stackable"
 }
 
 proc asm_convention_gp {lin} {
@@ -128,11 +150,22 @@ proc asm_convention_gp {lin} {
     if {[llength $::stackable] > 0} {
         error "calling convention specified more than once in same program: $lin"
     }
-    set regs [list]
+    asm_stackable $lin rtna
     for {set i [expr [src y] + 1]} {$i < $::asm::NUM_GP} {incr i} {
-        lappend regs g$i
+        asm_stackable $lin g$i
     }
-    asm_stackable $lin $regs
+}
+
+proc asm_convention_gpx {lin} {
+    # set up Calling Convention "GP eXtended".  stackable = all gp and operand regs beyond b.
+    # includes operand regs (i, j, x, y), but not i/o regs (beyond NUM_GP), or result regs.
+    if {[llength $::stackable] > 0} {
+        error "calling convention specified more than once in same program: $lin"
+    }
+    asm_stackable $lin rtna i j x y
+    for {set i [expr [src y] + 1]} {$i < $::asm::NUM_GP} {incr i} {
+        asm_stackable $lin g$i
+    }
 }
 
 # branching macros.
@@ -154,7 +187,3 @@ proc asm_fetch {lin dest from data_address_reg} {
 }
 
 
-#patch: create a stack, and macros to auto-push and auto-pop on it, depending on the list of registers used by the current function.
-# 2-pass assembler makes that easy.  build list on first pass.  implement on 2nd pass.
-# but that messes up labels, because auto-push might take any number of cycles.
-# need 3rd pass.  and declarations of starting & ending a function.  automatically set a label on function name.

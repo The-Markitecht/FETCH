@@ -25,7 +25,7 @@
     alias_src  av_waitrequest   [incr counter]
     alias_src  keys             [incr counter]
     
-    convention_gp
+    convention_gpx
     
 :begin    
     leds = 1 
@@ -114,7 +114,7 @@ func spinwait
 
 // function to print a 16-bit number formatted as 4 hex digits.
 // pass number in a.
-func put_hex16
+func put4x
     g6 = a
     b = 0xF000
     i = :hexdigits
