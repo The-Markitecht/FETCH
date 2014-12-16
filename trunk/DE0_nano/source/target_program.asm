@@ -13,6 +13,7 @@
     alias_both g6                   6 
     alias_both g7                   7
     [set counter $TOP_GP]
+    alias_both rstk                 [incr counter] 
     alias_both leds                 [incr counter] 
     alias_both av_writedata	    [incr counter]
     alias_both av_address       [incr counter]
@@ -23,6 +24,8 @@
         vdefine av_write_mask                   0x0001   
     alias_src  av_waitrequest   [incr counter]
     alias_src  keys             [incr counter]
+    
+    convention_gp
     
 :begin    
     leds = 1 
@@ -78,7 +81,7 @@
 
     
 // routine sends out the low byte from g7 to the UART.  blocks until the UART accepts the byte.
-:putchar    
+func putchar    
     av_writedata = g7
     av_address = $jtag_uart_data
     av_ctrl = $av_write_mask
@@ -91,7 +94,7 @@
     return
 
 // routine waits a number of milliseconds given in g7.    
-:spinwait
+func spinwait
 :spinwait_outer
     x = 12500
     y = -1
@@ -111,7 +114,7 @@
 
 // function to print a 16-bit number formatted as 4 hex digits.
 // pass number in a.
-:put_hex16
+func put_hex16
     g6 = a
     b = 0xF000
     i = :hexdigits

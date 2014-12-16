@@ -132,6 +132,8 @@ generate
     end  
 endgenerate     
 
+stack_reg #(DEPTH = 32) rstk(.clk, .r(r[`DR_RSTK]));
+
 // plumbing of target MCU outputs.
 narrow_reg #(.WIDTH(8)) led_reg(.clk, .r(r[`DR_LEDS]));
 assign LED = r[`DR_LEDS].q[7:0];

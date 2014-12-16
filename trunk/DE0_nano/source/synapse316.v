@@ -97,6 +97,39 @@ endmodule
     // assign rm.q = rs.q;
 // endmodule
 
+module stack_reg #(
+    parameter DEPTH = 8
+) (
+    clock_ifc.s         clk
+    ,reg_ifc.s           r
+);      
+    localparam TOP=DEPTH-1;
+    reg[15:0] content[TOP:0] = 0;
+    assign r.q = content[0];
+    always_ff @(posedge clk.reset or posedge clk.clk) begin
+        if (clk.reset)
+            content[0] <= 0;
+        else if (r.load)
+            content[0] <= r.d;
+        else if (r.read)
+            content[0] <= content[1];
+        generate  
+            for (genvar i=1; i < TOP; i=i+1) begin: middle
+                if (clk.reset)
+                    content[i] <= 0;
+                else if (r.load)
+                    content[i] <= content[i-1];
+                else if (r.read)
+                    content[i] <= content[i+1];
+            end  
+        endgenerate     
+        if (clk.reset)
+            content[TOP] <= 0;
+        else if (r.load)
+            content[TOP] <= content[i-1];
+    end
+endmodule
+
 module junk316 (
     clock_ifc.s         clk
     ,reg_ifc.m          kr

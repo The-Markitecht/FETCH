@@ -64,7 +64,75 @@ proc asm_call {lin label} {
 }
 
 proc asm_return {lin} {
+    asm_auto_pop $lin
     emit_word [pack [dest swapra] [src nop]] $lin
+}
+
+proc asm_func {lin label} {
+    set label [string trim $label {: }]
+#    if {[dict exists $::labels $label]} {
+#        error "redefined label: $label"
+#    }
+    dict set ::labels $label $::ipr
+    set ::func $label
+    dict set ::func_regs $label [list]
+    asm_auto_push $lin
+}
+
+proc asm_push {lin reg} {
+    parse3 rstk = $reg $lin
+}
+
+proc asm_pop {lin reg} {
+    parse3 $reg = rstk $lin
+}
+
+proc push_order {r1 r2} {
+    set a1 [src $r1]
+    set a2 [src $r2]
+    if {$a1 > $a2} {
+        return 1
+    } elseif {$a1 < $a2} {
+        return -1
+    }
+    return 0
+}
+
+# patch: make sure -unique works as expected with -command.
+proc asm_auto_push {lin} {
+    if { ! [dict exists $::adest rstk]} return
+    set regs [dict get $::func_regs $::func]
+    set regs [lsort -unique -command push_order $regs]
+    foreach reg $regs {
+        asm_push $lin $reg
+    }
+}
+
+proc asm_auto_pop {lin} {
+    if { ! [dict exists $::adest rstk]} return
+    set regs [dict get $::func_regs $::func]
+    set regs [lsort -unique -decreasing -command push_order $regs]
+    foreach reg $regs {
+        asm_pop $lin $reg
+    }
+}
+
+proc asm_stackable {lin args} {
+    set ::stackable [concat $::stackable $args]
+    console "all stackable regs: $::stackable"
+}
+
+proc asm_convention_gp {lin} {
+    # set up Calling Convention "GP".  stackable = all gp regs beyond y.
+    # does not include operand regs (a to y), i/o regs (beyond NUM_GP), or result regs.
+    if {[llength $::stackable] > 0} {
+        error "calling convention specified more than once in same program: $lin"
+    }
+    set regs [list]
+    for {set i [expr [src y] + 1]} {$i < $::asm::NUM_GP} {incr i} {
+        lappend regs g$i
+    }
+    asm_stackable $lin $regs
 }
 
 # branching macros.
