@@ -1,8 +1,3 @@
-
-// synthesis VERILOG_INPUT_VERSION SYSTEMVERILOG_2005 
-
-`default_nettype none
-
 `timescale 1 ns / 1 ns
 
 `define IPR_WIDTH               16

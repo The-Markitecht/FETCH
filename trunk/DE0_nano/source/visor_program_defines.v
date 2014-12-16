@@ -1,5 +1,5 @@
-`define VISOR_NUM_REGS  20
-`define VISOR_TOP_REG  19
+`define VISOR_NUM_REGS  21
+`define VISOR_TOP_REG  20
 `define VISOR_NUM_GP  8
 `define VISOR_TOP_GP  7
 `define VIO  8
@@ -27,11 +27,12 @@
 `define TG_CODE_READY_MASK  1
 `define SR_TG_FORCE  15
 `define DR_TG_FORCE  15
-`define FORCE_EXEC_MASK  4
-`define FORCE_LOAD_EXR_MASK  2
-`define HOLD_STATE_MASK  1
+`define TG_DEBUG_FORCE_EXEC_MASK  4
+`define TG_DEBUG_FORCE_LOAD_EXR_MASK  2
+`define TG_DEBUG_HOLD_MASK  1
 `define SR_EXR_SHADOW  16
 `define SR_TG_CODE_ADDR  17
 `define SR_PEEK_DATA  18
-`define SR_BP_STATUS  19
+`define SR_TG_DEBUG_OUT  19
+`define SR_BP_STATUS  20
 `define DR_DEBUG_PEEK_REG  31

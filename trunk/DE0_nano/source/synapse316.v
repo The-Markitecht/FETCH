@@ -2,188 +2,22 @@
 
 // synthesize with SystemVerilog
 
-// interface clock_ifc();
-	// wire clk;
-	// wire reset;
-	// modport m(output clk, output reset); // master
-	// modport s(input clk, input reset); // slave
-// endinterface
-
-interface clock_ifc();
-	input m_clk;
-	input m_reset;
-    
-	output s_clk;
-	output s_reset;
-    
-    assign s_clk = m_clk;
-    assign s_reset = m_reset;
-endinterface
-
-interface code_ifc #(parameter ADDR_WIDTH=16) ();	
-	wire[ADDR_WIDTH-1:0] addr;
-	wire[15:0] content;
-	wire code_ready;
-	modport m(output addr, input content, input code_ready); // master
-	modport s(input addr, output content, output code_ready); // slave
-endinterface
-
-// interface reg_ifc #(parameter WIDTH=16) ();
-	// wire[WIDTH-1:0] d;
-	// wire load;
-	// wire[WIDTH-1:0] q;
-	// wire read;
-	// modport m(output d, load, read, input q); 
-	// modport s(input d, load, read, output q); 
-// endinterface
-
-interface reg_ifc #(parameter WIDTH=16) ();
-	input[WIDTH-1:0]    m_d;
-	input               m_load;
-	output[WIDTH-1:0]   m_q;
-	input               m_read;
-    
-	output[WIDTH-1:0]   s_d;
-	output              s_load;
-	input[WIDTH-1:0]    s_q;
-	output              s_read;
-    
-    assign s_d          = m_d;
-    assign s_load       = m_load;
-    assign m_q          = s_q;
-    assign s_read       = m_read;
-endinterface             
-
-interface debug_ifc ();
-    wire hold_state;
-    wire force_load_exr;
-    wire force_exec;
-    wire branching_cycle, const16cycle1, random_fetch_cycle1, 
-        random_fetch_cycle2, load_exr, enable_exec;
-	modport m(output hold_state, force_load_exr, force_exec, 
-        input branching_cycle, const16cycle1, random_fetch_cycle1, 
-        random_fetch_cycle2, load_exr, enable_exec); 
-	modport s(input hold_state, force_load_exr, force_exec, 
-        output branching_cycle, const16cycle1, random_fetch_cycle1, 
-        random_fetch_cycle2, load_exr, enable_exec); 
-endinterface
-
-interface avalon_mm_ifc #(AWIDTH=16, DWIDTH=16) ();
-    wire[AWIDTH-1:0] address;
-    wire             waitrequest;
-    wire[DWIDTH-1:0] writedata;
-    wire             write;
-	modport m(output address, writedata, write,
-        input waitrequest);
-	modport s(input address, writedata, write,
-        output waitrequest);
-endinterface
-
-// module std_reg #(
-    // parameter WIDTH = 16
-// ) (
-    // interface         clk  // clock_ifc.s 
-    // ,interface        r    // ,reg_ifc.s  
-// );      
-    // reg[WIDTH-1:0] content = 0;
-    // assign r.q = content;
-    // always_ff @(posedge clk.reset or posedge clk.clk) begin
-        // if (clk.reset)
-            // content <= 0;
-        // else if (r.load)
-            // content <= r.d;
-    // end
-// endmodule
-
 module std_reg #(
     parameter WIDTH = 16
 ) (
-    interface         clk  // clock_ifc.s 
-    ,interface        r    // ,reg_ifc.s  
+     input                       sysclk            
+    ,input                       sysreset          
+
+    ,output reg[15:0]            data_out = 0
+    ,input[15:0]                 data_in           
+    ,input                       load
 );      
-    reg[WIDTH-1:0] content = 0;
-    assign r.s_q = content;
-    always_ff @(posedge clk.s_reset or posedge clk.clk) begin
-        if (clk.reset)
-            content <= 0;
-        else if (r.load)
-            content <= r.d;
+    always @(posedge sysreset or posedge sysclk) begin
+        if (sysreset)
+            data_out <= 16'd0;
+        else if (load)
+            data_out <= data_in;
     end
-endmodule
-
-module narrow_reg #(
-    parameter WIDTH = 16
-) (
-    interface         clk  // clock_ifc.s 
-    ,interface        r    // ,reg_ifc.s  
-);      
-    localparam FAKES=16-WIDTH;
-    reg[WIDTH-1:0] content = 0;
-    assign r.q = { {FAKES{1'b0}}, content};
-    always_ff @(posedge clk.reset or posedge clk.clk) begin
-        if (clk.reset)
-            content <= 0;
-        else if (r.load)
-            content <= r.d[WIDTH-1:0];
-    end
-endmodule
-
-// module reg_passthru (
-    // // see how these are reversed.  always connect rm to a reg_ifc.s, and connect rs to a reg_ifc.m.
-    // reg_ifc.m            rm
-    // ,reg_ifc.s           rs
-// );      
-    // assign rs.d = rm.d;
-    // assign rs.load = rm.load;
-    // assign rs.read = rm.read;
-    // assign rm.q = rs.q;
-// endmodule
-
-module stack_reg #(
-    parameter DEPTH = 8
-) (
-    interface         clk  // clock_ifc.s 
-    ,interface        r    // ,reg_ifc.s  
-);      
-    localparam TOP=DEPTH-1;
-    reg[15:0] content[TOP:0];
-    assign r.q = content[0];
-    genvar i;
-    generate  
-        for (i=1; i < TOP; i=i+1) begin: middle
-            always_ff @(posedge clk.reset or posedge clk.clk) begin
-                if (clk.reset)
-                    content[i] <= 0;
-                else if (r.load)
-                    content[i] <= content[i-1];
-                else if (r.read)
-                    content[i] <= content[i+1];
-            end  
-        end
-    endgenerate     
-    always_ff @(posedge clk.reset or posedge clk.clk) begin
-        if (clk.reset)
-            content[0] <= 0;
-        else if (r.load)
-            content[0] <= r.d;
-        else if (r.read)
-            content[0] <= content[1];
-        if (clk.reset)
-            content[TOP] <= 0;
-        else if (r.load)
-            content[TOP] <= content[i-1];
-    end
-endmodule
-
-module junk316 (
-    interface         clk
-    ,interface          kr
-    ,interface          lr
-); 
-    always_ff @(posedge clk.clk) begin
-        lr.d <= lr.q + kr.q;
-    end
-    assign lr.load = 1;
 endmodule
 
 module synapse316 #(
@@ -194,16 +28,23 @@ module synapse316 #(
     ,parameter NUM_REGS          = `NUM_REGS       
     ,parameter TOP_REG           = NUM_REGS - 1       
 ) (
-     interface          clk             // clock_ifc.s
-    ,interface          code            // ,code_ifc.m
-    
+     input                       sysclk            
+    ,input                       sysreset          
+
+    ,output[IPR_TOP:0]           code_addr         
+    ,input[15:0]                 code_in     
+    ,input                       code_ready
+
     // signals for use only by a debugging supervisor.
-    // if supervisor not present, connect inputs to 0 and outputs dangle.
-    ,interface          debug           // ,debug_ifc.s
+    ,input[`DEBUG_IN_WIDTH-1:0]   debug_in // connect to 0 if supervisor not present.
+    ,output[`DEBUG_OUT_WIDTH-1:0] debug_out // do not connect if supervisor not present.
     
     // register file, for any combination of general-purpose registers and i/o addressing.
     // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
-    ,interface          r[TOP_REG:0]    // ,reg_ifc.m
+    ,input[15:0]                 r[TOP_REG:0]
+    ,output[TOP_REG:0]           r_read    
+    ,output[TOP_REG:0]           r_load
+    ,output[15:0]                r_load_data    
 ); 
 
     // declarations & wires
@@ -220,6 +61,11 @@ module synapse316 #(
     // implement multi-word add/subtract by copying the carry out flag to the carry in flag, between word adds.
     // that way i don't set/clr carry before EVERY operation.  and all tricky flag logic goes away.
     
+    // debugger input flattener.
+    wire debug_hold = debug_in[0];
+    wire debug_force_load_exr = debug_in[1];
+    wire debug_force_exec = debug_in[2];
+    
     // instruction decoder.
     wire[5:0] muxa_dest_addr = exr[15:10];
     wire[9:0] muxa_src_addr = exr[9:0];
@@ -230,9 +76,9 @@ module synapse316 #(
     reg const16cycle1 = 1'b0; // exr registering inline data from program space on this cycle.  skip it.
     reg random_fetch_cycle1 = 1'b0; // exr stalled while code memory fetches data with random access.  hold exr's opcode until the next cycle for execution.  then the code memory is ready to replenish exr again.
     reg random_fetch_cycle2 = 1'b0; // exr stalled for 1 extra cycle after random_fetch_cycle1 coincided with const16cycle1, as often happens.  then exr contains the constant fetched during the const16cycle1, not a valid opcode.
-    wire load_exr = (code.code_ready && ! random_fetch_cycle1) || debug.force_load_exr;
-    wire enable_exec = (code.code_ready && ! (const16cycle1 || branching_cycle 
-        || random_fetch_cycle1 || random_fetch_cycle2 || debug.hold_state)) || debug.force_exec; 
+    wire load_exr = (code_ready && ! random_fetch_cycle1) || debug_force_load_exr;
+    wire enable_exec = (code_ready && ! (const16cycle1 || branching_cycle 
+        || random_fetch_cycle1 || random_fetch_cycle2 || debug_hold)) || debug_force_exec; 
     wire muxa_do_copy = enable_exec;    
     wire clrf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h30);
     wire setf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h31);
@@ -241,7 +87,7 @@ module synapse316 #(
     wire bn_operator            = muxa_do_copy && (muxa_dest_addr == 6'h39);
     wire muxa_dest_return_addr  = muxa_do_copy && (muxa_dest_addr == 6'h3e);
     wire return_operator        = muxa_do_copy && (muxa_dest_addr == 6'h3f); // swaps ipr and return_addr.  this allows for subroutine call and return, as well as computed jump.
-    wire binary_operator0 = r[0].load || r[1].load;
+    wire binary_operator0 = r_load[0] || r_load[1];
     wire muxa_source_imm16 = muxa_do_copy && (muxa_src_addr == 10'h3a0);
  
     // instruction pointer, executing instruction register, and more control logic.
@@ -250,12 +96,12 @@ module synapse316 #(
     reg[15:0] random_fetch_addr = 0; // this can temporarily override ipr to assert a different code_addr to the code memory.
     reg[15:0] random_fetch_result = 0;
     wire branch_accept;
-    wire load_ipr = code.code_ready && branch_accept; 
-    wire hold_ipr = random_fetch_cycle1 || ! code.code_ready;
-    assign code.addr = random_fetch_cycle1 ? random_fetch_addr : ipr;
+    wire load_ipr = code_ready && branch_accept; 
+    wire hold_ipr = random_fetch_cycle1 || ! code_ready;
+    assign code_addr = random_fetch_cycle1 ? random_fetch_addr : ipr;
     wire[IPR_TOP:0] next_code_addr = ipr + {{IPR_TOP{1'b0}}, 1'd1};   
-    always_ff @(posedge clk.reset or posedge clk.clk) begin
-        if (clk.reset) begin
+    always @(posedge sysreset or posedge sysclk) begin
+        if (sysreset) begin
             ipr <= 0;
             exr <= 0;
             //code_ready_cycle <= 0;
@@ -265,15 +111,15 @@ module synapse316 #(
             random_fetch_cycle2 <= 0;
             random_fetch_addr <= 0;
             random_fetch_result <= 0;
-        end else if (clk.clk) begin
+        end else if (sysclk) begin
 
             if (load_exr)
-                exr <= code.content;
+                exr <= code_in;
                 
-            if ( ! debug.hold_state) begin
+            if ( ! debug_hold) begin
                 // during debug_hold the ipr does not advance, nor do most of the control registers.
                 if (load_ipr)
-                    ipr <= code.content;
+                    ipr <= code_in;
                 else if (return_operator)
                     ipr <= return_addr;
                 else if ( ! hold_ipr)
@@ -285,38 +131,34 @@ module synapse316 #(
                     return_addr <= muxa_comb;
                     
                 if (random_fetch_cycle1)
-                    random_fetch_result <= code.content;
+                    random_fetch_result <= code_in;
                     
                 if (random_fetch_operator)
                     random_fetch_addr <= muxa_comb;
                     
-                const16cycle1 <= muxa_source_imm16 || (const16cycle1 && ! code.code_ready); // repeat the const16cycle1 as long as not code_ready.
-                branching_cycle <= br_operator || bn_operator || return_operator || (branching_cycle && ! code.code_ready); // branching_cycle activates after every branch instruction, regardless of branch_accept, because in either case exr has been loaded with the branch target, not an opcode.
-                random_fetch_cycle1 <= random_fetch_operator || (random_fetch_cycle1 && ! code.code_ready); // repeat this cycle if the code memory wasn't ready.
+                const16cycle1 <= muxa_source_imm16 || (const16cycle1 && ! code_ready); // repeat the const16cycle1 as long as not code_ready.
+                branching_cycle <= br_operator || bn_operator || return_operator || (branching_cycle && ! code_ready); // branching_cycle activates after every branch instruction, regardless of branch_accept, because in either case exr has been loaded with the branch target, not an opcode.
+                random_fetch_cycle1 <= random_fetch_operator || (random_fetch_cycle1 && ! code_ready); // repeat this cycle if the code memory wasn't ready.
                 random_fetch_cycle2 <= random_fetch_cycle1 && const16cycle1;
-                //code_ready_cycle <= code.code_ready;
+                //code_ready_cycle <= code_ready;
             end            
         end
     end    
-
-    // debugger plumbing.
-    assign debug.branching_cycle = branching_cycle;
-    assign debug.const16cycle1 = const16cycle1;
-    assign debug.random_fetch_cycle1 = random_fetch_cycle1;
-    assign debug.random_fetch_cycle2 = random_fetch_cycle2;
-    assign debug.load_exr = load_exr;
-    assign debug.enable_exec = enable_exec;
+    
+    // debugger output flattener.
+    assign debug_out = {branching_cycle, const16cycle1, random_fetch_cycle1, 
+        random_fetch_cycle2, load_exr, enable_exec};
     
     // plumbing for register file r.  for operands, general use, and i/o.
     // registers r0 and r1 are the operands for ad0 and certain other binary operators.
+    assign r_load_data = muxa_comb;
     wire[15:0] r_full[`MAX_NUM_REGS-1:0]; // a fully populated register space.  some portion of this will be fake registers, unconnected.
     genvar i;
     generate  
         for (i=0; i < NUM_REGS; i=i+1) begin: reg_ctrl_decoder
-            assign r[i].d = muxa_comb;
-            assign r[i].load = muxa_do_copy && (muxa_dest_addr == i);
-            assign r[i].read = muxa_do_copy && (muxa_src_addr == i);
-            assign r_full[i] = r[i].q;
+            assign r_load[i] = muxa_do_copy && (muxa_dest_addr == i);
+            assign r_read[i] = muxa_do_copy && (muxa_src_addr == i);
+            assign r_full[i] = r[i];
         end  
         for (i=NUM_REGS; i < `MAX_NUM_REGS; i=i+1) begin: fake_reg
             assign r_full[i] = 16'hxxxx;
@@ -332,13 +174,13 @@ module synapse316 #(
     assign ad0_comb = {1'd0, r_full[0]} + {1'd0, r_full[1]} + {15'd0, ad0_carry_flag};
     wire ad0_carry_out_comb = ad0_comb[16];
     reg load_carry = 1'd0;
-    always_ff @(posedge clk.reset or posedge clk.clk) begin
-        if (clk.reset) begin
+    always @(posedge sysreset or posedge sysclk) begin
+        if (sysreset) begin
             ad0 <= 15'd0;
             ad0_zero_flag <= 1'b0;
             ad0_carry_flag <= 1'b0;
             load_carry <= 1'd0;
-        end else if (clk.clk) begin
+        end else if (sysclk) begin
             if (setf_operator)
                 ad0_carry_flag <= ad0_carry_flag || muxa_comb[0];
             if (clrf_operator)
@@ -357,11 +199,11 @@ module synapse316 #(
     wire[15:0] ad1_comb = r_full[2] + r_full[3];
     reg ad1_zero_flag;
     wire ad1_zero_comb = ! ( | ad1_comb[15:0]);
-    always_ff @(posedge clk.reset or posedge clk.clk) begin
-        if (clk.reset) begin
+    always @(posedge sysreset or posedge sysclk) begin
+        if (sysreset) begin
             ad1 <= 15'd0;
             ad1_zero_flag <= 1'b0;
-        end else if (clk.clk) begin
+        end else if (sysclk) begin
             ad1 <= ad1_comb;    
             ad1_zero_flag <= ad1_zero_comb;
         end
@@ -372,11 +214,11 @@ module synapse316 #(
     wire[15:0] ad2_comb = r_full[4] + r_full[5];
     reg ad2_zero_flag;
     wire ad2_zero_comb = ! ( | ad2_comb[15:0]);
-    always_ff @(posedge clk.reset or posedge clk.clk) begin
-        if (clk.reset) begin
+    always @(posedge sysreset or posedge sysclk) begin
+        if (sysreset) begin
             ad2 <= 15'd0;
             ad2_zero_flag <= 1'b0;
-        end else if (clk.clk) begin
+        end else if (sysclk) begin
             ad2 <= ad2_comb;    
             ad2_zero_flag <= ad2_zero_comb;
         end
@@ -385,10 +227,10 @@ module synapse316 #(
     // // 2's complement operator neg0
     // reg[15:0] neg0; // result register
     // wire[15:0] neg0_comb = ( ~ b[0] ) + 16'd1;
-    // always_ff @(clk.reset or clk.clk) begin
-        // if (clk.reset) begin
+    // always @(sysreset or sysclk) begin
+        // if (sysreset) begin
             // neg0 <= 0;
-        // end else if (clk.clk) begin
+        // end else if (sysclk) begin
             // neg0 <= neg0_comb;    
         // end
     // end
@@ -401,13 +243,13 @@ module synapse316 #(
     wire[15:0] or0_comb = r_full[0] | r_full[1];
     reg[15:0] xor0; // result register
     wire[15:0] xor0_comb = r_full[0] ^ r_full[1];
-    always_ff @(posedge clk.reset or posedge clk.clk) begin
-        if (clk.reset) begin
+    always @(posedge sysreset or posedge sysclk) begin
+        if (sysreset) begin
             and0 <= 0;
             and0_zero_flag <= 0;
             or0 <= 0;
             xor0 <= 0;
-        end else if (clk.clk) begin
+        end else if (sysclk) begin
             and0 <= and0_comb;    
             and0_zero_flag <= ! ( | and0_comb );
             or0 <= or0_comb;
@@ -516,7 +358,7 @@ module synapse316 #(
         
         muxa_src_addr == 10'h360 ? const_neg1 :
 
-        muxa_src_addr == 10'h3a0 ? code.content :  // this indicates a 16-bit immediate value should be read inline from the program on the next cycle.
+        muxa_src_addr == 10'h3a0 ? code_in :  // this indicates a 16-bit immediate value should be read inline from the program on the next cycle.
             //patch: using code_in behind a 32-way muxer like this may reduce clock rate.  
             // may need a 2-cycle state machine instead, to implement constant loads.        
 

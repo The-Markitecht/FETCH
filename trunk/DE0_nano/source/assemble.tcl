@@ -64,23 +64,10 @@ proc flag {flag_name} {
 
 proc label {name} {
     # translate given label name into its address (a Tcl integer).
-    if {$::asm_pass <= $::pass(label)} {
+    if {$::asm_pass == 1} {
         return 0
     }
     return [dict get $::labels [string trim $name {: }]]
-}
-
-proc uses_reg {reg} {
-    # memorize use of a given register by the current function.
-    if { ! [dict exists $::adest rstk]} return
-    if {[string length $::func] > 0} {
-        set reg [string trim $reg]
-        if {[lsearch -exact $::stackable $reg] < 0} return
-        if { ! ([dict exists $::asrc $reg] && [dict exists $::adest $reg])} {
-            error "register is not read/write capable: $reg"
-        }
-        dict lappend $::func_regs $::func $reg
-    }
 }
 
 proc parse_assignment {dest eq src} {
@@ -114,7 +101,6 @@ proc parse_assignment {dest eq src} {
         } else {
             error "source is not recognized: $dest $eq $src"
         }
-        uses_reg $dest
     } elseif {[string equal $dest br] || [string equal $dest bn]} {
         # branch (b flagname addr)
         set instruction $dest
@@ -213,20 +199,20 @@ proc parse_line {lin} {
 proc emit_word {w comment} {
     # emit the given 16-bit integer into the ROM, with the given comment.
     console "    0x[format %04x $::ipr] : [format %04x $w] // <[format %04d ${::lnum}]> $comment"
-    emit "code.addr == 16'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // <[format %04d ${::lnum}]> $comment"
+    emit "addr == 16'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // <[format %04d ${::lnum}]> $comment"
     incr ::ipr
 }
 
 proc console {args} {
     # "puts" given args on the console.
-#    if {$::asm_pass == $::pass(first)} {
+#    if {$::asm_pass == 1} {
         eval puts $args
 #    }
 }
 
 proc emit {args} {
     # "puts" given args into the ROM description file.
-    if {$::asm_pass == $::pass(emit)} {
+    if {$::asm_pass == 2} {
         eval puts $::rom_file $args
     }
 }
@@ -234,22 +220,6 @@ proc emit {args} {
 proc pack {dest_addr src_addr} {
     # pack the given dest and src into a 16-bit assignment opcode (a Tcl integer).
     return [expr ($src_addr << $::src_shift) | ($dest_addr << $::dest_shift)]
-}
-
-proc parse_text {asm_lines pass_num} {
-    set ::asm_pass $pass_num
-    console "####################   PASS $::asm_pass  ####################"
-    set ::ipr 0
-    set ::lnum 0
-    set ::func {}
-    set ::func_regs [dict create]
-    set ::stackable [list]
-    catch {namespace delete ::asm}
-    namespace eval ::asm {}
-    foreach lin $asm_lines {
-        incr ::lnum
-        parse_line $lin
-    }
 }
 
 proc assemble {src_fn rom_fn} {
@@ -264,35 +234,48 @@ proc assemble {src_fn rom_fn} {
     set asm_lines [split [read $f] \n]
     close $f
 
-    # catalog of assembler loop passes.
-    set ::pass(func)        1 ;# determine regs used by functions, and print the echo text to console.
-    set ::pass(label)       2 ;# compute label addresses using accurate ipr.
-    set ::pass(emit)        3 ;# emit opcodes into ROM file using real label addresses.
-    set ::pass(first)       $::pass(func)
-    set ::pass(final)       $::pass(emit)
-    
     #proc report args {puts [info level 0]}
     #trace add execution parse enterstep report
 
-    parse_text $asm_lines $::pass(func) 
-    
-    parse_text $asm_lines $::pass(label)
-    
+    # first pass is only to compute label addresses, and print the echo text to console.
+    set ::asm_pass 1
+    set ::ipr 0
+    set ::lnum 0
+    catch {namespace delete ::asm}
+    namespace eval ::asm {}
+    foreach lin $asm_lines {
+        incr ::lnum
+        parse_line $lin
+    }
+
+    # second pass is to utilize real label addresses, and write the ROM file.
+    set ::asm_pass 2 
+    console {####################   SECOND PASS   ####################}
     set ::rom_file [open $::rom_fn w]
     puts $::rom_file "
         `timescale 1 ns / 1 ns
 
         module [file rootname [file tail $src_fn]] (
-            interface   clk,    // clock_ifc.s
-            interface  code     // code_ifc.s 
+            input\[15:0\] addr
+            ,output\[15:0\] data
         );
-            assign code.content = 
-    "    
-    parse_text $asm_lines $::pass(emit)
+            assign data = 
+    "
+
+    set ::ipr 0
+    set ::lnum 0
+    catch {namespace delete ::asm}
+    namespace eval ::asm {}
+    foreach lin $asm_lines {
+        incr ::lnum
+        parse_line $lin
+    }
+
     puts $::rom_file {        
                 16'hxxxx;
         endmodule
     }
+
     close $::rom_file
 }
 
