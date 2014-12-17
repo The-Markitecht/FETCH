@@ -7,6 +7,8 @@ module supervised_synapse316 (
      input                       sysclk            
     ,input                       sysreset          
 
+    ,input                       mcu_wait
+    
     // register file, for any combination of general-purpose registers and i/o addressing.
     // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
     ,input[15:0]                 r[`TOP_REG:0]
@@ -25,7 +27,6 @@ module supervised_synapse316 (
 // Synapse316 with code ROM.
 wire[15:0]                 rom_code_in;
 wire                       rom_code_ready = 1;
-reg                        rom_wait = 0; // useful for simulation only.
 wire[15:0]                 tg_code_addr;
 wire[15:0]                 tg_code_in;
 wire                       tg_code_ready;
@@ -64,8 +65,8 @@ std_reg peek_data_reg (sysclk, sysreset, peek_data, r_load_data, tg_r_load[`DEBU
 visor visr(
      .sysclk          (sysclk)
     ,.sysreset        (sysreset)
-    ,.rom_code_in     (rom_wait ? 16'hffff : rom_code_in)
-    ,.rom_code_ready  (rom_code_ready && ! rom_wait)
+    ,.rom_code_in     (mcu_wait ? 16'hffff : rom_code_in)
+    ,.rom_code_ready  (rom_code_ready && ! mcu_wait)
     ,.tg_code_addr    (tg_code_addr  )
     ,.tg_code_in      (tg_code_in    )
     ,.tg_code_ready   (tg_code_ready )

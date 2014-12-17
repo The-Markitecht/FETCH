@@ -18,11 +18,11 @@
     alias_both av_writedata	    [incr counter]
     alias_both av_address       [incr counter]
         vdefine jtag_uart_base             0x0100
-            vdefine jtag_uart_data ($jtag_uart_base + 0)
-            vdefine jtag_uart_ctrl ($jtag_uart_base + 1)
-    alias_both av_ctrl          [incr counter]
-        vdefine av_write_mask                   0x0001   
-    alias_src  av_waitrequest   [incr counter]
+        vdefine jtag_uart_data ($jtag_uart_base + 0)
+        vdefine jtag_uart_ctrl ($jtag_uart_base + 1)
+    // alias_both av_ctrl          [incr counter]
+    //    vdefine av_write_mask                   0x0001   
+    // alias_src  av_waitrequest   [incr counter]
     alias_src  keys             [incr counter]
     
     convention_gpx
@@ -63,8 +63,8 @@
     // fetch a word from test pattern to the UART.  its low byte is a character.
     j = :msg
     nop
-    fetch g7 from i+j
-    call :putchar
+    fetch a from i+j
+    putchar a
     
     // increment index & wrap around end of pattern.
     j = 1
@@ -78,20 +78,6 @@
     
     // repeat forever.
     jmp :again        
-
-    
-// routine sends out the low byte from g7 to the UART.  blocks until the UART accepts the byte.
-func putchar    
-    av_writedata = g7
-    av_address = $jtag_uart_data
-    av_ctrl = $av_write_mask
-    a = 0
-:wait_for_slave    
-    b = av_waitrequest
-    nop
-    bn z :wait_for_slave   
-    av_ctrl = 0
-    return
 
 // routine waits a number of milliseconds given in g7.    
 func spinwait
@@ -123,8 +109,8 @@ func put4x
     a = a>>4
     j = a>>4
     nop
-    fetch g7 from i+j
-    call :putchar
+    fetch a from i+j
+    putchar a
     
     a = g6
     b = 0x0F00
@@ -133,8 +119,8 @@ func put4x
     a = a>>4
     j = a>>4
     nop
-    fetch g7 from i+j
-    call :putchar
+    fetch a from i+j
+    putchar a
     
     a = g6
     b = 0x00F0
@@ -142,20 +128,20 @@ func put4x
     a = and
     j = a>>4
     nop
-    fetch g7 from i+j
-    call :putchar
+    fetch a from i+j
+    putchar a
     
     a = g6
     b = 0x000F
     i = :hexdigits
     j = and
     nop
-    fetch g7 from i+j
-    call :putchar
+    fetch a from i+j
+    putchar a
     
     return
 
 :hexdigits
-    "0123456789abcdef"
+    "0 1 2 3 4 5 6 7 8 9 a b c d e f "
     
         

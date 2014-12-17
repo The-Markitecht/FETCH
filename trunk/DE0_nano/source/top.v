@@ -100,9 +100,11 @@ wire[15:0]                dbg_av_address;
 wire                      dbg_av_waitrequest;
 wire[15:0]                dbg_av_writedata;
 wire                      dbg_av_write;
+wire                      mcu_wait;
 supervised_synapse316 mcu(
     .sysclk          (sysclk      ) ,
     .sysreset        (sysreset    ) ,
+    .mcu_wait        (mcu_wait),
     .r               (r),
     .r_read          (r_read),
     .r_load          (r_load),
@@ -121,34 +123,48 @@ stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS][7:0], r_load_data[7:0], r_load[`DR_LEDS]);
 assign LED = r[`DR_LEDS][7:0];
 
-std_reg av_writedata_reg(sysclk, sysreset, r[`DR_AV_WRITEDATA], r_load_data, r_load[`DR_AV_WRITEDATA]);
-wire[15:0] av_writedata             = r[`DR_AV_WRITEDATA];
-std_reg av_address_reg(sysclk, sysreset, r[`DR_AV_ADDRESS], r_load_data, r_load[`DR_AV_ADDRESS]);
-wire[15:0] av_address               = r[`DR_AV_ADDRESS];
-std_reg #(.WIDTH(2)) av_ctrl_reg(sysclk, sysreset, r[`DR_AV_CTRL][1:0], r_load_data[1:0], r_load[`DR_AV_CTRL]);
-wire av_write      = r[`DR_AV_CTRL][0];
-
 // plumbing of target MCU inputs.
-wire av_waitrequest;
-assign r[`SR_AV_WAITREQUEST] = {15'h0, av_waitrequest}; 
 assign r[`SR_KEYS] = {14'h0, KEY}; 
 
 //patch: synthesis debugging only.
 assign out0 = r[`DR_AV_WRITEDATA];
 assign out1 = r[`DR_AV_ADDRESS];
 
+// // old direct wiring for software-driven avalon master
+// std_reg av_writedata_reg(sysclk, sysreset, r[`DR_AV_WRITEDATA], r_load_data, r_load[`DR_AV_WRITEDATA]);
+// wire[15:0] av_writedata             = r[`DR_AV_WRITEDATA];
+// std_reg av_address_reg(sysclk, sysreset, r[`DR_AV_ADDRESS], r_load_data, r_load[`DR_AV_ADDRESS]);
+// wire[15:0] av_address               = r[`DR_AV_ADDRESS];
+// std_reg #(.WIDTH(2)) av_ctrl_reg(sysclk, sysreset, r[`DR_AV_CTRL][1:0], r_load_data[1:0], r_load[`DR_AV_CTRL]);
+// wire av_write      = r[`DR_AV_CTRL][0];
+
+// Avalon MM master.
+// program should always write the data register last, because writing it triggers the Avalon transaction.
+std_reg av_writedata_reg(sysclk, sysreset, r[`DR_AV_WRITEDATA], r_load_data, r_load[`DR_AV_WRITEDATA]);
+std_reg av_address_reg(sysclk, sysreset, r[`DR_AV_ADDRESS], r_load_data, r_load[`DR_AV_ADDRESS]);
+wire av_waitrequest;
+reg av_write = 0;
+reg av_read = 0;
+always_ff @(posedge sysclk) begin
+    if (av_write && ! av_waitrequest)
+        av_write <= 0; // write transaction has ended.
+    else if (r_load[`DR_AV_WRITEDATA])
+        av_write <= 1; // begin write transaction.
+end
+wire av_busy = (av_write || av_read) && av_waitrequest; // considering av_waitrequest avoids 1 needless wait state after every transaction.
+assign mcu_wait = av_busy;
 
 // Qsys system including JTAG UART.
 // in a Nios II Command Shell, type nios2-terminal --help, or just nios2-terminal.
 qsys2 u0 (
     .clk_clk                      (sysclk),                      
     .reset_reset_n                ( ! sysreset),                
-    .m0_address                   (av_address),                   
+    .m0_address                   (r[`DR_AV_ADDRESS]),                   
     .m0_read                      (0),                      
     .m0_waitrequest               (av_waitrequest),               
     .m0_readdata                  (),                  
     .m0_write                     (av_write),                     
-    .m0_writedata                 (av_writedata),                 
+    .m0_writedata                 (r[`DR_AV_WRITEDATA]),                 
     .generic_master_0_reset_reset ()  
 );
 

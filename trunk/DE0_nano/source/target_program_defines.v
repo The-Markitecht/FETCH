@@ -18,8 +18,4 @@
 `define JTAG_UART_BASE  256
 `define JTAG_UART_DATA  256
 `define JTAG_UART_CTRL  257
-`define SR_AV_CTRL  12
-`define DR_AV_CTRL  12
-`define AV_WRITE_MASK  1
-`define SR_AV_WAITREQUEST  13
-`define SR_KEYS  14
+`define SR_KEYS  12

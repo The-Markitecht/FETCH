@@ -11,7 +11,6 @@ module std_reg #(
     ,output reg[15:0]            data_out = 0
     ,input[15:0]                 data_in           
     ,input                       load
-    ,input                       read
 );      
     always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset)
