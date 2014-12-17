@@ -69,11 +69,12 @@ wire[15:0] poke_data            = r[`DR_POKE_DATA];
 // irregular sized outputs.
 reg bp_hit = 0;
 reg bp_matched = 0;
+wire bp_step = r[`DR_BUS_CTRL][3];
 wire divert_code_bus = r[`DR_BUS_CTRL][2];
 assign tg_reset      =  sysreset || r[`DR_BUS_CTRL][1];
-assign tg_code_ready = divert_code_bus ? (r[`DR_BUS_CTRL][0] /* || step_cycle */ ) : (rom_code_ready && ! bp_hit);
+assign tg_code_ready = divert_code_bus ? r[`DR_BUS_CTRL][0] : (rom_code_ready && ! bp_hit);
 assign tg_code_in = divert_code_bus ? force_opcode : rom_code_in;
-std_reg #(.WIDTH(3)) bus_ctrl_reg(sysclk, sysreset, r[`DR_BUS_CTRL][2:0], r_load_data[2:0], r_load[`DR_BUS_CTRL]);
+std_reg #(.WIDTH(4)) bus_ctrl_reg(sysclk, sysreset, r[`DR_BUS_CTRL][3:0], r_load_data[3:0], r_load[`DR_BUS_CTRL]);
 
 std_reg #(.WIDTH(3)) force_reg(sysclk, sysreset, r[`DR_TG_FORCE][`DEBUG_IN_WIDTH-1:0], r_load_data[`DEBUG_IN_WIDTH-1:0], r_load[`DR_TG_FORCE]);
 assign tg_debug_in   = r[`DR_TG_FORCE][`DEBUG_IN_WIDTH-1:0]; // {debug_force_exec, debug_force_load_exr, debug_hold_state}
@@ -88,17 +89,14 @@ assign r[`SR_PEEK_DATA] = tg_peek_data;
 //assign r[`SR_TG_DEBUG_OUT][`DEBUG_OUT_WIDTH-1:0] = tg_debug_out;
 assign r[`SR_BP_STATUS] = {15'h0, bp_hit}; 
 
-//reg step_cycle = 0;
-//wire step_cmd = regs[14][3];
-//reg last_step_cmd = 0;
-
 // debugger logic
 wire tg_debug_loading_exr = tg_debug_out[1];
 wire tg_debug_enable_exec = tg_debug_out[0];
 wire bp_matched_comb =   tg_code_addr == r[`DR_BP0_ADDR] 
                       || tg_code_addr == r[`DR_BP1_ADDR] 
                       || tg_code_addr == r[`DR_BP2_ADDR] 
-                      || tg_code_addr == r[`DR_BP3_ADDR];
+                      || tg_code_addr == r[`DR_BP3_ADDR]
+                      || bp_step;
 wire bp_load_comb =    r_load[`DR_BP0_ADDR] 
                     || r_load[`DR_BP1_ADDR] 
                     || r_load[`DR_BP2_ADDR] 

@@ -87,21 +87,12 @@ module synapse316 #(
     ,output[TOP_REG:0]           r_load
     ,output[15:0]                r_load_data    
 ); 
+    // see Zim notes for Synapse316 MCU.
 
     // declarations & wires
     wire[15:0] muxa_comb;      
     reg[15:0] exr; // executing instruction register
-    
-    // 316 instruction format:
-    // [15:10] 6' muxa_dest_addr.
-    // [9:0]  10' muxa_src_addr;  includes [7:0] 8' small constant.
-    
-    // future: eliminate setf/clrf.  instead map flags (and their set/clr operators) into register space.
-    // split the carry flag into one for input, one for result.  assume the input one stays 0 usually.
-    // set it to 1 only while subtracting.
-    // implement multi-word add/subtract by copying the carry out flag to the carry in flag, between word adds.
-    // that way i don't set/clr carry before EVERY operation.  and all tricky flag logic goes away.
-    
+        
     // debugger input flattener.
     wire debug_hold_state = debug_in[0];
     wire debug_force_load_exr = debug_in[1];

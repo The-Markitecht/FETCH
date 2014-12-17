@@ -21,6 +21,7 @@
     alias_both force_opcode	    [incr counter]
     alias_both poke_data        [incr counter]
     alias_both bus_ctrl	        [incr counter]
+        vdefine bp_step_mask 	                0x0008
         vdefine divert_code_bus_mask 	        0x0004
         vdefine tg_reset_mask 		            0x0002
         vdefine tg_code_ready_mask	            0x0001
@@ -35,7 +36,7 @@
     alias_src  bp_status	    [incr counter]
 
     // equivalent of convention_gpx
-    stackable rtna i j x y g6 g7
+    stackable rtna i j x y g6 g7   
     
 :begin
     // put target into reset.
@@ -55,11 +56,8 @@ jmp :halt
     
     // set a breakpoint, wait til it hits.
     bp0_addr = 0x15
-:wait_for_bp
-    a = 0
-    b = bp_status
-    nop
-    br z :wait_for_bp
+:main_loop
+    call :wait_for_bp
     
     // observe a register.
     bus_ctrl = $divert_code_bus_mask
@@ -76,10 +74,21 @@ jmp :halt
     tg_force = 0
     bus_ctrl = 0
     
+    // interrupt the target and single step it a few times.
+    bus_ctrl = $bp_step_mask
+    call :wait_for_bp
+    bp0_addr = bp0_addr
+    call :wait_for_bp
+    bp0_addr = bp0_addr
+    call :wait_for_bp
+    bp0_addr = bp0_addr
+    call :wait_for_bp
+    bus_ctrl = 0   
+    
     // release target to pass breakpoint once.
     bp0_addr = bp0_addr
         
-    jmp :wait_for_bp
+    jmp :main_loop
     
 :observe
     // these instructions are assembled in the visor program, but passed to the target to execute.
@@ -100,3 +109,10 @@ jmp :halt
     debug_peek_reg = r13
     debug_peek_reg = r14
     debug_peek_reg = r15
+    
+func wait_for_bp    
+    a = 0
+    b = bp_status
+    nop
+    br z :wait_for_bp
+    return
