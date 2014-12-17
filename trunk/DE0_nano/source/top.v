@@ -121,9 +121,9 @@ stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS][7:0], r_load_data[7:0], r_load[`DR_LEDS]);
 assign LED = r[`DR_LEDS][7:0];
 
-std_reg av_writedata_reg(sysclk, sysreset, r[`DR_AV_WRITEDATA][1:0], r_load_data[1:0], r_load[`DR_AV_WRITEDATA]);
+std_reg av_writedata_reg(sysclk, sysreset, r[`DR_AV_WRITEDATA], r_load_data, r_load[`DR_AV_WRITEDATA]);
 wire[15:0] av_writedata             = r[`DR_AV_WRITEDATA];
-std_reg av_address_reg(sysclk, sysreset, r[`DR_AV_ADDRESS][1:0], r_load_data[1:0], r_load[`DR_AV_ADDRESS]);
+std_reg av_address_reg(sysclk, sysreset, r[`DR_AV_ADDRESS], r_load_data, r_load[`DR_AV_ADDRESS]);
 wire[15:0] av_address               = r[`DR_AV_ADDRESS];
 std_reg #(.WIDTH(2)) av_ctrl_reg(sysclk, sysreset, r[`DR_AV_CTRL][1:0], r_load_data[1:0], r_load[`DR_AV_CTRL]);
 wire av_write      = r[`DR_AV_CTRL][0];
@@ -138,19 +138,19 @@ assign out0 = r[`DR_AV_WRITEDATA];
 assign out1 = r[`DR_AV_ADDRESS];
 
 
-// // Qsys system including JTAG UART.
-// // in a Nios II Command Shell, type nios2-terminal --help, or just nios2-terminal.
-// qsys2 u0 (
-    // .clk_clk                      (sysclk),                      
-    // .reset_reset_n                ( ! sysreset),                
-    // .m0_address                   (av_address),                   
-    // .m0_read                      (0),                      
-    // .m0_waitrequest               (av_waitrequest),               
-    // .m0_readdata                  (),                  
-    // .m0_write                     (av_write),                     
-    // .m0_writedata                 (av_writedata),                 
-    // .generic_master_0_reset_reset ()  
-// );
+// Qsys system including JTAG UART.
+// in a Nios II Command Shell, type nios2-terminal --help, or just nios2-terminal.
+qsys2 u0 (
+    .clk_clk                      (sysclk),                      
+    .reset_reset_n                ( ! sysreset),                
+    .m0_address                   (av_address),                   
+    .m0_read                      (0),                      
+    .m0_waitrequest               (av_waitrequest),               
+    .m0_readdata                  (),                  
+    .m0_write                     (av_write),                     
+    .m0_writedata                 (av_writedata),                 
+    .generic_master_0_reset_reset ()  
+);
 
 // // UART
 // std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, r[`DR_ATX_DATA][7:0], r_load_data[7:0], r_load[`DR_ATX_DATA]);
