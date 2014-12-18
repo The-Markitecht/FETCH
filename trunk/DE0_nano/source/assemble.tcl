@@ -159,14 +159,17 @@ proc parse_line {lin} {
     console "<[format %04d ${::lnum}]> $lin"
     if {[string length $lin] == 0} {
         emit $lin ;# blank line for readability.
+        emit_mif $lin ;# blank line for readability.
     } elseif {[string equal -length 2 $lin {//}]} {        
         emit $lin ;# comment line
+        emit_mif "--[string range $lin 2 end]" ;# comment line
     } elseif {[string equal -length 1 $lin \" ]} {
         # string constant line
         if { ! [string equal [string index $lin end] \" ]} {
             error "string missing final quote mark: $lin"
         }
         emit "// $lin"
+        emit_mif "-- $lin"
         set lin [subst [string range $lin 1 end-1]]
         if {[string length $lin] != ([string length $lin] / 2 * 2)} {
             append lin "\x0" ;# zero-pad to an even number of bytes, because the ROM description file is word-addressed.  all addressible data must be word-aligned.
@@ -183,6 +186,7 @@ proc parse_line {lin} {
         # label line
         dict set ::labels [string trim $lin {: }] $::ipr
         emit "// $lin // = 0x[format %04x $::ipr]"
+        emit_mif "-- $lin -- = 0x[format %04x $::ipr]"
     } elseif {[string equal -length 1 $lin {[}]} {
         # explicit Tcl line in brackets.  return value is discarded.
         if { ! [string equal [string index $lin end] \] ]} {
@@ -213,6 +217,7 @@ proc emit_word {w comment} {
     # emit the given 16-bit integer into the ROM, with the given comment.
     console "    0x[format %04x $::ipr] : [format %04x $w] // <[format %04d ${::lnum}]> $comment"
     emit "addr == 16'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // <[format %04d ${::lnum}]> $comment"
+    emit_mif "    [format %04x $::ipr] : [format %04x $w] ; -- <[format %04d ${::lnum}]> $comment"
     incr ::ipr
 }
 
@@ -227,6 +232,13 @@ proc emit {args} {
     # "puts" given args into the ROM description file.
     if {$::asm_pass == $::pass(emit)} {
         eval puts $::rom_file $args
+    }
+}
+
+proc emit_mif {args} {
+    # "puts" given args into the MIF memory initialization file.
+    if {$::asm_pass == $::pass(emit)} {
+        eval puts $::mif_file $args
     }
 }
 
@@ -255,8 +267,10 @@ proc assemble {src_fn rom_fn} {
 
     set ::src_fn $src_fn
     set ::rom_fn $rom_fn
+    set ::mif_fn "[file rootname $rom_fn].mif"
     puts "Assembling: $::src_fn"
     puts "        To: $::rom_fn"
+    puts "        To: $::mif_fn"
 
     set f [open $::src_fn r]
     set asm_lines [split [read $f] \n]
@@ -287,11 +301,24 @@ proc assemble {src_fn rom_fn} {
         );
             assign data = 
     "    
+    set ::mif_file [open $::mif_fn w]
+    puts $::mif_file "
+        DEPTH = 1024 ;               -- The size of memory in words
+        WIDTH = 16;                   -- bits per data word
+        ADDRESS_RADIX = HEX;          
+        DATA_RADIX = HEX;             
+        CONTENT                       
+        BEGIN
+    "    
     parse_text $asm_lines $::pass(emit)
     puts $::rom_file {        
                 16'hxxxx;
         endmodule
     }
     close $::rom_file
+    puts $::mif_file {        
+        END;
+    }
+    close $::mif_file
 }
 

@@ -66,10 +66,12 @@ module top (
 // clock and reset circuits.
 wire sysclk = clk50m;
 wire clk_async; // PLL output for UARTs.  4x desired bit rate.  460,800 hz for 115,200 bps.   38,400 hz for 9,600 bps.
+wire clk_progmem; // PLL output for MCU program memory.  doubled relative to sysclk.  posedge aligned ( = 0 degree phase).
 wire async_pll_lock;
 async_pll async_pll_inst (
     .inclk0 ( sysclk ),
     .c0 ( clk_async ),
+    .c1 ( clk_progmem ),
     .locked ( async_pll_lock )
 );
 reg rst0 = 1, rst1 = 1, rst2 = 1;
@@ -104,6 +106,7 @@ wire                      mcu_wait;
 supervised_synapse316 mcu(
     .sysclk          (sysclk      ) ,
     .sysreset        (sysreset    ) ,
+    .clk_progmem     (clk_progmem),
     .mcu_wait        (mcu_wait),
     .r               (r),
     .r_read          (r_read),
@@ -153,6 +156,11 @@ always_ff @(posedge sysclk) begin
 end
 wire av_busy = (av_write || av_read) && av_waitrequest; // considering av_waitrequest avoids 1 needless wait state after every transaction.
 assign mcu_wait = av_busy;
+
+////////////////////////////////////
+// Warning (12251): avalon_jtag_slave does not have byteenables. 
+// Writes from narrow master generic_master_0.m0 may result in data corruption.
+/////////////////////////////////////
 
 // Qsys system including JTAG UART.
 // in a Nios II Command Shell, type nios2-terminal --help, or just nios2-terminal.

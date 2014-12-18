@@ -26,7 +26,7 @@ module stack_reg #(
      input                       sysclk            
     ,input                       sysreset          
 
-    ,output                      data_out
+    ,output[15:0]                data_out
     ,input[15:0]                 data_in           
     ,input                       load
     ,input                       read
