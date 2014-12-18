@@ -3,8 +3,8 @@
 module top (
 
 //patch:
-output[15:0] out0,
-output[15:0] out1,
+//output[15:0] out0,
+//output[15:0] out1,
 
     //////////// CLOCK //////////
     input 		          		clk50m,
@@ -127,8 +127,8 @@ assign LED = r[`DR_LEDS][7:0];
 assign r[`SR_KEYS] = {14'h0, KEY}; 
 
 //patch: synthesis debugging only.
-assign out0 = r[`DR_AV_WRITEDATA];
-assign out1 = r[`DR_AV_ADDRESS];
+//assign out0 = r[`DR_AV_WRITEDATA];
+//assign out1 = r[`DR_AV_ADDRESS];
 
 // // old direct wiring for software-driven avalon master
 // std_reg av_writedata_reg(sysclk, sysreset, r[`DR_AV_WRITEDATA], r_load_data, r_load[`DR_AV_WRITEDATA]);

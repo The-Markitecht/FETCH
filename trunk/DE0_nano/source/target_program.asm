@@ -29,6 +29,30 @@
     
 :begin    
     leds = 1 
+
+
+:patch
+    a = leds
+    b = 1
+    nop
+    leds = a+b
+    
+    b = 65
+    putchar b
+    
+    x = 65000
+    y = -1
+    nop
+:wait3
+    x = x+y
+    nop
+    bn 2z :wait3
+
+    jmp :patch
+
+    
+    
+    
     
     // using i as index into string.
     i = 0
@@ -51,7 +75,7 @@
     // nop
     // bn z :wait_key_release
     
-    g7 = 100
+    a = 100
     call :spinwait
     
     // increment LEDs
