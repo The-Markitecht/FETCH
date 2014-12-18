@@ -60,8 +60,8 @@ asm_alias_flag {} 2z [flag ad2z]
 proc asm_call {lin label} {
     uses_reg rtna
     emit_word [pack [dest rtna] [src _imm16_]] $lin
-    emit_word [label $label] $lin
-    emit_word [pack [dest swapra] [src nop]] $lin
+    emit_word [label $label] \"
+    emit_word [pack [dest swapra] [src nop]] \"
 }
 
 proc asm_return {lin} {
@@ -124,6 +124,7 @@ proc asm_auto_push {lin} {
     if { ! [dict exists $::adest rstk]} return
     foreach reg [find_stackable -increasing $::func] {
         asm_push $lin $reg
+        set lin \"
     }
 }
 
@@ -131,6 +132,7 @@ proc asm_auto_pop {lin} {
     if { ! [dict exists $::adest rstk]} return
     foreach reg [find_stackable -decreasing $::func] {
         asm_pop $lin $reg
+        set lin \"
     }
 }
 
@@ -183,7 +185,7 @@ proc asm_fetch {lin dest from data_address_reg} {
         error "syntax error: $lin"
     }
     parse3 fetcha = $data_address_reg $lin
-    parse3 $dest = fetchd $lin
+    parse3 $dest = fetchd \"
 }
 
 

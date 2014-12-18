@@ -79,8 +79,9 @@
     // repeat forever.
     jmp :again        
 
-// routine waits a number of milliseconds given in g7.    
+// routine waits a number of milliseconds given in a.    
 func spinwait
+    b = -1
 :spinwait_outer
     x = 12500
     y = -1
@@ -89,10 +90,9 @@ func spinwait
     x = x+y
     nop
     bn 2z :spinwait_inner
-    x = g7
+    a = a+b
     nop
-    g7 = x+y
-    bn 2z :spinwait_outer    
+    bn z :spinwait_outer    
     return
         
 :msg
@@ -101,47 +101,65 @@ func spinwait
 // function to print a 16-bit number formatted as 4 hex digits.
 // pass number in a.
 func put4x
+    x = :hexdigits
+    
     g6 = a
     b = 0xF000
-    i = :hexdigits
+    nop
     a = and
     a = a>>4
     a = a>>4
-    j = a>>4
-    nop
-    fetch a from i+j
+    a = a>>4
+    call pick_byte
     putchar a
     
     a = g6
     b = 0x0F00
-    i = :hexdigits
+    nop
     a = and
     a = a>>4
-    j = a>>4
-    nop
-    fetch a from i+j
+    a = a>>4
+    call pick_byte
     putchar a
     
     a = g6
     b = 0x00F0
-    i = :hexdigits
-    a = and
-    j = a>>4
     nop
-    fetch a from i+j
+    a = and
+    a = a>>4
+    call pick_byte
     putchar a
     
     a = g6
     b = 0x000F
-    i = :hexdigits
-    j = and
     nop
-    fetch a from i+j
+    a = and
+    call pick_byte
     putchar a
     
     return
 
+// pick a byte from an array of words.  fetch & return it in a.
+// pass array base address in x, byte offset in a.
+func pick_byte
+    b = 1
+    nop
+    br and0z :pick_byte_even
+    a = a>>1
+    b = x
+    nop
+    fetch a from a+b
+    a = a>>4
+    a = a>>4
+    return
+:pick_byte_even    
+    a = a>>1
+    b = x
+    nop
+    fetch a from a+b
+    return
+    
 :hexdigits
-    "0 1 2 3 4 5 6 7 8 9 a b c d e f "
+    "0123456789abcdef"
     
         

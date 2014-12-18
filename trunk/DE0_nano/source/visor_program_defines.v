@@ -22,6 +22,7 @@
 `define DR_POKE_DATA  13
 `define SR_BUS_CTRL  14
 `define DR_BUS_CTRL  14
+`define BP_STEP_MASK  8
 `define DIVERT_CODE_BUS_MASK  4
 `define TG_RESET_MASK  2
 `define TG_CODE_READY_MASK  1
