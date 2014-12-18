@@ -55,6 +55,9 @@ asm_alias_flag {} c [flag ad0c]
 asm_alias_flag {} z [flag ad0z]
 asm_alias_flag {} 1z [flag ad1z]
 asm_alias_flag {} 2z [flag ad2z]
+asm_alias_flag {} eq [flag eq0]
+asm_alias_flag {} gt [flag gt0]
+asm_alias_flag {} lt [flag lt0]
 
 # subroutine macros.
 proc asm_call {lin label} {

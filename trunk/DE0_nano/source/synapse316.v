@@ -289,6 +289,22 @@ module synapse316 #(
         end
     end
 
+    // comparator unit
+    reg eq0_flag = 1'b0;
+    reg gt0_flag = 1'b0;
+    reg lt0_flag = 1'b0;
+    always_ff @(posedge sysreset or posedge sysclk) begin
+        if (sysreset) begin
+            eq0_flag <= 0;
+            gt0_flag <= 0;
+            lt0_flag <= 0;
+        end else if (sysclk) begin
+            eq0_flag <= r_full[0] == r_full[1];
+            gt0_flag <= r_full[0] > r_full[1];
+            lt0_flag <= ! (eq0_flag || gt0_flag);
+        end
+    end
+    
     // shifter unit
     wire[15:0] rf0 = r_full[0];
     wire[15:0] sh1l0 = {rf0[14:0], 1'b0};
@@ -300,7 +316,7 @@ module synapse316 #(
     wire[15:0] const_neg1 = 16'hffff;
     
     // branch unit
-    wire[15:0] flags = {11'b1, ad0_zero_flag, ad0_carry_flag, and0_zero_flag, ad1_zero_flag, ad2_zero_flag};
+    wire[15:0] flags = {8'b1, eq0_flag, gt0_flag, lt0_flag, ad0_zero_flag, ad0_carry_flag, and0_zero_flag, ad1_zero_flag, ad2_zero_flag};
     wire selected_flag = flags[selected_flag_addr];
     assign branch_accept = 
         br_operator ? selected_flag :

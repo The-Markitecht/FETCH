@@ -38,7 +38,7 @@
     // equivalent of convention_gpx
     stackable rtna i j x y g6 g7   
     
-:begin
+    :begin
     // put target into reset.
     bus_ctrl = $tg_reset_mask   
     
@@ -56,7 +56,7 @@ jmp :halt
     
     // set a breakpoint, wait til it hits.
     bp0_addr = 0x15
-:main_loop
+    :main_loop
     call :wait_for_bp
     
     // observe a register.
@@ -90,7 +90,7 @@ jmp :halt
         
     jmp :main_loop
     
-:observe
+    :observe
     // these instructions are assembled in the visor program, but passed to the target to execute.
     alias_dest debug_peek_reg 31
     debug_peek_reg = r0

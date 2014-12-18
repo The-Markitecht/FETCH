@@ -27,11 +27,11 @@
     
     convention_gpx
     
-:begin    
+    :begin    
     leds = 1 
 
-
-:patch
+//patch
+    :patch
     a = leds
     b = 1
     nop
@@ -43,7 +43,7 @@
     x = 65000
     y = -1
     nop
-:wait3
+    :wait3
     x = x+y
     nop
     bn 2z :wait3
@@ -63,7 +63,7 @@
     nop
     g6 = xor
     
-:again
+    :again
     // // wait for keypress.
 // :wait_key_press    
     // a = 0
@@ -98,7 +98,7 @@
     nop
     bn 1z :no_wrap
     i = 0
-:no_wrap
+    :no_wrap
     
     // repeat forever.
     jmp :again        
@@ -106,11 +106,11 @@
 // routine waits a number of milliseconds given in a.    
 func spinwait
     b = -1
-:spinwait_outer
+    :spinwait_outer
     x = 12500
     y = -1
     nop
-:spinwait_inner
+    :spinwait_inner
     x = x+y
     nop
     bn 2z :spinwait_inner
@@ -119,7 +119,7 @@ func spinwait
     bn z :spinwait_outer    
     return
         
-:msg
+    :msg
     "1234567890abcdef\n\x00"
 
 // function to print a 16-bit number formatted as 4 hex digits.
@@ -163,6 +163,9 @@ func put4x
     
     return
 
+    :hexdigits
+    "0123456789abcdef"
+
 // pick a byte from an array of words.  fetch & return it in a.
 // pass array base address in x, byte offset in a.
 func pick_byte
@@ -176,14 +179,31 @@ func pick_byte
     a = a>>4
     a = a>>4
     return
-:pick_byte_even    
+    :pick_byte_even    
     a = a>>1
     b = x
     nop
     fetch a from a+b
     return
-    
-:hexdigits
-    "0123456789abcdef"
-    
+
+// compute the modulus(255) of a number given in a.  return remainder in a.
+func mod255
+    // while a is greater than 254, subtract 255.
+    :mod255_again
+    b = 0xfe
+    nop
+    br gt :mod255_greater
+    return
+    :mod255_greater
+    b = 0xff01
+    nop
+    a = a+b
+    jmp :mod255_again
+
+// accumulate a Fletcher16 checksum, given the next byte of data.    
+func fletcher16
+    // a = data
+    b = g6
+    nop
+    return
         
