@@ -31,7 +31,7 @@
     0005 : 3a00 ; -- <0052> bus_ctrl = 0
 
 -- :halt -- = 0x0006
-    0006 : e005 ; -- <0055> jmp :halt
+    0006 : e00f ; -- <0055> jmp :halt
     0007 : 0006 ; -- <0055> jmp :halt
 
 -- set a breakpoint, wait til it hits.
@@ -79,7 +79,7 @@
 -- release target to pass breakpoint once.
     0028 : 2008 ; -- <0089> bp0_addr = bp0_addr
 
-    0029 : e005 ; -- <0091> jmp :main_loop
+    0029 : e00f ; -- <0091> jmp :main_loop
     002a : 0009 ; -- <0091> jmp :main_loop
 
 -- :observe -- = 0x002b

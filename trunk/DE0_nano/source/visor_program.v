@@ -32,7 +32,7 @@ addr == 16'h04 ? 16'h2360 :  // <0049> bp0_addr = $bp_disable
 addr == 16'h05 ? 16'h3a00 :  // <0052> bus_ctrl = 0
 
 // :halt // = 0x0006
-addr == 16'h06 ? 16'he005 :  // <0055> jmp :halt
+addr == 16'h06 ? 16'he00f :  // <0055> jmp :halt
 addr == 16'h07 ? 16'h0006 :  // <0055> jmp :halt
 
 // set a breakpoint, wait til it hits.
@@ -80,7 +80,7 @@ addr == 16'h27 ? 16'h3a00 :  // <0086> bus_ctrl = 0
 // release target to pass breakpoint once.
 addr == 16'h28 ? 16'h2008 :  // <0089> bp0_addr = bp0_addr
 
-addr == 16'h29 ? 16'he005 :  // <0091> jmp :main_loop
+addr == 16'h29 ? 16'he00f :  // <0091> jmp :main_loop
 addr == 16'h2a ? 16'h0009 :  // <0091> jmp :main_loop
 
 // :observe // = 0x002b

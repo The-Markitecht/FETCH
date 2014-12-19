@@ -134,7 +134,7 @@ func put4x
     a = a>>4
     a = a>>4
     a = a>>4
-    call pick_byte
+    call fetch_byte
     putchar a
     
     a = g6
@@ -143,7 +143,7 @@ func put4x
     a = and
     a = a>>4
     a = a>>4
-    call pick_byte
+    call fetch_byte
     putchar a
     
     a = g6
@@ -151,14 +151,14 @@ func put4x
     nop
     a = and
     a = a>>4
-    call pick_byte
+    call fetch_byte
     putchar a
     
     a = g6
     b = 0x000F
     nop
     a = and
-    call pick_byte
+    call fetch_byte
     putchar a
     
     return
@@ -168,7 +168,7 @@ func put4x
 
 // pick a byte from an array of words.  fetch & return it in a.
 // pass array base address in x, byte offset in a.
-func pick_byte
+func fetch_byte
     b = 1
     nop
     br and0z :pick_byte_even
@@ -200,10 +200,37 @@ func mod255
     a = a+b
     jmp :mod255_again
 
-// accumulate a Fletcher16 checksum, given the next byte of data.    
-func fletcher16
-    // a = data
-    b = g6
+// set up Fletcher16 checksum algorithm to accumulate in the 2 given register names.
+[proc asm_fletcher16_init {lin sum1_reg sum2_reg} {
+    set fletcher_sum1_reg $sum1_reg
+    set fletcher_sum2_reg $sum2_reg
+    $fletcher_sum1_reg = 0
+    $fletcher_sum2_reg = 0
+}]
+    
+// accumulate a Fletcher16 checksum in g6 and g7, 
+// given the next byte of data in a.    
+func fletcher16_input
+    b = $fletcher_sum1_reg
     nop
+    a = a+b
+    call :mod255
+    $fletcher_sum1_reg = a
+    
+    b = $fletcher_sum2_reg
+    nop
+    a = a+b
+    call :mod255
+    $fletcher_sum2_reg = a
     return
-        
+
+// return the combined 16-bit result of Fletcher16 checksum in a.    
+func fletcher16_result
+    a = $fletcher_sum2_reg
+    a = a<<4
+    a = a<<4
+    b = $fletcher_sum1_reg
+    nop
+    a = or
+    return
+    
