@@ -12,7 +12,7 @@
     // application-specific register aliases.  
     alias_both g6                   6 
     alias_both g7                   7
-    [set counter $VISOR_TOP_GP]
+    set counter $VISOR_TOP_GP
     alias_both bp0_addr	        [incr counter]
     alias_both bp1_addr	        [incr counter]
     alias_both bp2_addr	        [incr counter]

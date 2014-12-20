@@ -240,45 +240,63 @@
     009f : fc00 ; -- <0187> return
 
 -- compute the modulus(255) of a number given in a.  return remainder in a.
+    00a0 : 2006 ; -- <0190> push g6 // func mod255
+    00a1 : 2007 ; -- <0190> push g7 // "
 -- while a is greater than 254, subtract 255.
--- :mod255_again -- = 0x00a0
-    00a0 : 06fe ; -- <0193> b = 0xfe
-    00a1 : c800 ; -- <0194> nop
-    00a2 : e006 ; -- <0195> br gt :mod255_greater
-    00a3 : 00a5 ; -- <0195> br gt :mod255_greater
-    00a4 : fc00 ; -- <0196> return
--- :mod255_greater -- = 0x00a5
-    00a5 : 07a0 ; -- <0198> b = 0xff01
-    00a6 : ff01 ; -- <0198> b = 0xff01
-    00a7 : c800 ; -- <0199> nop
-    00a8 : 0300 ; -- <0200> a = a+b
-    00a9 : e00f ; -- <0201> jmp :mod255_again
-    00aa : 00a0 ; -- <0201> jmp :mod255_again
+-- :mod255_again -- = 0x00a2
+    00a2 : 06fe ; -- <0193> b = 0xfe
+    00a3 : c800 ; -- <0194> nop
+    00a4 : e006 ; -- <0195> br gt :mod255_greater
+    00a5 : 00a9 ; -- <0195> br gt :mod255_greater
+    00a6 : 1c08 ; -- <0196> pop g7 // return
+    00a7 : 1808 ; -- <0196> pop g6 // "
+    00a8 : fc00 ; -- <0196> return
+-- :mod255_greater -- = 0x00a9
+    00a9 : 07a0 ; -- <0198> b = 0xff01
+    00aa : ff01 ; -- <0198> b = 0xff01
+    00ab : c800 ; -- <0199> nop
+    00ac : 0300 ; -- <0200> a = a+b
+    00ad : e00f ; -- <0201> jmp :mod255_again
+    00ae : 00a2 ; -- <0201> jmp :mod255_again
+
+-- set up Fletcher16 checksum algorithm to accumulate in the 2 given register names.
+
+    00af : 1a00 ; -- <0211> fletcher16_init g6 g7
+    00b0 : 1e00 ; -- <0211> "
 
 -- accumulate a Fletcher16 checksum in g6 and g7,
 -- given the next byte of data in a.
-    00ab : 2006 ; -- <0205> push g6 // func fletcher16
-    00ac : 2007 ; -- <0205> push g7 // "
-    00ad : 203e ; -- <0205> push rtna // "
-    00ae : 0406 ; -- <0206> b = g6
-    00af : c800 ; -- <0207> nop
-    00b0 : 0300 ; -- <0208> a = a+b
-    00b1 : fba0 ; -- <0209> call :mod255
-    00b2 : 00a0 ; -- <0209> "
-    00b3 : fc00 ; -- <0209> "
-    00b4 : 1800 ; -- <0210> g6 = a
+    00b1 : 2006 ; -- <0215> push g6 // func fletcher16_input
+    00b2 : 2007 ; -- <0215> push g7 // "
+    00b3 : 203e ; -- <0215> push rtna // "
+    00b4 : 0406 ; -- <0216> b = $fletcher_sum1_reg
+    00b5 : c800 ; -- <0217> nop
+    00b6 : 0300 ; -- <0218> a = a+b
+    00b7 : fba0 ; -- <0219> call :mod255
+    00b8 : 00a0 ; -- <0219> "
+    00b9 : fc00 ; -- <0219> "
+    00ba : 1800 ; -- <0220> $fletcher_sum1_reg = a
 
-    00b5 : 0407 ; -- <0212> b = g7
-    00b6 : c800 ; -- <0213> nop
-    00b7 : 0300 ; -- <0214> a = a+b
-    00b8 : fba0 ; -- <0215> call :mod255
-    00b9 : 00a0 ; -- <0215> "
-    00ba : fc00 ; -- <0215> "
-    00bb : 1c00 ; -- <0216> g7 = a
-    00bc : f808 ; -- <0217> pop rtna // return
-    00bd : 1c08 ; -- <0217> pop g7 // "
-    00be : 1808 ; -- <0217> pop g6 // "
-    00bf : fc00 ; -- <0217> return
+    00bb : 0407 ; -- <0222> b = $fletcher_sum2_reg
+    00bc : c800 ; -- <0223> nop
+    00bd : 0300 ; -- <0224> a = a+b
+    00be : fba0 ; -- <0225> call :mod255
+    00bf : 00a0 ; -- <0225> "
+    00c0 : fc00 ; -- <0225> "
+    00c1 : 1c00 ; -- <0226> $fletcher_sum2_reg = a
+    00c2 : f808 ; -- <0227> pop rtna // return
+    00c3 : 1c08 ; -- <0227> pop g7 // "
+    00c4 : 1808 ; -- <0227> pop g6 // "
+    00c5 : fc00 ; -- <0227> return
+
+-- return the combined 16-bit result of Fletcher16 checksum in a.
+    00c6 : 0007 ; -- <0231> a = $fletcher_sum2_reg
+    00c7 : 0352 ; -- <0232> a = a<<4
+    00c8 : 0352 ; -- <0233> a = a<<4
+    00c9 : 0406 ; -- <0234> b = $fletcher_sum1_reg
+    00ca : c800 ; -- <0235> nop
+    00cb : 0334 ; -- <0236> a = or
+    00cc : fc00 ; -- <0237> return
 
         
         END;

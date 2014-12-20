@@ -12,7 +12,7 @@
     // application-specific register aliases.    
     alias_both g6                   6 
     alias_both g7                   7
-    [set counter $TOP_GP]
+    set counter $TOP_GP 
     alias_both rstk                 [incr counter] 
     alias_both leds                 [incr counter] 
     alias_both av_writedata	    [incr counter]
@@ -201,12 +201,14 @@ func mod255
     jmp :mod255_again
 
 // set up Fletcher16 checksum algorithm to accumulate in the 2 given register names.
-[proc asm_fletcher16_init {lin sum1_reg sum2_reg} {
-    set fletcher_sum1_reg $sum1_reg
-    set fletcher_sum2_reg $sum2_reg
-    $fletcher_sum1_reg = 0
-    $fletcher_sum2_reg = 0
-}]
+<< proc ::asm_fletcher16_init {lin sum1_reg sum2_reg} {
+    set ::asm::fletcher_sum1_reg $sum1_reg
+    set ::asm::fletcher_sum2_reg $sum2_reg
+    parse3 $::asm::fletcher_sum1_reg = 0 $lin
+    parse3 $::asm::fletcher_sum2_reg = 0 \"
+} >>
+
+    fletcher16_init g6 g7
     
 // accumulate a Fletcher16 checksum in g6 and g7, 
 // given the next byte of data in a.    

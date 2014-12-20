@@ -158,7 +158,16 @@ proc parse_line {lin} {
     # parse a whole line of assembler file as input.  emit any resulting bytes into the ROM file.
     set lin [string trim $lin]
     console "<[format %04d ${::lnum}]> $lin"
-    if {[string length $lin] == 0} {
+    if {$::ml_state == {tcl}} {
+        # continuing a Tcl block.
+        if {[string equal [string range $lin end-1 end] {>>} ]} {
+            set ::ml_state {}
+            append ::multi_line [string range $lin 0 end-2] \n
+            namespace eval ::asm $::multi_line
+        } else {
+            append ::multi_line $lin \n
+        }
+    } elseif {[string length $lin] == 0} {
         emit $lin ;# blank line for readability.
         emit_mif $lin ;# blank line for readability.
     } elseif {[string equal -length 2 $lin {//}]} {        
@@ -188,12 +197,14 @@ proc parse_line {lin} {
         dict set ::labels [string trim $lin {: }] $::ipr
         emit "// $lin // = 0x[format %04x $::ipr]"
         emit_mif "-- $lin -- = 0x[format %04x $::ipr]"
-    } elseif {[string equal -length 1 $lin {[}]} {
-        # explicit Tcl line in brackets.  return value is discarded.
-        if { ! [string equal [string index $lin end] \] ]} {
-            error "Tcl command missing final bracket: $lin"
+    } elseif {[string equal -length 2 $lin {<<}]} {
+        # explicit Tcl line in angle brackets.  return value is discarded.
+        if {[string equal [string range $lin end-1 end] {>>} ]} {
+            namespace eval ::asm [string range $lin 2 end-2]
+        } else {
+            set ::multi_line [string range $lin 2 end]
+            set ::ml_state tcl
         }
-        namespace eval ::asm [string range $lin 1 end-1]
     } else {
         set sublin [string trim [parse_expressions $lin]] ;# parse any parenthesized arithmetic.
         set sublin [string trim [namespace eval ::asm "subst -nocommands {$sublin}"]] ;# fetches Tcl vars into the line.
@@ -253,6 +264,8 @@ proc parse_text {asm_lines pass_num} {
     console "####################   PASS $::asm_pass  ####################"
     set ::ipr 0
     set ::lnum 0
+    set ::ml_state {}
+    set ::multi_line {}
     set ::func {}
     set ::stackable [list]
     catch {namespace delete ::asm}

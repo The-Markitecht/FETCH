@@ -59,6 +59,11 @@ asm_alias_flag {} eq [flag eq0]
 asm_alias_flag {} gt [flag gt0]
 asm_alias_flag {} lt [flag lt0]
 
+# Tcl integration macros.
+proc asm_set {lin varname value} {
+    namespace eval ::asm [list set $varname $value]
+}
+
 # subroutine macros.
 proc asm_call {lin label} {
     uses_reg rtna
