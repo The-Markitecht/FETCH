@@ -5,12 +5,12 @@
 module std_reg #(
     parameter WIDTH = 16
 ) (
-     input                       sysclk            
-    ,input                       sysreset          
+     input wire                  sysclk            
+    ,input wire                  sysreset          
 
     ,output reg[15:0]            data_out = 0
-    ,input[15:0]                 data_in           
-    ,input                       load
+    ,input wire[15:0]            data_in           
+    ,input wire                  load
 );      
     always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset)
@@ -23,13 +23,13 @@ endmodule
 module stack_reg #(
     parameter DEPTH = 8
 ) (
-     input                       sysclk            
-    ,input                       sysreset          
+     input wire                  sysclk            
+    ,input wire                  sysreset          
 
-    ,output[15:0]                data_out
-    ,input[15:0]                 data_in           
-    ,input                       load
-    ,input                       read
+    ,output wire[15:0]           data_out
+    ,input wire[15:0]            data_in           
+    ,input wire                  load
+    ,input wire                  read
 );      
     localparam TOP=DEPTH-1;
     reg[15:0] content[TOP:0];
@@ -57,7 +57,7 @@ module stack_reg #(
         if (sysreset)
             content[TOP] <= 0;
         else if (load)
-            content[TOP] <= content[i-1];
+            content[TOP] <= content[TOP-1];
     end
 endmodule
 
@@ -69,23 +69,23 @@ module synapse316 #(
     ,parameter NUM_REGS          = `NUM_REGS       
     ,parameter TOP_REG           = NUM_REGS - 1       
 ) (
-     input                       sysclk            
-    ,input                       sysreset          
+     input wire                  sysclk            
+    ,input wire                  sysreset          
 
-    ,output[IPR_TOP:0]           code_addr         
-    ,input[15:0]                 code_in     
-    ,input                       code_ready
+    ,output wire[IPR_TOP:0]      code_addr         
+    ,input wire[15:0]            code_in     
+    ,input wire                  code_ready
 
     // signals for use only by a debugging supervisor.
-    ,input[`DEBUG_IN_WIDTH-1:0]   debug_in // connect to 0 if supervisor not present.
-    ,output[`DEBUG_OUT_WIDTH-1:0] debug_out // do not connect if supervisor not present.
+    ,input wire[`DEBUG_IN_WIDTH-1:0]   debug_in // connect to 0 if supervisor not present.
+    ,output wire[`DEBUG_OUT_WIDTH-1:0] debug_out // do not connect if supervisor not present.
     
     // register file, for any combination of general-purpose registers and i/o addressing.
     // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
-    ,input[15:0]                 r[TOP_REG:0]
-    ,output[TOP_REG:0]           r_read    
-    ,output[TOP_REG:0]           r_load
-    ,output[15:0]                r_load_data    
+    ,input  wire[15:0]                 r[TOP_REG:0]
+    ,output wire[TOP_REG:0]           r_read    
+    ,output wire[TOP_REG:0]           r_load
+    ,output wire[15:0]                r_load_data    
 ); 
     // see Zim notes for Synapse316 MCU.
 

@@ -68,7 +68,12 @@ proc label {name} {
     if {$::asm_pass <= $::pass(label)} {
         return 0
     }
-    return [dict get $::labels [string trim $name {: }]]
+    set name [string trim $name {: }]
+    set local_name "${::func}/$name"
+    if {[dict exists $::labels $local_name]} {
+        return [dict get $::labels $local_name]
+    }
+    return [dict get $::labels $name]
 }
 
 proc uses_reg {reg} {
@@ -137,6 +142,7 @@ proc parse3 {dest eq src lin} {
     set opcodes [parse_assignment $dest $eq $src]
     foreach op $opcodes {
         emit_word $op $lin
+        set lin \"
     }
 }  
 
@@ -194,7 +200,7 @@ proc parse_line {lin} {
         }
     } elseif {[string equal -length 1 $lin {:}]} {
         # label line
-        dict set ::labels [string trim $lin {: }] $::ipr
+        dict set ::labels "${::func}/[string trim $lin {: }]" $::ipr
         emit "// $lin // = 0x[format %04x $::ipr]"
         emit_mif "-- $lin -- = 0x[format %04x $::ipr]"
     } elseif {[string equal -length 2 $lin {<<}]} {
@@ -250,7 +256,7 @@ proc emit {args} {
 proc emit_mif {args} {
     # "puts" given args into the MIF memory initialization file.
     if {$::asm_pass == $::pass(emit)} {
-        eval puts $::mif_file $args
+        eval puts $::mif_file [string map {{//} {--}} $args]
     }
 }
 
@@ -310,8 +316,8 @@ proc assemble {src_fn rom_fn} {
         `include \"header.v\"
 
         module [file rootname [file tail $src_fn]] (
-            input\[15:0\] addr
-            ,output\[15:0\] data
+            input wire\[15:0\] addr
+            ,output wire\[15:0\] data
         );
             assign data = 
     "    

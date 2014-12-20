@@ -2,8 +2,8 @@
         `include "header.v"
 
         module visor_program (
-            input[15:0] addr
-            ,output[15:0] data
+            input wire[15:0] addr
+            ,output wire[15:0] data
         );
             assign data = 
     
@@ -33,7 +33,7 @@ addr == 16'h05 ? 16'h3a00 :  // <0052> bus_ctrl = 0
 
 // :halt // = 0x0006
 addr == 16'h06 ? 16'he00f :  // <0055> jmp :halt
-addr == 16'h07 ? 16'h0006 :  // <0055> jmp :halt
+addr == 16'h07 ? 16'h0006 :  // <0055> "
 
 // set a breakpoint, wait til it hits.
 addr == 16'h08 ? 16'h2215 :  // <0058> bp0_addr = 0x15
@@ -81,7 +81,7 @@ addr == 16'h27 ? 16'h3a00 :  // <0086> bus_ctrl = 0
 addr == 16'h28 ? 16'h2008 :  // <0089> bp0_addr = bp0_addr
 
 addr == 16'h29 ? 16'he00f :  // <0091> jmp :main_loop
-addr == 16'h2a ? 16'h0009 :  // <0091> jmp :main_loop
+addr == 16'h2a ? 16'h0009 :  // <0091> "
 
 // :observe // = 0x002b
 // these instructions are assembled in the visor program, but passed to the target to execute.
@@ -107,7 +107,7 @@ addr == 16'h3b ? 16'h0200 :  // <0114> a = 0
 addr == 16'h3c ? 16'h0413 :  // <0115> b = bp_status
 addr == 16'h3d ? 16'hc800 :  // <0116> nop
 addr == 16'h3e ? 16'he004 :  // <0117> br z :wait_for_bp
-addr == 16'h3f ? 16'h003b :  // <0117> br z :wait_for_bp
+addr == 16'h3f ? 16'h003b :  // <0117> "
 addr == 16'h40 ? 16'hfc00 :  // <0118> return
         
                 16'hxxxx;

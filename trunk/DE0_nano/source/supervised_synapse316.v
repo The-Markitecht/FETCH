@@ -4,24 +4,24 @@
 // Synapse316 with attached debugging supervisor.
 
 module supervised_synapse316 (
-     input                       sysclk            
-    ,input                       sysreset          
-    ,input                       clk_progmem
+     input wire                       sysclk            
+    ,input wire                       sysreset          
+    ,input wire                       clk_progmem
     
-    ,input                       mcu_wait
+    ,input wire                       mcu_wait
     
     // register file, for any combination of general-purpose registers and i/o addressing.
     // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
-    ,input[15:0]                 r[`TOP_REG:0]
-    ,output[`TOP_REG:0]          r_read    
-    ,output[`TOP_REG:0]          r_load
-    ,output[15:0]                r_load_data    
+    ,input wire[15:0]                 r[`TOP_REG:0]
+    ,output wire[`TOP_REG:0]          r_read    
+    ,output wire[`TOP_REG:0]          r_load
+    ,output wire[15:0]                r_load_data    
     
     // Avalon MM master
-    ,output[15:0]                dbg_av_address
-    ,input                       dbg_av_waitrequest
-    ,output[15:0]                dbg_av_writedata
-    ,output                      dbg_av_write
+    ,output wire[15:0]                dbg_av_address
+    ,input wire                       dbg_av_waitrequest
+    ,output wire[15:0]                dbg_av_writedata
+    ,output wire                      dbg_av_write
     
 ); 
 
@@ -37,22 +37,22 @@ wire[`TOP_REG:0]           tg_r_load;
 wire                       tg_reset;
 wire[`DEBUG_IN_WIDTH-1:0]  tg_debug_in;
 wire[`DEBUG_OUT_WIDTH-1:0] tg_debug_out; 
-// target_program rom(
-    // .addr(tg_code_addr),
-    // .data(rom_code_in)
-// );
-ram2port	target_program (
-	.address_a ( tg_code_addr ),
-	.address_b ( 16'd0 ),
-	.clock_a ( clk_progmem ),
-	.clock_b ( 1'd0 ),
-	.data_a ( 16'd0 ),
-	.data_b ( 16'd0 ),
-	.wren_a ( 1'd0 ),
-	.wren_b ( 1'd0 ),
-	.q_a ( rom_code_in ),
-	.q_b (  )
-	);
+target_program rom(
+    .addr(tg_code_addr),
+    .data(rom_code_in)
+);
+// ram2port	target_program (
+	// .address_a ( tg_code_addr ),
+	// .address_b ( 16'd0 ),
+	// .clock_a ( clk_progmem ),
+	// .clock_b ( 1'd0 ),
+	// .data_a ( 16'd0 ),
+	// .data_b ( 16'd0 ),
+	// .wren_a ( 1'd0 ),
+	// .wren_b ( 1'd0 ),
+	// .q_a ( rom_code_in ),
+	// .q_b (  )
+	// );
 // Quartus II software searches for the altsyncram init_file in the project directory, 
 // the project db directory, user libraries, and the current source file location.
 synapse316 target(

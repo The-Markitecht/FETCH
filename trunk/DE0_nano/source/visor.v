@@ -8,28 +8,28 @@
 // to be inserted between Synapse316 MCU and its code ROM.
 
 module visor (
-     input 		          		sysclk
-    ,input 		          		sysreset
+     input wire		          		sysclk
+    ,input wire		          		sysreset
     
     // signals from target's code ROM.
-    ,input[15:0]                 rom_code_in
-    ,input                       rom_code_ready
+    ,input wire[15:0]                 rom_code_in
+    ,input wire                       rom_code_ready
     
     // signals to & from the target MCU.
-    ,input[15:0]                 tg_code_addr
-    ,output[15:0]                tg_code_in
-    ,output                      tg_code_ready
-    ,output[`DEBUG_IN_WIDTH-1:0] tg_debug_in
-    ,input[`DEBUG_OUT_WIDTH-1:0] tg_debug_out
-    ,output                      tg_reset
-    ,input[15:0]                 tg_peek_data
-    ,output[15:0]                tg_poke_data
+    ,input wire[15:0]                 tg_code_addr
+    ,output wire[15:0]                tg_code_in
+    ,output wire                      tg_code_ready
+    ,output wire[`DEBUG_IN_WIDTH-1:0] tg_debug_in
+    ,input wire[`DEBUG_OUT_WIDTH-1:0] tg_debug_out
+    ,output wire                      tg_reset
+    ,input wire[15:0]                 tg_peek_data
+    ,output wire[15:0]                tg_poke_data
     
     // Avalon MM master
-    ,output[15:0]                av_address
-    ,input                       av_waitrequest
-    ,output[15:0]                av_writedata
-    ,output                      av_write
+    ,output wire[15:0]                av_address
+    ,input wire                       av_waitrequest
+    ,output wire[15:0]                av_writedata
+    ,output wire                      av_write
 );
 
 // supervisor Synapse 316 with its own code ROM.  totally independent of the target MCU.

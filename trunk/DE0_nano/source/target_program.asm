@@ -15,20 +15,29 @@
     set counter $TOP_GP 
     alias_both rstk                 [incr counter] 
     alias_both leds                 [incr counter] 
-    alias_both av_writedata	    [incr counter]
-    alias_both av_address       [incr counter]
+    
+    alias_both atx_data             [incr counter] 
+    alias_both atx_ctrl             [incr counter] 
+        vdefine atx_load_mask           0x0001
+        vdefine atx_busy_mask           0x0002
+        
+    alias_both av_writedata	        [incr counter]
+    alias_both av_address           [incr counter]
         vdefine jtag_uart_base             0x0100
         vdefine jtag_uart_data ($jtag_uart_base + 0)
         vdefine jtag_uart_ctrl ($jtag_uart_base + 1)
     // alias_both av_ctrl          [incr counter]
     //    vdefine av_write_mask                   0x0001   
     // alias_src  av_waitrequest   [incr counter]
-    alias_src  keys             [incr counter]
+    
+    alias_src  keys                 [incr counter]
     
     convention_gpx
     
     :begin    
     leds = 1 
+    atx_ctrl = 0 
+
 
 //patch
     :patch
@@ -37,17 +46,9 @@
     nop
     leds = a+b
     
-    b = 65
-    putchar b
+//    b = 65
+//    putchar b
     
-    x = 65000
-    y = -1
-    nop
-    :wait3
-    x = x+y
-    nop
-    bn 2z :wait3
-
     jmp :patch
 
     
@@ -103,6 +104,9 @@
     // repeat forever.
     jmp :again        
 
+    :msg
+    "1234567890abcdef\n\x00"
+    
 // routine waits a number of milliseconds given in a.    
 func spinwait
     b = -1
@@ -119,9 +123,6 @@ func spinwait
     bn z :spinwait_outer    
     return
         
-    :msg
-    "1234567890abcdef\n\x00"
-
 // function to print a 16-bit number formatted as 4 hex digits.
 // pass number in a.
 func put4x
@@ -213,6 +214,7 @@ func mod255
 // accumulate a Fletcher16 checksum in g6 and g7, 
 // given the next byte of data in a.    
 func fletcher16_input
+//patch: need a way to declare summing registers as "static" or "preserve" so they're not auto-stacked.
     b = $fletcher_sum1_reg
     nop
     a = a+b
@@ -234,5 +236,33 @@ func fletcher16_result
     b = $fletcher_sum1_reg
     nop
     a = or
+    return
+
+// routine sends out the low byte from x to the UART.  blocks until the UART accepts the byte.
+func putchar_atx
+
+    // wait for UART to be idle (not busy).
+    a = $atx_busy_mask
+    :pcatx_wait_for_idle
+    b = atx_ctrl
+    nop
+    bn and0z :pcatx_wait_for_idle
+    
+    // push word to the UART.  its low byte is a character.
+    atx_data = x
+        
+    // can't use the actual register load strobe that occurs here, because it's 
+    // much too fast for the UART to sample.
+    // instead use a dedicated output word atx_ctrl.
+    atx_ctrl = $atx_load_mask
+    
+    // wait until UART is busy, as acknowledgement.
+    a = $atx_busy_mask
+    :pcatx_wait_for_busy    
+    b = atx_ctrl
+    leds = 0b00000100 
+    br and0z :pcatx_wait_for_busy
+
+    atx_ctrl = 0 
     return
     

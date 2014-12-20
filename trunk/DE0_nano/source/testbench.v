@@ -1,4 +1,5 @@
 `include "header.v"
+`include "target_program_defines.v"
 
 module testbench ();
 
@@ -6,11 +7,10 @@ wire async_out;
 reg sysreset = 0;
 reg clk50m = 0;
 reg clk_async = 0;
+wire sysclk = clk50m;
 
 // MCU target plus debugging supervisor and a code ROM for each.
-`define NUM_GP    8
-`define TOP_GP    `NUM_GP - 1
-`define IO        `NUM_GP
+reg                       mcu_wait = 0;
 wire[15:0]                r[`TOP_REG:0];
 wire[`TOP_REG:0]          r_read;  
 wire[`TOP_REG:0]          r_load;
@@ -22,6 +22,7 @@ wire                      dbg_av_write;
 supervised_synapse316 mcu(
     .sysclk          (clk50m      ) ,
     .sysreset        (sysreset   ) ,
+    .mcu_wait        (mcu_wait),
     .r               (r),
     .r_read          (r_read),
     .r_load          (r_load),
@@ -34,21 +35,27 @@ supervised_synapse316 mcu(
 
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
 
+stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK]);
+
+// plumbing of target MCU outputs.
+std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS][7:0], r_load_data[7:0], r_load[`DR_LEDS]);
+
 // UART
-// wire txbsy; // this wire was ineffective in fixing ambiguous muxa_comb.
-// uart_v2_tx utx (
-     // .uart_sample_clk(clk_async) // clocked at 4x bit rate.
-    // ,.parallel_in    (r[`IO + 1][7:0])
-    // ,.load_data      (r[`IO + 2][0])
-    // ,.tx_line        (async_out)
-    // ,.tx_busy        (txbsy)
-// );    
-// assign data_in[0] = {15'd0, txbsy};
-wire[7:0] atx_parallel_in = r[`IO + 1][7:0];
-wire atx_load_data = r[`IO + 2][0];
-wire txbsy;
-assign #5000 txbsy = atx_load_data;
-assign r[`IO + 2][1] = {15'd0, txbsy};
+std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, r[`DR_ATX_DATA][7:0], r_load_data[7:0], r_load[`DR_ATX_DATA]);
+std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, r[`DR_ATX_CTRL][0], r_load_data[0], r_load[`DR_ATX_CTRL]);
+uart_v2_tx utx (
+     .uart_sample_clk(clk_async) // clocked at 4x bit rate.
+    ,.parallel_in    (r[`DR_ATX_DATA][7:0])
+    ,.load_data      (r[`DR_ATX_CTRL][0])
+    ,.tx_line        (async_out)
+    ,.tx_busy        (r[`DR_ATX_CTRL][1])
+);    
+
+// wire[7:0] atx_parallel_in = r[`DR_ATX_DATA][7:0];
+// wire atx_load_data = r[`DR_ATX_CTRL][0];
+// wire txbsy;
+// assign #5000 txbsy = atx_load_data;
+// assign r[`DR_ATX_CTRL][1] = txbsy;
 
 integer serial_file; 
 integer trace_file; 
@@ -63,7 +70,7 @@ initial	begin
     $fdisplay(trace_file, "\n\n================= POWER UP ================");
     trace_compare_file = $fopen("../../icarus/trace_compare.txt", "r");
 
-    #3000 sysreset = 1;
+    #1 sysreset = 1;
     #2000 sysreset = 0;
     #1000000 $stop;
 end
@@ -72,17 +79,16 @@ end
 
 reg[7:0] code_ready_cnt = 0;
 always begin
-    // run at 1 MHz for easy viewing.
-    #500 clk50m = 1;
+    #10 clk50m = 1;
         
-    #300
+    #7
     if (code_ready_cnt == 0)
         code_ready_cnt = 5;
     else
         code_ready_cnt = code_ready_cnt - 1;
-    mcu.rom_wait = code_ready_cnt == 0;
+    mcu_wait = code_ready_cnt == 0;
         
-    #200 clk50m = 0;    
+    #3 clk50m = 0;    
 end
    
 always begin

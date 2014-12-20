@@ -32,7 +32,7 @@
 
 -- :halt -- = 0x0006
     0006 : e00f ; -- <0055> jmp :halt
-    0007 : 0006 ; -- <0055> jmp :halt
+    0007 : 0006 ; -- <0055> "
 
 -- set a breakpoint, wait til it hits.
     0008 : 2215 ; -- <0058> bp0_addr = 0x15
@@ -80,7 +80,7 @@
     0028 : 2008 ; -- <0089> bp0_addr = bp0_addr
 
     0029 : e00f ; -- <0091> jmp :main_loop
-    002a : 0009 ; -- <0091> jmp :main_loop
+    002a : 0009 ; -- <0091> "
 
 -- :observe -- = 0x002b
 -- these instructions are assembled in the visor program, but passed to the target to execute.
@@ -105,7 +105,7 @@
     003c : 0413 ; -- <0115> b = bp_status
     003d : c800 ; -- <0116> nop
     003e : e004 ; -- <0117> br z :wait_for_bp
-    003f : 003b ; -- <0117> br z :wait_for_bp
+    003f : 003b ; -- <0117> "
     0040 : fc00 ; -- <0118> return
         
         END;
