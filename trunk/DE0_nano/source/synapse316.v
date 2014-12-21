@@ -8,15 +8,17 @@ module std_reg #(
      input wire                  sysclk            
     ,input wire                  sysreset          
 
-    ,output reg[15:0]            data_out = 0
-    ,input wire[15:0]            data_in           
+    ,output wire[15:0]           data_out
+    ,input wire[WIDTH-1:0]       data_in           
     ,input wire                  load
 );      
+    reg[WIDTH-1:0] r = 0;
+    assign data_out = { {16-WIDTH{1'b0}}, r};
     always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset)
-            data_out <= 16'd0;
+            r <= 0;
         else if (load)
-            data_out <= data_in;
+            r <= data_in;
     end
 endmodule
 
@@ -316,7 +318,7 @@ module synapse316 #(
     wire[15:0] const_neg1 = 16'hffff;
     
     // branch unit
-    wire[15:0] flags = {8'b1, eq0_flag, gt0_flag, lt0_flag, ad0_zero_flag, ad0_carry_flag, and0_zero_flag, ad1_zero_flag, ad2_zero_flag};
+    wire[15:0] flags = { {8{1'b1}}, eq0_flag, gt0_flag, lt0_flag, ad0_zero_flag, ad0_carry_flag, and0_zero_flag, ad1_zero_flag, ad2_zero_flag};
     wire selected_flag = flags[selected_flag_addr];
     assign branch_accept = 
         br_operator ? selected_flag :

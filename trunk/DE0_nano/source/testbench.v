@@ -19,7 +19,7 @@ wire[15:0]                dbg_av_address;
 wire                      dbg_av_waitrequest;
 wire[15:0]                dbg_av_writedata;
 wire                      dbg_av_write;
-supervised_synapse316 mcu(
+supervised_synapse316 supmcu(
     .sysclk          (clk50m      ) ,
     .sysreset        (sysreset   ) ,
     .mcu_wait        (mcu_wait),
@@ -35,20 +35,23 @@ supervised_synapse316 mcu(
 
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
 
-stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK]);
+stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`DR_RSTK]);
 
 // plumbing of target MCU outputs.
-std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS][7:0], r_load_data[7:0], r_load[`DR_LEDS]);
+std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
 
 // UART
-std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, r[`DR_ATX_DATA][7:0], r_load_data[7:0], r_load[`DR_ATX_DATA]);
-std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, r[`DR_ATX_CTRL][0], r_load_data[0], r_load[`DR_ATX_CTRL]);
+std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, r[`DR_ATX_DATA], r_load_data[7:0], r_load[`DR_ATX_DATA]);
+wire[15:0] atxc;
+wire txbsy;
+assign r[`DR_ATX_CTRL] = {atxc[15:2], txbsy, atxc[0]};
+std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, atxc, r_load_data[0], r_load[`DR_ATX_CTRL]);
 uart_v2_tx utx (
      .uart_sample_clk(clk_async) // clocked at 4x bit rate.
     ,.parallel_in    (r[`DR_ATX_DATA][7:0])
     ,.load_data      (r[`DR_ATX_CTRL][0])
     ,.tx_line        (async_out)
-    ,.tx_busy        (r[`DR_ATX_CTRL][1])
+    ,.tx_busy        (txbsy)
 );    
 
 // wire[7:0] atx_parallel_in = r[`DR_ATX_DATA][7:0];
@@ -86,7 +89,7 @@ always begin
         code_ready_cnt = 5;
     else
         code_ready_cnt = code_ready_cnt - 1;
-    mcu_wait = code_ready_cnt == 0;
+    mcu_wait = 0; // code_ready_cnt == 0;
         
     #3 clk50m = 0;    
 end
@@ -108,15 +111,15 @@ integer junk;
 always_ff @(posedge clk50m) begin
     // write output and check for trouble.
     
-    if ( mcu.target.enable_exec ) begin
+    if ( supmcu.target.enable_exec ) begin
         // this is an executing instruction cycle.  trace it.    
-        if (mcu.tg_code_addr != 0)
+        if (supmcu.tg_code_addr != 0)
             junk = $fscanf(trace_compare_file, "%x : %x\n", compare_addr, compare_exr); 
-        $fwrite(trace_file, "%04x : %04x     vs. %04x : %04x\n", mcu.tg_code_addr, mcu.target.exr, compare_addr, compare_exr);   
-        if (mcu.tg_code_addr != 0) begin
-            if( mcu.target.exr == 16'hffff ) 
+        $fwrite(trace_file, "%04x : %04x     vs. %04x : %04x\n", supmcu.tg_code_addr, supmcu.target.exr, compare_addr, compare_exr);   
+        if (supmcu.tg_code_addr != 0) begin
+            if( supmcu.target.exr == 16'hffff ) 
                 $fwrite(trace_file, "       ^^^^ ERROR INVALID INSTRUCTION\n");   
-            if (mcu.tg_code_addr != compare_addr || mcu.target.exr != compare_exr)
+            if (supmcu.tg_code_addr != compare_addr || supmcu.target.exr != compare_exr)
                 $fwrite(trace_file, "       ^^^^ ERROR TRACE MISMATCH\n");   
         end
     end

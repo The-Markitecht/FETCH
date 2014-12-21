@@ -103,7 +103,7 @@ wire                      dbg_av_waitrequest;
 wire[15:0]                dbg_av_writedata;
 wire                      dbg_av_write;
 wire                      mcu_wait;
-supervised_synapse316 mcu(
+supervised_synapse316 supmcu(
     .sysclk          (sysclk      ) ,
     .sysreset        (sysreset    ) ,
     .clk_progmem     (clk_progmem),
@@ -120,10 +120,10 @@ supervised_synapse316 mcu(
 
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
 
-stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK]);
+stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`DR_RSTK]);
 
 // plumbing of target MCU outputs.
-std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS][7:0], r_load_data[7:0], r_load[`DR_LEDS]);
+std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
 assign LED = r[`DR_LEDS][7:0];
 
 // plumbing of target MCU inputs.
@@ -138,7 +138,7 @@ assign r[`SR_KEYS] = {14'h0, KEY};
 // wire[15:0] av_writedata             = r[`DR_AV_WRITEDATA];
 // std_reg av_address_reg(sysclk, sysreset, r[`DR_AV_ADDRESS], r_load_data, r_load[`DR_AV_ADDRESS]);
 // wire[15:0] av_address               = r[`DR_AV_ADDRESS];
-// std_reg #(.WIDTH(2)) av_ctrl_reg(sysclk, sysreset, r[`DR_AV_CTRL][1:0], r_load_data[1:0], r_load[`DR_AV_CTRL]);
+// std_reg #(.WIDTH(2)) av_ctrl_reg(sysclk, sysreset, r[`DR_AV_CTRL], r_load_data[1:0], r_load[`DR_AV_CTRL]);
 // wire av_write      = r[`DR_AV_CTRL][0];
 
 // Avalon MM master.
@@ -177,14 +177,17 @@ qsys2 u0 (
 );
 
 // UART
-std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, r[`DR_ATX_DATA][7:0], r_load_data[7:0], r_load[`DR_ATX_DATA]);
-std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, r[`DR_ATX_CTRL][0], r_load_data[0], r_load[`DR_ATX_CTRL]);
+std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, r[`DR_ATX_DATA], r_load_data[7:0], r_load[`DR_ATX_DATA]);
+wire[15:0] atxc;
+wire txbsy;
+assign r[`DR_ATX_CTRL] = {atxc[15:2], txbsy, atxc[0]};
+std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, atxc, r_load_data[0], r_load[`DR_ATX_CTRL]);
 uart_v2_tx utx (
      .uart_sample_clk(clk_async) // clocked at 4x bit rate.
     ,.parallel_in    (r[`DR_ATX_DATA][7:0])
     ,.load_data      (r[`DR_ATX_CTRL][0])
     ,.tx_line        (GPIO_2[11])
-    ,.tx_busy        (r[`DR_ATX_CTRL][1])
+    ,.tx_busy        (txbsy)
 );    
 
 

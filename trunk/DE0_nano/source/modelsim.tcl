@@ -6,5 +6,5 @@ vsim +altera -gui testbench
 # add wave -position end  sim:/testbench/mcu/target/ipr
 restart
 do wave.do
-run 5ms
+run 1ms
 

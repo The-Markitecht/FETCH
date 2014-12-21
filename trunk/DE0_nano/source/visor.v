@@ -56,7 +56,7 @@ synapse316 #(
     .r_load          (r_load),
     .r_load_data     (r_load_data),
     .debug_out       (),
-    .debug_in        (0)    
+    .debug_in        (`DEBUG_IN_WIDTH'd0)    
 );    
 
 std_reg gp_reg[`VISOR_TOP_GP:0](sysclk, sysreset, r[`VISOR_TOP_GP:0], r_load_data, r_load[`VISOR_TOP_GP:0]);
@@ -74,9 +74,9 @@ wire divert_code_bus = r[`DR_BUS_CTRL][2];
 assign tg_reset      =  sysreset || r[`DR_BUS_CTRL][1];
 assign tg_code_ready = divert_code_bus ? r[`DR_BUS_CTRL][0] : (rom_code_ready && ! bp_hit);
 assign tg_code_in = divert_code_bus ? force_opcode : rom_code_in;
-std_reg #(.WIDTH(4)) bus_ctrl_reg(sysclk, sysreset, r[`DR_BUS_CTRL][3:0], r_load_data[3:0], r_load[`DR_BUS_CTRL]);
+std_reg #(.WIDTH(4)) bus_ctrl_reg(sysclk, sysreset, r[`DR_BUS_CTRL], r_load_data[3:0], r_load[`DR_BUS_CTRL]);
 
-std_reg #(.WIDTH(3)) force_reg(sysclk, sysreset, r[`DR_TG_FORCE][`DEBUG_IN_WIDTH-1:0], r_load_data[`DEBUG_IN_WIDTH-1:0], r_load[`DR_TG_FORCE]);
+std_reg #(.WIDTH(3)) force_reg(sysclk, sysreset, r[`DR_TG_FORCE], r_load_data[`DEBUG_IN_WIDTH-1:0], r_load[`DR_TG_FORCE]);
 assign tg_debug_in   = r[`DR_TG_FORCE][`DEBUG_IN_WIDTH-1:0]; // {debug_force_exec, debug_force_load_exr, debug_hold_state}
 
 // plumbing of visor inputs, target outputs.
