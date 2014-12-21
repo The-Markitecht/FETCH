@@ -46,8 +46,11 @@
     nop
     leds = a+b
     
-//    b = 65
-//    putchar b
+    b = 65
+    putchar b
+
+    a = 100
+    call :spinwait
     
     jmp :patch
 
@@ -260,7 +263,6 @@ func putchar_atx
     a = $atx_busy_mask
     :pcatx_wait_for_busy    
     b = atx_ctrl
-    leds = 0b00000100 
     br and0z :pcatx_wait_for_busy
 
     atx_ctrl = 0 

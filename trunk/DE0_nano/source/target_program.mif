@@ -33,26 +33,34 @@
     0004 : c800 ; -- <0046> nop
     0005 : 2700 ; -- <0047> leds = a+b
 
---    b = 65
---    putchar b
+    0006 : 0641 ; -- <0049> b = 65
+    0007 : 1001 ; -- <0050> putchar b
+    0008 : fba0 ; -- <0050> putchar b
+    0009 : 00d0 ; -- <0050> "
+    000a : fc00 ; -- <0050> "
 
-    0006 : e00f ; -- <0052> jmp :patch
-    0007 : 0002 ; -- <0052> "
+    000b : 0264 ; -- <0052> a = 100
+    000c : fba0 ; -- <0053> call :spinwait
+    000d : 003a ; -- <0053> "
+    000e : fc00 ; -- <0053> "
+
+    000f : e00f ; -- <0055> jmp :patch
+    0010 : 0002 ; -- <0055> "
 
 
 
 
 
 -- using i as index into string.
-    0008 : 0a00 ; -- <0059> i = 0
+    0011 : 0a00 ; -- <0062> i = 0
 
 -- cache the string limit in g6.
-    0009 : 0210 ; -- <0062> a = 16
-    000a : 0760 ; -- <0063> b = 0xffff
-    000b : c800 ; -- <0064> nop
-    000c : 1b38 ; -- <0065> g6 = xor
+    0012 : 0210 ; -- <0065> a = 16
+    0013 : 0760 ; -- <0066> b = 0xffff
+    0014 : c800 ; -- <0067> nop
+    0015 : 1b38 ; -- <0068> g6 = xor
 
--- :again -- = 0x000d
+-- :again -- = 0x0016
 -- -- wait for keypress.
 -- :wait_key_press
 -- a = 0
@@ -64,267 +72,266 @@
 -- nop
 -- bn z :wait_key_release
 
-    000d : 0264 ; -- <0079> a = 100
-    000e : fba0 ; -- <0080> call :spinwait
-    000f : 0031 ; -- <0080> "
-    0010 : fc00 ; -- <0080> "
+    0016 : 0264 ; -- <0082> a = 100
+    0017 : fba0 ; -- <0083> call :spinwait
+    0018 : 003a ; -- <0083> "
+    0019 : fc00 ; -- <0083> "
 
 -- increment LEDs
-    0011 : 0009 ; -- <0083> a = leds
-    0012 : 0601 ; -- <0084> b = 1
-    0013 : c800 ; -- <0085> nop
-    0014 : 2700 ; -- <0086> leds = a+b
+    001a : 0009 ; -- <0086> a = leds
+    001b : 0601 ; -- <0087> b = 1
+    001c : c800 ; -- <0088> nop
+    001d : 2700 ; -- <0089> leds = a+b
 
 -- fetch a word from test pattern to the UART.  its low byte is a character.
-    0015 : 0fa0 ; -- <0089> j = :msg
-    0016 : 0028 ; -- <0089> "
-    0017 : c800 ; -- <0090> nop
-    0018 : d310 ; -- <0091> fetch a from i+j
-    0019 : 03b0 ; -- <0091> "
-    001a : 1000 ; -- <0092> putchar a
-    001b : fba0 ; -- <0092> "
-    001c : 00c7 ; -- <0092> "
-    001d : fc00 ; -- <0092> "
+    001e : 0fa0 ; -- <0092> j = :msg
+    001f : 0031 ; -- <0092> "
+    0020 : c800 ; -- <0093> nop
+    0021 : d310 ; -- <0094> fetch a from i+j
+    0022 : 03b0 ; -- <0094> "
+    0023 : 1000 ; -- <0095> putchar a
+    0024 : fba0 ; -- <0095> putchar a
+    0025 : 00d0 ; -- <0095> "
+    0026 : fc00 ; -- <0095> "
 
 -- increment index & wrap around end of pattern.
-    001e : 0e01 ; -- <0095> j = 1
-    001f : c800 ; -- <0096> nop
-    0020 : 0b10 ; -- <0097> i = i+j
-    0021 : 0c06 ; -- <0098> j = g6
-    0022 : c800 ; -- <0099> nop
-    0023 : e401 ; -- <0100> bn 1z :no_wrap
-    0024 : 0026 ; -- <0100> "
-    0025 : 0a00 ; -- <0101> i = 0
--- :no_wrap -- = 0x0026
+    0027 : 0e01 ; -- <0098> j = 1
+    0028 : c800 ; -- <0099> nop
+    0029 : 0b10 ; -- <0100> i = i+j
+    002a : 0c06 ; -- <0101> j = g6
+    002b : c800 ; -- <0102> nop
+    002c : e401 ; -- <0103> bn 1z :no_wrap
+    002d : 002f ; -- <0103> "
+    002e : 0a00 ; -- <0104> i = 0
+-- :no_wrap -- = 0x002f
 
 -- repeat forever.
-    0026 : e00f ; -- <0105> jmp :again
-    0027 : 000d ; -- <0105> "
+    002f : e00f ; -- <0108> jmp :again
+    0030 : 0016 ; -- <0108> "
 
--- :msg -- = 0x0028
+-- :msg -- = 0x0031
 -- "1234567890abcdef\n\x00"
-    0028 : 3231 ; -- <0108> 21
-    0029 : 3433 ; -- <0108> 43
-    002a : 3635 ; -- <0108> 65
-    002b : 3837 ; -- <0108> 87
-    002c : 3039 ; -- <0108> 09
-    002d : 6261 ; -- <0108> ba
-    002e : 6463 ; -- <0108> dc
-    002f : 6665 ; -- <0108> fe
-    0030 : 000a ; -- <0108>   
+    0031 : 3231 ; -- <0111> 21
+    0032 : 3433 ; -- <0111> 43
+    0033 : 3635 ; -- <0111> 65
+    0034 : 3837 ; -- <0111> 87
+    0035 : 3039 ; -- <0111> 09
+    0036 : 6261 ; -- <0111> ba
+    0037 : 6463 ; -- <0111> dc
+    0038 : 6665 ; -- <0111> fe
+    0039 : 000a ; -- <0111>   
 
 -- routine waits a number of milliseconds given in a.
-    0031 : 2004 ; -- <0111> push x -- func spinwait
-    0032 : 2005 ; -- <0111> push y -- "
-    0033 : 0760 ; -- <0112> b = -1
--- :spinwait_outer -- = 0x0034
-    0034 : 13a0 ; -- <0114> x = 12500
-    0035 : 30d4 ; -- <0114> "
-    0036 : 1760 ; -- <0115> y = -1
-    0037 : c800 ; -- <0116> nop
--- :spinwait_inner -- = 0x0038
-    0038 : 1320 ; -- <0118> x = x+y
-    0039 : c800 ; -- <0119> nop
-    003a : e400 ; -- <0120> bn 2z :spinwait_inner
-    003b : 0038 ; -- <0120> "
-    003c : 0300 ; -- <0121> a = a+b
-    003d : c800 ; -- <0122> nop
-    003e : e404 ; -- <0123> bn z :spinwait_outer
-    003f : 0034 ; -- <0123> "
-    0040 : 1408 ; -- <0124> pop y -- return
-    0041 : 1008 ; -- <0124> pop x -- "
-    0042 : fc00 ; -- <0124> return
+    003a : 2004 ; -- <0114> push x -- func spinwait
+    003b : 2005 ; -- <0114> push y -- "
+    003c : 0760 ; -- <0115> b = -1
+-- :spinwait_outer -- = 0x003d
+    003d : 13a0 ; -- <0117> x = 12500
+    003e : 30d4 ; -- <0117> "
+    003f : 1760 ; -- <0118> y = -1
+    0040 : c800 ; -- <0119> nop
+-- :spinwait_inner -- = 0x0041
+    0041 : 1320 ; -- <0121> x = x+y
+    0042 : c800 ; -- <0122> nop
+    0043 : e400 ; -- <0123> bn 2z :spinwait_inner
+    0044 : 0041 ; -- <0123> "
+    0045 : 0300 ; -- <0124> a = a+b
+    0046 : c800 ; -- <0125> nop
+    0047 : e404 ; -- <0126> bn z :spinwait_outer
+    0048 : 003d ; -- <0126> "
+    0049 : 1408 ; -- <0127> pop y -- return
+    004a : 1008 ; -- <0127> pop x -- "
+    004b : fc00 ; -- <0127> return
 
 -- function to print a 16-bit number formatted as 4 hex digits.
 -- pass number in a.
-    0043 : 2004 ; -- <0128> push x -- func put4x
-    0044 : 2006 ; -- <0128> push g6 -- "
-    0045 : 203e ; -- <0128> push rtna -- "
-    0046 : 13a0 ; -- <0129> x = :hexdigits
-    0047 : 0080 ; -- <0129> "
+    004c : 2004 ; -- <0131> push x -- func put4x
+    004d : 2006 ; -- <0131> push g6 -- "
+    004e : 203e ; -- <0131> push rtna -- "
+    004f : 13a0 ; -- <0132> x = :hexdigits
+    0050 : 0089 ; -- <0132> "
 
-    0048 : 1800 ; -- <0131> g6 = a
-    0049 : 07a0 ; -- <0132> b = 0xF000
-    004a : f000 ; -- <0132> "
-    004b : c800 ; -- <0133> nop
-    004c : 0330 ; -- <0134> a = and
-    004d : 0353 ; -- <0135> a = a>>4
-    004e : 0353 ; -- <0136> a = a>>4
-    004f : 0353 ; -- <0137> a = a>>4
-    0050 : fba0 ; -- <0138> call fetch_byte
-    0051 : 0088 ; -- <0138> "
-    0052 : fc00 ; -- <0138> "
-    0053 : 1000 ; -- <0139> putchar a
-    0054 : fba0 ; -- <0139> "
-    0055 : 00c7 ; -- <0139> "
-    0056 : fc00 ; -- <0139> "
+    0051 : 1800 ; -- <0134> g6 = a
+    0052 : 07a0 ; -- <0135> b = 0xF000
+    0053 : f000 ; -- <0135> "
+    0054 : c800 ; -- <0136> nop
+    0055 : 0330 ; -- <0137> a = and
+    0056 : 0353 ; -- <0138> a = a>>4
+    0057 : 0353 ; -- <0139> a = a>>4
+    0058 : 0353 ; -- <0140> a = a>>4
+    0059 : fba0 ; -- <0141> call fetch_byte
+    005a : 0091 ; -- <0141> "
+    005b : fc00 ; -- <0141> "
+    005c : 1000 ; -- <0142> putchar a
+    005d : fba0 ; -- <0142> putchar a
+    005e : 00d0 ; -- <0142> "
+    005f : fc00 ; -- <0142> "
 
-    0057 : 0006 ; -- <0141> a = g6
-    0058 : 07a0 ; -- <0142> b = 0x0F00
-    0059 : 0f00 ; -- <0142> "
-    005a : c800 ; -- <0143> nop
-    005b : 0330 ; -- <0144> a = and
-    005c : 0353 ; -- <0145> a = a>>4
-    005d : 0353 ; -- <0146> a = a>>4
-    005e : fba0 ; -- <0147> call fetch_byte
-    005f : 0088 ; -- <0147> "
-    0060 : fc00 ; -- <0147> "
-    0061 : 1000 ; -- <0148> putchar a
-    0062 : fba0 ; -- <0148> "
-    0063 : 00c7 ; -- <0148> "
-    0064 : fc00 ; -- <0148> "
+    0060 : 0006 ; -- <0144> a = g6
+    0061 : 07a0 ; -- <0145> b = 0x0F00
+    0062 : 0f00 ; -- <0145> "
+    0063 : c800 ; -- <0146> nop
+    0064 : 0330 ; -- <0147> a = and
+    0065 : 0353 ; -- <0148> a = a>>4
+    0066 : 0353 ; -- <0149> a = a>>4
+    0067 : fba0 ; -- <0150> call fetch_byte
+    0068 : 0091 ; -- <0150> "
+    0069 : fc00 ; -- <0150> "
+    006a : 1000 ; -- <0151> putchar a
+    006b : fba0 ; -- <0151> putchar a
+    006c : 00d0 ; -- <0151> "
+    006d : fc00 ; -- <0151> "
 
-    0065 : 0006 ; -- <0150> a = g6
-    0066 : 06f0 ; -- <0151> b = 0x00F0
-    0067 : c800 ; -- <0152> nop
-    0068 : 0330 ; -- <0153> a = and
-    0069 : 0353 ; -- <0154> a = a>>4
-    006a : fba0 ; -- <0155> call fetch_byte
-    006b : 0088 ; -- <0155> "
-    006c : fc00 ; -- <0155> "
-    006d : 1000 ; -- <0156> putchar a
-    006e : fba0 ; -- <0156> "
-    006f : 00c7 ; -- <0156> "
-    0070 : fc00 ; -- <0156> "
+    006e : 0006 ; -- <0153> a = g6
+    006f : 06f0 ; -- <0154> b = 0x00F0
+    0070 : c800 ; -- <0155> nop
+    0071 : 0330 ; -- <0156> a = and
+    0072 : 0353 ; -- <0157> a = a>>4
+    0073 : fba0 ; -- <0158> call fetch_byte
+    0074 : 0091 ; -- <0158> "
+    0075 : fc00 ; -- <0158> "
+    0076 : 1000 ; -- <0159> putchar a
+    0077 : fba0 ; -- <0159> putchar a
+    0078 : 00d0 ; -- <0159> "
+    0079 : fc00 ; -- <0159> "
 
-    0071 : 0006 ; -- <0158> a = g6
-    0072 : 060f ; -- <0159> b = 0x000F
-    0073 : c800 ; -- <0160> nop
-    0074 : 0330 ; -- <0161> a = and
-    0075 : fba0 ; -- <0162> call fetch_byte
-    0076 : 0088 ; -- <0162> "
-    0077 : fc00 ; -- <0162> "
-    0078 : 1000 ; -- <0163> putchar a
-    0079 : fba0 ; -- <0163> "
-    007a : 00c7 ; -- <0163> "
-    007b : fc00 ; -- <0163> "
+    007a : 0006 ; -- <0161> a = g6
+    007b : 060f ; -- <0162> b = 0x000F
+    007c : c800 ; -- <0163> nop
+    007d : 0330 ; -- <0164> a = and
+    007e : fba0 ; -- <0165> call fetch_byte
+    007f : 0091 ; -- <0165> "
+    0080 : fc00 ; -- <0165> "
+    0081 : 1000 ; -- <0166> putchar a
+    0082 : fba0 ; -- <0166> putchar a
+    0083 : 00d0 ; -- <0166> "
+    0084 : fc00 ; -- <0166> "
 
-    007c : f808 ; -- <0165> pop rtna -- return
-    007d : 1808 ; -- <0165> pop g6 -- "
-    007e : 1008 ; -- <0165> pop x -- "
-    007f : fc00 ; -- <0165> return
+    0085 : f808 ; -- <0168> pop rtna -- return
+    0086 : 1808 ; -- <0168> pop g6 -- "
+    0087 : 1008 ; -- <0168> pop x -- "
+    0088 : fc00 ; -- <0168> return
 
--- :hexdigits -- = 0x0080
+-- :hexdigits -- = 0x0089
 -- "0123456789abcdef"
-    0080 : 3130 ; -- <0168> 10
-    0081 : 3332 ; -- <0168> 32
-    0082 : 3534 ; -- <0168> 54
-    0083 : 3736 ; -- <0168> 76
-    0084 : 3938 ; -- <0168> 98
-    0085 : 6261 ; -- <0168> ba
-    0086 : 6463 ; -- <0168> dc
-    0087 : 6665 ; -- <0168> fe
+    0089 : 3130 ; -- <0171> 10
+    008a : 3332 ; -- <0171> 32
+    008b : 3534 ; -- <0171> 54
+    008c : 3736 ; -- <0171> 76
+    008d : 3938 ; -- <0171> 98
+    008e : 6261 ; -- <0171> ba
+    008f : 6463 ; -- <0171> dc
+    0090 : 6665 ; -- <0171> fe
 
 -- pick a byte from an array of words.  fetch & return it in a.
 -- pass array base address in x, byte offset in a.
-    0088 : 0601 ; -- <0173> b = 1
-    0089 : c800 ; -- <0174> nop
-    008a : e002 ; -- <0175> br and0z :pick_byte_even
-    008b : 0094 ; -- <0175> "
-    008c : 0350 ; -- <0176> a = a>>1
-    008d : 0404 ; -- <0177> b = x
-    008e : c800 ; -- <0178> nop
-    008f : d300 ; -- <0179> fetch a from a+b
-    0090 : 03b0 ; -- <0179> "
-    0091 : 0353 ; -- <0180> a = a>>4
-    0092 : 0353 ; -- <0181> a = a>>4
-    0093 : fc00 ; -- <0182> return
--- :pick_byte_even -- = 0x0094
-    0094 : 0350 ; -- <0184> a = a>>1
-    0095 : 0404 ; -- <0185> b = x
-    0096 : c800 ; -- <0186> nop
-    0097 : d300 ; -- <0187> fetch a from a+b
-    0098 : 03b0 ; -- <0187> "
-    0099 : fc00 ; -- <0188> return
+    0091 : 0601 ; -- <0176> b = 1
+    0092 : c800 ; -- <0177> nop
+    0093 : e002 ; -- <0178> br and0z :pick_byte_even
+    0094 : 009d ; -- <0178> "
+    0095 : 0350 ; -- <0179> a = a>>1
+    0096 : 0404 ; -- <0180> b = x
+    0097 : c800 ; -- <0181> nop
+    0098 : d300 ; -- <0182> fetch a from a+b
+    0099 : 03b0 ; -- <0182> "
+    009a : 0353 ; -- <0183> a = a>>4
+    009b : 0353 ; -- <0184> a = a>>4
+    009c : fc00 ; -- <0185> return
+-- :pick_byte_even -- = 0x009d
+    009d : 0350 ; -- <0187> a = a>>1
+    009e : 0404 ; -- <0188> b = x
+    009f : c800 ; -- <0189> nop
+    00a0 : d300 ; -- <0190> fetch a from a+b
+    00a1 : 03b0 ; -- <0190> "
+    00a2 : fc00 ; -- <0191> return
 
 -- compute the modulus(255) of a number given in a.  return remainder in a.
-    009a : 2006 ; -- <0191> push g6 -- func mod255
-    009b : 2007 ; -- <0191> push g7 -- "
+    00a3 : 2006 ; -- <0194> push g6 -- func mod255
+    00a4 : 2007 ; -- <0194> push g7 -- "
 -- while a is greater than 254, subtract 255.
--- :mod255_again -- = 0x009c
-    009c : 06fe ; -- <0194> b = 0xfe
-    009d : c800 ; -- <0195> nop
-    009e : e006 ; -- <0196> br gt :mod255_greater
-    009f : 00a3 ; -- <0196> "
-    00a0 : 1c08 ; -- <0197> pop g7 -- return
-    00a1 : 1808 ; -- <0197> pop g6 -- "
-    00a2 : fc00 ; -- <0197> return
--- :mod255_greater -- = 0x00a3
-    00a3 : 07a0 ; -- <0199> b = 0xff01
-    00a4 : ff01 ; -- <0199> "
-    00a5 : c800 ; -- <0200> nop
-    00a6 : 0300 ; -- <0201> a = a+b
-    00a7 : e00f ; -- <0202> jmp :mod255_again
-    00a8 : 009c ; -- <0202> "
+-- :mod255_again -- = 0x00a5
+    00a5 : 06fe ; -- <0197> b = 0xfe
+    00a6 : c800 ; -- <0198> nop
+    00a7 : e006 ; -- <0199> br gt :mod255_greater
+    00a8 : 00ac ; -- <0199> "
+    00a9 : 1c08 ; -- <0200> pop g7 -- return
+    00aa : 1808 ; -- <0200> pop g6 -- "
+    00ab : fc00 ; -- <0200> return
+-- :mod255_greater -- = 0x00ac
+    00ac : 07a0 ; -- <0202> b = 0xff01
+    00ad : ff01 ; -- <0202> "
+    00ae : c800 ; -- <0203> nop
+    00af : 0300 ; -- <0204> a = a+b
+    00b0 : e00f ; -- <0205> jmp :mod255_again
+    00b1 : 00a5 ; -- <0205> "
 
 -- set up Fletcher16 checksum algorithm to accumulate in the 2 given register names.
 
-    00a9 : 1a00 ; -- <0212> fletcher16_init g6 g7
-    00aa : 1e00 ; -- <0212> "
+    00b2 : 1a00 ; -- <0215> fletcher16_init g6 g7
+    00b3 : 1e00 ; -- <0215> "
 
 -- accumulate a Fletcher16 checksum in g6 and g7,
 -- given the next byte of data in a.
-    00ab : 2006 ; -- <0216> push g6 -- func fletcher16_input
-    00ac : 2007 ; -- <0216> push g7 -- "
-    00ad : 203e ; -- <0216> push rtna -- "
+    00b4 : 2006 ; -- <0219> push g6 -- func fletcher16_input
+    00b5 : 2007 ; -- <0219> push g7 -- "
+    00b6 : 203e ; -- <0219> push rtna -- "
 --patch: need a way to declare summing registers as "static" or "preserve" so they're not auto-stacked.
-    00ae : 0406 ; -- <0218> b = $fletcher_sum1_reg
-    00af : c800 ; -- <0219> nop
-    00b0 : 0300 ; -- <0220> a = a+b
-    00b1 : fba0 ; -- <0221> call :mod255
-    00b2 : 009a ; -- <0221> "
-    00b3 : fc00 ; -- <0221> "
-    00b4 : 1800 ; -- <0222> $fletcher_sum1_reg = a
+    00b7 : 0406 ; -- <0221> b = $fletcher_sum1_reg
+    00b8 : c800 ; -- <0222> nop
+    00b9 : 0300 ; -- <0223> a = a+b
+    00ba : fba0 ; -- <0224> call :mod255
+    00bb : 00a3 ; -- <0224> "
+    00bc : fc00 ; -- <0224> "
+    00bd : 1800 ; -- <0225> $fletcher_sum1_reg = a
 
-    00b5 : 0407 ; -- <0224> b = $fletcher_sum2_reg
-    00b6 : c800 ; -- <0225> nop
-    00b7 : 0300 ; -- <0226> a = a+b
-    00b8 : fba0 ; -- <0227> call :mod255
-    00b9 : 009a ; -- <0227> "
-    00ba : fc00 ; -- <0227> "
-    00bb : 1c00 ; -- <0228> $fletcher_sum2_reg = a
-    00bc : f808 ; -- <0229> pop rtna -- return
-    00bd : 1c08 ; -- <0229> pop g7 -- "
-    00be : 1808 ; -- <0229> pop g6 -- "
-    00bf : fc00 ; -- <0229> return
+    00be : 0407 ; -- <0227> b = $fletcher_sum2_reg
+    00bf : c800 ; -- <0228> nop
+    00c0 : 0300 ; -- <0229> a = a+b
+    00c1 : fba0 ; -- <0230> call :mod255
+    00c2 : 00a3 ; -- <0230> "
+    00c3 : fc00 ; -- <0230> "
+    00c4 : 1c00 ; -- <0231> $fletcher_sum2_reg = a
+    00c5 : f808 ; -- <0232> pop rtna -- return
+    00c6 : 1c08 ; -- <0232> pop g7 -- "
+    00c7 : 1808 ; -- <0232> pop g6 -- "
+    00c8 : fc00 ; -- <0232> return
 
 -- return the combined 16-bit result of Fletcher16 checksum in a.
-    00c0 : 0007 ; -- <0233> a = $fletcher_sum2_reg
-    00c1 : 0352 ; -- <0234> a = a<<4
-    00c2 : 0352 ; -- <0235> a = a<<4
-    00c3 : 0406 ; -- <0236> b = $fletcher_sum1_reg
-    00c4 : c800 ; -- <0237> nop
-    00c5 : 0334 ; -- <0238> a = or
-    00c6 : fc00 ; -- <0239> return
+    00c9 : 0007 ; -- <0236> a = $fletcher_sum2_reg
+    00ca : 0352 ; -- <0237> a = a<<4
+    00cb : 0352 ; -- <0238> a = a<<4
+    00cc : 0406 ; -- <0239> b = $fletcher_sum1_reg
+    00cd : c800 ; -- <0240> nop
+    00ce : 0334 ; -- <0241> a = or
+    00cf : fc00 ; -- <0242> return
 
 -- routine sends out the low byte from x to the UART.  blocks until the UART accepts the byte.
 
 -- wait for UART to be idle (not busy).
-    00c7 : 0202 ; -- <0245> a = $atx_busy_mask
--- :pcatx_wait_for_idle -- = 0x00c8
-    00c8 : 040b ; -- <0247> b = atx_ctrl
-    00c9 : c800 ; -- <0248> nop
-    00ca : e402 ; -- <0249> bn and0z :pcatx_wait_for_idle
-    00cb : 00c8 ; -- <0249> "
+    00d0 : 0202 ; -- <0248> a = $atx_busy_mask
+-- :pcatx_wait_for_idle -- = 0x00d1
+    00d1 : 040b ; -- <0250> b = atx_ctrl
+    00d2 : c800 ; -- <0251> nop
+    00d3 : e402 ; -- <0252> bn and0z :pcatx_wait_for_idle
+    00d4 : 00d1 ; -- <0252> "
 
 -- push word to the UART.  its low byte is a character.
-    00cc : 2804 ; -- <0252> atx_data = x
+    00d5 : 2804 ; -- <0255> atx_data = x
 
 -- can't use the actual register load strobe that occurs here, because it's
 -- much too fast for the UART to sample.
 -- instead use a dedicated output word atx_ctrl.
-    00cd : 2e01 ; -- <0257> atx_ctrl = $atx_load_mask
+    00d6 : 2e01 ; -- <0260> atx_ctrl = $atx_load_mask
 
 -- wait until UART is busy, as acknowledgement.
-    00ce : 0202 ; -- <0260> a = $atx_busy_mask
--- :pcatx_wait_for_busy -- = 0x00cf
-    00cf : 040b ; -- <0262> b = atx_ctrl
-    00d0 : 2604 ; -- <0263> leds = 0b00000100
-    00d1 : e002 ; -- <0264> br and0z :pcatx_wait_for_busy
-    00d2 : 00cf ; -- <0264> "
+    00d7 : 0202 ; -- <0263> a = $atx_busy_mask
+-- :pcatx_wait_for_busy -- = 0x00d8
+    00d8 : 040b ; -- <0265> b = atx_ctrl
+    00d9 : e002 ; -- <0266> br and0z :pcatx_wait_for_busy
+    00da : 00d8 ; -- <0266> "
 
-    00d3 : 2e00 ; -- <0266> atx_ctrl = 0
-    00d4 : fc00 ; -- <0267> return
+    00db : 2e00 ; -- <0268> atx_ctrl = 0
+    00dc : fc00 ; -- <0269> return
 
         
         END;
