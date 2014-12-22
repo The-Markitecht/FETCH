@@ -33,3 +33,23 @@ proc asm_getchar {lin} {
     asm_getchar_atx $lin 
 }
 
+proc asm_putasc {lin char} {
+    # for my own uart_v2_tx hardware.
+    if {[scan $char %c c] != 1} {
+        error "invalid character specification: $lin"
+    }
+    parse3 a = $c "a = $c // $lin"
+    asm_call $lin putchar_atx
+}
+
+proc asm_get16 {lin reg} {
+    # block until a 16-bit word is received (little-endian) on the UART and memorized in the given register.
+    asm_getchar $lin
+    asm_push \" a
+    asm_getchar \"
+    parse3 a = a<<4 \"
+    parse3 a = a<<4 \"
+    asm_pop \" b
+    asm_nop \"
+    parse3 $reg = or \"
+}

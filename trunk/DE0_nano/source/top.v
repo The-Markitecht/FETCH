@@ -110,11 +110,14 @@ supervised_synapse316 supmcu(
     .sysclk          (sysclk      ) ,
     .sysreset        (sysreset    ) ,
     .clk_progmem     (clk_progmem),
+    .clk_async       (clk_async),
     .mcu_wait        (mcu_wait),
     .r               (r),
     .r_read          (r_read),
     .r_load          (r_load),
     .r_load_data     (r_load_data),
+    .dbg_async_rx_line   (async_rx_line),
+    .dbg_async_tx_line   (async_tx_line),
     .dbg_av_address      (dbg_av_address),
     .dbg_av_waitrequest  (dbg_av_waitrequest),
     .dbg_av_writedata    (dbg_av_writedata),
@@ -179,28 +182,6 @@ qsys2 u0 (
     .generic_master_0_reset_reset ()  
 );
 
-// UART
-wire[15:0] atxd;
-std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, atxd, r_load_data[7:0], r_load[`DR_ATX_DATA]);
-wire[15:0] atxc;
-wire txbsy;
-wire rxbsy;
-assign r[`DR_ATX_CTRL] = {atxc[15:3], rxbsy, txbsy, atxc[0]};
-std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, atxc, r_load_data[0], r_load[`DR_ATX_CTRL]);
-uart_v2_tx utx (
-     .uart_sample_clk(clk_async) // clocked at 4x bit rate.
-    ,.parallel_in    (atxd[7:0])
-    ,.load_data      (r[`DR_ATX_CTRL][0])
-    ,.tx_line        (async_tx_line)
-    ,.tx_busy        (txbsy)
-);    
-uart_v2_rx urx (
-     .uart_sample_clk(clk_async) // clocked at 4x bit rate.
-    ,.rx_line        (async_rx_line)
-    ,.rx_busy        (rxbsy)
-    ,.parallel_out   (r[`DR_ATX_DATA])
-);
-assign r[`DR_ATX_DATA][15:8] = 8'd0;
 
 
 

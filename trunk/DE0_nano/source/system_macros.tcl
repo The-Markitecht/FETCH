@@ -160,6 +160,9 @@ proc asm_convention_gp {lin} {
     if {[llength $::stackable] > 0} {
         error "calling convention specified more than once in same program: $lin"
     }
+    if { ! [dict exists $::adest rstk]} {
+        error "calling convention requires a return stack 'rstk': $lin"
+    }    
     asm_stackable $lin rtna
     for {set i [expr [src y] + 1]} {$i < $::asm::NUM_GP} {incr i} {
         asm_stackable $lin g$i
@@ -169,13 +172,8 @@ proc asm_convention_gp {lin} {
 proc asm_convention_gpx {lin} {
     # set up Calling Convention "GP eXtended".  stackable = all gp and operand regs beyond b.
     # includes operand regs (i, j, x, y), but not i/o regs (beyond NUM_GP), or result regs.
-    if {[llength $::stackable] > 0} {
-        error "calling convention specified more than once in same program: $lin"
-    }
-    asm_stackable $lin rtna i j x y
-    for {set i [expr [src y] + 1]} {$i < $::asm::NUM_GP} {incr i} {
-        asm_stackable $lin g$i
-    }
+    asm_convention_gp $lin
+    asm_stackable $lin i j x y
 }
 
 # branching macros.

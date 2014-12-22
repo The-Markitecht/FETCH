@@ -11,6 +11,7 @@ module visor (
      input wire		          		  sysclk
     ,input wire		          		  sysreset
     ,input wire                       clk_progmem
+    ,input wire                       clk_async
     
     // signals from target's code ROM.
     // ,input wire[15:0]                 rom_code_in
@@ -27,6 +28,10 @@ module visor (
     ,output wire                      tg_reset
     ,input wire[15:0]                 tg_peek_data
     ,output wire[15:0]                tg_poke_data
+    
+    // visor async interface.
+    ,input wire                       async_rx_line
+    ,output wire                      async_tx_line
     
     // Avalon MM master
     ,output wire[15:0]                av_address
@@ -63,6 +68,8 @@ synapse316 #(
 );    
 
 std_reg gp_reg[`VISOR_TOP_GP:0](sysclk, sysreset, r[`VISOR_TOP_GP:0], r_load_data, r_load[`VISOR_TOP_GP:0]);
+
+stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`DR_RSTK]);
 
 // plumbing of visor outputs, target inputs.
 std_reg output_reg[5:0](sysclk, sysreset, r[`DR_POKE_DATA:`DR_BP0_ADDR], r_load_data, r_load[`DR_POKE_DATA:`DR_BP0_ADDR]);
@@ -139,6 +146,30 @@ always_ff @(posedge sysreset or posedge sysclk) begin
     end
 end    
 
+// UART
+wire[15:0] atxd;
+std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, atxd, r_load_data[7:0], r_load[`DR_ATX_DATA]);
+wire[15:0] atxc;
+wire txbsy;
+wire rxbsy;
+assign r[`DR_ATX_CTRL] = {atxc[15:3], rxbsy, txbsy, atxc[0]};
+std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, atxc, r_load_data[0], r_load[`DR_ATX_CTRL]);
+uart_v2_tx utx (
+     .uart_sample_clk(clk_async) // clocked at 4x bit rate.
+    ,.parallel_in    (atxd[7:0])
+    ,.load_data      (r[`DR_ATX_CTRL][0])
+    ,.tx_line        (async_tx_line)
+    ,.tx_busy        (txbsy)
+);    
+uart_v2_rx urx (
+     .uart_sample_clk(clk_async) // clocked at 4x bit rate.
+    ,.rx_line        (async_rx_line)
+    ,.rx_busy        (rxbsy)
+    ,.parallel_out   (r[`DR_ATX_DATA])
+);
+assign r[`DR_ATX_DATA][15:8] = 8'd0;
+
+
 // on-chip M9K RAM for target MCU program.
 std_reg #(.WIDTH(10)) m9k_addr_reg(sysclk, sysreset, r[`DR_M9K_ADDR], r_load_data[9:0], r_load[`DR_M9K_ADDR]);
 wire[15:0] m9k_data;
@@ -160,14 +191,14 @@ ram2port	target_program (
 	.wren_a ( m9k_wren ),
 	.wren_b ( 1'd0 ),
 	.q_a ( r[`DR_M9K_DATA] ),
-	.q_b () // ( rom_code_in )
+	.q_b ( rom_code_in )
 	);
 // Quartus II software searches for the altsyncram init_file in the project directory, 
 // the project db directory, user libraries, and the current source file location.
 
-target_program tgrom(
-    .addr(tg_code_addr),
-    .data(rom_code_in)
-);
+// target_program tgrom(
+    // .addr(tg_code_addr),
+    // .data(rom_code_in)
+// );
 
 endmodule

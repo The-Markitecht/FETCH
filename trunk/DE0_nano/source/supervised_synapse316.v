@@ -7,6 +7,7 @@ module supervised_synapse316 (
      input wire                       sysclk            
     ,input wire                       sysreset          
     ,input wire                       clk_progmem
+    ,input wire                       clk_async
     
     ,input wire                       mcu_wait
     
@@ -16,6 +17,10 @@ module supervised_synapse316 (
     ,output wire[`TOP_REG:0]          r_read    
     ,output wire[`TOP_REG:0]          r_load
     ,output wire[15:0]                r_load_data    
+
+    // visor async interface.
+    ,input wire                       dbg_async_rx_line
+    ,output wire                      dbg_async_tx_line
     
     // Avalon MM master
     ,output wire[15:0]                dbg_av_address
@@ -67,6 +72,7 @@ visor visr(
      .sysclk          (sysclk)
     ,.sysreset        (sysreset)
     ,.clk_progmem     (clk_progmem)
+    ,.clk_async       (clk_async)
     // ,.rom_code_in     (mcu_wait ? 16'hffff : rom_code_in)
     // ,.rom_code_ready  (rom_code_ready && ! mcu_wait)
     ,.mcu_wait        (mcu_wait      )
@@ -78,6 +84,8 @@ visor visr(
     ,.tg_reset        (tg_reset      )
     ,.tg_peek_data    (peek_data     )
     ,.tg_poke_data    ()
+    ,.async_rx_line   (dbg_async_rx_line)
+    ,.async_tx_line   (dbg_async_tx_line)
     ,.av_address      (dbg_av_address     )
     ,.av_waitrequest  (dbg_av_waitrequest )
     ,.av_writedata    (dbg_av_writedata   )

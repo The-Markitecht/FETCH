@@ -15,13 +15,7 @@
     set counter $TOP_GP 
     alias_both rstk                 [incr counter] 
     alias_both leds                 [incr counter] 
-    
-    alias_both atx_data             [incr counter] 
-    alias_both atx_ctrl             [incr counter] 
-        vdefine atx_load_mask           0x0001
-        vdefine atx_busy_mask           0x0002
-        vdefine arx_busy_mask           0x0004
-        
+            
     alias_both av_writedata	        [incr counter]
     alias_both av_address           [incr counter]
         vdefine jtag_uart_base             0x0100
@@ -37,32 +31,32 @@
     
     :begin    
     leds = 1 
-    atx_ctrl = 0 
+    // atx_ctrl = 0 
 
-    a = 65
-    push a
-    a = 66
-    push a
-    a = 67
-    push a
-    a = 68
-    push a
-    a = 69
-    push a
+    // a = 65
+    // push a
+    // a = 66
+    // push a
+    // a = 67
+    // push a
+    // a = 68
+    // push a
+    // a = 69
+    // push a
     
-    pop b
-    putchar b
-    pop b
-    putchar b
-    pop b
-    putchar b
-    pop b
-    putchar b
-    pop b
-    putchar b
+    // pop b
+    // putchar b
+    // pop b
+    // putchar b
+    // pop b
+    // putchar b
+    // pop b
+    // putchar b
+    // pop b
+    // putchar b
     
-    a = 0x1234
-    call put4x
+    // a = 0x1234
+    // call put4x
 
     // x = 0x1234
     // y = 1
@@ -88,28 +82,28 @@
     nop
     leds = a+b
 
-// :wait_key_press    
-    // a = 0x03
-    // b = keys
-    // nop
-    // br eq :wait_key_press
-// :wait_key_release   
-    // b = keys
-    // nop
-    // bn eq :wait_key_release
+:wait_key_press    
+    a = 0x03
+    b = keys
+    nop
+    br eq :wait_key_press
+:wait_key_release   
+    b = keys
+    nop
+    bn eq :wait_key_release
     
-    getchar
-    b = 1
-    nop
-    putchar a+b
+    // getchar
+    // b = 1
+    // nop
+    // putchar a+b
 
-    b = 85
-    putchar b
+    // b = 85
+    // putchar b
 
-    x = x+y
-    nop
-    a = x
-    call put4x
+    // x = x+y
+    // nop
+    // a = x
+    // call put4x
     
     a = 100
     call :spinwait
@@ -120,10 +114,10 @@
     // a = m9k_data
     // call put4x
     
-    b = 13
-    putchar b
-    b = 10
-    putchar b
+    // b = 13
+    // putchar b
+    // b = 10
+    // putchar b
     
     jmp :patch
 
@@ -165,7 +159,7 @@
     j = :msg
     nop
     fetch a from i+j
-    putchar a
+//    putchar a
     
     // increment index & wrap around end of pattern.
     j = 1
@@ -199,70 +193,6 @@ func spinwait
     bn z :spinwait_outer    
     return
         
-// function to print a 16-bit number formatted as 4 hex digits.
-// pass number in a.
-func put4x
-    x = :hexdigits
-    
-    g6 = a
-    b = 0xF000
-    nop
-    a = and
-    a = a>>4
-    a = a>>4
-    a = a>>4
-    call fetch_byte
-    putchar a
-    
-    a = g6
-    b = 0x0F00
-    nop
-    a = and
-    a = a>>4
-    a = a>>4
-    call fetch_byte
-    putchar a
-    
-    a = g6
-    b = 0x00F0
-    nop
-    a = and
-    a = a>>4
-    call fetch_byte
-    putchar a
-    
-    a = g6
-    b = 0x000F
-    nop
-    a = and
-    call fetch_byte
-    putchar a
-    
-    return
-
-    :hexdigits
-    "0123456789abcdef"
-
-// pick a byte from an array of words.  fetch & return it in a.
-// pass array base address in x, byte offset in a.
-func fetch_byte
-    b = 1
-    nop
-    br and0z :pick_byte_even
-    a = a>>1
-    b = x
-    nop
-    fetch a from a+b
-    a = a>>4
-    a = a>>4
-    return
-    :pick_byte_even    
-    a = a>>1
-    b = x
-    nop
-    fetch a from a+b
-    return
-
 // compute the modulus(255) of a number given in a.  return remainder in a.
 func mod255
     // while a is greater than 254, subtract 255.
@@ -312,49 +242,5 @@ func fletcher16_result
     b = $fletcher_sum1_reg
     nop
     a = or
-    return
-
-// routine sends out the low byte from a to the UART.  blocks until the UART accepts the byte.
-func putchar_atx
-
-    x = a
-
-    // wait for UART to be idle (not busy).
-    a = $atx_busy_mask
-    :pcatx_wait_for_idle
-    b = atx_ctrl
-    nop
-    bn and0z :pcatx_wait_for_idle
-    
-    // push word to the UART.  its low byte is a character.
-    atx_data = x
-        
-    // can't use the actual register load strobe that occurs here, because it's 
-    // much too fast for the UART to sample.
-    // instead use a dedicated output word atx_ctrl.
-    atx_ctrl = $atx_load_mask
-    
-    // wait until UART is busy, as acknowledgement.
-    a = $atx_busy_mask
-    :pcatx_wait_for_busy    
-    b = atx_ctrl
-    br and0z :pcatx_wait_for_busy
-
-    atx_ctrl = 0 
-    return
-
-// routine receives a byte from the UART.  blocks until the UART receives the byte.  
-// returns it in the low byte of a.
-func getchar_atx
-    // wait until UART is busy, then idle.
-    a = $arx_busy_mask
-    :wait_for_busy    
-    b = atx_ctrl
-    br and0z :wait_for_busy
-    :wait_for_idle
-    b = atx_ctrl
-    nop
-    bn and0z :wait_for_idle
-    a = atx_data
     return
     

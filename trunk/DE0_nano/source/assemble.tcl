@@ -236,6 +236,7 @@ proc emit_word {w comment} {
     console "    0x[format %04x $::ipr] : [format %04x $w] // <[format %04d ${::lnum}]> $comment"
     emit "addr == 16'h[format %02x $::ipr] ? 16'h[format %04x $w] :  // <[format %04d ${::lnum}]> $comment"
     emit_mif "    [format %04x $::ipr] : [format %04x $w] ; -- <[format %04d ${::lnum}]> $comment"
+    emit_bin $w
     incr ::ipr
 }
 
@@ -257,6 +258,13 @@ proc emit_mif {args} {
     # "puts" given args into the MIF memory initialization file.
     if {$::asm_pass == $::pass(emit)} {
         eval puts $::mif_file [string map {{//} {--}} $args]
+    }
+}
+
+proc emit_bin {w} {
+    # "puts" given 16-bit Tcl integer into the binary file.
+    if {$::asm_pass == $::pass(emit)} {
+        puts -nonewline $::bin_file [format %c%c [expr {$w & 0xff}] [expr {($w >> 8) & 0xff}] ]
     }
 }
 
@@ -288,9 +296,11 @@ proc assemble {src_fn rom_fn} {
     set ::src_fn $src_fn
     set ::rom_fn $rom_fn
     set ::mif_fn "[file rootname $rom_fn].mif"
+    set ::bin_fn "[file rootname $rom_fn].bin"
     puts "Assembling: $::src_fn"
     puts "        To: $::rom_fn"
     puts "        To: $::mif_fn"
+    puts "        To: $::bin_fn"
 
     set f [open $::src_fn r]
     set asm_lines [split [read $f] \n]
@@ -310,6 +320,7 @@ proc assemble {src_fn rom_fn} {
     parse_text $asm_lines $::pass(func) 
     
     parse_text $asm_lines $::pass(label)
+    set len_words $::ipr
     
     set ::rom_file [open $::rom_fn w]
     puts $::rom_file "
@@ -330,6 +341,9 @@ proc assemble {src_fn rom_fn} {
         CONTENT                       
         BEGIN
     "    
+    set ::bin_file [open $::bin_fn w]
+    fconfigure $::bin_file -translation binary
+    puts -nonewline $::bin_file [format %c%c [expr {$len_words & 0xff}] [expr {($len_words >> 8) & 0xff}] ]
     parse_text $asm_lines $::pass(emit)
     puts $::rom_file {        
                 16'hxxxx;
@@ -340,5 +354,6 @@ proc assemble {src_fn rom_fn} {
         END;
     }
     close $::mif_file
+    close $::bin_file
 }
 
