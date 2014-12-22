@@ -283,8 +283,10 @@ func fletcher16_result
     a = or
     return
 
-// routine sends out the low byte from x to the UART.  blocks until the UART accepts the byte.
+// routine sends out the low byte from a to the UART.  blocks until the UART accepts the byte.
 func putchar_atx
+
+    x = a
 
     // wait for UART to be idle (not busy).
     a = $atx_busy_mask

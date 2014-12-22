@@ -16,10 +16,8 @@ proc asm_putchar_avalon_hw {lin reg} {
 
 proc asm_putchar_atx {lin reg} {
     # for my own uart_v2_tx hardware.
-    asm_push $lin x
-    parse3 x = $reg "x = $reg // $lin"
+    parse3 a = $reg "a = $reg // $lin"
     asm_call $lin putchar_atx
-    asm_pop $lin x
 }
 
 proc asm_putchar {lin reg} {
