@@ -37,6 +37,9 @@ std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`T
 
 stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`DR_RSTK]);
 
+reg[1:0] KEY = 0;
+assign r[`SR_KEYS] = {14'h0, KEY}; 
+
 // plumbing of target MCU outputs.
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
 
@@ -75,6 +78,10 @@ initial	begin
 
     #1 sysreset = 1;
     #2000 sysreset = 0;
+    #2000 KEY[0] = 1;
+    #2000 KEY[0] = 0;
+    #2000 KEY[0] = 1;
+    #2000 KEY[0] = 0;
     #10000000 $stop;
 end
 

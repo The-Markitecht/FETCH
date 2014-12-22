@@ -38,19 +38,61 @@
     leds = 1 
     atx_ctrl = 0 
 
+    a = 65
+    push a
+    a = 66
+    push a
+    a = 67
+    push a
+    a = 68
+    push a
+    a = 69
+    push a
+    
+    pop b
+    putchar b
+    pop b
+    putchar b
+    pop b
+    putchar b
+    pop b
+    putchar b
+    pop b
+    putchar b
+    
+    a = 0x1234
+    call put4x
 
 //patch
+    x = 0
+    y = 1
     :patch
+
     a = leds
     b = 1
     nop
     leds = a+b
+
+:wait_key_press    
+    a = 0x03
+    b = keys
+    nop
+    br eq :wait_key_press
+:wait_key_release   
+    b = keys
+    nop
+    bn eq :wait_key_release
     
-    b = 65
+    b = 85
     putchar b
 
-    a = 100
-    call :spinwait
+    x = x+y
+    nop
+    a = x
+    call put4x
+    
+//    a = 100
+//    call :spinwait
     
     jmp :patch
 
