@@ -20,6 +20,7 @@
     alias_both atx_ctrl             [incr counter] 
         vdefine atx_load_mask           0x0001
         vdefine atx_busy_mask           0x0002
+        vdefine arx_busy_mask           0x0004
         
     alias_both av_writedata	        [incr counter]
     alias_both av_address           [incr counter]
@@ -29,9 +30,6 @@
     // alias_both av_ctrl          [incr counter]
     //    vdefine av_write_mask                   0x0001   
     // alias_src  av_waitrequest   [incr counter]
-    
-    alias_both m9k_addr             [incr counter] 
-    alias_both m9k_data             [incr counter] 
     
     alias_src  keys                 [incr counter]
     
@@ -66,19 +64,19 @@
     a = 0x1234
     call put4x
 
-    x = 0x1234
-    y = 1
-    a = 0
-    :nextwrite
-    m9k_addr = a
-    m9k_data = x
-    x = x+y
-    b = 1
-    nop
-    a = a+b
-    b = 1024
-    nop
-    br lt :nextwrite    
+    // x = 0x1234
+    // y = 1
+    // a = 0
+    // :nextwrite
+    // m9k_addr = a
+    // m9k_data = x
+    // x = x+y
+    // b = 1
+    // nop
+    // a = a+b
+    // b = 1024
+    // nop
+    // br lt :nextwrite    
     
 //patch
     x = 0
@@ -90,16 +88,21 @@
     nop
     leds = a+b
 
-:wait_key_press    
-    a = 0x03
-    b = keys
-    nop
-    br eq :wait_key_press
-:wait_key_release   
-    b = keys
-    nop
-    bn eq :wait_key_release
+// :wait_key_press    
+    // a = 0x03
+    // b = keys
+    // nop
+    // br eq :wait_key_press
+// :wait_key_release   
+    // b = keys
+    // nop
+    // bn eq :wait_key_release
     
+    getchar
+    b = 1
+    nop
+    putchar a+b
+
     b = 85
     putchar b
 
@@ -111,11 +114,12 @@
     a = 100
     call :spinwait
     
-    b = 32
-    putchar b
-    m9k_addr = x
-    a = m9k_data
-    call put4x
+    // b = 32
+    // putchar b
+    // m9k_addr = x
+    // a = m9k_data
+    // call put4x
+    
     b = 13
     putchar b
     b = 10
@@ -337,5 +341,20 @@ func putchar_atx
     br and0z :pcatx_wait_for_busy
 
     atx_ctrl = 0 
+    return
+
+// routine receives a byte from the UART.  blocks until the UART receives the byte.  
+// returns it in the low byte of a.
+func getchar_atx
+    // wait until UART is busy, then idle.
+    a = $arx_busy_mask
+    :wait_for_busy    
+    b = atx_ctrl
+    br and0z :wait_for_busy
+    :wait_for_idle
+    b = atx_ctrl
+    nop
+    bn and0z :wait_for_idle
+    a = atx_data
     return
     

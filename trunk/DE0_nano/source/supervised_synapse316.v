@@ -26,8 +26,8 @@ module supervised_synapse316 (
 ); 
 
 // Synapse316 with code ROM.
-wire[15:0]                 rom_code_in;
-wire                       rom_code_ready = 1;
+// wire[15:0]                 rom_code_in;
+// wire                       rom_code_ready = 1;
 wire[15:0]                 tg_code_addr;
 wire[15:0]                 tg_code_in;
 wire                       tg_code_ready;
@@ -37,24 +37,10 @@ wire[`TOP_REG:0]           tg_r_load;
 wire                       tg_reset;
 wire[`DEBUG_IN_WIDTH-1:0]  tg_debug_in;
 wire[`DEBUG_OUT_WIDTH-1:0] tg_debug_out; 
-target_program rom(
-    .addr(tg_code_addr),
-    .data(rom_code_in)
-);
-// ram2port	target_program (
-	// .address_a ( tg_code_addr ),
-	// .address_b ( 16'd0 ),
-	// .clock_a ( clk_progmem ),
-	// .clock_b ( 1'd0 ),
-	// .data_a ( 16'd0 ),
-	// .data_b ( 16'd0 ),
-	// .wren_a ( 1'd0 ),
-	// .wren_b ( 1'd0 ),
-	// .q_a ( rom_code_in ),
-	// .q_b (  )
-	// );
-// Quartus II software searches for the altsyncram init_file in the project directory, 
-// the project db directory, user libraries, and the current source file location.
+// target_program rom(
+    // .addr(tg_code_addr),
+    // .data(rom_code_in)
+// );
 synapse316 target(
     .sysclk          (sysclk      ) ,
     .sysreset        (tg_reset    ) ,
@@ -80,8 +66,10 @@ std_reg peek_data_reg (sysclk, sysreset, peek_data, r_load_data, tg_r_load[`DEBU
 visor visr(
      .sysclk          (sysclk)
     ,.sysreset        (sysreset)
-    ,.rom_code_in     (mcu_wait ? 16'hffff : rom_code_in)
-    ,.rom_code_ready  (rom_code_ready && ! mcu_wait)
+    ,.clk_progmem     (clk_progmem)
+    // ,.rom_code_in     (mcu_wait ? 16'hffff : rom_code_in)
+    // ,.rom_code_ready  (rom_code_ready && ! mcu_wait)
+    ,.mcu_wait        (mcu_wait      )
     ,.tg_code_addr    (tg_code_addr  )
     ,.tg_code_in      (tg_code_in    )
     ,.tg_code_ready   (tg_code_ready )

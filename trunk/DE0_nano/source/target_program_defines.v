@@ -17,6 +17,7 @@
 `define DR_ATX_CTRL  11
 `define ATX_LOAD_MASK  1
 `define ATX_BUSY_MASK  2
+`define ARX_BUSY_MASK  4
 `define SR_AV_WRITEDATA  12
 `define DR_AV_WRITEDATA  12
 `define SR_AV_ADDRESS  13
@@ -24,8 +25,4 @@
 `define JTAG_UART_BASE  256
 `define JTAG_UART_DATA  256
 `define JTAG_UART_CTRL  257
-`define SR_M9K_ADDR  14
-`define DR_M9K_ADDR  14
-`define SR_M9K_DATA  15
-`define DR_M9K_DATA  15
-`define SR_KEYS  16
+`define SR_KEYS  14

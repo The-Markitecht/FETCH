@@ -8,12 +8,15 @@
 // to be inserted between Synapse316 MCU and its code ROM.
 
 module visor (
-     input wire		          		sysclk
-    ,input wire		          		sysreset
+     input wire		          		  sysclk
+    ,input wire		          		  sysreset
+    ,input wire                       clk_progmem
     
     // signals from target's code ROM.
-    ,input wire[15:0]                 rom_code_in
-    ,input wire                       rom_code_ready
+    // ,input wire[15:0]                 rom_code_in
+    // ,input wire                       rom_code_ready
+    
+    ,input wire                       mcu_wait
     
     // signals to & from the target MCU.
     ,input wire[15:0]                 tg_code_addr
@@ -72,7 +75,8 @@ reg bp_matched = 0;
 wire bp_step = r[`DR_BUS_CTRL][3];
 wire divert_code_bus = r[`DR_BUS_CTRL][2];
 assign tg_reset      =  sysreset || r[`DR_BUS_CTRL][1];
-assign tg_code_ready = divert_code_bus ? r[`DR_BUS_CTRL][0] : (rom_code_ready && ! bp_hit);
+assign tg_code_ready = divert_code_bus ? r[`DR_BUS_CTRL][0] : ! (mcu_wait || bp_hit);
+wire[15:0]                 rom_code_in;
 assign tg_code_in = divert_code_bus ? force_opcode : rom_code_in;
 std_reg #(.WIDTH(4)) bus_ctrl_reg(sysclk, sysreset, r[`DR_BUS_CTRL], r_load_data[3:0], r_load[`DR_BUS_CTRL]);
 
@@ -134,5 +138,36 @@ always_ff @(posedge sysreset or posedge sysclk) begin
         // last_step_cmd = step_cmd;            
     end
 end    
+
+// on-chip M9K RAM for target MCU program.
+std_reg #(.WIDTH(10)) m9k_addr_reg(sysclk, sysreset, r[`DR_M9K_ADDR], r_load_data[9:0], r_load[`DR_M9K_ADDR]);
+wire[15:0] m9k_data;
+std_reg m9k_data_reg(sysclk, sysreset, m9k_data, r_load_data, r_load[`DR_M9K_DATA]);
+reg m9k_wren = 0;
+always_ff @(posedge sysreset or posedge sysclk) begin
+    if (sysreset)
+        m9k_wren <= 0;
+    else
+        m9k_wren <= r_load[`DR_M9K_DATA];
+end
+ram2port	target_program (
+	.address_a ( r[`DR_M9K_ADDR][9:0] ),
+	.address_b ( tg_code_addr[9:0] ),
+	.clock_a ( clk_progmem ),
+	.clock_b ( clk_progmem ),
+	.data_a ( m9k_data ),
+	.data_b ( 16'd0 ),
+	.wren_a ( m9k_wren ),
+	.wren_b ( 1'd0 ),
+	.q_a ( r[`DR_M9K_DATA] ),
+	.q_b () // ( rom_code_in )
+	);
+// Quartus II software searches for the altsyncram init_file in the project directory, 
+// the project db directory, user libraries, and the current source file location.
+
+target_program tgrom(
+    .addr(tg_code_addr),
+    .data(rom_code_in)
+);
 
 endmodule

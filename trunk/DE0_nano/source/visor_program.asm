@@ -3,7 +3,7 @@
 // for debugging supervisor mcu.
 
     // register file configuration
-    vdefine VISOR_NUM_REGS 20
+    vdefine VISOR_NUM_REGS 32
     vdefine VISOR_TOP_REG ($VISOR_NUM_REGS - 1)
     vdefine VISOR_NUM_GP 8
     vdefine VISOR_TOP_GP ($VISOR_NUM_GP - 1)
@@ -29,6 +29,8 @@
         vdefine force_exec_mask        0x0004
         vdefine force_load_exr_mask    0x0002
         vdefine hold_state_mask        0x0001   
+    alias_both m9k_addr         [incr counter] 
+    alias_both m9k_data         [incr counter] 
     alias_src  exr_shadow	    [incr counter]
     alias_src  tg_code_addr     [incr counter]
     alias_src  peek_data        [incr counter]

@@ -49,7 +49,10 @@ module top (
     input wire 		          		ADC_SDAT,
 
     //////////// 2x13 GPIO Header //////////
-    output wire 		    [12:0]		GPIO_2
+    input wire                          reserved,
+    output wire                         async_tx_line,
+    input wire                          async_rx_line,
+    output wire 		    [9:0]		GPIO_2
     //input wire 		     [2:0]		GPIO_2_IN
 
     // //////////// GPIO_0, GPIO_0 connect to GPIO Default //////////
@@ -177,42 +180,27 @@ qsys2 u0 (
 );
 
 // UART
-std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, r[`DR_ATX_DATA], r_load_data[7:0], r_load[`DR_ATX_DATA]);
+wire[15:0] atxd;
+std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, atxd, r_load_data[7:0], r_load[`DR_ATX_DATA]);
 wire[15:0] atxc;
 wire txbsy;
-assign r[`DR_ATX_CTRL] = {atxc[15:2], txbsy, atxc[0]};
+wire rxbsy;
+assign r[`DR_ATX_CTRL] = {atxc[15:3], rxbsy, txbsy, atxc[0]};
 std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, atxc, r_load_data[0], r_load[`DR_ATX_CTRL]);
 uart_v2_tx utx (
      .uart_sample_clk(clk_async) // clocked at 4x bit rate.
-    ,.parallel_in    (r[`DR_ATX_DATA][7:0])
+    ,.parallel_in    (atxd[7:0])
     ,.load_data      (r[`DR_ATX_CTRL][0])
-    ,.tx_line        (GPIO_2[11])
+    ,.tx_line        (async_tx_line)
     ,.tx_busy        (txbsy)
 );    
-
-// on-chip M9K RAM for testing.
-std_reg #(.WIDTH(10)) m9k_addr_reg(sysclk, sysreset, r[`DR_M9K_ADDR], r_load_data[9:0], r_load[`DR_M9K_ADDR]);
-wire[15:0] m9k_data;
-std_reg m9k_data_reg(sysclk, sysreset, m9k_data, r_load_data, r_load[`DR_M9K_DATA]);
-reg m9k_wren = 0;
-always_ff @(posedge sysreset or posedge sysclk) begin
-    if (sysreset)
-        m9k_wren <= 0;
-    else
-        m9k_wren <= r_load[`DR_M9K_DATA];
-end
-ram2port	ramtest (
-	.address_a ( r[`DR_M9K_ADDR][9:0] ),
-	.address_b ( 10'd0 ),
-	.clock_a ( clk_progmem ),
-	.clock_b ( 1'd0 ),
-	.data_a ( m9k_data ),
-	.data_b ( 16'd0 ),
-	.wren_a ( m9k_wren ),
-	.wren_b ( 1'd0 ),
-	.q_a ( r[`DR_M9K_DATA] ),
-	.q_b (  )
-	);
+uart_v2_rx urx (
+     .uart_sample_clk(clk_async) // clocked at 4x bit rate.
+    ,.rx_line        (async_rx_line)
+    ,.rx_busy        (rxbsy)
+    ,.parallel_out   (r[`DR_ATX_DATA])
+);
+assign r[`DR_ATX_DATA][15:8] = 8'd0;
 
 
 

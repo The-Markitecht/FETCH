@@ -24,3 +24,12 @@ proc asm_putchar {lin reg} {
     asm_putchar_atx $lin $reg
 }
 
+proc asm_getchar_atx {lin} {
+    # for my own uart_v2_tx hardware.
+    asm_call $lin getchar_atx
+}
+
+proc asm_getchar {lin} {
+    asm_getchar_atx $lin 
+}
+

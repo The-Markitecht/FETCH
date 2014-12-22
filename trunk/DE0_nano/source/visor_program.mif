@@ -19,94 +19,94 @@
 
 -- :begin -- = 0x0000
 -- put target into reset.
-    0000 : 3a02 ; -- <0043> bus_ctrl = $tg_reset_mask
+    0000 : 3a02 ; -- <0045> bus_ctrl = $tg_reset_mask
 
 -- init visor.
-    0001 : 2f60 ; -- <0046> bp3_addr = $bp_disable
-    0002 : 2b60 ; -- <0047> bp2_addr = $bp_disable
-    0003 : 2760 ; -- <0048> bp1_addr = $bp_disable
-    0004 : 2360 ; -- <0049> bp0_addr = $bp_disable
+    0001 : 2f60 ; -- <0048> bp3_addr = $bp_disable
+    0002 : 2b60 ; -- <0049> bp2_addr = $bp_disable
+    0003 : 2760 ; -- <0050> bp1_addr = $bp_disable
+    0004 : 2360 ; -- <0051> bp0_addr = $bp_disable
 
 -- release target reset, to run.
-    0005 : 3a00 ; -- <0052> bus_ctrl = 0
+    0005 : 3a00 ; -- <0054> bus_ctrl = 0
 
 -- :halt -- = 0x0006
-    0006 : e00f ; -- <0055> jmp :halt
-    0007 : 0006 ; -- <0055> "
+    0006 : e00f ; -- <0057> jmp :halt
+    0007 : 0006 ; -- <0057> "
 
 -- set a breakpoint, wait til it hits.
-    0008 : 2215 ; -- <0058> bp0_addr = 0x15
+    0008 : 2215 ; -- <0060> bp0_addr = 0x15
 -- :main_loop -- = 0x0009
-    0009 : fba0 ; -- <0060> call :wait_for_bp
-    000a : 003b ; -- <0060> "
-    000b : fc00 ; -- <0060> "
+    0009 : fba0 ; -- <0062> call :wait_for_bp
+    000a : 003b ; -- <0062> "
+    000b : fc00 ; -- <0062> "
 
 -- observe a register.
-    000c : 3a04 ; -- <0063> bus_ctrl = $divert_code_bus_mask
-    000d : 3e01 ; -- <0064> tg_force = $hold_state_mask
-    000e : d232 ; -- <0065> fetch force_opcode from ([label observe] + 7)
-    000f : 33b0 ; -- <0065> "
-    0010 : 3e03 ; -- <0066> tg_force = ($hold_state_mask | $force_load_exr_mask)
-    0011 : 3e05 ; -- <0067> tg_force = ($hold_state_mask | $force_exec_mask)
-    0012 : 3e01 ; -- <0068> tg_force = $hold_state_mask
+    000c : 3a04 ; -- <0065> bus_ctrl = $divert_code_bus_mask
+    000d : 3e01 ; -- <0066> tg_force = $hold_state_mask
+    000e : d232 ; -- <0067> fetch force_opcode from ([label observe] + 7)
+    000f : 33b0 ; -- <0067> "
+    0010 : 3e03 ; -- <0068> tg_force = ($hold_state_mask | $force_load_exr_mask)
+    0011 : 3e05 ; -- <0069> tg_force = ($hold_state_mask | $force_exec_mask)
+    0012 : 3e01 ; -- <0070> tg_force = $hold_state_mask
 -- target's r7 value is now in peek_data.
 
 -- refill target exr so it can resume seamlessly.
-    0013 : 3010 ; -- <0072> force_opcode = exr_shadow
-    0014 : 3e03 ; -- <0073> tg_force = ($hold_state_mask | $force_load_exr_mask)
-    0015 : 3e00 ; -- <0074> tg_force = 0
-    0016 : 3a00 ; -- <0075> bus_ctrl = 0
+    0013 : 3012 ; -- <0074> force_opcode = exr_shadow
+    0014 : 3e03 ; -- <0075> tg_force = ($hold_state_mask | $force_load_exr_mask)
+    0015 : 3e00 ; -- <0076> tg_force = 0
+    0016 : 3a00 ; -- <0077> bus_ctrl = 0
 
 -- interrupt the target and single step it a few times.
-    0017 : 3a08 ; -- <0078> bus_ctrl = $bp_step_mask
-    0018 : fba0 ; -- <0079> call :wait_for_bp
-    0019 : 003b ; -- <0079> "
-    001a : fc00 ; -- <0079> "
-    001b : 2008 ; -- <0080> bp0_addr = bp0_addr
-    001c : fba0 ; -- <0081> call :wait_for_bp
-    001d : 003b ; -- <0081> "
-    001e : fc00 ; -- <0081> "
-    001f : 2008 ; -- <0082> bp0_addr = bp0_addr
-    0020 : fba0 ; -- <0083> call :wait_for_bp
-    0021 : 003b ; -- <0083> "
-    0022 : fc00 ; -- <0083> "
-    0023 : 2008 ; -- <0084> bp0_addr = bp0_addr
-    0024 : fba0 ; -- <0085> call :wait_for_bp
-    0025 : 003b ; -- <0085> "
-    0026 : fc00 ; -- <0085> "
-    0027 : 3a00 ; -- <0086> bus_ctrl = 0
+    0017 : 3a08 ; -- <0080> bus_ctrl = $bp_step_mask
+    0018 : fba0 ; -- <0081> call :wait_for_bp
+    0019 : 003b ; -- <0081> "
+    001a : fc00 ; -- <0081> "
+    001b : 2008 ; -- <0082> bp0_addr = bp0_addr
+    001c : fba0 ; -- <0083> call :wait_for_bp
+    001d : 003b ; -- <0083> "
+    001e : fc00 ; -- <0083> "
+    001f : 2008 ; -- <0084> bp0_addr = bp0_addr
+    0020 : fba0 ; -- <0085> call :wait_for_bp
+    0021 : 003b ; -- <0085> "
+    0022 : fc00 ; -- <0085> "
+    0023 : 2008 ; -- <0086> bp0_addr = bp0_addr
+    0024 : fba0 ; -- <0087> call :wait_for_bp
+    0025 : 003b ; -- <0087> "
+    0026 : fc00 ; -- <0087> "
+    0027 : 3a00 ; -- <0088> bus_ctrl = 0
 
 -- release target to pass breakpoint once.
-    0028 : 2008 ; -- <0089> bp0_addr = bp0_addr
+    0028 : 2008 ; -- <0091> bp0_addr = bp0_addr
 
-    0029 : e00f ; -- <0091> jmp :main_loop
-    002a : 0009 ; -- <0091> "
+    0029 : e00f ; -- <0093> jmp :main_loop
+    002a : 0009 ; -- <0093> "
 
 -- :observe -- = 0x002b
 -- these instructions are assembled in the visor program, but passed to the target to execute.
-    002b : 7c00 ; -- <0096> debug_peek_reg = r0
-    002c : 7c01 ; -- <0097> debug_peek_reg = r1
-    002d : 7c02 ; -- <0098> debug_peek_reg = r2
-    002e : 7c03 ; -- <0099> debug_peek_reg = r3
-    002f : 7c04 ; -- <0100> debug_peek_reg = r4
-    0030 : 7c05 ; -- <0101> debug_peek_reg = r5
-    0031 : 7c06 ; -- <0102> debug_peek_reg = r6
-    0032 : 7c07 ; -- <0103> debug_peek_reg = r7
-    0033 : 7c08 ; -- <0104> debug_peek_reg = r8
-    0034 : 7c09 ; -- <0105> debug_peek_reg = r9
-    0035 : 7c0a ; -- <0106> debug_peek_reg = r10
-    0036 : 7c0b ; -- <0107> debug_peek_reg = r11
-    0037 : 7c0c ; -- <0108> debug_peek_reg = r12
-    0038 : 7c0d ; -- <0109> debug_peek_reg = r13
-    0039 : 7c0e ; -- <0110> debug_peek_reg = r14
-    003a : 7c0f ; -- <0111> debug_peek_reg = r15
+    002b : 7c00 ; -- <0098> debug_peek_reg = r0
+    002c : 7c01 ; -- <0099> debug_peek_reg = r1
+    002d : 7c02 ; -- <0100> debug_peek_reg = r2
+    002e : 7c03 ; -- <0101> debug_peek_reg = r3
+    002f : 7c04 ; -- <0102> debug_peek_reg = r4
+    0030 : 7c05 ; -- <0103> debug_peek_reg = r5
+    0031 : 7c06 ; -- <0104> debug_peek_reg = r6
+    0032 : 7c07 ; -- <0105> debug_peek_reg = r7
+    0033 : 7c08 ; -- <0106> debug_peek_reg = r8
+    0034 : 7c09 ; -- <0107> debug_peek_reg = r9
+    0035 : 7c0a ; -- <0108> debug_peek_reg = r10
+    0036 : 7c0b ; -- <0109> debug_peek_reg = r11
+    0037 : 7c0c ; -- <0110> debug_peek_reg = r12
+    0038 : 7c0d ; -- <0111> debug_peek_reg = r13
+    0039 : 7c0e ; -- <0112> debug_peek_reg = r14
+    003a : 7c0f ; -- <0113> debug_peek_reg = r15
 
-    003b : 0200 ; -- <0114> a = 0
-    003c : 0413 ; -- <0115> b = bp_status
-    003d : c800 ; -- <0116> nop
-    003e : e004 ; -- <0117> br z :wait_for_bp
-    003f : 003b ; -- <0117> "
-    0040 : fc00 ; -- <0118> return
+    003b : 0200 ; -- <0116> a = 0
+    003c : 0415 ; -- <0117> b = bp_status
+    003d : c800 ; -- <0118> nop
+    003e : e004 ; -- <0119> br z :wait_for_bp
+    003f : 003b ; -- <0119> "
+    0040 : fc00 ; -- <0120> return
         
         END;
     
