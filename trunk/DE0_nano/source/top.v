@@ -190,6 +190,30 @@ uart_v2_tx utx (
     ,.tx_busy        (txbsy)
 );    
 
+// on-chip M9K RAM for testing.
+std_reg #(.WIDTH(10)) m9k_addr_reg(sysclk, sysreset, r[`DR_M9K_ADDR], r_load_data[9:0], r_load[`DR_M9K_ADDR]);
+wire[15:0] m9k_data;
+std_reg m9k_data_reg(sysclk, sysreset, m9k_data, r_load_data, r_load[`DR_M9K_DATA]);
+reg m9k_wren = 0;
+always_ff @(posedge sysreset or posedge sysclk) begin
+    if (sysreset)
+        m9k_wren <= 0;
+    else
+        m9k_wren <= r_load[`DR_M9K_DATA];
+end
+ram2port	ramtest (
+	.address_a ( r[`DR_M9K_ADDR][9:0] ),
+	.address_b ( 10'd0 ),
+	.clock_a ( clk_progmem ),
+	.clock_b ( 1'd0 ),
+	.data_a ( m9k_data ),
+	.data_b ( 16'd0 ),
+	.wren_a ( m9k_wren ),
+	.wren_b ( 1'd0 ),
+	.q_a ( r[`DR_M9K_DATA] ),
+	.q_b (  )
+	);
+
 
 
 endmodule

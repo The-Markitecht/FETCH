@@ -1,5 +1,5 @@
 PLL_Name	async_pll:async_pll_inst|altpll:altpll_component|async_pll_altpll:auto_generated|pll1
-PLLJITTER	21
+PLLJITTER	30
 PLLSPEmax	84
 PLLSPEmin	-53
 

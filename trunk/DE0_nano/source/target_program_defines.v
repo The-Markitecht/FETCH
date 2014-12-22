@@ -24,4 +24,8 @@
 `define JTAG_UART_BASE  256
 `define JTAG_UART_DATA  256
 `define JTAG_UART_CTRL  257
-`define SR_KEYS  14
+`define SR_M9K_ADDR  14
+`define DR_M9K_ADDR  14
+`define SR_M9K_DATA  15
+`define DR_M9K_DATA  15
+`define SR_KEYS  16

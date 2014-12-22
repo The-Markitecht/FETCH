@@ -30,6 +30,9 @@
     //    vdefine av_write_mask                   0x0001   
     // alias_src  av_waitrequest   [incr counter]
     
+    alias_both m9k_addr             [incr counter] 
+    alias_both m9k_data             [incr counter] 
+    
     alias_src  keys                 [incr counter]
     
     convention_gpx
@@ -63,6 +66,20 @@
     a = 0x1234
     call put4x
 
+    x = 0x1234
+    y = 1
+    a = 0
+    :nextwrite
+    m9k_addr = a
+    m9k_data = x
+    x = x+y
+    b = 1
+    nop
+    a = a+b
+    b = 1024
+    nop
+    br lt :nextwrite    
+    
 //patch
     x = 0
     y = 1
@@ -91,8 +108,18 @@
     a = x
     call put4x
     
-//    a = 100
-//    call :spinwait
+    a = 100
+    call :spinwait
+    
+    b = 32
+    putchar b
+    m9k_addr = x
+    a = m9k_data
+    call put4x
+    b = 13
+    putchar b
+    b = 10
+    putchar b
     
     jmp :patch
 
