@@ -8,16 +8,16 @@ proc assemble_with_macros {src_fn rom_fn} {
     console "writing $vdfn"
     set ::vdefines [open $vdfn w]
     
-    assemble  $src_fn $rom_fn
+    assemble  $src_fn "[file rootname $src_fn].v"
     
     # puts $::f [verilog_define_labels * asm_]
     console "closing $vdfn"
     close $::vdefines
     
-    file rename -force "[file rootname $rom_fn].mif" ../
+    file rename -force "[file rootname $src_fn].mif" ../
 }
 
 # main script; assemble individual files for each MCU core here.
 foreach asm_fn [glob -nocomplain *.asm] {
-   assemble_with_macros $asm_fn "[file rootname $asm_fn].v"
+  assemble_with_macros $asm_fn "[file rootname $asm_fn].v"
 }

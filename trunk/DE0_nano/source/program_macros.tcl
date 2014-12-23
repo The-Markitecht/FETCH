@@ -21,11 +21,11 @@ proc asm_vdefine32 {lin name valu} {
     set ::asm::${name}_lo $lo
 }
 
-proc asm_putchar_avalon_hw {lin reg} {
+proc asm_putchar_jtag {lin reg} {
     # for hardware-assisted Avalon MM master.
     parse3 av_data = $reg $lin
-    parse3 av_ad_hi = $::asm::jtag_uart_data_hi \"
-    parse3 av_ad_lo = $::asm::jtag_uart_data_lo \"
+    parse3 av_ad_hi = $::asm::jtag_uart_data_lsw_hi \"
+    parse3 av_ad_lo = $::asm::jtag_uart_data_lsw_lo \"
 }
 
 proc asm_putchar_atx {lin reg} {
@@ -35,7 +35,7 @@ proc asm_putchar_atx {lin reg} {
 }
 
 proc asm_putchar {lin reg} {
-    asm_putchar_atx $lin $reg
+    asm_putchar_$::asm::console_driver $lin $reg
 }
 
 proc asm_getchar_atx {lin} {
@@ -44,7 +44,7 @@ proc asm_getchar_atx {lin} {
 }
 
 proc asm_getchar {lin} {
-    asm_getchar_atx $lin 
+    asm_getchar_$::asm::console_driver $lin 
 }
 
 proc asm_putasc {lin char} {
@@ -53,7 +53,7 @@ proc asm_putasc {lin char} {
         error "invalid character specification: $lin"
     }
     parse3 a = $c "a = $c // $lin"
-    asm_call $lin putchar_atx
+    asm_putchar_$::asm::console_driver $lin a
 }
 
 proc asm_get16 {lin reg} {

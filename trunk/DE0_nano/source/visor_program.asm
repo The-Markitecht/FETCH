@@ -34,6 +34,7 @@
         vdefine force_load_exr_mask    0x0002
         vdefine hold_state_mask        0x0001   
         
+    set console_driver atx
     alias_both atx_data             [incr counter] 
     alias_both atx_ctrl             [incr counter] 
         vdefine atx_load_mask           0x0001
