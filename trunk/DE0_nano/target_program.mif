@@ -1,0 +1,301 @@
+
+        DEPTH = 1024 ;               -- The size of memory in words
+        WIDTH = 16;                   -- bits per data word
+        ADDRESS_RADIX = HEX;          
+        DATA_RADIX = HEX;             
+        CONTENT                       
+        BEGIN
+    
+-- #########################################################################
+-- assembly source code.
+-- to write some data on the UART.
+
+-- register file configuration
+
+-- application-specific register aliases.
+
+-- alias_both av_ctrl          [incr counter]
+--    vdefine av_write_mask                   0x0001
+-- alias_src  av_waitrequest   [incr counter]
+
+
+
+-- :begin -- = 0x0000
+    0000 : 2601 ; -- <0036> leds = 1
+-- atx_ctrl = 0
+
+-- a = 65
+-- push a
+-- a = 66
+-- push a
+-- a = 67
+-- push a
+-- a = 68
+-- push a
+-- a = 69
+-- push a
+
+-- pop b
+-- putchar b
+-- pop b
+-- putchar b
+-- pop b
+-- putchar b
+-- pop b
+-- putchar b
+-- pop b
+-- putchar b
+
+-- a = 0x1234
+-- call put4x
+
+-- x = 0x1234
+-- y = 1
+-- a = 0
+-- :nextwrite
+-- m9k_addr = a
+-- m9k_data = x
+-- x = x+y
+-- b = 1
+-- nop
+-- a = a+b
+-- b = 1024
+-- nop
+-- br lt :nextwrite
+
+--patch
+    0001 : 1200 ; -- <0079> x = 0
+    0002 : 1601 ; -- <0080> y = 1
+-- :patch -- = 0x0003
+
+    0003 : 0009 ; -- <0083> a = leds
+    0004 : 0601 ; -- <0084> b = 1
+    0005 : c800 ; -- <0085> nop
+    0006 : 2700 ; -- <0086> leds = a+b
+
+    0007 : 0241 ; -- <0088> a = 65
+    0008 : 2800 ; -- <0089> putchar_avalon_hw a
+    0009 : 2fa0 ; -- <0089> "
+    000a : 0200 ; -- <0089> "
+    000b : 3200 ; -- <0089> "
+    000c : 0242 ; -- <0090> a = 66
+    000d : 2800 ; -- <0091> putchar_avalon_hw a
+    000e : 2fa0 ; -- <0091> "
+    000f : 0200 ; -- <0091> "
+    0010 : 3200 ; -- <0091> "
+    0011 : 0243 ; -- <0092> a = 67
+    0012 : 2800 ; -- <0093> putchar_avalon_hw a
+    0013 : 2fa0 ; -- <0093> "
+    0014 : 0200 ; -- <0093> "
+    0015 : 3200 ; -- <0093> "
+
+-- -- Avalon write to SDRAM.  triggered by av_ad_lo.
+-- av_data = 0x6789
+-- av_ad_hi = 0
+-- av_ad_lo = 0x20
+-- -- clear av_data so we can recognize if it doesn't get filled.
+-- av_data = 0
+-- -- Avalon read from SDRAM.  triggered by av_ad_lo.
+-- a = av_ad_lo
+-- leds = av_data
+
+-- :wait_key_press -- = 0x0016
+    0016 : 0203 ; -- <0106> a = 0x03
+    0017 : 040d ; -- <0107> b = keys
+    0018 : c800 ; -- <0108> nop
+    0019 : e007 ; -- <0109> br eq :wait_key_press
+    001a : 0016 ; -- <0109> "
+-- :wait_key_release -- = 0x001b
+    001b : 040d ; -- <0111> b = keys
+    001c : c800 ; -- <0112> nop
+    001d : e407 ; -- <0113> bn eq :wait_key_release
+    001e : 001b ; -- <0113> "
+
+-- getchar
+-- b = 1
+-- nop
+-- putchar a+b
+
+-- b = 85
+-- putchar b
+
+-- x = x+y
+-- nop
+-- a = x
+-- call put4x
+
+    001f : 0264 ; -- <0128> a = 100
+    0020 : fba0 ; -- <0129> call :spinwait
+    0021 : 004a ; -- <0129> "
+    0022 : fc00 ; -- <0129> "
+
+-- b = 32
+-- putchar b
+-- m9k_addr = x
+-- a = m9k_data
+-- call put4x
+
+-- b = 13
+-- putchar b
+-- b = 10
+-- putchar b
+
+    0023 : e00f ; -- <0142> jmp :patch
+    0024 : 0003 ; -- <0142> "
+
+
+
+
+
+-- using i as index into string.
+    0025 : 0a00 ; -- <0149> i = 0
+
+-- cache the string limit in g6.
+    0026 : 0210 ; -- <0152> a = 16
+    0027 : 0760 ; -- <0153> b = 0xffff
+    0028 : c800 ; -- <0154> nop
+    0029 : 1b38 ; -- <0155> g6 = xor
+
+-- :again -- = 0x002a
+-- -- wait for keypress.
+-- :wait_key_press
+-- a = 0
+-- b = keys
+-- nop
+-- br z :wait_key_press
+-- :wait_key_release
+-- b = keys
+-- nop
+-- bn z :wait_key_release
+
+    002a : 0264 ; -- <0169> a = 100
+    002b : fba0 ; -- <0170> call :spinwait
+    002c : 004a ; -- <0170> "
+    002d : fc00 ; -- <0170> "
+
+-- increment LEDs
+    002e : 0009 ; -- <0173> a = leds
+    002f : 0601 ; -- <0174> b = 1
+    0030 : c800 ; -- <0175> nop
+    0031 : 2700 ; -- <0176> leds = a+b
+
+-- fetch a word from test pattern to the UART.  its low byte is a character.
+    0032 : 0fa0 ; -- <0179> j = :msg
+    0033 : 0041 ; -- <0179> "
+    0034 : c800 ; -- <0180> nop
+    0035 : d310 ; -- <0181> fetch a from i+j
+    0036 : 03b0 ; -- <0181> "
+--    putchar a
+
+-- increment index & wrap around end of pattern.
+    0037 : 0e01 ; -- <0185> j = 1
+    0038 : c800 ; -- <0186> nop
+    0039 : 0b10 ; -- <0187> i = i+j
+    003a : 0c06 ; -- <0188> j = g6
+    003b : c800 ; -- <0189> nop
+    003c : e401 ; -- <0190> bn 1z :no_wrap
+    003d : 003f ; -- <0190> "
+    003e : 0a00 ; -- <0191> i = 0
+-- :no_wrap -- = 0x003f
+
+-- repeat forever.
+    003f : e00f ; -- <0195> jmp :again
+    0040 : 002a ; -- <0195> "
+
+-- :msg -- = 0x0041
+-- "1234567890abcdef\n\x00"
+    0041 : 3231 ; -- <0198> 21
+    0042 : 3433 ; -- <0198> 43
+    0043 : 3635 ; -- <0198> 65
+    0044 : 3837 ; -- <0198> 87
+    0045 : 3039 ; -- <0198> 09
+    0046 : 6261 ; -- <0198> ba
+    0047 : 6463 ; -- <0198> dc
+    0048 : 6665 ; -- <0198> fe
+    0049 : 000a ; -- <0198>   
+
+-- routine waits a number of milliseconds given in a.
+    004a : 2004 ; -- <0201> push x -- func spinwait
+    004b : 2005 ; -- <0201> push y -- "
+    004c : 0760 ; -- <0202> b = -1
+-- :spinwait_outer -- = 0x004d
+    004d : 13a0 ; -- <0204> x = 12500
+    004e : 30d4 ; -- <0204> "
+    004f : 1760 ; -- <0205> y = -1
+    0050 : c800 ; -- <0206> nop
+-- :spinwait_inner -- = 0x0051
+    0051 : 1320 ; -- <0208> x = x+y
+    0052 : c800 ; -- <0209> nop
+    0053 : e400 ; -- <0210> bn 2z :spinwait_inner
+    0054 : 0051 ; -- <0210> "
+    0055 : 0300 ; -- <0211> a = a+b
+    0056 : c800 ; -- <0212> nop
+    0057 : e404 ; -- <0213> bn z :spinwait_outer
+    0058 : 004d ; -- <0213> "
+    0059 : 1408 ; -- <0214> pop y -- return
+    005a : 1008 ; -- <0214> pop x -- "
+    005b : fc00 ; -- <0214> return
+
+-- compute the modulus(255) of a number given in a.  return remainder in a.
+    005c : 2006 ; -- <0217> push g6 -- func mod255
+    005d : 2007 ; -- <0217> push g7 -- "
+-- while a is greater than 254, subtract 255.
+-- :mod255_again -- = 0x005e
+    005e : 06fe ; -- <0220> b = 0xfe
+    005f : c800 ; -- <0221> nop
+    0060 : e006 ; -- <0222> br gt :mod255_greater
+    0061 : 0065 ; -- <0222> "
+    0062 : 1c08 ; -- <0223> pop g7 -- return
+    0063 : 1808 ; -- <0223> pop g6 -- "
+    0064 : fc00 ; -- <0223> return
+-- :mod255_greater -- = 0x0065
+    0065 : 07a0 ; -- <0225> b = 0xff01
+    0066 : ff01 ; -- <0225> "
+    0067 : c800 ; -- <0226> nop
+    0068 : 0300 ; -- <0227> a = a+b
+    0069 : e00f ; -- <0228> jmp :mod255_again
+    006a : 005e ; -- <0228> "
+
+-- set up Fletcher16 checksum algorithm to accumulate in the 2 given register names.
+
+    006b : 1a00 ; -- <0238> fletcher16_init g6 g7
+    006c : 1e00 ; -- <0238> "
+
+-- accumulate a Fletcher16 checksum in g6 and g7,
+-- given the next byte of data in a.
+    006d : 2006 ; -- <0242> push g6 -- func fletcher16_input
+    006e : 2007 ; -- <0242> push g7 -- "
+    006f : 203e ; -- <0242> push rtna -- "
+--patch: need a way to declare summing registers as "static" or "preserve" so they're not auto-stacked.
+    0070 : 0406 ; -- <0244> b = $fletcher_sum1_reg
+    0071 : c800 ; -- <0245> nop
+    0072 : 0300 ; -- <0246> a = a+b
+    0073 : fba0 ; -- <0247> call :mod255
+    0074 : 005c ; -- <0247> "
+    0075 : fc00 ; -- <0247> "
+    0076 : 1800 ; -- <0248> $fletcher_sum1_reg = a
+
+    0077 : 0407 ; -- <0250> b = $fletcher_sum2_reg
+    0078 : c800 ; -- <0251> nop
+    0079 : 0300 ; -- <0252> a = a+b
+    007a : fba0 ; -- <0253> call :mod255
+    007b : 005c ; -- <0253> "
+    007c : fc00 ; -- <0253> "
+    007d : 1c00 ; -- <0254> $fletcher_sum2_reg = a
+    007e : f808 ; -- <0255> pop rtna -- return
+    007f : 1c08 ; -- <0255> pop g7 -- "
+    0080 : 1808 ; -- <0255> pop g6 -- "
+    0081 : fc00 ; -- <0255> return
+
+-- return the combined 16-bit result of Fletcher16 checksum in a.
+    0082 : 0007 ; -- <0259> a = $fletcher_sum2_reg
+    0083 : 0352 ; -- <0260> a = a<<4
+    0084 : 0352 ; -- <0261> a = a<<4
+    0085 : 0406 ; -- <0262> b = $fletcher_sum1_reg
+    0086 : c800 ; -- <0263> nop
+    0087 : 0334 ; -- <0264> a = or
+    0088 : fc00 ; -- <0265> return
+
+        
+        END;
+    

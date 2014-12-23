@@ -18,17 +18,17 @@ module top (
     // //////////// SW //////////
     // input 		     [3:0]		SW,
 
-    // //////////// SDRAM //////////
-    // output wire		    [12:0]		DRAM_ADDR,
-    // output wire		     [1:0]		DRAM_BA,
-    // output wire		          		DRAM_CAS_N,
-    // output wire		          		DRAM_CKE,
-    // output wire		          		DRAM_CLK,
-    // output wire		          		DRAM_CS_N,
-    // inout  wire		    [15:0]		DRAM_DQ,
-    // output wire		     [1:0]		DRAM_DQM,
-    // output wire		          		DRAM_RAS_N,
-    // output wire		          		DRAM_WE_N,
+    //////////// SDRAM //////////
+    output wire		    [12:0]		DRAM_ADDR,
+    output wire		     [1:0]		DRAM_BA,
+    output wire		          		DRAM_CAS_N,
+    output wire		          		DRAM_CKE,
+    output wire		          		DRAM_CLK,
+    output wire		          		DRAM_CS_N,
+    inout  wire		    [15:0]		DRAM_DQ,
+    output wire		     [1:0]		DRAM_DQM,
+    output wire		          		DRAM_RAS_N,
+    output wire		          		DRAM_WE_N,
 
     // //////////// EPCS //////////
     // output wire		          		EPCS_ASDO,
@@ -70,11 +70,13 @@ module top (
 wire sysclk = clk50m;
 wire clk_async; // PLL output for UARTs.  4x desired bit rate.  460,800 hz for 115,200 bps.   38,400 hz for 9,600 bps.
 wire clk_progmem; // PLL output for MCU program memory.  doubled relative to sysclk.  posedge aligned ( = 0 degree phase).
+wire clk_sdram; // PLL output for SDRAM chip.  doubled relative to sysclk.  -60 degree phase.
 wire async_pll_lock;
 async_pll async_pll_inst (
     .inclk0 ( sysclk ),
     .c0 ( clk_async ),
     .c1 ( clk_progmem ),
+    .c2 ( clk_sdram ),
     .locked ( async_pll_lock )
 );
 reg rst0 = 1, rst1 = 1, rst2 = 1;
@@ -148,17 +150,29 @@ assign r[`SR_KEYS] = {14'h0, KEY};
 // wire av_write      = r[`DR_AV_CTRL][0];
 
 // Avalon MM master.
-// program should always write the data register last, because writing it triggers the Avalon transaction.
-std_reg av_writedata_reg(sysclk, sysreset, r[`DR_AV_WRITEDATA], r_load_data, r_load[`DR_AV_WRITEDATA]);
-std_reg av_address_reg(sysclk, sysreset, r[`DR_AV_ADDRESS], r_load_data, r_load[`DR_AV_ADDRESS]);
+// program should always write (or read) the address low register last, because accessing it triggers the Avalon transaction.
+// that way, the program can read from the data register after it's copied data from Avalon, without triggering another read transaction.
+std_reg av_ad_hi_reg(sysclk, sysreset, r[`DR_AV_AD_HI], r_load_data, r_load[`DR_AV_AD_HI]);
+std_reg av_ad_lo_reg(sysclk, sysreset, r[`DR_AV_AD_LO], r_load_data, r_load[`DR_AV_AD_LO]);
 wire av_waitrequest;
 reg av_write = 0;
 reg av_read = 0;
+reg av_data_reg = 0;
+assign r[`DR_AV_DATA] = av_data_reg;
+wire[15:0] m0_readdata;
 always_ff @(posedge sysclk) begin
-    if (av_write && ! av_waitrequest)
+    if (av_write && ! av_waitrequest) begin
         av_write <= 0; // write transaction has ended.
-    else if (r_load[`DR_AV_WRITEDATA])
+    end else if (r_load[`DR_AV_AD_LO]) begin
         av_write <= 1; // begin write transaction.
+    end else if (av_read && ! av_waitrequest) begin
+        av_data_reg <= m0_readdata;
+        av_read <= 0; // read transaction has ended.
+    end else if (r_read[`DR_AV_AD_LO]) begin
+        av_read <= 1; // begin read transaction.
+    end
+    if (r_load[`DR_AV_DATA] && ! av_read)
+        av_data_reg <= r_load_data;
 end
 wire av_busy = (av_write || av_read) && av_waitrequest; // considering av_waitrequest avoids 1 needless wait state after every transaction.
 assign mcu_wait = av_busy;
@@ -173,16 +187,23 @@ assign mcu_wait = av_busy;
 qsys2 u0 (
     .clk_clk                      (sysclk),                      
     .reset_reset_n                ( ! sysreset),                
-    .m0_address                   (r[`DR_AV_ADDRESS]),                   
-    .m0_read                      (0),                      
+    .m0_address                   ({r[`DR_AV_AD_HI], r[`DR_AV_AD_LO]}),                   
+    .m0_read                      (av_read),                      
     .m0_waitrequest               (av_waitrequest),               
-    .m0_readdata                  (),                  
+    .m0_readdata                  (m0_readdata),                  
     .m0_write                     (av_write),                     
-    .m0_writedata                 (r[`DR_AV_WRITEDATA]),                 
-    .generic_master_0_reset_reset ()  
+    .m0_writedata                 (r[`DR_AV_DATA]),                 
+    .generic_master_0_reset_reset ()  ,
+    .sdramc_addr                  (DRAM_ADDR),
+    .sdramc_ba                    (DRAM_BA),
+    .sdramc_cas_n                 (DRAM_CAS_N),
+    .sdramc_cke                   (DRAM_CKE),
+    .sdramc_cs_n                  (DRAM_CS_N),
+    .sdramc_dq                    (DRAM_DQ),
+    .sdramc_dqm                   (DRAM_DQM),
+    .sdramc_ras_n                 (DRAM_RAS_N),
+    .sdramc_we_n                  (DRAM_WE_N)    
 );
-
-
-
+assign DRAM_CLK = clk_sdram;
 
 endmodule

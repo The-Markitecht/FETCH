@@ -16,11 +16,14 @@
     alias_both rstk                 [incr counter] 
     alias_both leds                 [incr counter] 
             
-    alias_both av_writedata	        [incr counter]
-    alias_both av_address           [incr counter]
-        vdefine jtag_uart_base             0x0100
-        vdefine jtag_uart_data ($jtag_uart_base + 0)
-        vdefine jtag_uart_ctrl ($jtag_uart_base + 1)
+    alias_both av_data    	        [incr counter]
+    alias_both av_ad_hi             [incr counter]
+    alias_both av_ad_lo             [incr counter]
+        vdefine32 sdram_base                 0x00000000
+        vdefine32 sdram_size                 0x02000000
+        vdefine32 jtag_uart_base             0x02000000
+        vdefine32 jtag_uart_data ($jtag_uart_base + 0)
+        vdefine32 jtag_uart_ctrl ($jtag_uart_base + 1)
     // alias_both av_ctrl          [incr counter]
     //    vdefine av_write_mask                   0x0001   
     // alias_src  av_waitrequest   [incr counter]
@@ -81,7 +84,24 @@
     b = 1
     nop
     leds = a+b
+    
+    a = 65
+    putchar_avalon_hw a
+    a = 66
+    putchar_avalon_hw a
+    a = 67
+    putchar_avalon_hw a
 
+    // // Avalon write to SDRAM.  triggered by av_ad_lo.
+    // av_data = 0x6789
+    // av_ad_hi = 0
+    // av_ad_lo = 0x20
+    // // clear av_data so we can recognize if it doesn't get filled.
+    // av_data = 0
+    // // Avalon read from SDRAM.  triggered by av_ad_lo.
+    // a = av_ad_lo
+    // leds = av_data
+    
 :wait_key_press    
     a = 0x03
     b = keys

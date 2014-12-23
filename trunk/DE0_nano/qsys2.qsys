@@ -13,7 +13,7 @@
    {
       datum baseAddress
       {
-         value = "256";
+         value = "33554432";
          type = "String";
       }
    }
@@ -25,7 +25,7 @@
          type = "int";
       }
    }
-   element generic_master_0
+   element generic_master_1
    {
       datum _sortIndex
       {
@@ -38,6 +38,14 @@
       datum _sortIndex
       {
          value = "2";
+         type = "int";
+      }
+   }
+   element sdram
+   {
+      datum _sortIndex
+      {
+         value = "3";
          type = "int";
       }
    }
@@ -61,10 +69,11 @@
  <instanceScript></instanceScript>
  <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
  <interface name="reset" internal="clk_0.clk_in_reset" type="reset" dir="end" />
- <interface name="m0" internal="generic_master_0.m01" type="conduit" dir="end" />
+ <interface name="sdramc" internal="sdram.wire" type="conduit" dir="end" />
+ <interface name="m0" internal="generic_master_1.m01" type="conduit" dir="end" />
  <interface
-   name="generic_master_0_reset"
-   internal="generic_master_0.reset1"
+   name="generic_master_1_reset"
+   internal="generic_master_1.reset1"
    type="conduit"
    dir="end" />
  <module kind="clock_source" version="13.0" enabled="1" name="clk_0">
@@ -73,11 +82,6 @@
   <parameter name="inputClockFrequency" value="0" />
   <parameter name="resetSynchronousEdges" value="NONE" />
  </module>
- <module
-   kind="generic_master"
-   version="1.0"
-   enabled="1"
-   name="generic_master_0" />
  <module
    kind="altera_avalon_jtag_uart"
    version="13.0.1"
@@ -96,31 +100,78 @@
   <parameter name="writeIRQThreshold" value="2" />
   <parameter name="avalonSpec" value="2.0" />
  </module>
- <connection
-   kind="avalon"
-   version="13.0"
-   start="generic_master_0.m0"
-   end="jtag_uart_0.avalon_jtag_slave">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0100" />
-  <parameter name="defaultConnection" value="false" />
- </connection>
+ <module
+   kind="altera_avalon_new_sdram_controller"
+   version="13.0.1"
+   enabled="1"
+   name="sdram">
+  <parameter name="TAC" value="5.5" />
+  <parameter name="TRCD" value="20.0" />
+  <parameter name="TRFC" value="70.0" />
+  <parameter name="TRP" value="20.0" />
+  <parameter name="TWR" value="14.0" />
+  <parameter name="casLatency" value="3" />
+  <parameter name="columnWidth" value="9" />
+  <parameter name="dataWidth" value="16" />
+  <parameter name="generateSimulationModel" value="true" />
+  <parameter name="initRefreshCommands" value="2" />
+  <parameter name="model">single_Micron_MT48LC4M32B2_7_chip</parameter>
+  <parameter name="numberOfBanks" value="4" />
+  <parameter name="numberOfChipSelects" value="1" />
+  <parameter name="pinsSharedViaTriState" value="false" />
+  <parameter name="powerUpDelay" value="100.0" />
+  <parameter name="refreshPeriod" value="15.625" />
+  <parameter name="rowWidth" value="13" />
+  <parameter name="masteredTristateBridgeSlave" value="0" />
+  <parameter name="TMRD" value="3" />
+  <parameter name="initNOPDelay" value="0.0" />
+  <parameter name="registerDataIn" value="true" />
+  <parameter name="clockRate" value="50000000" />
+  <parameter name="componentName" value="$${FILENAME}_sdram" />
+ </module>
+ <module
+   kind="generic_master"
+   version="1.0"
+   enabled="1"
+   name="generic_master_1">
+  <parameter name="AUTO_CLOCK_CLOCK_RATE" value="50000000" />
+ </module>
  <connection kind="clock" version="13.0" start="clk_0.clk" end="jtag_uart_0.clk" />
  <connection
    kind="reset"
    version="13.0"
    start="clk_0.clk_reset"
    end="jtag_uart_0.reset" />
+ <connection kind="clock" version="13.0" start="clk_0.clk" end="sdram.clk" />
+ <connection kind="reset" version="13.0" start="clk_0.clk_reset" end="sdram.reset" />
  <connection
    kind="clock"
    version="13.0"
    start="clk_0.clk"
-   end="generic_master_0.clock" />
+   end="generic_master_1.clock" />
  <connection
    kind="reset"
    version="13.0"
    start="clk_0.clk_reset"
-   end="generic_master_0.reset" />
+   end="generic_master_1.reset" />
+ <connection
+   kind="avalon"
+   version="13.0"
+   start="generic_master_1.m0"
+   end="sdram.s1">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="13.0"
+   start="generic_master_1.m0"
+   end="jtag_uart_0.avalon_jtag_slave">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x02000000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
  <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
 </system>

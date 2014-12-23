@@ -8,10 +8,24 @@ proc asm_vdefine {lin name valu} {
     set ::asm::$name $valu
 }
 
+proc asm_vdefine32 {lin name valu} {
+    set hi [expr {($valu >> 16) & 0xffff}]
+    set lo [expr {$valu & 0xffff}]
+    if {$::asm_pass == $::pass(emit)} {
+        puts $::vdefines "`define [string toupper $name]  [expr $valu]"
+        puts $::vdefines "`define [string toupper $name]_HI  $hi"
+        puts $::vdefines "`define [string toupper $name]_LO  $lo"
+    }
+    set ::asm::$name $valu
+    set ::asm::${name}_hi $hi
+    set ::asm::${name}_lo $lo
+}
+
 proc asm_putchar_avalon_hw {lin reg} {
     # for hardware-assisted Avalon MM master.
-    parse3 av_address = $::asm::jtag_uart_data $lin
-    parse3 av_writedata = $reg \"
+    parse3 av_data = $reg $lin
+    parse3 av_ad_hi = $::asm::jtag_uart_data_hi \"
+    parse3 av_ad_lo = $::asm::jtag_uart_data_lo \"
 }
 
 proc asm_putchar_atx {lin reg} {

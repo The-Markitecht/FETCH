@@ -13,6 +13,8 @@ proc assemble_with_macros {src_fn rom_fn} {
     # puts $::f [verilog_define_labels * asm_]
     console "closing $vdfn"
     close $::vdefines
+    
+    file rename -force "[file rootname $rom_fn].mif" ../
 }
 
 # main script; assemble individual files for each MCU core here.

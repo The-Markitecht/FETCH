@@ -1,14 +1,23 @@
 	component qsys2 is
 		port (
-			clk_clk                      : in  std_logic                     := 'X';             -- clk
-			reset_reset_n                : in  std_logic                     := 'X';             -- reset_n
-			m0_address                   : in  std_logic_vector(15 downto 0) := (others => 'X'); -- address
-			m0_read                      : in  std_logic                     := 'X';             -- read
-			m0_waitrequest               : out std_logic;                                        -- waitrequest
-			m0_readdata                  : out std_logic_vector(15 downto 0);                    -- readdata
-			m0_write                     : in  std_logic                     := 'X';             -- write
-			m0_writedata                 : in  std_logic_vector(15 downto 0) := (others => 'X'); -- writedata
-			generic_master_0_reset_reset : out std_logic                                         -- reset
+			clk_clk                      : in    std_logic                     := 'X';             -- clk
+			reset_reset_n                : in    std_logic                     := 'X';             -- reset_n
+			sdramc_addr                  : out   std_logic_vector(12 downto 0);                    -- addr
+			sdramc_ba                    : out   std_logic_vector(1 downto 0);                     -- ba
+			sdramc_cas_n                 : out   std_logic;                                        -- cas_n
+			sdramc_cke                   : out   std_logic;                                        -- cke
+			sdramc_cs_n                  : out   std_logic;                                        -- cs_n
+			sdramc_dq                    : inout std_logic_vector(15 downto 0) := (others => 'X'); -- dq
+			sdramc_dqm                   : out   std_logic_vector(1 downto 0);                     -- dqm
+			sdramc_ras_n                 : out   std_logic;                                        -- ras_n
+			sdramc_we_n                  : out   std_logic;                                        -- we_n
+			m0_address                   : in    std_logic_vector(31 downto 0) := (others => 'X'); -- address
+			m0_read                      : in    std_logic                     := 'X';             -- read
+			m0_waitrequest               : out   std_logic;                                        -- waitrequest
+			m0_readdata                  : out   std_logic_vector(15 downto 0);                    -- readdata
+			m0_write                     : in    std_logic                     := 'X';             -- write
+			m0_writedata                 : in    std_logic_vector(15 downto 0) := (others => 'X'); -- writedata
+			generic_master_1_reset_reset : out   std_logic                                         -- reset
 		);
 	end component qsys2;
 
