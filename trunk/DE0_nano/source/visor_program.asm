@@ -53,7 +53,7 @@
     
     :begin
     // put target into reset.
-    bus_ctrl = $tg_reset_mask   
+//    bus_ctrl = $tg_reset_mask   
     
     // init visor.
     bp3_addr = $bp_disable

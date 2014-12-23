@@ -157,7 +157,7 @@ std_reg av_ad_lo_reg(sysclk, sysreset, r[`DR_AV_AD_LO], r_load_data, r_load[`DR_
 wire av_waitrequest;
 reg av_write = 0;
 reg av_read = 0;
-reg av_data_reg = 0;
+reg[15:0] av_data_reg = 0;
 assign r[`DR_AV_DATA] = av_data_reg;
 wire[15:0] m0_readdata;
 always_ff @(posedge sysclk) begin
