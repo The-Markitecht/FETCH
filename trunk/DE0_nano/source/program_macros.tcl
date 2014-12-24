@@ -8,24 +8,11 @@ proc asm_vdefine {lin name valu} {
     set ::asm::$name $valu
 }
 
-proc asm_vdefine32 {lin name valu} {
-    set hi [expr {($valu >> 16) & 0xffff}]
-    set lo [expr {$valu & 0xffff}]
-    if {$::asm_pass == $::pass(emit)} {
-        puts $::vdefines "`define [string toupper $name]  [expr $valu]"
-        puts $::vdefines "`define [string toupper $name]_HI  $hi"
-        puts $::vdefines "`define [string toupper $name]_LO  $lo"
-    }
-    set ::asm::$name $valu
-    set ::asm::${name}_hi $hi
-    set ::asm::${name}_lo $lo
-}
-
 proc asm_putchar_jtag {lin reg} {
     # for hardware-assisted Avalon MM master.
-    parse3 av_data = $reg $lin
-    parse3 av_ad_hi = $::asm::jtag_uart_data_lsw_hi \"
+    parse3 av_ad_hi = $::asm::jtag_uart_data_lsw_hi $lin
     parse3 av_ad_lo = $::asm::jtag_uart_data_lsw_lo \"
+    parse3 av_write_data = $reg \"
 }
 
 proc asm_putchar_atx {lin reg} {
@@ -48,7 +35,7 @@ proc asm_getchar {lin} {
 }
 
 proc asm_putasc {lin char} {
-    # for my own uart_v2_tx hardware.
+    # output a literal character.
     if {[scan $char %c c] != 1} {
         error "invalid character specification: $lin"
     }

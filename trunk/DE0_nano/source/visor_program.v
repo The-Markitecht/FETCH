@@ -371,7 +371,10 @@ addr == 16'h104 ? 16'h0404 :  // <0282> b = x
 addr == 16'h105 ? 16'hc800 :  // <0283> nop
 addr == 16'h106 ? 16'hd300 :  // <0284> fetch a from a+b
 addr == 16'h107 ? 16'h03b0 :  // <0284> "
-addr == 16'h108 ? 16'hfc00 :  // <0285> return
+addr == 16'h108 ? 16'h06ff :  // <0285> b = 0xff
+addr == 16'h109 ? 16'hc800 :  // <0286> nop
+addr == 16'h10a ? 16'h0330 :  // <0287> a = and
+addr == 16'h10b ? 16'hfc00 :  // <0288> return
 
         
                 16'hxxxx;

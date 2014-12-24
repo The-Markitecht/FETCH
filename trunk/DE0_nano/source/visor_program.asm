@@ -282,5 +282,8 @@ func fetch_byte
     b = x
     nop
     fetch a from a+b
+    b = 0xff
+    nop
+    a = and
     return
     

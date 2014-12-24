@@ -11,12 +11,13 @@
 `define DR_RSTK  8
 `define SR_LEDS  9
 `define DR_LEDS  9
-`define SR_AV_DATA  10
-`define DR_AV_DATA  10
-`define SR_AV_AD_HI  11
-`define DR_AV_AD_HI  11
-`define SR_AV_AD_LO  12
-`define DR_AV_AD_LO  12
+`define SR_AV_WRITE_DATA  10
+`define DR_AV_WRITE_DATA  10
+`define SR_AV_READ_DATA  11
+`define SR_AV_AD_HI  12
+`define DR_AV_AD_HI  12
+`define SR_AV_AD_LO  13
+`define DR_AV_AD_LO  13
 `define SDRAM_BASE  0
 `define SDRAM_BASE_HI  0
 `define SDRAM_BASE_LO  0
@@ -38,4 +39,4 @@
 `define JTAG_UART_CTRL_MSW  33554438
 `define JTAG_UART_CTRL_MSW_HI  512
 `define JTAG_UART_CTRL_MSW_LO  6
-`define SR_KEYS  13
+`define SR_KEYS  14

@@ -17,17 +17,29 @@
     alias_both leds                 [incr counter] 
             
     set console_driver jtag
-    alias_both av_data    	        [incr counter]
+    alias_both av_write_data        [incr counter]
+    alias_src  av_read_data	        [incr counter]
     alias_both av_ad_hi             [incr counter]
     alias_both av_ad_lo             [incr counter]
         // all Avalon addresses are BYTE addresses.  all Avalon sizes are in BYTES.
         vdefine32 sdram_base                 0x00000000
         vdefine32 sdram_size                 0x02000000
+        // SDRAM notes:
+        // - all addresses are BYTE addresses.  all must be divisible by 2, because this
+        // system only supports 16-bit word accesses.  writes to an odd-numbered address
+        // will be forced to the word boundary instead, overwriting data there.
         vdefine32 jtag_uart_base             0x02000000
         vdefine32 jtag_uart_data_lsw ($jtag_uart_base + 0)
         vdefine32 jtag_uart_data_msw ($jtag_uart_base + 2)
         vdefine32 jtag_uart_ctrl_lsw ($jtag_uart_base + 4)
         vdefine32 jtag_uart_ctrl_msw ($jtag_uart_base + 6)
+        // JTAG UART notes:
+        // - on read, program MUST test bit 15 of jtag_uart_data_lsw.  jtag uart continues to
+        // report the same data byte on subsequent reads when no further data has arrived.
+        // bit 15 RVALID = 1 is the only indication of proper data.
+        // - reading jtag_uart_data_msw also counts as a FIFO read, causing loss of a data byte,
+        // probably because jtag uart has no byteenable wires.
+        // - on write, the data is lost if the write FIFO is full.  Avalon is not stalled.
     // alias_both av_ctrl          [incr counter]
     //    vdefine av_write_mask                   0x0001   
     // alias_src  av_waitrequest   [incr counter]
@@ -89,88 +101,141 @@
     nop
     leds = a+b
 
-    // Avalon write to JTAG UART. 
-    putasc A
-    putasc B
-    putasc C
+    // // Avalon write to JTAG UART. 
+    // putasc A
+    // putasc B
+    // putasc C
+    // putasc D
+    // putasc E
+    // putasc F
+    // putasc G
+    // putasc H
+    // putasc I
+    // putasc J
+    // putasc K
+    // putasc L
+    // putasc M
+    // putasc N
 
-    // Avalon read from JTAG UART.
-    :poll_jtag_uart
-    a = 1000
-    call :spinwait
+    // // Avalon read from JTAG UART.
+    // :poll_jtag_uart    
+    // a = 0x1234
+    // call put4x
+    // a = 1000
+    // call :spinwait
+    // putasc "/"    
+    // a = 1000
+    // call :spinwait
+    // av_ad_hi = $jtag_uart_data_lsw_hi
+    // av_ad_lo = $jtag_uart_data_lsw_lo
+    // a = av_write_data
+    // a = av_read_data
+    // call put4x
+    // a = 1000
+    // call :spinwait
+    // putasc ","
+    // a = 1000
+    // call :spinwait
+    // av_ad_hi = $jtag_uart_data_msw_hi
+    // av_ad_lo = $jtag_uart_data_msw_lo
+    // a = av_write_data
+    // a = av_read_data
+    // call put4x
+    // a = 1000
+    // call :spinwait
+    // putasc ","
+    // a = 1000
+    // call :spinwait
+    // av_ad_hi = $jtag_uart_ctrl_lsw_hi
+    // av_ad_lo = $jtag_uart_ctrl_lsw_lo
+    // a = av_write_data
+    // a = av_read_data
+    // call put4x
+    // a = 1000
+    // call :spinwait
+    // putasc ","
+    // a = 1000
+    // call :spinwait
+    // av_ad_hi = $jtag_uart_ctrl_msw_hi
+    // av_ad_lo = $jtag_uart_ctrl_msw_lo
+    // a = av_write_data
+    // a = av_read_data
+    // call put4x
+    // a = 1000
+    // call :spinwait
+    // putasc "/"    
+    // a = 1000
+    // call :spinwait
+    // a = 0x5678
+    // call put4x
+    // a = 1000
+    // call :spinwait
+    // putasc "\r"
+    // putasc "\n"
+    // a = 1000
+    // call :spinwait    
+    // jmp :poll_jtag_uart       
     
-    a = 0x1234
-    call put4x
-    a = 1000
-    call :spinwait
-    putasc "/"    
-    a = 1000
-    call :spinwait
-    av_ad_hi = $jtag_uart_data_lsw_hi
-    av_ad_lo = $jtag_uart_data_lsw_lo
-    a = av_data
-    call put4x
-    a = 1000
-    call :spinwait
-    putasc ","
-    a = 1000
-    call :spinwait
-    av_ad_hi = $jtag_uart_data_msw_hi
-    av_ad_lo = $jtag_uart_data_msw_lo
-    a = av_data
-    call put4x
-    a = 1000
-    call :spinwait
-    putasc ","
-    a = 1000
-    call :spinwait
-    av_ad_hi = $jtag_uart_ctrl_lsw_hi
-    av_ad_lo = $jtag_uart_ctrl_lsw_lo
-    a = av_data
-    call put4x
-    a = 1000
-    call :spinwait
-    putasc ","
-    a = 1000
-    call :spinwait
-    av_ad_hi = $jtag_uart_ctrl_msw_hi
-    av_ad_lo = $jtag_uart_ctrl_msw_lo
-    a = av_data
-    call put4x
-    a = 1000
-    call :spinwait
-    putasc "/"    
-    a = 1000
-    call :spinwait
-    a = 0x5678
-    call put4x
-    a = 1000
-    call :spinwait
-    putasc "\r"
-    putasc "\n"
-    
-    jmp :poll_jtag_uart
-    
-    
-    // Avalon write to SDRAM.  triggered by av_ad_lo.
-    av_data = 0x6789
+    // Avalon write to SDRAM.  
     av_ad_hi = 0
     av_ad_lo = 0x20
-    // clear av_data so we can recognize if it doesn't get filled.
-    av_data = 0
-    // Avalon read from SDRAM.  triggered by av_ad_lo.
-    a = av_ad_lo
-    leds = av_data
+    av_write_data = 0x6789
+    // Avalon read from SDRAM.  
+    a = av_write_data
+    a = av_read_data
+    call put4x
+    a = 1000
+    call :spinwait    
     
-:wait_key_press    
-    a = 0x03
-    b = keys
+    // fill SDRAM first page with a pattern.
+    putasc W
+    x = 0x0000
+    :fill_more
+    av_ad_hi = 0
+    av_ad_lo = x
+    a = x
+    b = 0xffff
     nop
-    br eq :wait_key_press
-:wait_key_release   
-    b = keys
+    g6 = xor
+    av_write_data = g6
+    y = 2
     nop
-    bn eq :wait_key_release
+    x = x+y
+    bn 2z :fill_more
+    
+    // verify pattern in SDRAM.
+    x = 0x0000
+    :verify_more
+    av_ad_hi = 0
+    av_ad_lo = x
+    g6 = av_write_data
+    g6 = av_read_data
+    a = x
+    call put4x
+    putasc "="
+    a = 500
+    call :spinwait        
+    a = g6
+    call put4x
+    putasc "\r"
+    putasc "\n"
+    a = 500
+    call :spinwait        
+    y = 2
+    nop
+    x = x+y
+    bn 2z :verify_more
+    
+    
+// :wait_key_press    
+    // a = 0x03
+    // b = keys
+    // nop
+    // br eq :wait_key_press
+// :wait_key_release   
+    // b = keys
+    // nop
+    // bn eq :wait_key_release
     
     // getchar
     // b = 1
@@ -259,6 +324,8 @@
     
 // routine waits a number of milliseconds given in a.    
 func spinwait
+//patch
+//return
     b = -1
     :spinwait_outer
     x = 12500
@@ -386,5 +453,8 @@ func fetch_byte
     b = x
     nop
     fetch a from a+b
+    b = 0xff
+    nop
+    a = and
     return
         

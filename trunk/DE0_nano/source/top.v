@@ -150,37 +150,41 @@ assign r[`SR_KEYS] = {14'h0, KEY};
 // wire av_write      = r[`DR_AV_CTRL][0];
 
 // Avalon MM master.
-// program should always write (or read) the address low register last, because accessing it triggers the Avalon transaction.
-// that way, the program can read from the data register after it's copied data from Avalon, without triggering another read transaction.
-std_reg av_ad_hi_reg(sysclk, sysreset, r[`DR_AV_AD_HI], r_load_data, r_load[`DR_AV_AD_HI]);
-std_reg av_ad_lo_reg(sysclk, sysreset, r[`DR_AV_AD_LO], r_load_data, r_load[`DR_AV_AD_LO]);
+// program should always write (or read) the "write data" register last, because accessing it triggers the Avalon transaction.
+// that way, the program can read from the "read data" register after it's copied data from Avalon, without triggering another read transaction.
 wire av_waitrequest;
 reg av_write = 0;
 reg av_read = 0;
-reg[15:0] av_data_reg = 0;
-assign r[`DR_AV_DATA] = av_data_reg;
+wire av_read_capture = av_read && ~ av_waitrequest; // 1 during the cycle following the end of av_waitrequest.
 wire[15:0] m0_readdata;
+std_reg av_ad_hi_reg(sysclk, sysreset, r[`DR_AV_AD_HI], r_load_data, r_load[`DR_AV_AD_HI]);
+std_reg av_ad_lo_reg(sysclk, sysreset, r[`DR_AV_AD_LO], r_load_data, r_load[`DR_AV_AD_LO]);
+std_reg av_write_data_reg(sysclk, sysreset, r[`DR_AV_WRITE_DATA], r_load_data, r_load[`DR_AV_WRITE_DATA]);
+std_reg av_read_data_reg(sysclk, sysreset, r[`SR_AV_READ_DATA], m0_readdata, av_read_capture);
+// reg av_write_begin = 0;
+// reg av_write_hold = 0;
+// wire av_write = av_write_begin || (av_write_hold && av_waitrequest);
+// always_ff @(posedge sysclk) begin
+    // if (av_write_begin) begin
+        // av_write_begin <= 0; // move to 2nd step of write transaction, where av_write ends as soon as av_waitrequest ends, mid-cycle.
+    // end else if (r_load[`DR_AV_AD_LO]) begin
+        // av_write_begin <= 1; // begin write transaction.
+        // av_write_hold <= 1; // set up this register right away, to prevent a glitch in av_write at the end of the next clock cycle.
+    // end
+// end
 always_ff @(posedge sysclk) begin
     if (av_write && ! av_waitrequest) begin
         av_write <= 0; // write transaction has ended.
-    end else if (r_load[`DR_AV_AD_LO]) begin
+    end else if (r_load[`DR_AV_WRITE_DATA]) begin
         av_write <= 1; // begin write transaction.
-    end else if (av_read && ! av_waitrequest) begin
-        av_data_reg <= m0_readdata;
-        av_read <= 0; // read transaction has ended.
-    end else if (r_read[`DR_AV_AD_LO]) begin
-        av_read <= 1; // begin read transaction.
+    end else if (av_read_capture) begin 
+        av_read <= 0; // read transaction has ended.  will capture data on the next cycle.
+    end else if (r_read[`DR_AV_WRITE_DATA]) begin
+        av_read <= 1; // begin read transaction. 
     end
-    if (r_load[`DR_AV_DATA] && ! av_read)
-        av_data_reg <= r_load_data;
 end
-wire av_busy = (av_write || av_read) && av_waitrequest; // considering av_waitrequest avoids 1 needless wait state after every transaction.
+wire av_busy = (av_write || av_read || av_read_capture); // && av_waitrequest; // considering av_waitrequest avoids 1 needless wait cycle at the end of every transaction. NO - it turns out that cycle is needed, at least for correct reads.  back-to-back writes might be risky too.
 assign mcu_wait = av_busy;
-
-////////////////////////////////////
-// Warning (12251): avalon_jtag_slave does not have byteenables. 
-// Writes from narrow master generic_master_0.m0 may result in data corruption.
-/////////////////////////////////////
 
 // Qsys system including JTAG UART.
 // in a Nios II Command Shell, type nios2-terminal --help, or just nios2-terminal.
@@ -192,8 +196,8 @@ qsys2 u0 (
     .m0_waitrequest               (av_waitrequest),               
     .m0_readdata                  (m0_readdata),                  
     .m0_write                     (av_write),                     
-    .m0_writedata                 (r[`DR_AV_DATA]),                 
-    .generic_master_0_reset_reset ()  ,
+    .m0_writedata                 (r[`DR_AV_WRITE_DATA]),                 
+    .generic_master_1_reset_reset ()  ,
     .sdramc_addr                  (DRAM_ADDR),
     .sdramc_ba                    (DRAM_BA),
     .sdramc_cas_n                 (DRAM_CAS_N),

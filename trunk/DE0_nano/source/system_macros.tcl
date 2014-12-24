@@ -6,6 +6,14 @@ proc asm_vdefine {lin name valu} {
     # this can be redefined elsewhere to do application-specific work.
 }
 
+proc asm_vdefine32 {lin name valu} {
+    set hi [expr {($valu >> 16) & 0xffff}]
+    set lo [expr {$valu & 0xffff}]
+    asm_vdefine $lin $name $valu
+    asm_vdefine $lin ${name}_hi $hi
+    asm_vdefine $lin ${name}_lo $lo
+}
+
 # proc verilog_define_labels {label_pattern prefix} {
 #     # return a block of Verilog code `define'ing each assembly label matching the given string pattern.
 #     # prefix each one with the given prefix.
