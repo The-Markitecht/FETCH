@@ -200,7 +200,8 @@ proc parse_line {lin} {
         }
     } elseif {[string equal -length 1 $lin {:}]} {
         # label line
-        dict set ::labels "${::func}/[string trim $lin {: }]" $::ipr
+        set n "${::func}/[string trim $lin {: }]"
+        dict set ::labels $n $::ipr
         emit "// $lin // = 0x[format %04x $::ipr]"
         emit_mif "-- $lin -- = 0x[format %04x $::ipr]"
     } elseif {[string equal -length 2 $lin {<<}]} {
