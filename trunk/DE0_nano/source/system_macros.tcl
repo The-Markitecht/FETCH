@@ -202,4 +202,17 @@ proc asm_fetch {lin dest from data_address_reg} {
     parse3 $dest = fetchd \"
 }
 
-
+# assembler and source-handling macros.
+proc asm_include {lin fn} {
+    console "assembling include: $fn"
+    set f [open $fn r]
+    set asm_lines [split [read $f] \n]
+    close $f
+    set parent_lnum $::lnum
+    set ::lnum 0
+    foreach lin $asm_lines {
+        incr ::lnum
+        parse_line $lin
+    }
+    set ::lnum $parent_lnum
+}
