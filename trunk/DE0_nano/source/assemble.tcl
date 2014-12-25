@@ -217,9 +217,9 @@ proc parse_line {lin} {
         set sublin [string trim [namespace eval ::asm "subst -nocommands {$sublin}"]] ;# fetches Tcl vars into the line.
         set tokens [regexp -all -inline -nocase {\S+} $sublin]
         set cmd [lindex $tokens 0]
-        if {[llength [info commands "asm_$cmd"]] > 0} {
+        if {[llength [info commands "::asm::$cmd"]] > 0} {
             # run tcl command, like a super-powered macro.  insert the whole source line as the first argument.
-            namespace eval ::asm "asm_$cmd {$lin} [string range $sublin [string length $cmd] end]"
+            namespace eval ::asm "$cmd {$lin} [string range $sublin [string length $cmd] end]"
         } elseif {[llength $tokens] == 3} {
             # 3-part assignment, or branch instruction.
             parse3 [lindex $tokens 0] [lindex $tokens 1] [lindex $tokens 2] $lin
@@ -283,7 +283,10 @@ proc parse_text {asm_lines pass_num} {
     set ::multi_line {}
     set ::func {}
     set ::stackable [list]
-    catch {namespace delete ::asm}
+    #catch {namespace delete ::asm} ;# can't do this since it deletes all macros too.
+    foreach vn [info vars ::asm::*] {
+        unset $vn
+    }
     namespace eval ::asm {}
     foreach lin $asm_lines {
         incr ::lnum
@@ -308,14 +311,15 @@ proc assemble {src_fn rom_fn} {
     close $f
 
     # catalog of assembler loop passes.
-    set ::pass(func)        1 ;# determine regs used by functions, and print the echo text to console.
+    set ::pass(func)        1 ;# determine regs used by functions (affects ipr), and print the echo text to console. 
     set ::pass(label)       2 ;# compute label addresses using accurate ipr.
     set ::pass(emit)        3 ;# emit opcodes into ROM file using real label addresses.
     set ::pass(first)       $::pass(func)
     set ::pass(final)       $::pass(emit)
     
     #proc report args {puts [info level 0]}
-    #trace add execution parse enterstep report
+    #proc report args {puts "report: [lindex [lindex $args 0] 0]"}
+    #trace add execution parse_line enterstep report
 
     set ::func_regs [dict create]
     parse_text $asm_lines $::pass(func) 

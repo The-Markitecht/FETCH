@@ -6,7 +6,7 @@ func mod255
     b = 0xfe
     nop
     br gt :mod255_greater
-    return
+    rtn
     :mod255_greater
     b = 0xff01
     nop
@@ -38,7 +38,7 @@ func fletcher16_input
     a = a+b
     call :mod255
     $fletcher_sum2_reg = a
-    return
+    rtn
 
 // return the combined 16-bit result of Fletcher16 checksum in a.    
 func fletcher16_result
@@ -48,5 +48,5 @@ func fletcher16_result
     b = $fletcher_sum1_reg
     nop
     a = or
-    return
+    rtn
     

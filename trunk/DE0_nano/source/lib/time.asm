@@ -14,5 +14,5 @@ func spinwait
     a = a+b
     nop
     bn z :spinwait_outer    
-    return
+    rtn
         

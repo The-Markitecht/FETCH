@@ -37,9 +37,6 @@
 `define DR_ATX_DATA  17
 `define SR_ATX_CTRL  18
 `define DR_ATX_CTRL  18
-`define ATX_LOAD_MASK  1
-`define ATX_BUSY_MASK  2
-`define ARX_BUSY_MASK  4
 `define SR_M9K_ADDR  19
 `define DR_M9K_ADDR  19
 `define SR_M9K_DATA  20
@@ -48,4 +45,7 @@
 `define SR_TG_CODE_ADDR  22
 `define SR_PEEK_DATA  23
 `define SR_BP_STATUS  24
+`define ATX_LOAD_MASK  1
+`define ATX_BUSY_MASK  2
+`define ARX_BUSY_MASK  4
 `define DR_DEBUG_PEEK_REG  31

@@ -12,11 +12,10 @@
     // application-specific register aliases.    
     alias_both g6                   6 
     alias_both g7                   7
-    set counter $TOP_GP 
+    << set counter $TOP_GP >>
     alias_both rstk                 [incr counter] 
     alias_both leds                 [incr counter] 
             
-    set console_driver jtag
     alias_both av_write_data        [incr counter]
     alias_src  av_read_data	        [incr counter]
     alias_both av_ad_hi             [incr counter]
@@ -48,8 +47,10 @@
     
     convention_gpx
     
-    jmp main
+    jmp :main
     
+    include lib/string.asm
+    include lib/jtag_uart.asm
     include lib/console.asm
     include lib/time.asm
     

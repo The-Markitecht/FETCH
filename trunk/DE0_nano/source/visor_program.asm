@@ -8,12 +8,12 @@
     vdefine VISOR_NUM_GP 8
     vdefine VISOR_TOP_GP ($VISOR_NUM_GP - 1)
     vdefine VIO $VISOR_NUM_GP    
-    set NUM_GP $VISOR_NUM_GP
+    setvar NUM_GP $VISOR_NUM_GP
     
     // application-specific register aliases.  
     alias_both g6                   6 
     alias_both g7                   7
-    set counter $VISOR_TOP_GP
+    setvar counter $VISOR_TOP_GP
     
     alias_both rstk                 [incr counter] 
     
@@ -34,12 +34,8 @@
         vdefine force_load_exr_mask    0x0002
         vdefine hold_state_mask        0x0001   
         
-    set console_driver atx
     alias_both atx_data             [incr counter] 
     alias_both atx_ctrl             [incr counter] 
-        vdefine atx_load_mask           0x0001
-        vdefine atx_busy_mask           0x0002
-        vdefine arx_busy_mask           0x0004
 
     alias_both m9k_addr         [incr counter] 
     alias_both m9k_data         [incr counter] 
@@ -52,8 +48,10 @@
 
     convention_gpx
     
-    jmp main
+    jmp :main
     
+    include lib/string.asm
+    include lib/my_uart_v2.asm
     include lib/console.asm
     include lib/time.asm
     
@@ -178,4 +176,4 @@ func wait_for_bp
     b = bp_status
     nop
     br z :wait_for_bp
-    return
+    rtn

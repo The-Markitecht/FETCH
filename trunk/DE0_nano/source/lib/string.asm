@@ -11,7 +11,7 @@ func fetch_byte
     fetch a from a+b
     a = a>>4
     a = a>>4
-    return
+    rtn
     :pick_byte_even    
     a = a>>1
     b = x
@@ -20,5 +20,5 @@ func fetch_byte
     b = 0xff
     nop
     a = and
-    return
+    rtn
         
