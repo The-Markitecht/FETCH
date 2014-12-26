@@ -193,16 +193,27 @@
     a = 1000
     call :spinwait    
     
-    // fill SDRAM first page with a pattern.
+    :verify_all
+    a = 1000
+    call :spinwait    
+    putasc {-}
+    i = 0x200
+    j = -1
+    nop
+    :next_page    
+    i = i+j
+    av_ad_hi = i
+
+    // fill SDRAM page with a pattern.
     putasc W
     x = 0x0000
     :fill_more
-    av_ad_hi = 0
-    av_ad_lo = x
     a = x
     b = 0xffff
     nop
     g6 = xor
+    av_ad_hi = i
+    av_ad_lo = x
     av_write_data = g6
     y = 2
     nop
@@ -212,26 +223,62 @@
     // verify pattern in SDRAM.
     x = 0x0000
     :verify_more
-    av_ad_hi = 0
+    av_ad_hi = i
     av_ad_lo = x
     g6 = av_write_data
     g6 = av_read_data
+    // a = x
+    // call put4x
+    // putasc "="
+    // a = 500
+    // call :spinwait        
+    // a = g6
+    // call put4x
+    // putasc "\r"
+    // putasc "\n"
+    // a = 500
+    // call :spinwait     
     a = x
-    call put4x
-    putasc "="
-    a = 500
-    call :spinwait        
-    a = g6
-    call put4x
-    putasc "\r"
-    putasc "\n"
-    a = 500
-    call :spinwait        
+    b = 0xffff
+    nop
+    a = xor
+    b = g6
+    nop
+    bn eq :sdram_err
     y = 2
     nop
     x = x+y
     bn 2z :verify_more
     
+    a = i
+    b = 0
+    nop
+    bn z :next_page
+    jmp :verify_all
+    
+    :sdram_err
+    y = a
+    a = 1000
+    call :spinwait        
+    a = g6
+    call :put4x
+    a = 1000
+    call :spinwait            
+    putasc "!"
+    putasc "="
+    a = y
+    call :put4x
+    a = 1000
+    call :spinwait            
+    putasc "@"
+    a = av_ad_hi
+    call :put4x
+    a = 1000
+    call :spinwait        
+    a = av_ad_lo
+    call put4x
+    :halt
+    jmp :halt
     
 // :wait_key_press    
     // a = 0x03
