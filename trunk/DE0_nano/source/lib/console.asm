@@ -11,12 +11,17 @@
         getchar_$::asm::console_driver $lin 
     }
 
-    proc putasc {lin char} {
-        # output a literal character.
+    proc asc {lin reg eq char} {
+        # assign ASCII value of a literal character.
         if {[scan $char %c c] != 1} {
             error "invalid character specification: $lin"
         }
-        parse3 a = $c "a = $c // $lin"
+        parse3 $reg $eq $c "$reg $eq $c // $lin"
+    }
+
+    proc putasc {lin char} {
+        # output a literal character.
+        asc $lin a = $char
         putchar $lin a
     }
 

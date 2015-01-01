@@ -54,10 +54,11 @@
     include lib/my_uart_v2.asm
     include lib/console.asm
     include lib/time.asm
-    
+
+    // ////////////////////////////////////////////
     :main
     // put target into reset.
-//    bus_ctrl = $tg_reset_mask   
+    bus_ctrl = $tg_reset_mask   
     
     // init visor.
     bp3_addr = $bp_disable
@@ -65,56 +66,61 @@
     bp1_addr = $bp_disable
     bp0_addr = $bp_disable
 
-    // // UART test character
-    // putasc T
-    // getchar
-    // b = 1
-    // nop
-    // a = a+b
-    // putchar a
+    call :load_program
     
-    :next_load
+    // step into the first target instruction.
+    bus_ctrl = $bp_step_mask
+    call :wait_for_bp
+
+    :cmd_loop
+    call :dump_target
+    getchar
     
-    // load target program from UART.
-    // length, little-endian.  memorize in x.
-    putasc L
-    get16 x
-    a = x
-    call put4x
-    // put target into reset again, in case this is a target warm boot.
-    bus_ctrl = $tg_reset_mask   
-    // load opcodes.  count up address in i.
-    i = 0
-    j = 1
-    :loadword
-    putasc A
-    a = i
-    call put4x
-    putasc "="
-    get16 g6
-    a = g6
-    call put4x
-    putasc "="
-    m9k_addr = i
-    m9k_data = g6
-    a = m9k_data
-    call put4x
-    putasc "\r"
-    putasc "\n"
-    i = i+j
-    a = i
-    b = x
+    asc b = "n"
     nop
-    bn eq :loadword
+    bn eq :skip_step
+    bus_ctrl = $bp_step_mask
+    call :wait_for_bp
+    jmp :cmd_loop
+    :skip_step
     
+    asc b = "R"
+    nop
+    bn eq :skip_reset
+    bus_ctrl = $tg_reset_mask   
+    nop
+    nop
+    bus_ctrl = $bp_step_mask
+    call :wait_for_bp
+    jmp :cmd_loop
+    :skip_reset
+
+    asc b = "l"
+    nop
+    bn eq :skip_load
+    call :load_program
+    jmp :cmd_loop
+    :skip_load
+
+    asc b = "r"
+    nop
+    bn eq :skip_run
     // release target reset, to run.
-    putasc R
-    bus_ctrl = 0
-    jmp :next_load
+    bus_ctrl = 0   
+    :skip_run
+
+    asc b = "i"
+    nop
+    bn eq :skip_brk
+    bus_ctrl = 0   
+    bus_ctrl = $bp_step_mask
+    call :wait_for_bp
+    :skip_brk
+
+    jmp :cmd_loop
     
-:halt
-jmp :halt
-    
+    // demonstrations //////////////////////////////
+
     // set a breakpoint, wait til it hits.
     bp0_addr = 0x15
     :main_loop
@@ -176,4 +182,41 @@ func wait_for_bp
     b = bp_status
     nop
     br z :wait_for_bp
+    rtn
+
+func load_program
+    // load target program from UART.
+    // length, little-endian.  memorize in x.
+    putasc L
+    get16 x
+    a = x
+    call put4x
+    // put target into reset again, in case this is a target warm boot.
+    bus_ctrl = $tg_reset_mask   
+    // load opcodes.  count up address in i.
+    i = 0
+    j = 1
+    :loadword
+    putasc A
+    a = i
+    call put4x
+    putasc "="
+    get16 g6
+    a = g6
+    call put4x
+    putasc "="
+    m9k_addr = i
+    m9k_data = g6
+    a = m9k_data
+    call put4x
+    putasc "\r"
+    putasc "\n"
+    i = i+j
+    a = i
+    b = x
+    nop
+    bn eq :loadword
+
+func dump_target
+    //patch: need code
     rtn
