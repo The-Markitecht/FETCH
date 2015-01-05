@@ -35,8 +35,11 @@
         pop \" b
         nop \"
         parse3 $reg = or \"
-    }
+    }    
 >>
+
+    :hexdigits
+    "0123456789abcdef"
 
 // function to print a 16-bit number formatted as 4 hex digits.
 // pass number in a.
@@ -79,6 +82,51 @@ func put4x
     
     rtn
 
-    :hexdigits
-    "0123456789abcdef"
-
+// pass data byte in a,
+// string fetch address in x,
+// string length in i.
+// returns found index in a (or -1 if not found).
+// returns found address in b (or -1 if not found).
+func find_in_fetch
+    g6 = i
+    y = 1
+    :again
+    j = -1
+    nop
+    i = i+j
+    fetch b from x
+    nop
+    br eq :found
+    j = 0
+    nop
+    br 1z :end
+    x = x+y
+    jmp :again
+    :end
+    a = -1
+    b = -1
+    rtn
+    :found
+    a = i
+    b = -1
+    nop
+    a = xor
+    b = g6
+    nop
+    a = a+b
+    b = x
+    rtn
+    
+// function to scan a 16-bit number formatted as 4 hex digits.
+// return number in a.
+func get4x
+    getchar
+    x = :hexdigits
+    i = 16
+    call :find_in_fetch
+    b = -1
+    br eq :fail
+patch
+    rtn
+    :fail
+    rtn
