@@ -18,6 +18,13 @@ vdefine arx_busy_mask           0x0004
         # for my own uart_v2_tx hardware.
         call $lin getchar_atx
     }
+    
+    proc puteol_atx {lin} {
+        asc $lin a = "\r"
+        putchar $lin a
+        asc $lin a = "\n"
+        putchar $lin a
+    }    
 >>
 
 // routine sends out the low byte from a to the UART.  blocks until the UART accepts the byte.

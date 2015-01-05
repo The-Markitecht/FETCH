@@ -13,8 +13,9 @@
     alias_both g6                   6 
     alias_both g7                   7
     << set counter $TOP_GP >>
-    alias_both rstk                 [incr counter] 
+    alias_src  keys                 [incr counter]
     alias_both leds                 [incr counter] 
+    alias_both rstk                 [incr counter] 
             
     alias_both av_write_data        [incr counter]
     alias_src  av_read_data	        [incr counter]
@@ -42,18 +43,31 @@
     // alias_both av_ctrl          [incr counter]
     //    vdefine av_write_mask                   0x0001   
     // alias_src  av_waitrequest   [incr counter]
-    
-    alias_src  keys                 [incr counter]
-    
+        
     convention_gpx
     
     jmp :main
     
+    // register names for use by debugger.
+    ([src rstk])
+    "\r\n     a"
+    "       b"
+    "       i"
+    "       j"
+    "\r\n     x"
+    "       y"
+    "      g6"
+    "      g7"
+    "\r\n  keys"
+    "    leds"
+    
+    // libraries
     include lib/string.asm
     include lib/jtag_uart.asm
     include lib/console.asm
     include lib/time.asm
     
+    // ////////////////////////////////////////////
     :main
     leds = 1 
     // atx_ctrl = 0 

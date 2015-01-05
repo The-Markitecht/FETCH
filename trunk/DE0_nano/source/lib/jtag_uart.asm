@@ -13,5 +13,11 @@ setvar console_driver jtag
     proc getchar_jtag {lin} {
         # not yet supported.
     }
+    
+    proc puteol_jtag {lin} {
+        asc $lin a = "\r"
+        putchar $lin a
+    }
+    
 >>
 

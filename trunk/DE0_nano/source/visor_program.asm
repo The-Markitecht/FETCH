@@ -83,13 +83,15 @@
     call :dump_target
     a = tg_code_addr
     call :put4x
+    putasc ","
+    a = exr_shadow
+    call :put4x
     putasc " "
     putasc ">"
     getchar
     x = a
     putchar a
-    putasc "\r"
-    putasc "\n"
+    puteol
     a = x
     
     // command = step next instruction.
@@ -142,8 +144,7 @@
     :skip_brk
 
     putasc "?"
-    putasc "\r"
-    putasc "\n"
+    puteol
     jmp :cmd_loop
     
     // demonstrations //////////////////////////////
@@ -204,8 +205,7 @@ func load_program
     m9k_data = g6
     a = m9k_data
     call put4x
-    putasc "\r"
-    putasc "\n"
+    puteol
     i = i+j
     a = i
     b = x
@@ -215,11 +215,15 @@ func load_program
 // observe a register.  return its value in peek_data.
 // pass its register address in a.
 func peek
+    b = 0x3ff
+    nop
+    a = and
+    // debug_peek_reg = 31 << 10
+    b = 0x7c00
+    nop
+    force_opcode = or
     bus_ctrl = $divert_code_bus_mask
     tg_force = $hold_state_mask
-    b = ([label observe])
-    nop
-    fetch force_opcode from a+b
     tg_force = ($hold_state_mask | $force_load_exr_mask)
     tg_force = ($hold_state_mask | $force_exec_mask)
     tg_force = $hold_state_mask
@@ -230,86 +234,48 @@ func peek
     tg_force = 0
     rtn
     
-    :observe
-    // these instructions are assembled in the visor program, but passed to the target to execute.
-    alias_dest debug_peek_reg 31
-    debug_peek_reg = r0
-    debug_peek_reg = r1
-    debug_peek_reg = r2
-    debug_peek_reg = r3
-    debug_peek_reg = r4
-    debug_peek_reg = r5
-    debug_peek_reg = r6
-    debug_peek_reg = r7
-    debug_peek_reg = r8
-    debug_peek_reg = r9
-    debug_peek_reg = r10
-    debug_peek_reg = r11
-    debug_peek_reg = r12
-    debug_peek_reg = r13
-    debug_peek_reg = r14
-    debug_peek_reg = r15
-    
 // show target status display.
 func dump_target
-    putasc "\r"
-    putasc "\n"
-    a = 0
-    call :peek
-    putasc "a"
+    puteol
+    i = 0
+    :next_reg
+    // fetch register name from table in target program.
+    x = 0
+    y = 1
+    :next_chars
+    a = i
+    a = a<<1
+    a = a<<1
+    b = 3
+    nop    
+    a = a+b
+    b = x
+    nop
+    m9k_addr = a+b
+    putchar m9k_data
+    a = m9k_data
+    a = a>>4
+    a = a>>4
+    putchar a
+    x = x+y
+    a = x
+    b = 4
+    nop
+    bn eq :next_chars    
     putasc "="
+    a = i
+    call :peek
     a = peek_data
     call :put4x
     putasc " "
-    a = 1
-    call :peek
-    putasc "b"
-    putasc "="
-    a = peek_data
-    call :put4x
-    putasc " "
-    a = 2
-    call :peek
-    putasc "i"
-    putasc "="
-    a = peek_data
-    call :put4x
-    putasc " "
-    a = 3
-    call :peek
-    putasc "j"
-    putasc "="
-    a = peek_data
-    call :put4x
-    putasc "\r"
-    putasc "\n"
-    a = 4
-    call :peek
-    putasc "x"
-    putasc "="
-    a = peek_data
-    call :put4x
-    putasc " "
-    a = 5
-    call :peek
-    putasc "y"
-    putasc "="
-    a = peek_data
-    call :put4x
-    putasc " "
-    a = 6
-    call :peek
-    putasc "6"
-    putasc "="
-    a = peek_data
-    call :put4x
-    putasc " "
-    a = 7
-    call :peek
-    putasc "7"
-    putasc "="
-    a = peek_data
-    call :put4x
-    putasc "\r"
-    putasc "\n"
+    j = 1
+    nop
+    i = i+j
+    // loop up to the number of registers in the target program's register name table.
+    m9k_addr = 2
+    b = m9k_data
+    a = i
+    nop
+    bn eq :next_reg
+    puteol
     rtn

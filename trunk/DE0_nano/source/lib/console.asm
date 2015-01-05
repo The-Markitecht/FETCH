@@ -25,6 +25,11 @@
         putchar $lin a
     }
 
+    proc puteol {lin} {
+        # output an end-of-line character sequence.
+        puteol_$::asm::console_driver $lin 
+    }
+
     proc get16 {lin reg} {
         # block until a 16-bit word is received (little-endian) on the UART and memorized in the given register.
         getchar $lin

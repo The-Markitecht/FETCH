@@ -48,4 +48,3 @@
 `define ATX_LOAD_MASK  1
 `define ATX_BUSY_MASK  2
 `define ARX_BUSY_MASK  4
-`define DR_DEBUG_PEEK_REG  31
