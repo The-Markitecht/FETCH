@@ -66,24 +66,43 @@
     bp1_addr = $bp_disable
     bp0_addr = $bp_disable
 
-    call :load_program
+    putasc "V"
+    putasc "I"
+    putasc "S"
+    putasc "O"
+    putasc "R"
+    
+    //call :load_program
     
     // step into the first target instruction.
     bus_ctrl = $bp_step_mask
     call :wait_for_bp
 
+    // command prompt loop.
     :cmd_loop
     call :dump_target
+    a = tg_code_addr
+    call :put4x
+    putasc " "
+    putasc ">"
     getchar
+    x = a
+    putchar a
+    putasc "\r"
+    putasc "\n"
+    a = x
     
+    // command = step next instruction.
     asc b = "n"
     nop
     bn eq :skip_step
     bus_ctrl = $bp_step_mask
+    bp0_addr = bp0_addr
     call :wait_for_bp
     jmp :cmd_loop
     :skip_step
     
+    // command = reset target.
     asc b = "R"
     nop
     bn eq :skip_reset
@@ -95,6 +114,7 @@
     jmp :cmd_loop
     :skip_reset
 
+    // command = load program.
     asc b = "l"
     nop
     bn eq :skip_load
@@ -102,21 +122,28 @@
     jmp :cmd_loop
     :skip_load
 
+    // command = run full speed.
     asc b = "r"
     nop
     bn eq :skip_run
     // release target reset, to run.
     bus_ctrl = 0   
+    jmp :cmd_loop
     :skip_run
 
+    // command = interrupt / break target.
     asc b = "i"
     nop
     bn eq :skip_brk
     bus_ctrl = 0   
     bus_ctrl = $bp_step_mask
     call :wait_for_bp
+    jmp :cmd_loop
     :skip_brk
 
+    putasc "?"
+    putasc "\r"
+    putasc "\n"
     jmp :cmd_loop
     
     // demonstrations //////////////////////////////
@@ -125,20 +152,8 @@
     bp0_addr = 0x15
     :main_loop
     call :wait_for_bp
-    
-    // observe a register.
-    bus_ctrl = $divert_code_bus_mask
-    tg_force = $hold_state_mask
-    fetch force_opcode from ([label observe] + 7)
-    tg_force = ($hold_state_mask | $force_load_exr_mask)
-    tg_force = ($hold_state_mask | $force_exec_mask)
-    tg_force = $hold_state_mask
-    // target's r7 value is now in peek_data.
-    
-    // refill target exr so it can resume seamlessly.
-    force_opcode = exr_shadow
-    tg_force = ($hold_state_mask | $force_load_exr_mask)
-    tg_force = 0
+
+    // release target to run full speed.
     bus_ctrl = 0
     
     // interrupt the target and single step it a few times.
@@ -156,26 +171,6 @@
     bp0_addr = bp0_addr
         
     jmp :main_loop
-    
-    :observe
-    // these instructions are assembled in the visor program, but passed to the target to execute.
-    alias_dest debug_peek_reg 31
-    debug_peek_reg = r0
-    debug_peek_reg = r1
-    debug_peek_reg = r2
-    debug_peek_reg = r3
-    debug_peek_reg = r4
-    debug_peek_reg = r5
-    debug_peek_reg = r6
-    debug_peek_reg = r7
-    debug_peek_reg = r8
-    debug_peek_reg = r9
-    debug_peek_reg = r10
-    debug_peek_reg = r11
-    debug_peek_reg = r12
-    debug_peek_reg = r13
-    debug_peek_reg = r14
-    debug_peek_reg = r15
     
 func wait_for_bp    
     a = 0
@@ -217,6 +212,104 @@ func load_program
     nop
     bn eq :loadword
 
+// observe a register.  return its value in peek_data.
+// pass its register address in a.
+func peek
+    bus_ctrl = $divert_code_bus_mask
+    tg_force = $hold_state_mask
+    b = ([label observe])
+    nop
+    fetch force_opcode from a+b
+    tg_force = ($hold_state_mask | $force_load_exr_mask)
+    tg_force = ($hold_state_mask | $force_exec_mask)
+    tg_force = $hold_state_mask
+    // target's register value is now in peek_data.    
+    // refill target exr so it can resume seamlessly.
+    force_opcode = exr_shadow
+    tg_force = ($hold_state_mask | $force_load_exr_mask)
+    tg_force = 0
+    rtn
+    
+    :observe
+    // these instructions are assembled in the visor program, but passed to the target to execute.
+    alias_dest debug_peek_reg 31
+    debug_peek_reg = r0
+    debug_peek_reg = r1
+    debug_peek_reg = r2
+    debug_peek_reg = r3
+    debug_peek_reg = r4
+    debug_peek_reg = r5
+    debug_peek_reg = r6
+    debug_peek_reg = r7
+    debug_peek_reg = r8
+    debug_peek_reg = r9
+    debug_peek_reg = r10
+    debug_peek_reg = r11
+    debug_peek_reg = r12
+    debug_peek_reg = r13
+    debug_peek_reg = r14
+    debug_peek_reg = r15
+    
+// show target status display.
 func dump_target
-    //patch: need code
+    putasc "\r"
+    putasc "\n"
+    a = 0
+    call :peek
+    putasc "a"
+    putasc "="
+    a = peek_data
+    call :put4x
+    putasc " "
+    a = 1
+    call :peek
+    putasc "b"
+    putasc "="
+    a = peek_data
+    call :put4x
+    putasc " "
+    a = 2
+    call :peek
+    putasc "i"
+    putasc "="
+    a = peek_data
+    call :put4x
+    putasc " "
+    a = 3
+    call :peek
+    putasc "j"
+    putasc "="
+    a = peek_data
+    call :put4x
+    putasc "\r"
+    putasc "\n"
+    a = 4
+    call :peek
+    putasc "x"
+    putasc "="
+    a = peek_data
+    call :put4x
+    putasc " "
+    a = 5
+    call :peek
+    putasc "y"
+    putasc "="
+    a = peek_data
+    call :put4x
+    putasc " "
+    a = 6
+    call :peek
+    putasc "6"
+    putasc "="
+    a = peek_data
+    call :put4x
+    putasc " "
+    a = 7
+    call :peek
+    putasc "7"
+    putasc "="
+    a = peek_data
+    call :put4x
+    putasc "\r"
+    putasc "\n"
     rtn

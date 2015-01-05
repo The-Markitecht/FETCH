@@ -73,6 +73,10 @@ proc label {name} {
     if {[dict exists $::labels $local_name]} {
         return [dict get $::labels $local_name]
     }
+    set local_name "/$name"
+    if {[dict exists $::labels $local_name]} {
+        return [dict get $::labels $local_name]
+    }
     return [dict get $::labels $name]
 }
 

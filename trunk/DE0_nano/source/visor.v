@@ -47,9 +47,14 @@ wire[15:0]                r[`VISOR_TOP_REG:0];
 wire[`VISOR_TOP_REG:0]    r_read;  
 wire[`VISOR_TOP_REG:0]    r_load;
 wire[15:0]                r_load_data;  
-visor_program rom(
-    .addr(code_addr),
-    .data(code_fetched)
+// visor_program rom(
+    // .addr(code_addr),
+    // .data(code_fetched)
+// );
+visor_pgm rom(
+    .clock(clk_progmem),
+    .address(code_addr),
+    .q(code_fetched)
 );
 synapse316 #(
     .NUM_REGS(`VISOR_NUM_REGS)

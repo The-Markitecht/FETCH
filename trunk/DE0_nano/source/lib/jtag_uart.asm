@@ -9,5 +9,9 @@ setvar console_driver jtag
         parse3 av_ad_lo = $::asm::jtag_uart_data_lsw_lo \"
         parse3 av_write_data = $reg \"
     }
+
+    proc getchar_jtag {lin} {
+        # not yet supported.
+    }
 >>
 
