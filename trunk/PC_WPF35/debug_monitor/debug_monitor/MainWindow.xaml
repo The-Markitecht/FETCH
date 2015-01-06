@@ -1,0 +1,26 @@
+﻿<Window x:Class="CVtool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="572" Width="725" Loaded="Window_Loaded">
+    <DockPanel LastChildFill="True">
+        <TextBox Name="journal" DockPanel.Dock="Left" Width="450" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" FontFamily="Fixedsys Excelsior 3.01" FontSize="14" />
+
+        <StackPanel Orientation="Vertical" DockPanel.Dock="Left">
+
+            <TextBlock Margin="4,4,4,0">4-digit Address:</TextBlock>
+            <DockPanel LastChildFill="True">
+                <Button Name="clear_4da_btn" Click="clear_4da_btn_Click" DockPanel.Dock="Right"  Margin="0,0,4,4">&lt;&lt;</Button>
+                <TextBox Name="_4da_txt" Margin="4,0,0,4" TabIndex="0">5819</TextBox>
+            </DockPanel>
+
+            <Button Name="step_btn" Margin="4" Content="Step" Click="step_btn_Click"></Button>
+        </StackPanel>
+
+        <RichTextBox Name="src_txt"  AcceptsReturn="True" VerticalScrollBarVisibility="Visible" FontFamily="Fixedsys Excelsior 3.01" FontSize="16" >
+            <FlowDocument Name="src_doc">
+                
+            </FlowDocument>
+        </RichTextBox>
+
+    </DockPanel>
+</Window>
