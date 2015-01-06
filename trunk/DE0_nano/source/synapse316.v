@@ -292,15 +292,17 @@ module synapse316 #(
     reg eq0_flag = 1'b0;
     reg gt0_flag = 1'b0;
     reg lt0_flag = 1'b0;
+    wire eq0_comb = r_full[0] == r_full[1];
+    wire gt0_comb = r_full[0] > r_full[1];
     always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
             eq0_flag <= 0;
             gt0_flag <= 0;
             lt0_flag <= 0;
         end else if (sysclk) begin
-            eq0_flag <= r_full[0] == r_full[1];
-            gt0_flag <= r_full[0] > r_full[1];
-            lt0_flag <= ! (eq0_flag || gt0_flag);
+            eq0_flag <= eq0_comb;
+            gt0_flag <= gt0_comb; 
+            lt0_flag <= ! (eq0_comb || gt0_comb);
         end
     end
     

@@ -9,6 +9,10 @@
 
     proc getchar {lin} {
         getchar_$::asm::console_driver $lin 
+        # automatic echo
+        push \" a
+        putchar \" a
+        pop \" a
     }
 
     proc asc {lin reg eq char} {
@@ -32,9 +36,9 @@
 
     proc get16 {lin reg} {
         # block until a 16-bit word is received (little-endian) on the UART and memorized in the given register.
-        getchar $lin
+        getchar_$::asm::console_driver $lin 
         push \" a
-        getchar \"
+        getchar_$::asm::console_driver \"
         parse3 a = a<<4 \"
         parse3 a = a<<4 \"
         pop \" b

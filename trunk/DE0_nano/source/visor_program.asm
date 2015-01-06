@@ -89,10 +89,6 @@
     putasc " "
     putasc ">"
     getchar
-    x = a
-    putchar a
-    puteol
-    a = x
     
     // command = step next instruction.
     asc b = "n"
@@ -130,6 +126,7 @@
     bn eq :skip_run
     // release target reset, to run.
     bus_ctrl = 0   
+    bp0_addr = bp0_addr
     jmp :cmd_loop
     :skip_run
 
@@ -142,6 +139,14 @@
     call :wait_for_bp
     jmp :cmd_loop
     :skip_brk
+
+    // command = set breakpoint.
+    asc b = "b"
+    nop
+    bn eq :skip_setbrk
+    call :set_bp
+    jmp :cmd_loop
+    :skip_setbrk
 
     putasc "?"
     puteol
@@ -179,7 +184,50 @@ func wait_for_bp
     nop
     br z :wait_for_bp
     rtn
-
+    
+func set_bp
+    getchar
+    x = a
+    getchar
+    asc b = "="
+    nop
+    bn eq :fail
+    call :get4x
+    y = a
+    a = 0
+    nop
+    bn eq :fail
+    a = x
+    b = 0
+    nop
+    br eq :b0
+    b = 1
+    nop
+    br eq :b1
+    b = 2
+    nop
+    br eq :b2
+    b = 3
+    nop
+    br eq :b3
+    jmp :fail
+    :b0
+    bp0_addr = y
+    rtn
+    :b1
+    bp1_addr = y
+    rtn
+    :b2
+    bp2_addr = y
+    rtn
+    :b3
+    bp3_addr = y
+    rtn
+    :fail
+    putasc "?"
+    puteol
+    rtn
+    
 func load_program
     // load target program from UART.
     // length, little-endian.  memorize in x.
