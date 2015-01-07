@@ -78,6 +78,8 @@ namespace CVtool
             rx_tmr.Interval = TimeSpan.FromMilliseconds(100);
             rx_tmr.Tick += rx_tmr_tick;
             rx_tmr.Start();
+
+            this.WindowState = System.Windows.WindowState.Maximized;
         }
 
         public void rx_tmr_tick(object sender, EventArgs args)
@@ -92,7 +94,7 @@ namespace CVtool
                 if (actual > 0)
                 {
                     string s = Encoding.ASCII.GetString(b, 0, actual);
-                    log(s); 
+                    log(s, false); 
                     rx_sbuf.Append(s);
                     if (rx_sbuf.Length > RETAIN_CHARS)
                         rx_sbuf.Remove(0, rx_sbuf.Length - RETAIN_CHARS);
@@ -129,9 +131,12 @@ namespace CVtool
             return sb.ToString();
         }
 
-        public void log(string s)
+        public void log(string s, bool newline = true)
         {
-            journal.AppendText(s + '\n');
+            if (newline)
+                journal.AppendText(s + '\n');
+            else
+                journal.AppendText(s);
             //journal.SelectionLength = 0;
             //journal.SelectionStart = journal.Text.Length;
             journal.ScrollToEnd();
@@ -143,15 +148,54 @@ namespace CVtool
             log(string.Format(patn, args));
         }
 
-        private void clear_4da_btn_Click(object sender, RoutedEventArgs e)
+        public void send(string s)
         {
-            _4da_txt.Clear();
-            Keyboard.Focus(_4da_txt);
+            char[] ar = new char[1];
+            foreach (char c in s)
+            {
+                ar[0] = c;
+                port.Write(ar, 0, 1);
+                Thread.Sleep(50);
+            }
+        }
+
+        public void send(byte[] a, int start, int len)
+        {
+            for (int i = start; i < (start + len); i++)
+            {
+                port.Write(a, i, 1);
+                Thread.Sleep(20);
+                rx_tmr_tick(null, null);
+            }
         }
 
         private void step_btn_Click(object sender, RoutedEventArgs e)
         {
-            port.Write("n");
+            send("n");
+        }
+
+        private void run_btn_Click(object sender, RoutedEventArgs e)
+        {
+            send("r");
+        }
+
+        private void set_bp0_btn_Click(object sender, RoutedEventArgs e)
+        {
+            send("b0=0045"); // + bp0_txt.Text.Trim().ToLower());
+        }
+
+        private void load_btn_Click(object sender, RoutedEventArgs e)
+        {
+            string src_fn = System.IO.Path.Combine(app_path, @"..\..\..\..\..\DE0_nano\source\target_program.bin");
+            log(src_fn);
+            send("l");
+            byte[] b;
+            using (System.IO.FileStream fs = new System.IO.FileStream(src_fn, System.IO.FileMode.Open, System.IO.FileAccess.Read))
+            {
+                b = new byte[fs.Length];
+                fs.Read(b, 0, (int)fs.Length);
+            }
+            send(b, 0, b.Length);
         }
 
 

@@ -69,7 +69,13 @@
     
     // ////////////////////////////////////////////
     :main
-    leds = 1 
+    a = g6
+    b = 1
+    nop    
+    a = a+b
+    g6 = a
+    a = a>>4
+    leds = a>>4
     // atx_ctrl = 0 
 
 // debugging version of get4x    
@@ -77,7 +83,7 @@
     // j = sum
     y = 4
     :again
-    asc a = "1"
+    asc a = "f"
     x = :hexdigits
     i = 16
     call :find_in_fetch
@@ -92,6 +98,7 @@
     nop
     y = x+y
     bn 2z :again
+    // patch: ^^^ BUG HERE.  skips final pass because branch is based on newer value of x+y.  branch allows time for z flag to be updated.
     a = j    
     b = 0
     jmp :main
@@ -135,7 +142,6 @@
     // // nop
     // // a = a+b
     // // b = 1024
-    // // nop
     // // br lt :nextwrite    
     
 // //patch
@@ -260,6 +266,7 @@
     // nop
     // x = x+y
     // bn 2z :fill_more
+    // patch: ^^^ BUG HERE.  skips final pass because branch is based on newer value of x+y.  branch allows time for z flag to be updated.
     
     // // verify pattern in SDRAM.
     // x = 0x0000
@@ -284,7 +291,6 @@
     // nop
     // a = xor
     // b = g6
-    // nop
     // bn eq :sdram_err
     // y = 2
     // nop
@@ -293,7 +299,6 @@
     
     // a = i
     // b = 0
-    // nop
     // bn z :next_page
     // jmp :verify_all
     
@@ -324,11 +329,9 @@
 // // :wait_key_press    
     // // a = 0x03
     // // b = keys
-    // // nop
     // // br eq :wait_key_press
 // // :wait_key_release   
     // // b = keys
-    // // nop
     // // bn eq :wait_key_release
     
     // // getchar
@@ -378,11 +381,9 @@
 // // :wait_key_press    
     // // a = 0
     // // b = keys
-    // // nop
     // // br z :wait_key_press
 // // :wait_key_release   
     // // b = keys
-    // // nop
     // // bn z :wait_key_release
     
     // a = 100
@@ -405,7 +406,6 @@
     // nop
     // i = i+j
     // j = g6
-    // nop
     // bn 1z :no_wrap
     // i = 0
     // :no_wrap

@@ -78,21 +78,50 @@
     bus_ctrl = $bp_step_mask
     call :wait_for_bp
 
+// :runagain
+// // release target reset, to run.
+// bus_ctrl = 0   
+// bp0_addr = bp0_addr
+// a = 1000
+// call :spinwait
+// bus_ctrl = $bp_step_mask
+// call :wait_for_bp
+// call :dump_target
+// a = tg_code_addr
+// call :put4x
+// putasc ","
+// a = exr_shadow
+// call :put4x
+// putasc " "
+// putasc ">"
+// getchar
+// a = 1000
+// call :spinwait
+// jmp :runagain
+
     // command prompt loop.
     :cmd_loop
+    a = bus_ctrl
+    b = 0
+    br eq :nodump
     call :dump_target
     a = tg_code_addr
     call :put4x
     putasc ","
     a = exr_shadow
     call :put4x
+    jmp :prompt_done
+    :nodump
+    putasc "R"
+    putasc "U"
+    putasc "N"
+    :prompt_done
     putasc " "
     putasc ">"
     getchar
     
     // command = step next instruction.
     asc b = "n"
-    nop
     bn eq :skip_step
     bus_ctrl = $bp_step_mask
     bp0_addr = bp0_addr
@@ -102,7 +131,6 @@
     
     // command = reset target.
     asc b = "R"
-    nop
     bn eq :skip_reset
     bus_ctrl = $tg_reset_mask   
     nop
@@ -114,7 +142,6 @@
 
     // command = load program.
     asc b = "l"
-    nop
     bn eq :skip_load
     call :load_program
     jmp :cmd_loop
@@ -122,7 +149,6 @@
 
     // command = run full speed.
     asc b = "r"
-    nop
     bn eq :skip_run
     // release target reset, to run.
     bus_ctrl = 0   
@@ -130,19 +156,17 @@
     jmp :cmd_loop
     :skip_run
 
-    // command = interrupt / break target.
-    asc b = "i"
-    nop
-    bn eq :skip_brk
-    bus_ctrl = 0   
-    bus_ctrl = $bp_step_mask
-    call :wait_for_bp
-    jmp :cmd_loop
-    :skip_brk
+    // // command = interrupt / break target.
+    // asc b = "i"
+    // bn eq :skip_brk
+    // bus_ctrl = 0   
+    // bus_ctrl = $bp_step_mask
+    // call :wait_for_bp
+    // jmp :cmd_loop
+    // :skip_brk
 
     // command = set breakpoint.
     asc b = "b"
-    nop
     bn eq :skip_setbrk
     call :set_bp
     jmp :cmd_loop
@@ -181,7 +205,6 @@
 func wait_for_bp    
     a = 0
     b = bp_status
-    nop
     br z :wait_for_bp
     rtn
     
@@ -190,25 +213,19 @@ func set_bp
     x = a
     getchar
     asc b = "="
-    nop
     bn eq :fail
     call :get4x
     y = a
     a = 0
-    nop
     bn eq :fail
     a = x
     b = 0
-    nop
     br eq :b0
     b = 1
-    nop
     br eq :b1
     b = 2
-    nop
     br eq :b2
     b = 3
-    nop
     br eq :b3
     jmp :fail
     :b0
@@ -257,8 +274,8 @@ func load_program
     i = i+j
     a = i
     b = x
-    nop
     bn eq :loadword
+    rtn
 
 // observe a register.  return its value in peek_data.
 // pass its register address in a.
@@ -308,7 +325,6 @@ func dump_target
     x = x+y
     a = x
     b = 4
-    nop
     bn eq :next_chars    
     putasc "="
     a = i
@@ -323,7 +339,6 @@ func dump_target
     m9k_addr = 2
     b = m9k_data
     a = i
-    nop
     bn eq :next_reg
     puteol
     rtn

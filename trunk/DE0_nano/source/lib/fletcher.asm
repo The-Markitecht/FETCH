@@ -4,7 +4,6 @@ func mod255
     // while a is greater than 254, subtract 255.
     :mod255_again
     b = 0xfe
-    nop
     br gt :mod255_greater
     rtn
     :mod255_greater

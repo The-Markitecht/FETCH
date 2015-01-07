@@ -54,7 +54,6 @@
     nop
     i = i+j
     j = g6
-    nop
     bn 1z :no_wrap
     i = 0
 :no_wrap
@@ -70,7 +69,6 @@
     a = $atx_busy_mask
 :wait_for_idle
     b = atx_ctrl
-    nop
     bn and0z :wait_for_idle
     
     // push word to the UART.  its low byte is a character.

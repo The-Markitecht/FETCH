@@ -3,7 +3,6 @@
 // pass array base address in x, byte offset in a.
 func fetch_byte
     b = 1
-    nop
     br and0z :pick_byte_even
     a = a>>1
     b = x
@@ -31,7 +30,6 @@ func fetch_byte
 func find_in_fetch
     y = a
     j = 0
-    nop
     br 1z :fail
     j = -1
     nop
@@ -40,7 +38,6 @@ func find_in_fetch
     a = i
     call :fetch_byte
     b = y
-    nop
     bn eq :again
     :found
     a = i

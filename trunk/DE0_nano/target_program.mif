@@ -329,42 +329,78 @@
 
 -- --------------------------------------------
 -- :main -- = 0x00e5
-    00e5 : 2601 ; -- <0072> leds = 1
+    00e5 : 0200 ; -- <0072> a = 0
+    00e6 : 0600 ; -- <0073> b = 0
+    00e7 : c800 ; -- <0074> nop
+    00e8 : c800 ; -- <0075> nop
+    00e9 : e404 ; -- <0076> bn z :tgt
+    00ea : 00f1 ; -- <0076> "
+    00eb : 0601 ; -- <0077> b = 1
+    00ec : e404 ; -- <0078> bn z :tgt
+    00ed : 00f1 ; -- <0078> "
+    00ee : c800 ; -- <0079> nop
+    00ef : c800 ; -- <0080> nop
+    00f0 : c800 ; -- <0081> nop
+-- :tgt -- = 0x00f1
+    00f1 : 1200 ; -- <0083> x = 0
+    00f2 : 1600 ; -- <0084> y = 0
+    00f3 : c800 ; -- <0085> nop
+    00f4 : c800 ; -- <0086> nop
+    00f5 : e400 ; -- <0087> bn 2z :t2
+    00f6 : 00fd ; -- <0087> "
+    00f7 : 1601 ; -- <0088> y = 1
+    00f8 : e400 ; -- <0089> bn 2z :t2
+    00f9 : 00fd ; -- <0089> "
+    00fa : c800 ; -- <0090> nop
+    00fb : c800 ; -- <0091> nop
+    00fc : c800 ; -- <0092> nop
+-- :t2 -- = 0x00fd
+
+
+
+    00fd : 0006 ; -- <0097> a = g6
+    00fe : 0601 ; -- <0098> b = 1
+    00ff : c800 ; -- <0099> nop
+    0100 : 0300 ; -- <0100> a = a+b
+    0101 : 1800 ; -- <0101> g6 = a
+    0102 : 0353 ; -- <0102> a = a>>4
+    0103 : 2753 ; -- <0103> leds = a>>4
 -- atx_ctrl = 0
 
 -- debugging version of get4x
 -- y = digit counter
 -- j = sum
-    00e6 : 1604 ; -- <0078> y = 4
--- :again -- = 0x00e7
-    00e7 : 0231 ; -- <0080> a = 49 -- asc a = "1"
-    00e8 : 13a0 ; -- <0081> x = :hexdigits
-    00e9 : 0060 ; -- <0081> "
-    00ea : 0a10 ; -- <0082> i = 16
-    00eb : fba0 ; -- <0083> call :find_in_fetch
-    00ec : 0040 ; -- <0083> "
-    00ed : fc00 ; -- <0083> "
-    00ee : 0760 ; -- <0084> b = -1
-    00ef : e007 ; -- <0085> br eq :fail
-    00f0 : 00ff ; -- <0085> "
-    00f1 : 0400 ; -- <0086> b = a
-    00f2 : 0003 ; -- <0087> a = j
-    00f3 : 0352 ; -- <0088> a = a<<4
-    00f4 : c800 ; -- <0089> nop
-    00f5 : 0f34 ; -- <0090> j = or
-    00f6 : 1360 ; -- <0091> x = -1
-    00f7 : c800 ; -- <0092> nop
-    00f8 : 1720 ; -- <0093> y = x+y
-    00f9 : e400 ; -- <0094> bn 2z :again
-    00fa : 00e7 ; -- <0094> "
-    00fb : 0003 ; -- <0095> a = j
-    00fc : 0600 ; -- <0096> b = 0
-    00fd : e00f ; -- <0097> jmp :main
-    00fe : 00e5 ; -- <0097> "
--- :fail -- = 0x00ff
-    00ff : 0760 ; -- <0099> b = -1
-    0100 : e00f ; -- <0100> jmp :main
-    0101 : 00e5 ; -- <0100> "
+    0104 : 1604 ; -- <0109> y = 4
+-- :again -- = 0x0105
+    0105 : 0266 ; -- <0111> a = 102 -- asc a = "f"
+    0106 : 13a0 ; -- <0112> x = :hexdigits
+    0107 : 0060 ; -- <0112> "
+    0108 : 0a10 ; -- <0113> i = 16
+    0109 : fba0 ; -- <0114> call :find_in_fetch
+    010a : 0040 ; -- <0114> "
+    010b : fc00 ; -- <0114> "
+    010c : 0760 ; -- <0115> b = -1
+    010d : e007 ; -- <0116> br eq :fail
+    010e : 011d ; -- <0116> "
+    010f : 0400 ; -- <0117> b = a
+    0110 : 0003 ; -- <0118> a = j
+    0111 : 0352 ; -- <0119> a = a<<4
+    0112 : c800 ; -- <0120> nop
+    0113 : 0f34 ; -- <0121> j = or
+    0114 : 1360 ; -- <0122> x = -1
+    0115 : c800 ; -- <0123> nop
+    0116 : 1720 ; -- <0124> y = x+y
+    0117 : e400 ; -- <0125> bn 2z :again
+    0118 : 0105 ; -- <0125> "
+-- patch: ^^^ BUG HERE.  skips final pass because branch is based on newer value of x+y.  branch allows time for z flag to be updated.
+    0119 : 0003 ; -- <0127> a = j
+    011a : 0600 ; -- <0128> b = 0
+    011b : e00f ; -- <0129> jmp :main
+    011c : 00e5 ; -- <0129> "
+-- :fail -- = 0x011d
+    011d : 0760 ; -- <0131> b = -1
+    011e : e00f ; -- <0132> jmp :main
+    011f : 00e5 ; -- <0132> "
 
 -- -- a = 65
 -- -- push a
@@ -402,7 +438,6 @@
 -- -- nop
 -- -- a = a+b
 -- -- b = 1024
--- -- nop
 -- -- br lt :nextwrite
 
 -- --patch
@@ -527,6 +562,7 @@
 -- nop
 -- x = x+y
 -- bn 2z :fill_more
+-- patch: ^^^ BUG HERE.  skips final pass because branch is based on newer value of x+y.  branch allows time for z flag to be updated.
 
 -- -- verify pattern in SDRAM.
 -- x = 0x0000
@@ -551,7 +587,6 @@
 -- nop
 -- a = xor
 -- b = g6
--- nop
 -- bn eq :sdram_err
 -- y = 2
 -- nop
@@ -560,7 +595,6 @@
 
 -- a = i
 -- b = 0
--- nop
 -- bn z :next_page
 -- jmp :verify_all
 
@@ -591,11 +625,9 @@
 -- -- :wait_key_press
 -- -- a = 0x03
 -- -- b = keys
--- -- nop
 -- -- br eq :wait_key_press
 -- -- :wait_key_release
 -- -- b = keys
--- -- nop
 -- -- bn eq :wait_key_release
 
 -- -- getchar
@@ -645,11 +677,9 @@
 -- -- :wait_key_press
 -- -- a = 0
 -- -- b = keys
--- -- nop
 -- -- br z :wait_key_press
 -- -- :wait_key_release
 -- -- b = keys
--- -- nop
 -- -- bn z :wait_key_release
 
 -- a = 100
@@ -672,7 +702,6 @@
 -- nop
 -- i = i+j
 -- j = g6
--- nop
 -- bn 1z :no_wrap
 -- i = 0
 -- :no_wrap

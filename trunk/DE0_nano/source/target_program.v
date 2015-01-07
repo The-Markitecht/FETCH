@@ -335,42 +335,78 @@ addr == 16'he4 ? 16'hfc00 :  // <0017> rtn
 
 // ////////////////////////////////////////////
 // :main // = 0x00e5
-addr == 16'he5 ? 16'h2601 :  // <0072> leds = 1
+addr == 16'he5 ? 16'h0200 :  // <0072> a = 0
+addr == 16'he6 ? 16'h0600 :  // <0073> b = 0
+addr == 16'he7 ? 16'hc800 :  // <0074> nop
+addr == 16'he8 ? 16'hc800 :  // <0075> nop
+addr == 16'he9 ? 16'he404 :  // <0076> bn z :tgt
+addr == 16'hea ? 16'h00f1 :  // <0076> "
+addr == 16'heb ? 16'h0601 :  // <0077> b = 1
+addr == 16'hec ? 16'he404 :  // <0078> bn z :tgt
+addr == 16'hed ? 16'h00f1 :  // <0078> "
+addr == 16'hee ? 16'hc800 :  // <0079> nop
+addr == 16'hef ? 16'hc800 :  // <0080> nop
+addr == 16'hf0 ? 16'hc800 :  // <0081> nop
+// :tgt // = 0x00f1
+addr == 16'hf1 ? 16'h1200 :  // <0083> x = 0
+addr == 16'hf2 ? 16'h1600 :  // <0084> y = 0
+addr == 16'hf3 ? 16'hc800 :  // <0085> nop
+addr == 16'hf4 ? 16'hc800 :  // <0086> nop
+addr == 16'hf5 ? 16'he400 :  // <0087> bn 2z :t2
+addr == 16'hf6 ? 16'h00fd :  // <0087> "
+addr == 16'hf7 ? 16'h1601 :  // <0088> y = 1
+addr == 16'hf8 ? 16'he400 :  // <0089> bn 2z :t2
+addr == 16'hf9 ? 16'h00fd :  // <0089> "
+addr == 16'hfa ? 16'hc800 :  // <0090> nop
+addr == 16'hfb ? 16'hc800 :  // <0091> nop
+addr == 16'hfc ? 16'hc800 :  // <0092> nop
+// :t2 // = 0x00fd
+
+
+
+addr == 16'hfd ? 16'h0006 :  // <0097> a = g6
+addr == 16'hfe ? 16'h0601 :  // <0098> b = 1
+addr == 16'hff ? 16'hc800 :  // <0099> nop
+addr == 16'h100 ? 16'h0300 :  // <0100> a = a+b
+addr == 16'h101 ? 16'h1800 :  // <0101> g6 = a
+addr == 16'h102 ? 16'h0353 :  // <0102> a = a>>4
+addr == 16'h103 ? 16'h2753 :  // <0103> leds = a>>4
 // atx_ctrl = 0
 
 // debugging version of get4x
 // y = digit counter
 // j = sum
-addr == 16'he6 ? 16'h1604 :  // <0078> y = 4
-// :again // = 0x00e7
-addr == 16'he7 ? 16'h0231 :  // <0080> a = 49 // asc a = "1"
-addr == 16'he8 ? 16'h13a0 :  // <0081> x = :hexdigits
-addr == 16'he9 ? 16'h0060 :  // <0081> "
-addr == 16'hea ? 16'h0a10 :  // <0082> i = 16
-addr == 16'heb ? 16'hfba0 :  // <0083> call :find_in_fetch
-addr == 16'hec ? 16'h0040 :  // <0083> "
-addr == 16'hed ? 16'hfc00 :  // <0083> "
-addr == 16'hee ? 16'h0760 :  // <0084> b = -1
-addr == 16'hef ? 16'he007 :  // <0085> br eq :fail
-addr == 16'hf0 ? 16'h00ff :  // <0085> "
-addr == 16'hf1 ? 16'h0400 :  // <0086> b = a
-addr == 16'hf2 ? 16'h0003 :  // <0087> a = j
-addr == 16'hf3 ? 16'h0352 :  // <0088> a = a<<4
-addr == 16'hf4 ? 16'hc800 :  // <0089> nop
-addr == 16'hf5 ? 16'h0f34 :  // <0090> j = or
-addr == 16'hf6 ? 16'h1360 :  // <0091> x = -1
-addr == 16'hf7 ? 16'hc800 :  // <0092> nop
-addr == 16'hf8 ? 16'h1720 :  // <0093> y = x+y
-addr == 16'hf9 ? 16'he400 :  // <0094> bn 2z :again
-addr == 16'hfa ? 16'h00e7 :  // <0094> "
-addr == 16'hfb ? 16'h0003 :  // <0095> a = j
-addr == 16'hfc ? 16'h0600 :  // <0096> b = 0
-addr == 16'hfd ? 16'he00f :  // <0097> jmp :main
-addr == 16'hfe ? 16'h00e5 :  // <0097> "
-// :fail // = 0x00ff
-addr == 16'hff ? 16'h0760 :  // <0099> b = -1
-addr == 16'h100 ? 16'he00f :  // <0100> jmp :main
-addr == 16'h101 ? 16'h00e5 :  // <0100> "
+addr == 16'h104 ? 16'h1604 :  // <0109> y = 4
+// :again // = 0x0105
+addr == 16'h105 ? 16'h0266 :  // <0111> a = 102 // asc a = "f"
+addr == 16'h106 ? 16'h13a0 :  // <0112> x = :hexdigits
+addr == 16'h107 ? 16'h0060 :  // <0112> "
+addr == 16'h108 ? 16'h0a10 :  // <0113> i = 16
+addr == 16'h109 ? 16'hfba0 :  // <0114> call :find_in_fetch
+addr == 16'h10a ? 16'h0040 :  // <0114> "
+addr == 16'h10b ? 16'hfc00 :  // <0114> "
+addr == 16'h10c ? 16'h0760 :  // <0115> b = -1
+addr == 16'h10d ? 16'he007 :  // <0116> br eq :fail
+addr == 16'h10e ? 16'h011d :  // <0116> "
+addr == 16'h10f ? 16'h0400 :  // <0117> b = a
+addr == 16'h110 ? 16'h0003 :  // <0118> a = j
+addr == 16'h111 ? 16'h0352 :  // <0119> a = a<<4
+addr == 16'h112 ? 16'hc800 :  // <0120> nop
+addr == 16'h113 ? 16'h0f34 :  // <0121> j = or
+addr == 16'h114 ? 16'h1360 :  // <0122> x = -1
+addr == 16'h115 ? 16'hc800 :  // <0123> nop
+addr == 16'h116 ? 16'h1720 :  // <0124> y = x+y
+addr == 16'h117 ? 16'he400 :  // <0125> bn 2z :again
+addr == 16'h118 ? 16'h0105 :  // <0125> "
+// patch: ^^^ BUG HERE.  skips final pass because branch is based on newer value of x+y.  branch allows time for z flag to be updated.
+addr == 16'h119 ? 16'h0003 :  // <0127> a = j
+addr == 16'h11a ? 16'h0600 :  // <0128> b = 0
+addr == 16'h11b ? 16'he00f :  // <0129> jmp :main
+addr == 16'h11c ? 16'h00e5 :  // <0129> "
+// :fail // = 0x011d
+addr == 16'h11d ? 16'h0760 :  // <0131> b = -1
+addr == 16'h11e ? 16'he00f :  // <0132> jmp :main
+addr == 16'h11f ? 16'h00e5 :  // <0132> "
 
 // // a = 65
 // // push a
@@ -408,7 +444,6 @@ addr == 16'h101 ? 16'h00e5 :  // <0100> "
 // // nop
 // // a = a+b
 // // b = 1024
-// // nop
 // // br lt :nextwrite
 
 // //patch
@@ -533,6 +568,7 @@ addr == 16'h101 ? 16'h00e5 :  // <0100> "
 // nop
 // x = x+y
 // bn 2z :fill_more
+// patch: ^^^ BUG HERE.  skips final pass because branch is based on newer value of x+y.  branch allows time for z flag to be updated.
 
 // // verify pattern in SDRAM.
 // x = 0x0000
@@ -557,7 +593,6 @@ addr == 16'h101 ? 16'h00e5 :  // <0100> "
 // nop
 // a = xor
 // b = g6
-// nop
 // bn eq :sdram_err
 // y = 2
 // nop
@@ -566,7 +601,6 @@ addr == 16'h101 ? 16'h00e5 :  // <0100> "
 
 // a = i
 // b = 0
-// nop
 // bn z :next_page
 // jmp :verify_all
 
@@ -597,11 +631,9 @@ addr == 16'h101 ? 16'h00e5 :  // <0100> "
 // // :wait_key_press
 // // a = 0x03
 // // b = keys
-// // nop
 // // br eq :wait_key_press
 // // :wait_key_release
 // // b = keys
-// // nop
 // // bn eq :wait_key_release
 
 // // getchar
@@ -651,11 +683,9 @@ addr == 16'h101 ? 16'h00e5 :  // <0100> "
 // // :wait_key_press
 // // a = 0
 // // b = keys
-// // nop
 // // br z :wait_key_press
 // // :wait_key_release
 // // b = keys
-// // nop
 // // bn z :wait_key_release
 
 // a = 100
@@ -678,7 +708,6 @@ addr == 16'h101 ? 16'h00e5 :  // <0100> "
 // nop
 // i = i+j
 // j = g6
-// nop
 // bn 1z :no_wrap
 // i = 0
 // :no_wrap

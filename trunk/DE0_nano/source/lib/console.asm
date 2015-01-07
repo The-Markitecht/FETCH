@@ -113,6 +113,7 @@ func get4x
     nop
     y = x+y
     bn 2z :again
+    // patch: ^^^ BUG HERE.  skips final pass because branch is based on newer value of x+y.  branch allows time for z flag to be updated.
     a = j    
     b = 0
     rtn

@@ -36,7 +36,6 @@ func putchar_atx
     a = $atx_busy_mask
     :pcatx_wait_for_idle
     b = atx_ctrl
-    nop
     bn and0z :pcatx_wait_for_idle
     
     // push word to the UART.  its low byte is a character.
@@ -66,7 +65,6 @@ func getchar_atx
     br and0z :wait_for_busy
     :wait_for_idle
     b = atx_ctrl
-    nop
     bn and0z :wait_for_idle
     a = atx_data
     rtn
