@@ -204,23 +204,19 @@ module synapse316 #(
     wire[16:0] ad0_comb;
     reg ad0_cout_flag = 0;
     reg ad0_cin_flag = 0;
-    reg ad0_zero_flag = 0;
-    wire ad0_zero_comb = ! ( | ad0_comb[15:0]);
     assign ad0_comb = {1'd0, r_full[0]} + {1'd0, r_full[1]} + {15'd0, ad0_cin_flag};
     wire ad0_cout_comb = ad0_comb[16];
     always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
-            ad0 <= 15'd0;
-            ad0_zero_flag <= 1'b0;
-            ad0_cin_flag <= 1'b0;
-            ad0_cout_flag <= 1'b0;
+            ad0 <= 0;
+            ad0_cin_flag <= 0;
+            ad0_cout_flag <= 0;
         end else if (sysclk) begin
             if (setf_operator)
                 ad0_cin_flag <= ad0_cin_flag || muxa_comb[0];
             if (clrf_operator)
                 ad0_cin_flag <= ad0_cin_flag && ! muxa_comb[0];
             ad0 <= ad0_comb[15:0];    
-            ad0_zero_flag <= ad0_zero_comb;
             ad0_cout_flag <= ad0_cout_comb;
         end
     end
@@ -228,30 +224,22 @@ module synapse316 #(
     // adder #1 with NO carry support.
     reg[15:0] ad1; // result register
     wire[15:0] ad1_comb = r_full[2] + r_full[3];
-    reg ad1_zero_flag = 0;
-    wire ad1_zero_comb = ! ( | ad1_comb[15:0]);
     always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
-            ad1 <= 15'd0;
-            ad1_zero_flag <= 1'b0;
+            ad1 <= 0;
         end else if (sysclk) begin
             ad1 <= ad1_comb;    
-            ad1_zero_flag <= ad1_zero_comb;
         end
     end
 
     // adder #2 with NO carry support.
     reg[15:0] ad2; // result register
     wire[15:0] ad2_comb = r_full[4] + r_full[5];
-    reg ad2_zero_flag = 0;
-    wire ad2_zero_comb = ! ( | ad2_comb[15:0]);
     always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
-            ad2 <= 15'd0;
-            ad2_zero_flag <= 1'b0;
+            ad2 <= 0;
         end else if (sysclk) begin
             ad2 <= ad2_comb;    
-            ad2_zero_flag <= ad2_zero_comb;
         end
     end
 
@@ -294,15 +282,20 @@ module synapse316 #(
     reg lt0_flag = 1'b0;
     wire eq0_comb = r_full[0] == r_full[1];
     wire gt0_comb = r_full[0] > r_full[1];
+    reg[2:0] zflags = 0; // only 3 z flags instead of all 6, to save over 50 LE's !!  no idea why those were so big...
     always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
             eq0_flag <= 0;
             gt0_flag <= 0;
             lt0_flag <= 0;
+            zflags <= 0;
         end else if (sysclk) begin
             eq0_flag <= eq0_comb;
             gt0_flag <= gt0_comb; 
             lt0_flag <= ! (eq0_comb || gt0_comb);
+            zflags[0] = ! ( | r_full[0]);
+            zflags[1] = ! ( | r_full[2]);
+            zflags[2] = ! ( | r_full[4]);
         end
     end
     
@@ -317,7 +310,7 @@ module synapse316 #(
     wire[15:0] const_neg1 = 16'hffff;
     
     // branch unit
-    wire[15:0] flags = { {8{1'b1}}, eq0_flag, gt0_flag, lt0_flag, ad0_zero_flag, ad0_cout_flag, and0_zero_flag, ad1_zero_flag, ad2_zero_flag};
+    wire[15:0] flags = { {8{1'b1}}, eq0_flag, gt0_flag, lt0_flag, ad0_cout_flag, and0_zero_flag, zflags[2:0]};
     wire selected_flag = flags[selected_flag_addr];
     assign branch_accept = 
         br_operator ? selected_flag :

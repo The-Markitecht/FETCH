@@ -37,7 +37,8 @@ set ::adest [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
 
 set ::flagsrc [dict create always 15 \
     eq0 7       gt0 6     lt0 5 \
-    ad0z 4   ad0c 3     and0z 2     ad1z 1  ad2z 0 ] 
+    ad0c 4     and0z 3  \
+    4z 2    2z 1    0z 0    ] 
 
 set ::dest_shift 10
 set ::src_shift 0

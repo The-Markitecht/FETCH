@@ -54,7 +54,9 @@
     nop
     i = i+j
     j = g6
-    bn 1z :no_wrap
+    nop
+    i = i+j
+    bn iz :no_wrap
     i = 0
 :no_wrap
     

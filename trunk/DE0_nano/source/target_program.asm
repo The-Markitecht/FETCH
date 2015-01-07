@@ -97,8 +97,8 @@
     x = -1
     nop
     y = x+y
-    bn 2z :again
-    // patch: ^^^ BUG HERE.  skips final pass because branch is based on newer value of x+y.  branch allows time for z flag to be updated.
+    a = y
+    bn az :again
     a = j    
     b = 0
     jmp :main
@@ -265,8 +265,7 @@
     // y = 2
     // nop
     // x = x+y
-    // bn 2z :fill_more
-    // patch: ^^^ BUG HERE.  skips final pass because branch is based on newer value of x+y.  branch allows time for z flag to be updated.
+    // bn xz :fill_more
     
     // // verify pattern in SDRAM.
     // x = 0x0000
@@ -295,7 +294,7 @@
     // y = 2
     // nop
     // x = x+y
-    // bn 2z :verify_more
+    // bn xz :verify_more
     
     // a = i
     // b = 0
@@ -406,7 +405,9 @@
     // nop
     // i = i+j
     // j = g6
-    // bn 1z :no_wrap
+    // nop
+    // i = i+j
+    // bn iz :no_wrap
     // i = 0
     // :no_wrap
     

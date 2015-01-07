@@ -28,9 +28,8 @@ func fetch_byte
 // returns found index in a (or -1 if not found).
 // if the data byte occurs more than once, the final one's position is returned.
 func find_in_fetch
+    br iz :fail
     y = a
-    j = 0
-    br 1z :fail
     j = -1
     nop
     :again

@@ -9,9 +9,8 @@ func spinwait
     nop
     :spinwait_inner
     x = x+y
-    bn 2z :spinwait_inner
+    bn xz :spinwait_inner
     a = a+b
-    bn z :spinwait_outer    
+    bn az :spinwait_outer    
     rtn
-    // patch: ^^^ BUG HERE.  skips final pass because branch is based on newer value of result.  branch allows time for z flag to be updated.
         

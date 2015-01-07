@@ -203,9 +203,8 @@
     jmp :main_loop
     
 func wait_for_bp    
-    a = 0
-    b = bp_status
-    br z :wait_for_bp
+    a = bp_status
+    br az :wait_for_bp
     rtn
     
 func set_bp
