@@ -125,26 +125,25 @@ addr == 16'h3b ? 16'h0202 :  // <0050> a = $atx_busy_mask
 addr == 16'h3c ? 16'h0412 :  // <0052> b = atx_ctrl
 addr == 16'h3d ? 16'he003 :  // <0053> br and0z :pcatx_wait_for_busy
 addr == 16'h3e ? 16'h003c :  // <0053> "
-
-addr == 16'h3f ? 16'h4a00 :  // <0055> atx_ctrl = 0
-addr == 16'h40 ? 16'h1008 :  // <0056> pop x // rtn
-addr == 16'h41 ? 16'hfc00 :  // <0056> rtn
+addr == 16'h3f ? 16'h4a00 :  // <0054> atx_ctrl = 0
+addr == 16'h40 ? 16'h1008 :  // <0055> pop x // rtn
+addr == 16'h41 ? 16'hfc00 :  // <0055> rtn
 
 // routine receives a byte from the UART.  blocks until the UART receives the byte.
 // returns it in the low byte of a.
 // func getchar_atx // = 0x0042
 // wait until UART is busy, then idle.
-addr == 16'h42 ? 16'h0204 :  // <0062> a = $arx_busy_mask
+addr == 16'h42 ? 16'h0204 :  // <0061> a = $arx_busy_mask
 // :wait_for_busy // = 0x0043
-addr == 16'h43 ? 16'h0412 :  // <0064> b = atx_ctrl
-addr == 16'h44 ? 16'he003 :  // <0065> br and0z :wait_for_busy
-addr == 16'h45 ? 16'h0043 :  // <0065> "
+addr == 16'h43 ? 16'h0412 :  // <0063> b = atx_ctrl
+addr == 16'h44 ? 16'he003 :  // <0064> br and0z :wait_for_busy
+addr == 16'h45 ? 16'h0043 :  // <0064> "
 // :wait_for_idle // = 0x0046
-addr == 16'h46 ? 16'h0412 :  // <0067> b = atx_ctrl
-addr == 16'h47 ? 16'he403 :  // <0068> bn and0z :wait_for_idle
-addr == 16'h48 ? 16'h0046 :  // <0068> "
-addr == 16'h49 ? 16'h0011 :  // <0069> a = atx_data
-addr == 16'h4a ? 16'hfc00 :  // <0070> rtn
+addr == 16'h46 ? 16'h0412 :  // <0066> b = atx_ctrl
+addr == 16'h47 ? 16'he403 :  // <0067> bn and0z :wait_for_idle
+addr == 16'h48 ? 16'h0046 :  // <0067> "
+addr == 16'h49 ? 16'h0011 :  // <0068> a = atx_data
+addr == 16'h4a ? 16'hfc00 :  // <0069> rtn
 
 
 // function library for simple console i/o based on putchar & getchar.

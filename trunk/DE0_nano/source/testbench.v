@@ -152,6 +152,8 @@ always_ff @(posedge clk50m) begin
     end
 end
 
+assign async_rx_line = supmcu.visr.urx.LINE_IDLE_LEVEL;
+
 // Avalon MM master.
 // program should always write (or read) the "write data" register last, because accessing it triggers the Avalon transaction.
 // that way, the program can read from the "read data" register after it's copied data from Avalon, without triggering another read transaction.

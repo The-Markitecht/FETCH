@@ -76,7 +76,6 @@
     g6 = a
     a = a>>4
     leds = a>>4
-    // atx_ctrl = 0 
 
 // debugging version of get4x    
     // y = digit counter

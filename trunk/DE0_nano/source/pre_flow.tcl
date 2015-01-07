@@ -42,6 +42,12 @@ post_message -type info "Assembling MCU programs."
 cd [file join $::project_dir source]
 shell tclsh85.exe build.tcl 
 
+# build only the visor program from the source_old.
+# this is for using an older version of Synapse and its libs & toolchain as the visor.
+#cd [file join $::project_dir source_old]
+#shell tclsh85.exe build.tcl 
+
+# run Icarus simulator.
 # post_message -type info "Simulating design."
 # # -pfileline=1
 # shell iverilog -g2005 -gxtypes -o {..\icarus\testbench} \

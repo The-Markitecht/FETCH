@@ -257,7 +257,6 @@ module synapse316 #(
     // bitwise operators and0, or0, xor0
     reg[15:0] and0 = 0; // result register
     wire[15:0] and0_comb = r_full[0] & r_full[1];
-    reg and0_zero_flag = 1'b0;
     reg[15:0] or0 = 0; // result register
     wire[15:0] or0_comb = r_full[0] | r_full[1];
     reg[15:0] xor0 = 0; // result register
@@ -265,39 +264,23 @@ module synapse316 #(
     always_ff @(posedge sysreset or posedge sysclk) begin
         if (sysreset) begin
             and0 <= 0;
-            and0_zero_flag <= 0;
             or0 <= 0;
             xor0 <= 0;
         end else if (sysclk) begin
             and0 <= and0_comb;    
-            and0_zero_flag <= ! ( | and0_comb );
             or0 <= or0_comb;
             xor0 <= xor0_comb;
         end
     end
 
     // comparator unit
-    reg eq0_flag = 1'b0;
-    reg gt0_flag = 1'b0;
-    reg lt0_flag = 1'b0;
     wire eq0_comb = r_full[0] == r_full[1];
     wire gt0_comb = r_full[0] > r_full[1];
-    reg[2:0] zflags = 0; // only 3 z flags instead of all 6, to save over 50 LE's !!  no idea why those were so big...
-    always_ff @(posedge sysreset or posedge sysclk) begin
-        if (sysreset) begin
-            eq0_flag <= 0;
-            gt0_flag <= 0;
-            lt0_flag <= 0;
-            zflags <= 0;
-        end else if (sysclk) begin
-            eq0_flag <= eq0_comb;
-            gt0_flag <= gt0_comb; 
-            lt0_flag <= ! (eq0_comb || gt0_comb);
-            zflags[0] <= ! ( | r_full[0]);
-            zflags[1] <= ! ( | r_full[2]);
-            zflags[2] <= ! ( | r_full[4]);
-        end
-    end
+    wire lt0_comb = ! (eq0_comb || gt0_comb);
+    wire z0_comb = ! ( | r_full[0]); // only 3 z flags instead of all 6, to save over 50 LE's !!  no idea why those were so big...
+    wire z2_comb = ! ( | r_full[2]); 
+    wire z4_comb = ! ( | r_full[4]); 
+    wire and0_zero_comb = ! ( | and0_comb );
     
     // shifter unit
     wire[15:0] rf0 = r_full[0];
@@ -310,7 +293,7 @@ module synapse316 #(
     wire[15:0] const_neg1 = 16'hffff;
     
     // branch unit
-    wire[15:0] flags = { {8{1'b1}}, eq0_flag, gt0_flag, lt0_flag, ad0_cout_flag, and0_zero_flag, zflags[2:0]};
+    wire[15:0] flags = { {8{1'b1}}, eq0_comb, gt0_comb, lt0_comb, ad0_cout_flag, and0_zero_comb, z4_comb, z2_comb, z0_comb};
     wire selected_flag = flags[selected_flag_addr];
     assign branch_accept = 
         br_operator ? selected_flag :

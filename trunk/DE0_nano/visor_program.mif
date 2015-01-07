@@ -121,25 +121,24 @@
     003c : 0412 ; -- <0052> b = atx_ctrl
     003d : e003 ; -- <0053> br and0z :pcatx_wait_for_busy
     003e : 003c ; -- <0053> "
-
-    003f : 4a00 ; -- <0055> atx_ctrl = 0
-    0040 : 1008 ; -- <0056> pop x -- rtn
-    0041 : fc00 ; -- <0056> rtn
+    003f : 4a00 ; -- <0054> atx_ctrl = 0
+    0040 : 1008 ; -- <0055> pop x -- rtn
+    0041 : fc00 ; -- <0055> rtn
 
 -- routine receives a byte from the UART.  blocks until the UART receives the byte.
 -- returns it in the low byte of a.
 -- wait until UART is busy, then idle.
-    0042 : 0204 ; -- <0062> a = $arx_busy_mask
+    0042 : 0204 ; -- <0061> a = $arx_busy_mask
 -- :wait_for_busy -- = 0x0043
-    0043 : 0412 ; -- <0064> b = atx_ctrl
-    0044 : e003 ; -- <0065> br and0z :wait_for_busy
-    0045 : 0043 ; -- <0065> "
+    0043 : 0412 ; -- <0063> b = atx_ctrl
+    0044 : e003 ; -- <0064> br and0z :wait_for_busy
+    0045 : 0043 ; -- <0064> "
 -- :wait_for_idle -- = 0x0046
-    0046 : 0412 ; -- <0067> b = atx_ctrl
-    0047 : e403 ; -- <0068> bn and0z :wait_for_idle
-    0048 : 0046 ; -- <0068> "
-    0049 : 0011 ; -- <0069> a = atx_data
-    004a : fc00 ; -- <0070> rtn
+    0046 : 0412 ; -- <0066> b = atx_ctrl
+    0047 : e403 ; -- <0067> bn and0z :wait_for_idle
+    0048 : 0046 ; -- <0067> "
+    0049 : 0011 ; -- <0068> a = atx_data
+    004a : fc00 ; -- <0069> rtn
 
 
 -- function library for simple console i/o based on putchar & getchar.

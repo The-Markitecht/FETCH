@@ -51,7 +51,6 @@ func putchar_atx
     :pcatx_wait_for_busy    
     b = atx_ctrl
     br and0z :pcatx_wait_for_busy
-
     atx_ctrl = 0 
     rtn
     
