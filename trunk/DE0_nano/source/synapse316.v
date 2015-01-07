@@ -121,7 +121,7 @@ module synapse316 #(
     wire bn_operator            = muxa_do_copy && (muxa_dest_addr == 6'h39);
     wire muxa_dest_return_addr  = muxa_do_copy && (muxa_dest_addr == 6'h3e);
     wire return_operator        = muxa_do_copy && (muxa_dest_addr == 6'h3f); // swaps ipr and return_addr.  this allows for subroutine call and return, as well as computed jump.
-    wire binary_operator0 = r_load[0] || r_load[1];
+    //wire binary_operator0 = r_load[0] || r_load[1];
     wire muxa_source_imm16 = muxa_do_copy && (muxa_src_addr == 10'h3a0);
  
     // instruction pointer, executing instruction register, and more control logic.
@@ -293,9 +293,9 @@ module synapse316 #(
             eq0_flag <= eq0_comb;
             gt0_flag <= gt0_comb; 
             lt0_flag <= ! (eq0_comb || gt0_comb);
-            zflags[0] = ! ( | r_full[0]);
-            zflags[1] = ! ( | r_full[2]);
-            zflags[2] = ! ( | r_full[4]);
+            zflags[0] <= ! ( | r_full[0]);
+            zflags[1] <= ! ( | r_full[2]);
+            zflags[2] <= ! ( | r_full[4]);
         end
     end
     
