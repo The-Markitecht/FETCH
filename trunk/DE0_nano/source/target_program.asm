@@ -71,7 +71,6 @@
     :main
     a = g6
     b = 1
-    nop    
     a = a+b
     g6 = a
     a = a>>4
@@ -91,10 +90,8 @@
     b = a
     a = j
     a = a<<4
-    nop
     j = or
     x = -1
-    nop
     y = x+y
     a = y
     bn az :again
@@ -138,7 +135,6 @@
     // // m9k_data = x
     // // x = x+y
     // // b = 1
-    // // nop
     // // a = a+b
     // // b = 1024
     // // br lt :nextwrite    
@@ -150,7 +146,6 @@
 
     // a = leds
     // b = 1
-    // nop
     // leds = a+b
 
     // // // Avalon write to JTAG UART. 
@@ -245,7 +240,6 @@
     // putasc {-}
     // i = 0x200
     // j = -1
-    // nop
     // :next_page    
     // i = i+j
     // av_ad_hi = i
@@ -256,13 +250,11 @@
     // :fill_more
     // a = x
     // b = 0xffff
-    // nop
     // g6 = xor
     // av_ad_hi = i
     // av_ad_lo = x
     // av_write_data = g6
     // y = 2
-    // nop
     // x = x+y
     // bn xz :fill_more
     
@@ -286,12 +278,10 @@
     // // call :spinwait     
     // a = x
     // b = 0xffff
-    // nop
     // a = xor
     // b = g6
     // bn eq :sdram_err
     // y = 2
-    // nop
     // x = x+y
     // bn xz :verify_more
     
@@ -334,14 +324,12 @@
     
     // // getchar
     // // b = 1
-    // // nop
     // // putchar a+b
 
     // // b = 85
     // // putchar b
 
     // // x = x+y
-    // // nop
     // // a = x
     // // call put4x
     
@@ -371,7 +359,6 @@
     // // cache the string limit in g6.
     // a = 16
     // b = 0xffff
-    // nop
     // g6 = xor
     
     // :again
@@ -390,21 +377,17 @@
     // // increment LEDs
     // a = leds
     // b = 1
-    // nop
     // leds = a+b
     
     // // fetch a word from test pattern to the UART.  its low byte is a character.
     // j = :msg
-    // nop
     // fetch a from i+j
 // //    putchar a
     
     // // increment index & wrap around end of pattern.
     // j = 1
-    // nop
     // i = i+j
     // j = g6
-    // nop
     // i = i+j
     // bn iz :no_wrap
     // i = 0

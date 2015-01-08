@@ -280,11 +280,9 @@ func load_program
 // pass its register address in a.
 func peek
     b = 0x3ff
-    nop
     a = and
     // debug_peek_reg = 31 << 10
     b = 0x7c00
-    nop
     force_opcode = or
     bus_ctrl = $divert_code_bus_mask
     tg_force = $hold_state_mask
@@ -311,10 +309,8 @@ func dump_target
     a = a<<1
     a = a<<1
     b = 3
-    nop    
     a = a+b
     b = x
-    nop
     m9k_addr = a+b
     putchar m9k_data
     a = m9k_data
@@ -332,7 +328,6 @@ func dump_target
     call :put4x
     putasc " "
     j = 1
-    nop
     i = i+j
     // loop up to the number of registers in the target program's register name table.
     m9k_addr = 2

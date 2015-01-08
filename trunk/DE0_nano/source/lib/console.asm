@@ -42,7 +42,6 @@
         parse3 a = a<<4 \"
         parse3 a = a<<4 \"
         pop \" b
-        nop \"
         parse3 $reg = or \"
     }    
 >>
@@ -57,7 +56,6 @@ func put4x
     
     g6 = a
     b = 0xF000
-    nop
     a = and
     a = a>>4
     a = a>>4
@@ -67,7 +65,6 @@ func put4x
     
     a = g6
     b = 0x0F00
-    nop
     a = and
     a = a>>4
     a = a>>4
@@ -76,7 +73,6 @@ func put4x
     
     a = g6
     b = 0x00F0
-    nop
     a = and
     a = a>>4
     call fetch_byte
@@ -84,7 +80,6 @@ func put4x
     
     a = g6
     b = 0x000F
-    nop
     a = and
     call fetch_byte
     putchar a
@@ -107,10 +102,8 @@ func get4x
     b = a
     a = j
     a = a<<4
-    nop
     j = or
     x = -1
-    nop
     y = x+y
     a = y
     bn az :again

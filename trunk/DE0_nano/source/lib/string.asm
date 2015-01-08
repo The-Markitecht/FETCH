@@ -6,7 +6,6 @@ func fetch_byte
     br and0z :pick_byte_even
     a = a>>1
     b = x
-    nop
     fetch a from a+b
     a = a>>4
     a = a>>4
@@ -14,10 +13,8 @@ func fetch_byte
     :pick_byte_even    
     a = a>>1
     b = x
-    nop
     fetch a from a+b
     b = 0xff
-    nop
     a = and
     rtn
 
@@ -31,7 +28,6 @@ func find_in_fetch
     br iz :fail
     y = a
     j = -1
-    nop
     :again
     i = i+j
     a = i

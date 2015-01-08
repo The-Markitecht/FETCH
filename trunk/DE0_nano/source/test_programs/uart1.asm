@@ -33,28 +33,23 @@
     // cache the string limit.
     a = 5
     b = 0xffff
-    nop
     g6 = xor
     
 :again
     x = x+y
-    nop 
     a = x
     a = a>>4    
     leds = a>>4
 
     // fetch a word from test pattern to the UART.  its low byte is a character.
     j = :test_pattern
-    nop
     fetch g7 from i+j
     call :putchar
 
     // increment index & wrap around end of pattern.
     j = 1
-    nop
     i = i+j
     j = g6
-    nop
     i = i+j
     bn iz :no_wrap
     i = 0

@@ -33,6 +33,10 @@ namespace eval ::asm {
         dict set ::asrc $name $addr
         vdefine $lin "sr_$name" $addr
     }
+    proc alias_src_latency {lin name addr latency_cycles} {
+        alias_src $lin $name $addr
+        dict set ::latency $name $latency_cycles
+    }
     proc alias_dest {lin name addr} {
         dict set ::adest $name $addr
         vdefine $lin "dr_$name" $addr
@@ -44,30 +48,30 @@ namespace eval ::asm {
     proc alias_flag {lin name addr} {
         dict set ::flagsrc $name $addr
     }
-    alias_both {} a 0
-    alias_both {} b 1
-    alias_both {} i 2
-    alias_both {} j 3
-    alias_both {} x 4
-    alias_both {} y 5
-    alias_src  {} a+b [src ad0]
-    alias_src  {} i+j [src ad1]
-    alias_src  {} x+y [src ad2]
-    alias_src  {} and [src and0]
-    alias_src  {} or  [src or0]
-    alias_src  {} xor [src xor0]
-    alias_src  {} a>>1 [src sh1r0]
-    alias_src  {} a<<1 [src sh1l0]
-    alias_src  {} a<<4 [src sh4l0]
-    alias_src  {} a>>4 [src sh4r0]
-    alias_src  {} 0xffff [src -1]
-    alias_flag {} c [flag ad0c]
-    alias_flag {} az [flag 0z]
-    alias_flag {} iz [flag 2z]
-    alias_flag {} xz [flag 4z]
-    alias_flag {} eq [flag eq0]
-    alias_flag {} gt [flag gt0]
-    alias_flag {} lt [flag lt0]
+    alias_both         {} a 0
+    alias_both         {} b 1
+    alias_both         {} i 2
+    alias_both         {} j 3
+    alias_both         {} x 4
+    alias_both         {} y 5
+    alias_src_latency  {} a+b [src ad0] 1
+    alias_src_latency  {} i+j [src ad1] 1
+    alias_src_latency  {} x+y [src ad2] 1
+    alias_src_latency  {} and [src and0] 1
+    alias_src_latency  {} or  [src or0] 1
+    alias_src_latency  {} xor [src xor0] 1
+    alias_src          {} a>>1 [src sh1r0]
+    alias_src          {} a<<1 [src sh1l0]
+    alias_src          {} a<<4 [src sh4l0]
+    alias_src          {} a>>4 [src sh4r0]
+    alias_src          {} 0xffff [src -1]
+    alias_flag         {} c [flag ad0c]
+    alias_flag         {} az [flag 0z]
+    alias_flag         {} iz [flag 2z]
+    alias_flag         {} xz [flag 4z]
+    alias_flag         {} eq [flag eq0]
+    alias_flag         {} gt [flag gt0]
+    alias_flag         {} lt [flag lt0]
 
     # Tcl integration macros.
     proc setvar {lin varname value} {

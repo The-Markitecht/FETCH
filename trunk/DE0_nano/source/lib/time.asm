@@ -8,7 +8,8 @@ func spinwait
     y = -1
     nop
     :spinwait_inner
-    x = x+y
+    // use of the ad2 name overrides auto-nop here.
+    x = ad2
     bn xz :spinwait_inner
     a = a+b
     bn az :spinwait_outer    

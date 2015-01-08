@@ -8,7 +8,6 @@ func mod255
     rtn
     :mod255_greater
     b = 0xff01
-    nop
     a = a+b
     jmp :mod255_again
 
@@ -27,13 +26,11 @@ func mod255
 func fletcher16_input
 //patch: need a way to declare summing registers as "static" or "preserve" so they're not auto-stacked.
     b = $fletcher_sum1_reg
-    nop
     a = a+b
     call :mod255
     $fletcher_sum1_reg = a
     
     b = $fletcher_sum2_reg
-    nop
     a = a+b
     call :mod255
     $fletcher_sum2_reg = a
@@ -45,7 +42,6 @@ func fletcher16_result
     a = a<<4
     a = a<<4
     b = $fletcher_sum1_reg
-    nop
     a = or
     rtn
     

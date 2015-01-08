@@ -39,6 +39,8 @@ set ::flagsrc [dict create always 15 \
     eq0 7       gt0 6     lt0 5 \
     ad0c 4     and0z 3  \
     4z 2    2z 1    0z 0    ] 
+    
+set ::latency [dict create]
 
 set ::dest_shift 10
 set ::src_shift 0
@@ -104,6 +106,12 @@ proc parse_assignment {dest eq src} {
         # assignment.
         if {[dict exists $::asrc $src]} {
             # source is named.
+            if {[dict exists $::latency $src]} {        
+                # insert nop's to allow for operator latency.  to override this, program can use proper names of result registers instead of shorthand aliases.
+                for {set i 0} {$i < [dict get $::latency $src]} {incr i} {
+                    lappend opcodes [pack [dest nop] [src nop]]
+                }
+            }
             lappend opcodes [pack [dest $dest] [src $src]]
         } elseif {[string equal -length 1 $src {:}]} {
             # resolve label as 16-bit immediate, stored in the next ROM word.
