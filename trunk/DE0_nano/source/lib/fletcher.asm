@@ -1,4 +1,11 @@
-        
+
+    nonstackable  $fletcher_sum1_reg  $fletcher_sum2_reg
+
+func fletcher16_init
+    $fletcher_sum1_reg = 0
+    $fletcher_sum2_reg = 0
+    rtn
+    
 // compute the modulus(255) of a number given in a.  return remainder in a.
 func mod255
     // while a is greater than 254, subtract 255.
@@ -10,20 +17,10 @@ func mod255
     b = 0xff01
     a = a+b
     jmp :mod255_again
+    rtn
 
-// set up Fletcher16 checksum algorithm to accumulate in the 2 given register names.
-<< proc fletcher16_init {lin sum1_reg sum2_reg} {
-    set ::asm::fletcher_sum1_reg $sum1_reg
-    set ::asm::fletcher_sum2_reg $sum2_reg
-    parse3 $sum1_reg = 0 $lin
-    parse3 $sum2_reg = 0 \"
-} >>
-
-    fletcher16_init g6 g7
-    
 // accumulate a Fletcher16 checksum, given the next byte of data in a.    
 func fletcher16_input8
-//patch: need a way to declare summing registers as "static" or "preserve" so they're not auto-stacked.
     b = $fletcher_sum1_reg
     a = a+b
     call :mod255
@@ -55,3 +52,4 @@ func fletcher16_result
     a = or
     rtn
     
+    stackable  $fletcher_sum1_reg  $fletcher_sum2_reg

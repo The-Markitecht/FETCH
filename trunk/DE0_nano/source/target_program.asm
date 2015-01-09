@@ -12,7 +12,7 @@
     // application-specific register aliases.    
     alias_both g6                   6 
     alias_both g7                   7
-    << set counter $TOP_GP >>
+    setvar counter $TOP_GP
     alias_src  keys                 [incr counter]
     alias_both leds                 [incr counter] 
     alias_both rstk                 [incr counter] 
@@ -63,6 +63,9 @@
     include lib/jtag_uart.asm
     include lib/console.asm
     include lib/time.asm
+    
+    setvar fletcher_sum1_reg g6
+    setvar fletcher_sum2_reg g7
     include lib/fletcher.asm
     
     // ////////////////////////////////////////////
@@ -76,9 +79,8 @@
     // y = -1
     // x = x+y
     // bn xz :gain
-    
-    // DO NOT USE JTAG UART while Fletcher is accumulating in Avalon registers.
-    fletcher16_init  av_ad_lo  av_ad_hi
+        
+    call :fletcher16_init
     x = 0
     y = 1
     :nextword
@@ -88,10 +90,10 @@
     a = x
     b = 200
     bn eq :nextword
-    call :fletcher16_result
     puteol
     putasc "F"
     putasc "L"
+    call :fletcher16_result
     call :put4x
     
     a = 1000

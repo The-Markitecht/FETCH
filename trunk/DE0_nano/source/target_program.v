@@ -30,7 +30,7 @@
 
 
 addr == 16'h00 ? 16'he00f :  // <0046> jmp :main
-addr == 16'h01 ? 16'h013c :  // <0046> "
+addr == 16'h01 ? 16'h0136 :  // <0046> "
 
 // register names for use by debugger.
 addr == 16'h02 ? 16'h000a :  // <0049> ([src rstk])
@@ -362,91 +362,85 @@ addr == 16'hfe ? 16'hfc00 :  // <0016> rtn
 
 
 
+
+
+// func fletcher16_init // = 0x00ff
+addr == 16'hff ? 16'h1a00 :  // <0005> $fletcher_sum1_reg = 0
+addr == 16'h100 ? 16'h1e00 :  // <0006> $fletcher_sum2_reg = 0
+addr == 16'h101 ? 16'hfc00 :  // <0007> rtn
+
 // compute the modulus(255) of a number given in a.  return remainder in a.
-// func mod255 // = 0x00ff
-addr == 16'hff ? 16'h2806 :  // <0003> push g6 // func mod255
-addr == 16'h100 ? 16'h2807 :  // <0003> push g7 // "
+// func mod255 // = 0x0102
 // while a is greater than 254, subtract 255.
-// :mod255_again // = 0x0101
-addr == 16'h101 ? 16'h06fe :  // <0006> b = 0xfe
-addr == 16'h102 ? 16'he006 :  // <0007> br gt :mod255_greater
-addr == 16'h103 ? 16'h0107 :  // <0007> "
-addr == 16'h104 ? 16'h1c0a :  // <0008> pop g7 // rtn
-addr == 16'h105 ? 16'h180a :  // <0008> pop g6 // "
-addr == 16'h106 ? 16'hfc00 :  // <0008> rtn
-// :mod255_greater // = 0x0107
-addr == 16'h107 ? 16'h07a0 :  // <0010> b = 0xff01
-addr == 16'h108 ? 16'hff01 :  // <0010> "
-addr == 16'h109 ? 16'hc800 :  // <0011> a = a+b
-addr == 16'h10a ? 16'h0300 :  // <0011> "
-addr == 16'h10b ? 16'he00f :  // <0012> jmp :mod255_again
-addr == 16'h10c ? 16'h0101 :  // <0012> "
-
-// set up Fletcher16 checksum algorithm to accumulate in the 2 given register names.
-
-addr == 16'h10d ? 16'h1a00 :  // <0022> fletcher16_init g6 g7
-addr == 16'h10e ? 16'h1e00 :  // <0022> "
+// :mod255_again // = 0x0102
+addr == 16'h102 ? 16'h06fe :  // <0013> b = 0xfe
+addr == 16'h103 ? 16'he006 :  // <0014> br gt :mod255_greater
+addr == 16'h104 ? 16'h0106 :  // <0014> "
+addr == 16'h105 ? 16'hfc00 :  // <0015> rtn
+// :mod255_greater // = 0x0106
+addr == 16'h106 ? 16'h07a0 :  // <0017> b = 0xff01
+addr == 16'h107 ? 16'hff01 :  // <0017> "
+addr == 16'h108 ? 16'hc800 :  // <0018> a = a+b
+addr == 16'h109 ? 16'h0300 :  // <0018> "
+addr == 16'h10a ? 16'he00f :  // <0019> jmp :mod255_again
+addr == 16'h10b ? 16'h0102 :  // <0019> "
+addr == 16'h10c ? 16'hfc00 :  // <0020> rtn
 
 // accumulate a Fletcher16 checksum, given the next byte of data in a.
-// func fletcher16_input8 // = 0x010f
-addr == 16'h10f ? 16'h2806 :  // <0025> push g6 // func fletcher16_input8
-addr == 16'h110 ? 16'h2807 :  // <0025> push g7 // "
-addr == 16'h111 ? 16'h283e :  // <0025> push rtna // "
-//patch: need a way to declare summing registers as "static" or "preserve" so they're not auto-stacked.
-addr == 16'h112 ? 16'h0406 :  // <0027> b = $fletcher_sum1_reg
-addr == 16'h113 ? 16'hc800 :  // <0028> a = a+b
-addr == 16'h114 ? 16'h0300 :  // <0028> "
-addr == 16'h115 ? 16'hfba0 :  // <0029> call :mod255
-addr == 16'h116 ? 16'h00ff :  // <0029> "
-addr == 16'h117 ? 16'hfc00 :  // <0029> "
-addr == 16'h118 ? 16'h1800 :  // <0030> $fletcher_sum1_reg = a
+// func fletcher16_input8 // = 0x010d
+addr == 16'h10d ? 16'h283e :  // <0023> push rtna // func fletcher16_input8
+addr == 16'h10e ? 16'h0406 :  // <0024> b = $fletcher_sum1_reg
+addr == 16'h10f ? 16'hc800 :  // <0025> a = a+b
+addr == 16'h110 ? 16'h0300 :  // <0025> "
+addr == 16'h111 ? 16'hfba0 :  // <0026> call :mod255
+addr == 16'h112 ? 16'h0102 :  // <0026> "
+addr == 16'h113 ? 16'hfc00 :  // <0026> "
+addr == 16'h114 ? 16'h1800 :  // <0027> $fletcher_sum1_reg = a
 
-addr == 16'h119 ? 16'h0407 :  // <0032> b = $fletcher_sum2_reg
-addr == 16'h11a ? 16'hc800 :  // <0033> a = a+b
-addr == 16'h11b ? 16'h0300 :  // <0033> "
-addr == 16'h11c ? 16'hfba0 :  // <0034> call :mod255
-addr == 16'h11d ? 16'h00ff :  // <0034> "
-addr == 16'h11e ? 16'hfc00 :  // <0034> "
-addr == 16'h11f ? 16'h1c00 :  // <0035> $fletcher_sum2_reg = a
-addr == 16'h120 ? 16'hf80a :  // <0036> pop rtna // rtn
-addr == 16'h121 ? 16'h1c0a :  // <0036> pop g7 // "
-addr == 16'h122 ? 16'h180a :  // <0036> pop g6 // "
-addr == 16'h123 ? 16'hfc00 :  // <0036> rtn
+addr == 16'h115 ? 16'h0407 :  // <0029> b = $fletcher_sum2_reg
+addr == 16'h116 ? 16'hc800 :  // <0030> a = a+b
+addr == 16'h117 ? 16'h0300 :  // <0030> "
+addr == 16'h118 ? 16'hfba0 :  // <0031> call :mod255
+addr == 16'h119 ? 16'h0102 :  // <0031> "
+addr == 16'h11a ? 16'hfc00 :  // <0031> "
+addr == 16'h11b ? 16'h1c00 :  // <0032> $fletcher_sum2_reg = a
+addr == 16'h11c ? 16'hf80a :  // <0033> pop rtna // rtn
+addr == 16'h11d ? 16'hfc00 :  // <0033> rtn
 
 // accumulate a Fletcher16 checksum, given the next word of data in a.
-// func fletcher16_input16 // = 0x0124
-addr == 16'h124 ? 16'h2802 :  // <0039> push i // func fletcher16_input16
-addr == 16'h125 ? 16'h283e :  // <0039> push rtna // "
-addr == 16'h126 ? 16'h0b53 :  // <0040> i = a>>4
-addr == 16'h127 ? 16'h06ff :  // <0041> b = 0xff
-addr == 16'h128 ? 16'hc800 :  // <0042> a = and
-addr == 16'h129 ? 16'h0330 :  // <0042> "
-addr == 16'h12a ? 16'hfba0 :  // <0043> call :fletcher16_input8
-addr == 16'h12b ? 16'h010f :  // <0043> "
-addr == 16'h12c ? 16'hfc00 :  // <0043> "
-addr == 16'h12d ? 16'h0002 :  // <0044> a = i
-addr == 16'h12e ? 16'h0353 :  // <0045> a = a>>4
-addr == 16'h12f ? 16'hfba0 :  // <0046> call :fletcher16_input8
-addr == 16'h130 ? 16'h010f :  // <0046> "
-addr == 16'h131 ? 16'hfc00 :  // <0046> "
-addr == 16'h132 ? 16'hf80a :  // <0047> pop rtna // rtn
-addr == 16'h133 ? 16'h080a :  // <0047> pop i // "
-addr == 16'h134 ? 16'hfc00 :  // <0047> rtn
+// func fletcher16_input16 // = 0x011e
+addr == 16'h11e ? 16'h2802 :  // <0036> push i // func fletcher16_input16
+addr == 16'h11f ? 16'h283e :  // <0036> push rtna // "
+addr == 16'h120 ? 16'h0b53 :  // <0037> i = a>>4
+addr == 16'h121 ? 16'h06ff :  // <0038> b = 0xff
+addr == 16'h122 ? 16'hc800 :  // <0039> a = and
+addr == 16'h123 ? 16'h0330 :  // <0039> "
+addr == 16'h124 ? 16'hfba0 :  // <0040> call :fletcher16_input8
+addr == 16'h125 ? 16'h010d :  // <0040> "
+addr == 16'h126 ? 16'hfc00 :  // <0040> "
+addr == 16'h127 ? 16'h0002 :  // <0041> a = i
+addr == 16'h128 ? 16'h0353 :  // <0042> a = a>>4
+addr == 16'h129 ? 16'hfba0 :  // <0043> call :fletcher16_input8
+addr == 16'h12a ? 16'h010d :  // <0043> "
+addr == 16'h12b ? 16'hfc00 :  // <0043> "
+addr == 16'h12c ? 16'hf80a :  // <0044> pop rtna // rtn
+addr == 16'h12d ? 16'h080a :  // <0044> pop i // "
+addr == 16'h12e ? 16'hfc00 :  // <0044> rtn
 
 // return the combined 16-bit result of Fletcher16 checksum in a.
-// func fletcher16_result // = 0x0135
-addr == 16'h135 ? 16'h0007 :  // <0051> a = $fletcher_sum2_reg
-addr == 16'h136 ? 16'h0352 :  // <0052> a = a<<4
-addr == 16'h137 ? 16'h0352 :  // <0053> a = a<<4
-addr == 16'h138 ? 16'h0406 :  // <0054> b = $fletcher_sum1_reg
-addr == 16'h139 ? 16'hc800 :  // <0055> a = or
-addr == 16'h13a ? 16'h0334 :  // <0055> "
-addr == 16'h13b ? 16'hfc00 :  // <0056> rtn
+// func fletcher16_result // = 0x012f
+addr == 16'h12f ? 16'h0007 :  // <0048> a = $fletcher_sum2_reg
+addr == 16'h130 ? 16'h0352 :  // <0049> a = a<<4
+addr == 16'h131 ? 16'h0352 :  // <0050> a = a<<4
+addr == 16'h132 ? 16'h0406 :  // <0051> b = $fletcher_sum1_reg
+addr == 16'h133 ? 16'hc800 :  // <0052> a = or
+addr == 16'h134 ? 16'h0334 :  // <0052> "
+addr == 16'h135 ? 16'hfc00 :  // <0053> rtn
 
 
 
 // ////////////////////////////////////////////
-// :main // = 0x013c
+// :main // = 0x0136
 
 // x = 20
 // :gain
@@ -457,52 +451,52 @@ addr == 16'h13b ? 16'hfc00 :  // <0056> rtn
 // x = x+y
 // bn xz :gain
 
-// DO NOT USE JTAG UART while Fletcher is accumulating in Avalon registers.
-addr == 16'h13c ? 16'h3a00 :  // <0081> fletcher16_init  av_ad_lo  av_ad_hi
-addr == 16'h13d ? 16'h3600 :  // <0081> "
-addr == 16'h13e ? 16'h1200 :  // <0082> x = 0
-addr == 16'h13f ? 16'h1601 :  // <0083> y = 1
-// :nextword // = 0x0140
-addr == 16'h140 ? 16'hd004 :  // <0085> fetch a from x
-addr == 16'h141 ? 16'h03b0 :  // <0085> "
-addr == 16'h142 ? 16'hfba0 :  // <0086> call :fletcher16_input16
-addr == 16'h143 ? 16'h0124 :  // <0086> "
-addr == 16'h144 ? 16'hfc00 :  // <0086> "
-addr == 16'h145 ? 16'hc800 :  // <0087> x = x+y
-addr == 16'h146 ? 16'h1320 :  // <0087> "
-addr == 16'h147 ? 16'h0004 :  // <0088> a = x
-addr == 16'h148 ? 16'h06c8 :  // <0089> b = 200
-addr == 16'h149 ? 16'he407 :  // <0090> bn eq :nextword
-addr == 16'h14a ? 16'h0140 :  // <0090> "
-addr == 16'h14b ? 16'hfba0 :  // <0091> call :fletcher16_result
-addr == 16'h14c ? 16'h0135 :  // <0091> "
-addr == 16'h14d ? 16'hfc00 :  // <0091> "
-addr == 16'h14e ? 16'h020a :  // <0092> a = 10 // puteol
-addr == 16'h14f ? 16'h37a0 :  // <0092> puteol
-addr == 16'h150 ? 16'h0200 :  // <0092> "
-addr == 16'h151 ? 16'h3a00 :  // <0092> "
-addr == 16'h152 ? 16'h2c00 :  // <0092> "
-addr == 16'h153 ? 16'h0246 :  // <0093> a = 70 // putasc "F"
-addr == 16'h154 ? 16'h37a0 :  // <0093> putasc "F"
-addr == 16'h155 ? 16'h0200 :  // <0093> "
-addr == 16'h156 ? 16'h3a00 :  // <0093> "
-addr == 16'h157 ? 16'h2c00 :  // <0093> "
-addr == 16'h158 ? 16'h024c :  // <0094> a = 76 // putasc "L"
-addr == 16'h159 ? 16'h37a0 :  // <0094> putasc "L"
-addr == 16'h15a ? 16'h0200 :  // <0094> "
-addr == 16'h15b ? 16'h3a00 :  // <0094> "
-addr == 16'h15c ? 16'h2c00 :  // <0094> "
-addr == 16'h15d ? 16'hfba0 :  // <0095> call :put4x
-addr == 16'h15e ? 16'h007f :  // <0095> "
-addr == 16'h15f ? 16'hfc00 :  // <0095> "
+addr == 16'h136 ? 16'hfba0 :  // <0083> call :fletcher16_init
+addr == 16'h137 ? 16'h00ff :  // <0083> "
+addr == 16'h138 ? 16'hfc00 :  // <0083> "
+addr == 16'h139 ? 16'h1200 :  // <0084> x = 0
+addr == 16'h13a ? 16'h1601 :  // <0085> y = 1
+// :nextword // = 0x013b
+addr == 16'h13b ? 16'hd004 :  // <0087> fetch a from x
+addr == 16'h13c ? 16'h03b0 :  // <0087> "
+addr == 16'h13d ? 16'hfba0 :  // <0088> call :fletcher16_input16
+addr == 16'h13e ? 16'h011e :  // <0088> "
+addr == 16'h13f ? 16'hfc00 :  // <0088> "
+addr == 16'h140 ? 16'hc800 :  // <0089> x = x+y
+addr == 16'h141 ? 16'h1320 :  // <0089> "
+addr == 16'h142 ? 16'h0004 :  // <0090> a = x
+addr == 16'h143 ? 16'h06c8 :  // <0091> b = 200
+addr == 16'h144 ? 16'he407 :  // <0092> bn eq :nextword
+addr == 16'h145 ? 16'h013b :  // <0092> "
+addr == 16'h146 ? 16'h020a :  // <0093> a = 10 // puteol
+addr == 16'h147 ? 16'h37a0 :  // <0093> puteol
+addr == 16'h148 ? 16'h0200 :  // <0093> "
+addr == 16'h149 ? 16'h3a00 :  // <0093> "
+addr == 16'h14a ? 16'h2c00 :  // <0093> "
+addr == 16'h14b ? 16'h0246 :  // <0094> a = 70 // putasc "F"
+addr == 16'h14c ? 16'h37a0 :  // <0094> putasc "F"
+addr == 16'h14d ? 16'h0200 :  // <0094> "
+addr == 16'h14e ? 16'h3a00 :  // <0094> "
+addr == 16'h14f ? 16'h2c00 :  // <0094> "
+addr == 16'h150 ? 16'h024c :  // <0095> a = 76 // putasc "L"
+addr == 16'h151 ? 16'h37a0 :  // <0095> putasc "L"
+addr == 16'h152 ? 16'h0200 :  // <0095> "
+addr == 16'h153 ? 16'h3a00 :  // <0095> "
+addr == 16'h154 ? 16'h2c00 :  // <0095> "
+addr == 16'h155 ? 16'hfba0 :  // <0096> call :fletcher16_result
+addr == 16'h156 ? 16'h012f :  // <0096> "
+addr == 16'h157 ? 16'hfc00 :  // <0096> "
+addr == 16'h158 ? 16'hfba0 :  // <0097> call :put4x
+addr == 16'h159 ? 16'h007f :  // <0097> "
+addr == 16'h15a ? 16'hfc00 :  // <0097> "
 
-addr == 16'h160 ? 16'h03a0 :  // <0097> a = 1000
-addr == 16'h161 ? 16'h03e8 :  // <0097> "
-addr == 16'h162 ? 16'hfba0 :  // <0098> call :spinwait
-addr == 16'h163 ? 16'h00ee :  // <0098> "
-addr == 16'h164 ? 16'hfc00 :  // <0098> "
-addr == 16'h165 ? 16'he00f :  // <0099> jmp :main
-addr == 16'h166 ? 16'h013c :  // <0099> "
+addr == 16'h15b ? 16'h03a0 :  // <0099> a = 1000
+addr == 16'h15c ? 16'h03e8 :  // <0099> "
+addr == 16'h15d ? 16'hfba0 :  // <0100> call :spinwait
+addr == 16'h15e ? 16'h00ee :  // <0100> "
+addr == 16'h15f ? 16'hfc00 :  // <0100> "
+addr == 16'h160 ? 16'he00f :  // <0101> jmp :main
+addr == 16'h161 ? 16'h0136 :  // <0101> "
 
 // // Avalon write to SDRAM.
 // av_ad_hi = 0

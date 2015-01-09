@@ -163,7 +163,16 @@ namespace eval ::asm {
             if { ! ([dict exists $::asrc $reg] && [dict exists $::adest $reg])} {
                 error "register is not read/write capable: $reg"
             }
-            lappend ::stackable $reg
+            lappend ::stackable [string tolower [string trim $reg]]
+        }
+        # console "all stackable regs: $::stackable"
+    }
+
+    proc nonstackable {lin args} {
+        foreach reg $args {
+            while {[set i [lsearch -exact $::stackable [string tolower [string trim $reg]]]] >= 0} {
+                set ::stackable [lreplace $::stackable $i $i]
+            }
         }
         # console "all stackable regs: $::stackable"
     }

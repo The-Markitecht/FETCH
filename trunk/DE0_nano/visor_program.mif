@@ -7,1841 +7,1841 @@
         BEGIN
     
 -- #########################################################################
-// fl16 = 0x0000
+-- fl16 = 0x0000
 -- assembly source code.
-// fl16 = 0x0000
+-- fl16 = 0x0000
 -- for debugging supervisor mcu.
-// fl16 = 0x0000
+-- fl16 = 0x0000
 
-// fl16 = 0x0000
+-- fl16 = 0x0000
 -- register file configuration
-// fl16 = 0x0000
+-- fl16 = 0x0000
 
-// fl16 = 0x0000
+-- fl16 = 0x0000
 -- application-specific register aliases.
-// fl16 = 0x0000
+-- fl16 = 0x0000
 
-// fl16 = 0x0000
+-- fl16 = 0x0000
 
-// fl16 = 0x0000
+-- fl16 = 0x0000
 
-// fl16 = 0x0000
+-- fl16 = 0x0000
 
-// fl16 = 0x0000
+-- fl16 = 0x0000
 
-// fl16 = 0x0000
+-- fl16 = 0x0000
 --alias_src  tg_debug_out	    [incr counter]
-// fl16 = 0x0000
+-- fl16 = 0x0000
 
-// fl16 = 0x0000
+-- fl16 = 0x0000
 
-// fl16 = 0x0000
+-- fl16 = 0x0000
     0000 : e00f ; -- <0051> jmp :main
-// fl16 = 0x0000
+-- fl16 = 0x0000
     0001 : 00dd ; -- <0051> "
-// fl16 = 0xfeef
+-- fl16 = 0xfeef
 
-// fl16 = 0x9acd
+-- fl16 = 0x9acd
 
-// fl16 = 0x9acd
+-- fl16 = 0x9acd
 -- pick a byte from an array of packed words in program space.  fetch & return it in a.
-// fl16 = 0x9acd
+-- fl16 = 0x9acd
 -- pass array base address in x, byte offset in a.
-// fl16 = 0x9acd
+-- fl16 = 0x9acd
     0002 : 0601 ; -- <0005> b = 1
-// fl16 = 0x9acd
+-- fl16 = 0x9acd
     0003 : e003 ; -- <0006> br and0z :pick_byte_even
-// fl16 = 0x3ed4
+-- fl16 = 0x3ed4
     0004 : 000d ; -- <0006> "
-// fl16 = 0xceb8
+-- fl16 = 0xceb8
     0005 : 0350 ; -- <0007> a = a>>1
-// fl16 = 0x5ac5
+-- fl16 = 0x5ac5
     0006 : 0404 ; -- <0008> b = x
-// fl16 = 0x8919
+-- fl16 = 0x8919
     0007 : c800 ; -- <0009> fetch a from a+b
-// fl16 = 0xc721
+-- fl16 = 0xc721
     0008 : d300 ; -- <0009> "
-// fl16 = 0xd2e9
+-- fl16 = 0xd2e9
     0009 : 03b0 ; -- <0009> "
-// fl16 = 0x7abd
+-- fl16 = 0x7abd
     000a : 0353 ; -- <0010> a = a>>4
-// fl16 = 0x5a71
+-- fl16 = 0x5a71
     000b : 0353 ; -- <0011> a = a>>4
-// fl16 = 0xe6c7
+-- fl16 = 0xe6c7
     000c : fc00 ; -- <0012> rtn
-// fl16 = 0x201e
+-- fl16 = 0x201e
 -- :pick_byte_even -- = 0x000d
-// fl16 = 0x591b
+-- fl16 = 0x591b
     000d : 0350 ; -- <0014> a = a>>1
-// fl16 = 0x591b
+-- fl16 = 0x591b
     000e : 0404 ; -- <0015> b = x
-// fl16 = 0x336e
+-- fl16 = 0x336e
     000f : c800 ; -- <0016> fetch a from a+b
-// fl16 = 0x1c76
+-- fl16 = 0x1c76
     0010 : d300 ; -- <0016> "
-// fl16 = 0xd13f
+-- fl16 = 0xd13f
     0011 : 03b0 ; -- <0016> "
-// fl16 = 0x2413
+-- fl16 = 0x2413
     0012 : 06ff ; -- <0017> b = 0xff
-// fl16 = 0xaec6
+-- fl16 = 0xaec6
     0013 : c800 ; -- <0018> a = and
-// fl16 = 0x42cc
+-- fl16 = 0x42cc
     0014 : 0330 ; -- <0018> "
-// fl16 = 0xa495
+-- fl16 = 0xa495
     0015 : fc00 ; -- <0019> rtn
-// fl16 = 0x33c8
+-- fl16 = 0x33c8
 
-// fl16 = 0xc1c5
+-- fl16 = 0xc1c5
 -- find a byte in an array of packed words in program space.
-// fl16 = 0xc1c5
+-- fl16 = 0xc1c5
 -- pass data byte in a.
-// fl16 = 0xc1c5
+-- fl16 = 0xc1c5
 -- pass array base address in x.
-// fl16 = 0xc1c5
+-- fl16 = 0xc1c5
 -- array length in i.
-// fl16 = 0xc1c5
+-- fl16 = 0xc1c5
 -- returns found index in a (or -1 if not found).
-// fl16 = 0xc1c5
+-- fl16 = 0xc1c5
 -- if the data byte occurs more than once, the final one's position is returned.
-// fl16 = 0xc1c5
+-- fl16 = 0xc1c5
     0016 : 2002 ; -- <0027> push i -- func find_in_fetch
-// fl16 = 0xc1c5
+-- fl16 = 0xc1c5
     0017 : 2003 ; -- <0027> push j -- "
-// fl16 = 0x71e7
+-- fl16 = 0x71e7
     0018 : 2005 ; -- <0027> push y -- "
-// fl16 = 0x670b
+-- fl16 = 0x670b
     0019 : 203e ; -- <0027> push rtna -- "
-// fl16 = 0xa730
+-- fl16 = 0xa730
     001a : 1400 ; -- <0028> y = a
-// fl16 = 0xa48e
+-- fl16 = 0xa48e
     001b : 0f60 ; -- <0029> j = -1
-// fl16 = 0xd5a2
+-- fl16 = 0xd5a2
 -- :again -- = 0x001c
-// fl16 = 0xea12
+-- fl16 = 0xea12
     001c : e001 ; -- <0031> br iz :fail
-// fl16 = 0xea12
+-- fl16 = 0xea12
     001d : 002c ; -- <0031> "
-// fl16 = 0xf1f3
+-- fl16 = 0xf1f3
     001e : 0b10 ; -- <0032> i = ad1
-// fl16 = 0x3220
+-- fl16 = 0x3220
     001f : 0002 ; -- <0033> a = i
-// fl16 = 0x9d3b
+-- fl16 = 0x9d3b
     0020 : fba0 ; -- <0034> call :fetch_byte
-// fl16 = 0x183d
+-- fl16 = 0x183d
     0021 : 0002 ; -- <0034> "
-// fl16 = 0xcfd9
+-- fl16 = 0xcfd9
     0022 : fc00 ; -- <0034> "
-// fl16 = 0x87db
+-- fl16 = 0x87db
     0023 : 0405 ; -- <0035> b = y
-// fl16 = 0x3cd8
+-- fl16 = 0x3cd8
     0024 : e407 ; -- <0036> bn eq :again
-// fl16 = 0xfbe1
+-- fl16 = 0xfbe1
     0025 : 001c ; -- <0036> "
-// fl16 = 0xb2cd
+-- fl16 = 0xb2cd
 -- :found -- = 0x0026
-// fl16 = 0x86e9
+-- fl16 = 0x86e9
     0026 : 0002 ; -- <0038> a = i
-// fl16 = 0x86e9
+-- fl16 = 0x86e9
     0027 : f808 ; -- <0039> pop rtna -- rtn
-// fl16 = 0x5eeb
+-- fl16 = 0x5eeb
     0028 : 1408 ; -- <0039> pop y -- "
-// fl16 = 0x3fec
+-- fl16 = 0x3fec
     0029 : 0c08 ; -- <0039> pop j -- "
-// fl16 = 0x3d09
+-- fl16 = 0x3d09
     002a : 0808 ; -- <0039> pop i -- "
-// fl16 = 0x6b1d
+-- fl16 = 0x6b1d
     002b : fc00 ; -- <0039> rtn
-// fl16 = 0xbd2d
+-- fl16 = 0xbd2d
 -- :fail -- = 0x002c
-// fl16 = 0x152a
+-- fl16 = 0x152a
     002c : 0360 ; -- <0041> a = -1
-// fl16 = 0x152a
+-- fl16 = 0x152a
     002d : f808 ; -- <0042> pop rtna -- rtn
-// fl16 = 0x2d8d
+-- fl16 = 0x2d8d
     002e : 1408 ; -- <0042> pop y -- "
-// fl16 = 0x518e
+-- fl16 = 0x518e
     002f : 0c08 ; -- <0042> pop j -- "
-// fl16 = 0x92aa
+-- fl16 = 0x92aa
     0030 : 0808 ; -- <0042> pop i -- "
-// fl16 = 0x04be
+-- fl16 = 0x04be
     0031 : fc00 ; -- <0042> rtn
-// fl16 = 0x99ce
+-- fl16 = 0x99ce
 
-// fl16 = 0x34cb
+-- fl16 = 0x34cb
 
-// fl16 = 0x34cb
+-- fl16 = 0x34cb
 
-// fl16 = 0x34cb
+-- fl16 = 0x34cb
 -- driver library for my_uart_v2 simple async transceiver.
-// fl16 = 0x34cb
+-- fl16 = 0x34cb
 
-// fl16 = 0x34cb
+-- fl16 = 0x34cb
 
-// fl16 = 0x34cb
+-- fl16 = 0x34cb
 
-// fl16 = 0x34cb
+-- fl16 = 0x34cb
 
-// fl16 = 0x34cb
+-- fl16 = 0x34cb
 -- routine sends out the low byte from a to the UART.  blocks until the UART accepts the byte.
-// fl16 = 0x34cb
+-- fl16 = 0x34cb
     0032 : 2004 ; -- <0035> push x -- func putchar_atx
-// fl16 = 0x34cb
+-- fl16 = 0x34cb
 
-// fl16 = 0xf3ef
+-- fl16 = 0xf3ef
     0033 : 1000 ; -- <0037> x = a
-// fl16 = 0xf3ef
+-- fl16 = 0xf3ef
 
-// fl16 = 0xe300
+-- fl16 = 0xe300
 -- wait for UART to be idle (not busy).
-// fl16 = 0xe300
+-- fl16 = 0xe300
     0034 : 0202 ; -- <0040> a = $atx_busy_mask
-// fl16 = 0xe300
+-- fl16 = 0xe300
 -- :pcatx_wait_for_idle -- = 0x0035
-// fl16 = 0xe904
+-- fl16 = 0xe904
     0035 : 0412 ; -- <0042> b = atx_ctrl
-// fl16 = 0xe904
+-- fl16 = 0xe904
     0036 : e403 ; -- <0043> bn and0z :pcatx_wait_for_idle
-// fl16 = 0x1a1a
+-- fl16 = 0x1a1a
     0037 : 0035 ; -- <0043> "
-// fl16 = 0x3902
+-- fl16 = 0x3902
 
-// fl16 = 0xa737
+-- fl16 = 0xa737
 -- push word to the UART.  its low byte is a character.
-// fl16 = 0xa737
+-- fl16 = 0xa737
     0038 : 4404 ; -- <0046> atx_data = x
-// fl16 = 0xa737
+-- fl16 = 0xa737
 
-// fl16 = 0x627f
+-- fl16 = 0x627f
 -- can't use the actual register load strobe that occurs here, because it's
-// fl16 = 0x627f
+-- fl16 = 0x627f
 -- much too fast for the UART to sample.
-// fl16 = 0x627f
+-- fl16 = 0x627f
 -- instead use a dedicated output word atx_ctrl.
-// fl16 = 0x627f
+-- fl16 = 0x627f
     0039 : 4a01 ; -- <0051> atx_ctrl = $atx_load_mask
-// fl16 = 0x627f
+-- fl16 = 0x627f
 
-// fl16 = 0xadca
+-- fl16 = 0xadca
 -- wait until UART is busy, as acknowledgement.
-// fl16 = 0xadca
+-- fl16 = 0xadca
     003a : 0202 ; -- <0054> a = $atx_busy_mask
-// fl16 = 0xadca
+-- fl16 = 0xadca
 -- :pcatx_wait_for_busy -- = 0x003b
-// fl16 = 0x49ce
+-- fl16 = 0x49ce
     003b : 0412 ; -- <0056> b = atx_ctrl
-// fl16 = 0x49ce
+-- fl16 = 0x49ce
     003c : e003 ; -- <0057> br and0z :pcatx_wait_for_busy
-// fl16 = 0x0fe4
+-- fl16 = 0x0fe4
     003d : 003b ; -- <0057> "
-// fl16 = 0xbfc8
+-- fl16 = 0xbfc8
     003e : 4a00 ; -- <0058> atx_ctrl = 0
-// fl16 = 0xc704
+-- fl16 = 0xc704
     003f : 1008 ; -- <0059> pop x -- rtn
-// fl16 = 0x1a4e
+-- fl16 = 0x1a4e
     0040 : fc00 ; -- <0059> rtn
-// fl16 = 0xd666
+-- fl16 = 0xd666
 
-// fl16 = 0xa063
+-- fl16 = 0xa063
 -- routine receives a byte from the UART.  blocks until the UART receives the byte.
-// fl16 = 0xa063
+-- fl16 = 0xa063
 -- returns it in the low byte of a.
-// fl16 = 0xa063
+-- fl16 = 0xa063
 -- wait until UART is busy, then idle.
-// fl16 = 0xa063
+-- fl16 = 0xa063
     0041 : 0204 ; -- <0065> a = $arx_busy_mask
-// fl16 = 0xa063
+-- fl16 = 0xa063
 -- :wait_for_busy -- = 0x0042
-// fl16 = 0x7169
+-- fl16 = 0x7169
     0042 : 0412 ; -- <0067> b = atx_ctrl
-// fl16 = 0x7169
+-- fl16 = 0x7169
     0043 : e003 ; -- <0068> br and0z :wait_for_busy
-// fl16 = 0x6c7f
+-- fl16 = 0x6c7f
     0044 : 0042 ; -- <0068> "
-// fl16 = 0x5263
+-- fl16 = 0x5263
 -- :wait_for_idle -- = 0x0045
-// fl16 = 0x9da5
+-- fl16 = 0x9da5
     0045 : 0412 ; -- <0070> b = atx_ctrl
-// fl16 = 0x9da5
+-- fl16 = 0x9da5
     0046 : e403 ; -- <0071> bn and0z :wait_for_idle
-// fl16 = 0x11bb
+-- fl16 = 0x11bb
     0047 : 0045 ; -- <0071> "
-// fl16 = 0x73a3
+-- fl16 = 0x73a3
     0048 : 0011 ; -- <0072> a = atx_data
-// fl16 = 0x45e8
+-- fl16 = 0x45e8
     0049 : fc00 ; -- <0073> rtn
-// fl16 = 0x39f9
+-- fl16 = 0x39f9
 
-// fl16 = 0x2af6
+-- fl16 = 0x2af6
 -- returns a character in a, or -1 if none.
-// fl16 = 0x2af6
+-- fl16 = 0x2af6
 -- this version can miss characters if not polled while the character is arriving.
-// fl16 = 0x2af6
+-- fl16 = 0x2af6
 -- check for UART is busy, then idle.
-// fl16 = 0x2af6
+-- fl16 = 0x2af6
     004a : 0204 ; -- <0079> a = $arx_busy_mask
-// fl16 = 0x2af6
+-- fl16 = 0x2af6
     004b : 0412 ; -- <0080> b = atx_ctrl
-// fl16 = 0x22fc
+-- fl16 = 0x22fc
     004c : e003 ; -- <0081> br and0z :none
-// fl16 = 0x4413
+-- fl16 = 0x4413
     004d : 0053 ; -- <0081> "
-// fl16 = 0x51f6
+-- fl16 = 0x51f6
 -- :wait_for_idle -- = 0x004e
-// fl16 = 0xe54a
+-- fl16 = 0xe54a
     004e : 0412 ; -- <0083> b = atx_ctrl
-// fl16 = 0xe54a
+-- fl16 = 0xe54a
     004f : e403 ; -- <0084> bn and0z :wait_for_idle
-// fl16 = 0xa260
+-- fl16 = 0xa260
     0050 : 004e ; -- <0084> "
-// fl16 = 0x4e48
+-- fl16 = 0x4e48
     0051 : 0011 ; -- <0085> a = atx_data
-// fl16 = 0x7b96
+-- fl16 = 0x7b96
     0052 : fc00 ; -- <0086> rtn
-// fl16 = 0xcaa7
+-- fl16 = 0xcaa7
 -- :none -- = 0x0053
-// fl16 = 0x17a4
+-- fl16 = 0x17a4
     0053 : 0360 ; -- <0088> a = -1
-// fl16 = 0x17a4
+-- fl16 = 0x17a4
     0054 : fc00 ; -- <0089> rtn
-// fl16 = 0x2408
+-- fl16 = 0x2408
 
-// fl16 = 0x3105
+-- fl16 = 0x3105
 
-// fl16 = 0x3105
+-- fl16 = 0x3105
 
-// fl16 = 0x3105
+-- fl16 = 0x3105
 -- function library for simple console i/o based on putchar & getchar.
-// fl16 = 0x3105
+-- fl16 = 0x3105
 -- requires a console driver library to be included prior to including this.
-// fl16 = 0x3105
+-- fl16 = 0x3105
 
-// fl16 = 0x3105
+-- fl16 = 0x3105
 
-// fl16 = 0x3105
+-- fl16 = 0x3105
 -- :hexdigits -- = 0x0055
-// fl16 = 0x3105
+-- fl16 = 0x3105
 -- "0123456789abcdef"
-// fl16 = 0x3105
+-- fl16 = 0x3105
     0055 : 3130 ; -- <0054> 10
-// fl16 = 0x3105
+-- fl16 = 0x3105
     0056 : 3332 ; -- <0054> 32
-// fl16 = 0xcc66
+-- fl16 = 0xcc66
     0057 : 3534 ; -- <0054> 54
-// fl16 = 0x31cb
+-- fl16 = 0x31cb
     0058 : 3736 ; -- <0054> 76
-// fl16 = 0x6635
+-- fl16 = 0x6635
     0059 : 3938 ; -- <0054> 98
-// fl16 = 0x74a2
+-- fl16 = 0x74a2
     005a : 6261 ; -- <0054> ba
-// fl16 = 0x6314
+-- fl16 = 0x6314
     005b : 6463 ; -- <0054> dc
-// fl16 = 0xb0d7
+-- fl16 = 0xb0d7
     005c : 6665 ; -- <0054> fe
-// fl16 = 0x8b9f
+-- fl16 = 0x8b9f
 
-// fl16 = 0xfb6b
+-- fl16 = 0xfb6b
 -- function to print a 16-bit number formatted as 4 hex digits.
-// fl16 = 0xfb6b
+-- fl16 = 0xfb6b
 -- pass number in a.
-// fl16 = 0xfb6b
+-- fl16 = 0xfb6b
     005d : 2004 ; -- <0058> push x -- func put4x
-// fl16 = 0xfb6b
+-- fl16 = 0xfb6b
     005e : 2006 ; -- <0058> push g6 -- "
-// fl16 = 0xfa8f
+-- fl16 = 0xfa8f
     005f : 203e ; -- <0058> push rtna -- "
-// fl16 = 0x46b5
+-- fl16 = 0x46b5
     0060 : 13a0 ; -- <0059> x = :hexdigits
-// fl16 = 0x4e14
+-- fl16 = 0x4e14
     0061 : 0055 ; -- <0059> "
-// fl16 = 0xcac7
+-- fl16 = 0xcac7
 
-// fl16 = 0x051d
+-- fl16 = 0x051d
     0062 : 1800 ; -- <0061> g6 = a
-// fl16 = 0x051d
+-- fl16 = 0x051d
     0063 : 07a0 ; -- <0062> b = 0xF000
-// fl16 = 0x5735
+-- fl16 = 0x5735
     0064 : f000 ; -- <0062> "
-// fl16 = 0x0adc
+-- fl16 = 0x0adc
     0065 : c800 ; -- <0063> a = and
-// fl16 = 0xb4cd
+-- fl16 = 0xb4cd
     0066 : 0330 ; -- <0063> "
-// fl16 = 0x1996
+-- fl16 = 0x1996
     0067 : 0353 ; -- <0064> a = a>>4
-// fl16 = 0xa9c9
+-- fl16 = 0xa9c9
     0068 : 0353 ; -- <0065> a = a>>4
-// fl16 = 0xe620
+-- fl16 = 0xe620
     0069 : 0353 ; -- <0066> a = a>>4
-// fl16 = 0xd076
+-- fl16 = 0xd076
     006a : fba0 ; -- <0067> call fetch_byte
-// fl16 = 0x67cc
+-- fl16 = 0x67cc
     006b : 0002 ; -- <0067> "
-// fl16 = 0x3e69
+-- fl16 = 0x3e69
     006c : fc00 ; -- <0067> "
-// fl16 = 0x156b
+-- fl16 = 0x156b
     006d : 0000 ; -- <0068> a = a -- putchar a
-// fl16 = 0xe868
+-- fl16 = 0xe868
     006e : fba0 ; -- <0068> putchar a
-// fl16 = 0xb968
+-- fl16 = 0xb968
     006f : 0032 ; -- <0068> "
-// fl16 = 0xc705
+-- fl16 = 0xc705
     0070 : fc00 ; -- <0068> "
-// fl16 = 0x3637
+-- fl16 = 0x3637
 
-// fl16 = 0xa134
+-- fl16 = 0xa134
     0071 : 0006 ; -- <0070> a = g6
-// fl16 = 0xa134
+-- fl16 = 0xa134
     0072 : 07a0 ; -- <0071> b = 0x0F00
-// fl16 = 0x163a
+-- fl16 = 0x163a
     0073 : 0f00 ; -- <0071> "
-// fl16 = 0xd2e1
+-- fl16 = 0xd2e1
     0074 : c800 ; -- <0072> a = and
-// fl16 = 0xa5f0
+-- fl16 = 0xa5f0
     0075 : 0330 ; -- <0072> "
-// fl16 = 0x50b9
+-- fl16 = 0x50b9
     0076 : 0353 ; -- <0073> a = a>>4
-// fl16 = 0x27ec
+-- fl16 = 0x27ec
     0077 : 0353 ; -- <0074> a = a>>4
-// fl16 = 0xaa43
+-- fl16 = 0xaa43
     0078 : fba0 ; -- <0075> call fetch_byte
-// fl16 = 0xda99
+-- fl16 = 0xda99
     0079 : 0002 ; -- <0075> "
-// fl16 = 0x4b36
+-- fl16 = 0x4b36
     007a : fc00 ; -- <0075> "
-// fl16 = 0xbb38
+-- fl16 = 0xbb38
     007b : 0000 ; -- <0076> a = a -- putchar a
-// fl16 = 0x2935
+-- fl16 = 0x2935
     007c : fba0 ; -- <0076> putchar a
-// fl16 = 0x9335
+-- fl16 = 0x9335
     007d : 0032 ; -- <0076> "
-// fl16 = 0x3bd1
+-- fl16 = 0x3bd1
     007e : fc00 ; -- <0076> "
-// fl16 = 0x4304
+-- fl16 = 0x4304
 
-// fl16 = 0x4801
+-- fl16 = 0x4801
     007f : 0006 ; -- <0078> a = g6
-// fl16 = 0x4801
+-- fl16 = 0x4801
     0080 : 06f0 ; -- <0079> b = 0x00F0
-// fl16 = 0x5607
+-- fl16 = 0x5607
     0081 : c800 ; -- <0080> a = and
-// fl16 = 0x4cfd
+-- fl16 = 0x4cfd
     0082 : 0330 ; -- <0080> "
-// fl16 = 0x11c6
+-- fl16 = 0x11c6
     0083 : 0353 ; -- <0081> a = a>>4
-// fl16 = 0x02f9
+-- fl16 = 0x02f9
     0084 : fba0 ; -- <0082> call fetch_byte
-// fl16 = 0x9f50
+-- fl16 = 0x9f50
     0085 : 0002 ; -- <0082> "
-// fl16 = 0x7dec
+-- fl16 = 0x7dec
     0086 : fc00 ; -- <0082> "
-// fl16 = 0x5bee
+-- fl16 = 0x5bee
     0087 : 0000 ; -- <0083> a = a -- putchar a
-// fl16 = 0x36eb
+-- fl16 = 0x36eb
     0088 : fba0 ; -- <0083> putchar a
-// fl16 = 0x0eeb
+-- fl16 = 0x0eeb
     0089 : 0032 ; -- <0083> "
-// fl16 = 0x2388
+-- fl16 = 0x2388
     008a : fc00 ; -- <0083> "
-// fl16 = 0x98ba
+-- fl16 = 0x98ba
 
-// fl16 = 0x0bb7
+-- fl16 = 0x0bb7
     008b : 0006 ; -- <0085> a = g6
-// fl16 = 0x0bb7
+-- fl16 = 0x0bb7
     008c : 060f ; -- <0086> b = 0x000F
-// fl16 = 0x86bd
+-- fl16 = 0x86bd
     008d : c800 ; -- <0087> a = and
-// fl16 = 0x26d2
+-- fl16 = 0x26d2
     008e : 0330 ; -- <0087> "
-// fl16 = 0x949b
+-- fl16 = 0x949b
     008f : fba0 ; -- <0088> call fetch_byte
-// fl16 = 0x2fce
+-- fl16 = 0x2fce
     0090 : 0002 ; -- <0088> "
-// fl16 = 0x0a6b
+-- fl16 = 0x0a6b
     0091 : fc00 ; -- <0088> "
-// fl16 = 0xe46d
+-- fl16 = 0xe46d
     0092 : 0000 ; -- <0089> a = a -- putchar a
-// fl16 = 0xbc6a
+-- fl16 = 0xbc6a
     0093 : fba0 ; -- <0089> putchar a
-// fl16 = 0x916a
+-- fl16 = 0x916a
     0094 : 0032 ; -- <0089> "
-// fl16 = 0xa307
+-- fl16 = 0xa307
     0095 : fc00 ; -- <0089> "
-// fl16 = 0x1639
+-- fl16 = 0x1639
 
-// fl16 = 0x8536
+-- fl16 = 0x8536
     0096 : f808 ; -- <0091> pop rtna -- rtn
-// fl16 = 0x8536
+-- fl16 = 0x8536
     0097 : 1808 ; -- <0091> pop g6 -- "
-// fl16 = 0xfa37
+-- fl16 = 0xfa37
     0098 : 1008 ; -- <0091> pop x -- "
-// fl16 = 0x9157
+-- fl16 = 0x9157
     0099 : fc00 ; -- <0091> rtn
-// fl16 = 0x606f
+-- fl16 = 0x606f
 
-// fl16 = 0x3c6c
+-- fl16 = 0x3c6c
 -- function to scan a 16-bit number formatted as 4 hex digits.
-// fl16 = 0x3c6c
+-- fl16 = 0x3c6c
 -- return number in a.  return 0 for success in b.
-// fl16 = 0x3c6c
+-- fl16 = 0x3c6c
     009a : 2002 ; -- <0095> push i -- func get4x
-// fl16 = 0x3c6c
+-- fl16 = 0x3c6c
     009b : 2003 ; -- <0095> push j -- "
-// fl16 = 0x398e
+-- fl16 = 0x398e
     009c : 2004 ; -- <0095> push x -- "
-// fl16 = 0x7cb1
+-- fl16 = 0x7cb1
     009d : 2005 ; -- <0095> push y -- "
-// fl16 = 0x08d5
+-- fl16 = 0x08d5
     009e : 203e ; -- <0095> push rtna -- "
-// fl16 = 0xddfa
+-- fl16 = 0xddfa
 -- y = digit counter
-// fl16 = 0x7059
+-- fl16 = 0x7059
 -- j = sum
-// fl16 = 0x7059
+-- fl16 = 0x7059
     009f : 1604 ; -- <0098> y = 4
-// fl16 = 0x7059
+-- fl16 = 0x7059
 -- :again -- = 0x00a0
-// fl16 = 0x4173
+-- fl16 = 0x4173
     00a0 : fba0 ; -- <0100> getchar
-// fl16 = 0x4173
+-- fl16 = 0x4173
     00a1 : 0041 ; -- <0100> "
-// fl16 = 0x6510
+-- fl16 = 0x6510
     00a2 : fc00 ; -- <0100> "
-// fl16 = 0x0851
+-- fl16 = 0x0851
     00a3 : 2000 ; -- <0100> push a -- "
-// fl16 = 0xa74e
+-- fl16 = 0xa74e
     00a4 : 0000 ; -- <0100> a = a -- "
-// fl16 = 0x646e
+-- fl16 = 0x646e
     00a5 : fba0 ; -- <0100> "
-// fl16 = 0x416e
+-- fl16 = 0x416e
     00a6 : 0032 ; -- <0100> "
-// fl16 = 0x5b0b
+-- fl16 = 0x5b0b
     00a7 : fc00 ; -- <0100> "
-// fl16 = 0xd53d
+-- fl16 = 0xd53d
     00a8 : 0008 ; -- <0100> pop a -- "
-// fl16 = 0x4d3a
+-- fl16 = 0x4d3a
     00a9 : 13a0 ; -- <0101> x = :hexdigits
-// fl16 = 0xd142
+-- fl16 = 0xd142
     00aa : 0055 ; -- <0101> "
-// fl16 = 0xaaf5
+-- fl16 = 0xaaf5
     00ab : 0a10 ; -- <0102> i = 16
-// fl16 = 0x414b
+-- fl16 = 0x414b
     00ac : fba0 ; -- <0103> call :find_in_fetch
-// fl16 = 0x0265
+-- fl16 = 0x0265
     00ad : 0016 ; -- <0103> "
-// fl16 = 0x0a02
+-- fl16 = 0x0a02
     00ae : fc00 ; -- <0103> "
-// fl16 = 0x3a18
+-- fl16 = 0x3a18
     00af : 0760 ; -- <0104> b = -1
-// fl16 = 0x6715
+-- fl16 = 0x6715
     00b0 : e007 ; -- <0105> br eq :fail
-// fl16 = 0x597c
+-- fl16 = 0x597c
     00b1 : 00c5 ; -- <0105> "
-// fl16 = 0x4164
+-- fl16 = 0x4164
     00b2 : 0400 ; -- <0106> b = a
-// fl16 = 0x952a
+-- fl16 = 0x952a
     00b3 : 0003 ; -- <0107> a = j
-// fl16 = 0xed2e
+-- fl16 = 0xed2e
     00b4 : 0352 ; -- <0108> a = a<<4
-// fl16 = 0x5031
+-- fl16 = 0x5031
     00b5 : c800 ; -- <0109> j = or
-// fl16 = 0x5a86
+-- fl16 = 0x5a86
     00b6 : 0f34 ; -- <0109> "
-// fl16 = 0x304f
+-- fl16 = 0x304f
     00b7 : 1360 ; -- <0110> x = -1
-// fl16 = 0x4692
+-- fl16 = 0x4692
     00b8 : c800 ; -- <0111> y = x+y
-// fl16 = 0x3f06
+-- fl16 = 0x3f06
     00b9 : 1720 ; -- <0111> "
-// fl16 = 0x14ce
+-- fl16 = 0x14ce
     00ba : 0005 ; -- <0112> a = y
-// fl16 = 0x0906
+-- fl16 = 0x0906
     00bb : e400 ; -- <0113> bn az :again
-// fl16 = 0x1f0b
+-- fl16 = 0x1f0b
     00bc : 00a0 ; -- <0113> "
-// fl16 = 0x1aef
+-- fl16 = 0x1aef
     00bd : 0003 ; -- <0114> a = j
-// fl16 = 0x3b90
+-- fl16 = 0x3b90
     00be : 0600 ; -- <0115> b = 0
-// fl16 = 0x6293
+-- fl16 = 0x6293
     00bf : f808 ; -- <0116> pop rtna -- rtn
-// fl16 = 0x8f99
+-- fl16 = 0x8f99
     00c0 : 1408 ; -- <0116> pop y -- "
-// fl16 = 0xcb9a
+-- fl16 = 0xcb9a
     00c1 : 1008 ; -- <0116> pop x -- "
-// fl16 = 0x25b6
+-- fl16 = 0x25b6
     00c2 : 0c08 ; -- <0116> pop j -- "
-// fl16 = 0xb2ce
+-- fl16 = 0xb2ce
     00c3 : 0808 ; -- <0116> pop i -- "
-// fl16 = 0x6ce2
+-- fl16 = 0x6ce2
     00c4 : fc00 ; -- <0116> rtn
-// fl16 = 0x4af2
+-- fl16 = 0x4af2
 -- :fail -- = 0x00c5
-// fl16 = 0x2def
+-- fl16 = 0x2def
     00c5 : 0760 ; -- <0118> b = -1
-// fl16 = 0x2def
+-- fl16 = 0x2def
     00c6 : f808 ; -- <0119> pop rtna -- rtn
-// fl16 = 0xd457
+-- fl16 = 0xd457
     00c7 : 1408 ; -- <0119> pop y -- "
-// fl16 = 0x8c58
+-- fl16 = 0x8c58
     00c8 : 1008 ; -- <0119> pop x -- "
-// fl16 = 0x6174
+-- fl16 = 0x6174
     00c9 : 0c08 ; -- <0119> pop j -- "
-// fl16 = 0x6a8c
+-- fl16 = 0x6a8c
     00ca : 0808 ; -- <0119> pop i -- "
-// fl16 = 0x9fa0
+-- fl16 = 0x9fa0
     00cb : fc00 ; -- <0119> rtn
-// fl16 = 0xf8b0
+-- fl16 = 0xf8b0
 
-// fl16 = 0x57ad
+-- fl16 = 0x57ad
 -- routine waits a number of milliseconds given in a.
-// fl16 = 0x57ad
+-- fl16 = 0x57ad
     00cc : 2004 ; -- <0002> push x -- func spinwait
-// fl16 = 0x57ad
+-- fl16 = 0x57ad
     00cd : 2005 ; -- <0002> push y -- "
-// fl16 = 0xdad1
+-- fl16 = 0xdad1
 --patch
-// fl16 = 0xa8f6
+-- fl16 = 0xa8f6
 --rtn
-// fl16 = 0xa8f6
+-- fl16 = 0xa8f6
     00ce : 0760 ; -- <0005> b = -1
-// fl16 = 0xa8f6
+-- fl16 = 0xa8f6
 -- :spinwait_outer -- = 0x00cf
-// fl16 = 0x5e5e
+-- fl16 = 0x5e5e
     00cf : 13a0 ; -- <0007> x = 16666
-// fl16 = 0x5e5e
+-- fl16 = 0x5e5e
     00d0 : 411a ; -- <0007> "
-// fl16 = 0x6f12
+-- fl16 = 0x6f12
     00d1 : 1760 ; -- <0008> y = -1
-// fl16 = 0x096d
+-- fl16 = 0x096d
     00d2 : c800 ; -- <0009> nop
-// fl16 = 0xbbe4
+-- fl16 = 0xbbe4
 -- :spinwait_inner -- = 0x00d3
-// fl16 = 0x4ead
+-- fl16 = 0x4ead
 -- use of the ad2 name overrides auto-nop here.
-// fl16 = 0x4ead
+-- fl16 = 0x4ead
     00d3 : 1320 ; -- <0012> x = ad2
-// fl16 = 0x4ead
+-- fl16 = 0x4ead
     00d4 : e402 ; -- <0013> bn xz :spinwait_inner
-// fl16 = 0xfce0
+-- fl16 = 0xfce0
     00d5 : 00d3 ; -- <0013> "
-// fl16 = 0xa7c7
+-- fl16 = 0xa7c7
     00d6 : c800 ; -- <0014> a = a+b
-// fl16 = 0xde9b
+-- fl16 = 0xde9b
     00d7 : 0300 ; -- <0014> "
-// fl16 = 0xde64
+-- fl16 = 0xde64
     00d8 : e400 ; -- <0015> bn az :spinwait_outer
-// fl16 = 0xaa67
+-- fl16 = 0xaa67
     00d9 : 00cf ; -- <0015> "
-// fl16 = 0x5e4c
+-- fl16 = 0x5e4c
     00da : 1408 ; -- <0016> pop y -- rtn
-// fl16 = 0x961c
+-- fl16 = 0x961c
     00db : 1008 ; -- <0016> pop x -- "
-// fl16 = 0xf238
+-- fl16 = 0xf238
     00dc : fc00 ; -- <0016> rtn
-// fl16 = 0x8350
+-- fl16 = 0x8350
 
-// fl16 = 0x214d
+-- fl16 = 0x214d
 
-// fl16 = 0x214d
+-- fl16 = 0x214d
 
-// fl16 = 0x214d
+-- fl16 = 0x214d
 -- --------------------------------------------
-// fl16 = 0x214d
+-- fl16 = 0x214d
 -- :main -- = 0x00dd
-// fl16 = 0x214d
+-- fl16 = 0x214d
 -- put target into reset.
-// fl16 = 0x214d
+-- fl16 = 0x214d
     00dd : 3e02 ; -- <0061> bus_ctrl = $tg_reset_mask
-// fl16 = 0x214d
+-- fl16 = 0x214d
 
-// fl16 = 0xfd8d
+-- fl16 = 0xfd8d
 -- init visor.
-// fl16 = 0xfd8d
+-- fl16 = 0xfd8d
     00de : 3360 ; -- <0064> bp3_addr = $bp_disable
-// fl16 = 0xfd8d
+-- fl16 = 0xfd8d
     00df : 2f60 ; -- <0065> bp2_addr = $bp_disable
-// fl16 = 0x0d21
+-- fl16 = 0x0d21
     00e0 : 2b60 ; -- <0066> bp1_addr = $bp_disable
-// fl16 = 0x3fb0
+-- fl16 = 0x3fb0
     00e1 : 2760 ; -- <0067> bp0_addr = $bp_disable
-// fl16 = 0x8c3c
+-- fl16 = 0x8c3c
 
-// fl16 = 0xecc3
+-- fl16 = 0xecc3
     00e2 : 0256 ; -- <0069> a = 86 -- putasc "V"
-// fl16 = 0xecc3
+-- fl16 = 0xecc3
     00e3 : 0000 ; -- <0069> a = a -- putasc "V"
-// fl16 = 0x231c
+-- fl16 = 0x231c
     00e4 : fba0 ; -- <0069> putasc "V"
-// fl16 = 0x5b1c
+-- fl16 = 0x5b1c
     00e5 : 0032 ; -- <0069> "
-// fl16 = 0xd0b8
+-- fl16 = 0xd0b8
     00e6 : fc00 ; -- <0069> "
-// fl16 = 0xa6ea
+-- fl16 = 0xa6ea
     00e7 : 0249 ; -- <0070> a = 73 -- putasc "I"
-// fl16 = 0x79e7
+-- fl16 = 0x79e7
     00e8 : 0000 ; -- <0070> a = a -- putasc "I"
-// fl16 = 0xdd33
+-- fl16 = 0xdd33
     00e9 : fba0 ; -- <0070> putasc "I"
-// fl16 = 0x4433
+-- fl16 = 0x4433
     00ea : 0032 ; -- <0070> "
-// fl16 = 0xe7cf
+-- fl16 = 0xe7cf
     00eb : fc00 ; -- <0070> "
-// fl16 = 0xeb02
+-- fl16 = 0xeb02
     00ec : 0253 ; -- <0071> a = 83 -- putasc "S"
-// fl16 = 0xecfe
+-- fl16 = 0xecfe
     00ed : 0000 ; -- <0071> a = a -- putasc "S"
-// fl16 = 0x9354
+-- fl16 = 0x9354
     00ee : fba0 ; -- <0071> putasc "S"
-// fl16 = 0x3c54
+-- fl16 = 0x3c54
     00ef : 0032 ; -- <0071> "
-// fl16 = 0x22f0
+-- fl16 = 0x22f0
     00f0 : fc00 ; -- <0071> "
-// fl16 = 0x6823
+-- fl16 = 0x6823
     00f1 : 024f ; -- <0072> a = 79 -- putasc "O"
-// fl16 = 0xab20
+-- fl16 = 0xab20
     00f2 : 0000 ; -- <0072> a = a -- putasc "O"
-// fl16 = 0x8c71
+-- fl16 = 0x8c71
     00f3 : fba0 ; -- <0072> putasc "O"
-// fl16 = 0x6f71
+-- fl16 = 0x6f71
     00f4 : 0032 ; -- <0072> "
-// fl16 = 0x8f0e
+-- fl16 = 0x8f0e
     00f5 : fc00 ; -- <0072> "
-// fl16 = 0x1040
+-- fl16 = 0x1040
     00f6 : 0252 ; -- <0073> a = 82 -- putasc "R"
-// fl16 = 0x8d3d
+-- fl16 = 0x8d3d
     00f7 : 0000 ; -- <0073> a = a -- putasc "R"
-// fl16 = 0xae91
+-- fl16 = 0xae91
     00f8 : fba0 ; -- <0073> putasc "R"
-// fl16 = 0xd191
+-- fl16 = 0xd191
     00f9 : 0032 ; -- <0073> "
-// fl16 = 0x322e
+-- fl16 = 0x322e
     00fa : fc00 ; -- <0073> "
-// fl16 = 0xf260
+-- fl16 = 0xf260
 
-// fl16 = 0xb05d
+-- fl16 = 0xb05d
 --call :load_program
-// fl16 = 0xb05d
+-- fl16 = 0xb05d
 
-// fl16 = 0xb05d
+-- fl16 = 0xb05d
 -- step into the first target instruction.
-// fl16 = 0xb05d
+-- fl16 = 0xb05d
     00fb : 3e08 ; -- <0078> bus_ctrl = $bp_step_mask
-// fl16 = 0xb05d
+-- fl16 = 0xb05d
     00fc : fba0 ; -- <0079> call :wait_for_bp
-// fl16 = 0xb9a3
+-- fl16 = 0xb9a3
     00fd : 01ae ; -- <0079> "
-// fl16 = 0x3e40
+-- fl16 = 0x3e40
     00fe : fc00 ; -- <0079> "
-// fl16 = 0x1def
+-- fl16 = 0x1def
 
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- :runagain
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- -- release target reset, to run.
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- bus_ctrl = 0
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- bp0_addr = bp0_addr
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- a = 1000
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- call :spinwait
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- bus_ctrl = $bp_step_mask
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- call :wait_for_bp
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- call :dump_target
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- a = tg_code_addr
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- call :put4x
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- putasc ","
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- a = exr_shadow
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- call :put4x
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- putasc " "
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- putasc ">"
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- getchar
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- a = 1000
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- call :spinwait
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- jmp :runagain
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- command prompt loop.
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
 -- :cmd_loop -- = 0x00ff
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
     00ff : 000f ; -- <0104> a = bus_ctrl
-// fl16 = 0xf9ec
+-- fl16 = 0xf9ec
     0100 : 0600 ; -- <0105> b = 0
-// fl16 = 0xf1fb
+-- fl16 = 0xf1fb
     0101 : e007 ; -- <0106> br eq :running_prompt
-// fl16 = 0xef02
+-- fl16 = 0xef02
     0102 : 0128 ; -- <0106> "
-// fl16 = 0xe2e9
+-- fl16 = 0xe2e9
 
-// fl16 = 0x0813
+-- fl16 = 0x0813
     0103 : fba0 ; -- <0108> call :dump_target
-// fl16 = 0x0813
+-- fl16 = 0x0813
     0104 : 0275 ; -- <0108> "
-// fl16 = 0x6baf
+-- fl16 = 0x6baf
     0105 : fc00 ; -- <0108> "
-// fl16 = 0xb727
+-- fl16 = 0xb727
     0106 : 0016 ; -- <0109> a = tg_code_addr
-// fl16 = 0x0324
+-- fl16 = 0x0324
     0107 : fba0 ; -- <0110> call :put4x
-// fl16 = 0x773a
+-- fl16 = 0x773a
     0108 : 005d ; -- <0110> "
-// fl16 = 0x29d6
+-- fl16 = 0x29d6
     0109 : fc00 ; -- <0110> "
-// fl16 = 0x9134
+-- fl16 = 0x9134
     010a : 022c ; -- <0111> a = 44 -- putasc ","
-// fl16 = 0xf631
+-- fl16 = 0xf631
     010b : 0000 ; -- <0111> a = a -- putasc ","
-// fl16 = 0xb35f
+-- fl16 = 0xb35f
     010c : fba0 ; -- <0111> putasc ","
-// fl16 = 0x725f
+-- fl16 = 0x725f
     010d : 0032 ; -- <0111> "
-// fl16 = 0x6efb
+-- fl16 = 0x6efb
     010e : fc00 ; -- <0111> "
-// fl16 = 0xca2e
+-- fl16 = 0xca2e
     010f : 0015 ; -- <0112> a = exr_shadow
-// fl16 = 0x242b
+-- fl16 = 0x242b
     0110 : fba0 ; -- <0113> call :put4x
-// fl16 = 0xa440
+-- fl16 = 0xa440
     0111 : 005d ; -- <0113> "
-// fl16 = 0x62dc
+-- fl16 = 0x62dc
     0112 : fc00 ; -- <0113> "
-// fl16 = 0xd63a
+-- fl16 = 0xd63a
     0113 : 0220 ; -- <0114> a = 32 -- putasc " "
-// fl16 = 0x4837
+-- fl16 = 0x4837
     0114 : 0000 ; -- <0114> a = a -- putasc " "
-// fl16 = 0xf859
+-- fl16 = 0xf859
     0115 : fba0 ; -- <0114> putasc " "
-// fl16 = 0xab59
+-- fl16 = 0xab59
     0116 : 0032 ; -- <0114> "
-// fl16 = 0x9bf5
+-- fl16 = 0x9bf5
     0117 : fc00 ; -- <0114> "
-// fl16 = 0xeb28
+-- fl16 = 0xeb28
     0118 : 023e ; -- <0115> a = 62 -- putasc ">"
-// fl16 = 0x3925
+-- fl16 = 0x3925
     0119 : 0000 ; -- <0115> a = a -- putasc ">"
-// fl16 = 0x0265
+-- fl16 = 0x0265
     011a : fba0 ; -- <0115> putasc ">"
-// fl16 = 0xcc65
+-- fl16 = 0xcc65
     011b : 0032 ; -- <0115> "
-// fl16 = 0xd402
+-- fl16 = 0xd402
     011c : fc00 ; -- <0115> "
-// fl16 = 0x3d34
+-- fl16 = 0x3d34
     011d : fba0 ; -- <0116> getchar
-// fl16 = 0xa231
+-- fl16 = 0xa231
     011e : 0041 ; -- <0116> "
-// fl16 = 0x42cd
+-- fl16 = 0x42cd
     011f : fc00 ; -- <0116> "
-// fl16 = 0x600f
+-- fl16 = 0x600f
     0120 : 2000 ; -- <0116> push a -- "
-// fl16 = 0x7b0c
+-- fl16 = 0x7b0c
     0121 : 0000 ; -- <0116> a = a -- "
-// fl16 = 0xb32c
+-- fl16 = 0xb32c
     0122 : fba0 ; -- <0116> "
-// fl16 = 0x0c2c
+-- fl16 = 0x0c2c
     0123 : 0032 ; -- <0116> "
-// fl16 = 0xa1c8
+-- fl16 = 0xa1c8
     0124 : fc00 ; -- <0116> "
-// fl16 = 0x97fa
+-- fl16 = 0x97fa
     0125 : 0008 ; -- <0116> pop a -- "
-// fl16 = 0x8af7
+-- fl16 = 0x8af7
     0126 : e00f ; -- <0117> jmp :parse_cmd
-// fl16 = 0x8a00
+-- fl16 = 0x8a00
     0127 : 0157 ; -- <0117> "
-// fl16 = 0x89ef
+-- fl16 = 0x89ef
 
-// fl16 = 0x1948
+-- fl16 = 0x1948
 -- :running_prompt -- = 0x0128
-// fl16 = 0x1948
+-- fl16 = 0x1948
     0128 : 020d ; -- <0120> a = 13 -- puteol
-// fl16 = 0x1948
+-- fl16 = 0x1948
     0129 : 0000 ; -- <0120> a = a -- puteol
-// fl16 = 0xc557
+-- fl16 = 0xc557
     012a : fba0 ; -- <0120> puteol
-// fl16 = 0x7457
+-- fl16 = 0x7457
     012b : 0032 ; -- <0120> "
-// fl16 = 0x60f3
+-- fl16 = 0x60f3
     012c : fc00 ; -- <0120> "
-// fl16 = 0xac26
+-- fl16 = 0xac26
     012d : 020a ; -- <0120> a = 10 -- puteol
-// fl16 = 0xf523
+-- fl16 = 0xf523
     012e : 0000 ; -- <0120> a = a -- puteol
-// fl16 = 0x522f
+-- fl16 = 0x522f
     012f : fba0 ; -- <0120> puteol
-// fl16 = 0xb02f
+-- fl16 = 0xb02f
     0130 : 0032 ; -- <0120> "
-// fl16 = 0x4ccb
+-- fl16 = 0x4ccb
     0131 : fc00 ; -- <0120> "
-// fl16 = 0x48fd
+-- fl16 = 0x48fd
     0132 : 0252 ; -- <0121> a = 82 -- putasc "R"
-// fl16 = 0x41fa
+-- fl16 = 0x41fa
     0133 : 0000 ; -- <0121> a = a -- putasc "R"
-// fl16 = 0xdd4f
+-- fl16 = 0xdd4f
     0134 : fba0 ; -- <0121> putasc "R"
-// fl16 = 0x7c4f
+-- fl16 = 0x7c4f
     0135 : 0032 ; -- <0121> "
-// fl16 = 0x58eb
+-- fl16 = 0x58eb
     0136 : fc00 ; -- <0121> "
-// fl16 = 0x941e
+-- fl16 = 0x941e
     0137 : 0255 ; -- <0122> a = 85 -- putasc "U"
-// fl16 = 0xcd1b
+-- fl16 = 0xcd1b
     0138 : 0000 ; -- <0122> a = a -- putasc "U"
-// fl16 = 0xb072
+-- fl16 = 0xb072
     0139 : fba0 ; -- <0122> putasc "U"
-// fl16 = 0x9572
+-- fl16 = 0x9572
     013a : 0032 ; -- <0122> "
-// fl16 = 0xb70f
+-- fl16 = 0xb70f
     013b : fc00 ; -- <0122> "
-// fl16 = 0x3a41
+-- fl16 = 0x3a41
     013c : 024e ; -- <0123> a = 78 -- putasc "N"
-// fl16 = 0xb93e
+-- fl16 = 0xb93e
     013d : 0000 ; -- <0123> a = a -- putasc "N"
-// fl16 = 0xd48e
+-- fl16 = 0xd48e
     013e : fba0 ; -- <0123> putasc "N"
-// fl16 = 0xf18e
+-- fl16 = 0xf18e
     013f : 0032 ; -- <0123> "
-// fl16 = 0x4c2b
+-- fl16 = 0x4c2b
     0140 : fc00 ; -- <0123> "
-// fl16 = 0x075d
+-- fl16 = 0x075d
     0141 : 0220 ; -- <0124> a = 32 -- putasc " "
-// fl16 = 0xbe5a
+-- fl16 = 0xbe5a
     0142 : 0000 ; -- <0124> a = a -- putasc " "
-// fl16 = 0xb57c
+-- fl16 = 0xb57c
     0143 : fba0 ; -- <0124> putasc " "
-// fl16 = 0xae7c
+-- fl16 = 0xae7c
     0144 : 0032 ; -- <0124> "
-// fl16 = 0xe419
+-- fl16 = 0xe419
     0145 : fc00 ; -- <0124> "
-// fl16 = 0x7b4b
+-- fl16 = 0x7b4b
     0146 : 023e ; -- <0125> a = 62 -- putasc ">"
-// fl16 = 0x0f48
+-- fl16 = 0x0f48
     0147 : 0000 ; -- <0125> a = a -- putasc ">"
-// fl16 = 0x1e88
+-- fl16 = 0x1e88
     0148 : fba0 ; -- <0125> putasc ">"
-// fl16 = 0x2f88
+-- fl16 = 0x2f88
     0149 : 0032 ; -- <0125> "
-// fl16 = 0x7d25
+-- fl16 = 0x7d25
     014a : fc00 ; -- <0125> "
-// fl16 = 0x2c57
+-- fl16 = 0x2c57
 -- :run_poll -- = 0x014b
-// fl16 = 0xd754
+-- fl16 = 0xd754
     014b : fba0 ; -- <0127> pollchar
-// fl16 = 0xd754
+-- fl16 = 0xd754
     014c : 004a ; -- <0127> "
-// fl16 = 0xbdf0
+-- fl16 = 0xbdf0
     014d : fc00 ; -- <0127> "
-// fl16 = 0x343b
+-- fl16 = 0x343b
     014e : 0760 ; -- <0128> b = -1
-// fl16 = 0xa738
+-- fl16 = 0xa738
     014f : e407 ; -- <0129> bn eq :parse_cmd
-// fl16 = 0xdf9f
+-- fl16 = 0xdf9f
     0150 : 0157 ; -- <0129> "
-// fl16 = 0x128b
+-- fl16 = 0x128b
     0151 : 0018 ; -- <0130> a = bp_status
-// fl16 = 0xd8e3
+-- fl16 = 0xd8e3
     0152 : e000 ; -- <0131> br az :run_poll
-// fl16 = 0xd0fb
+-- fl16 = 0xd0fb
     0153 : 014b ; -- <0131> "
-// fl16 = 0xa9dc
+-- fl16 = 0xa9dc
 -- target hit a breakpoint; switch to stepping mode.
-// fl16 = 0xfa29
+-- fl16 = 0xfa29
     0154 : 3e08 ; -- <0133> bus_ctrl = $bp_step_mask
-// fl16 = 0xfa29
+-- fl16 = 0xfa29
     0155 : e00f ; -- <0134> jmp :cmd_loop
-// fl16 = 0x9b6f
+-- fl16 = 0x9b6f
     0156 : 00ff ; -- <0134> "
-// fl16 = 0x795f
+-- fl16 = 0x795f
 
-// fl16 = 0x385f
+-- fl16 = 0x385f
 -- :parse_cmd -- = 0x0157
-// fl16 = 0x385f
+-- fl16 = 0x385f
 
-// fl16 = 0x385f
+-- fl16 = 0x385f
 -- command = step next instruction.
-// fl16 = 0x385f
+-- fl16 = 0x385f
     0157 : 066e ; -- <0139> b = 110 -- asc b = "n"
-// fl16 = 0x385f
+-- fl16 = 0x385f
     0158 : e407 ; -- <0140> bn eq :skip_step
-// fl16 = 0xd9d3
+-- fl16 = 0xd9d3
     0159 : 0161 ; -- <0140> "
-// fl16 = 0x74bf
+-- fl16 = 0x74bf
     015a : 3e08 ; -- <0141> bus_ctrl = $bp_step_mask
-// fl16 = 0xb722
+-- fl16 = 0xb722
     015b : 2409 ; -- <0142> bp0_addr = bp0_addr
-// fl16 = 0x4a68
+-- fl16 = 0x4a68
     015c : fba0 ; -- <0143> call :wait_for_bp
-// fl16 = 0x5195
+-- fl16 = 0x5195
     015d : 01ae ; -- <0143> "
-// fl16 = 0xb932
+-- fl16 = 0xb932
     015e : fc00 ; -- <0143> "
-// fl16 = 0x7ce1
+-- fl16 = 0x7ce1
     015f : e00f ; -- <0144> jmp :cmd_loop
-// fl16 = 0x3dde
+-- fl16 = 0x3dde
     0160 : 00ff ; -- <0144> "
-// fl16 = 0xf9ce
+-- fl16 = 0xf9ce
 -- :skip_step -- = 0x0161
-// fl16 = 0x97ce
+-- fl16 = 0x97ce
 
-// fl16 = 0x97ce
+-- fl16 = 0x97ce
 -- command = reset target.
-// fl16 = 0x97ce
+-- fl16 = 0x97ce
     0161 : 0652 ; -- <0148> b = 82 -- asc b = "R"
-// fl16 = 0x97ce
+-- fl16 = 0x97ce
     0162 : e407 ; -- <0149> bn eq :skip_reset
-// fl16 = 0xdf27
+-- fl16 = 0xdf27
     0163 : 016d ; -- <0149> "
-// fl16 = 0x2113
+-- fl16 = 0x2113
     0164 : 3e02 ; -- <0150> bus_ctrl = $tg_reset_mask
-// fl16 = 0x2381
+-- fl16 = 0x2381
     0165 : c800 ; -- <0151> nop
-// fl16 = 0x68c1
+-- fl16 = 0x68c1
     0166 : c800 ; -- <0152> nop
-// fl16 = 0xb48a
+-- fl16 = 0xb48a
     0167 : 3e08 ; -- <0153> bus_ctrl = $bp_step_mask
-// fl16 = 0x9253
+-- fl16 = 0x9253
     0168 : fba0 ; -- <0154> call :wait_for_bp
-// fl16 = 0x8799
+-- fl16 = 0x8799
     0169 : 01ae ; -- <0154> "
-// fl16 = 0xf736
+-- fl16 = 0xf736
     016a : fc00 ; -- <0154> "
-// fl16 = 0xc2e5
+-- fl16 = 0xc2e5
     016b : e00f ; -- <0155> jmp :cmd_loop
-// fl16 = 0x8be2
+-- fl16 = 0x8be2
     016c : 00ff ; -- <0155> "
-// fl16 = 0x50d2
+-- fl16 = 0x50d2
 -- :skip_reset -- = 0x016d
-// fl16 = 0xf5d2
+-- fl16 = 0xf5d2
 
-// fl16 = 0xf5d2
+-- fl16 = 0xf5d2
 -- command = load program.
-// fl16 = 0xf5d2
+-- fl16 = 0xf5d2
     016d : 066c ; -- <0159> b = 108 -- asc b = "l"
-// fl16 = 0xf5d2
+-- fl16 = 0xf5d2
     016e : e407 ; -- <0160> bn eq :skip_load
-// fl16 = 0x7a45
+-- fl16 = 0x7a45
     016f : 0175 ; -- <0160> "
-// fl16 = 0xf731
+-- fl16 = 0xf731
     0170 : fba0 ; -- <0161> call :load_program
-// fl16 = 0x46a7
+-- fl16 = 0x46a7
     0171 : 0208 ; -- <0161> "
-// fl16 = 0xd244
+-- fl16 = 0xd244
     0172 : fc00 ; -- <0161> "
-// fl16 = 0x6d4e
+-- fl16 = 0x6d4e
     0173 : e00f ; -- <0162> jmp :cmd_loop
-// fl16 = 0x074b
+-- fl16 = 0x074b
     0174 : 00ff ; -- <0162> "
-// fl16 = 0x9c3b
+-- fl16 = 0x9c3b
 -- :skip_load -- = 0x0175
-// fl16 = 0x133b
+-- fl16 = 0x133b
 
-// fl16 = 0x133b
+-- fl16 = 0x133b
 -- command = run full speed.
-// fl16 = 0x133b
+-- fl16 = 0x133b
     0175 : 0672 ; -- <0166> b = 114 -- asc b = "r"
-// fl16 = 0x133b
+-- fl16 = 0x133b
     0176 : e407 ; -- <0167> bn eq :skip_run
-// fl16 = 0x74b3
+-- fl16 = 0x74b3
     0177 : 017c ; -- <0167> "
-// fl16 = 0xce9f
+-- fl16 = 0xce9f
 -- release target reset, to run.
-// fl16 = 0x081d
+-- fl16 = 0x081d
     0178 : 3e00 ; -- <0169> bus_ctrl = 0
-// fl16 = 0x081d
+-- fl16 = 0x081d
     0179 : 2409 ; -- <0170> bp0_addr = bp0_addr
-// fl16 = 0x805b
+-- fl16 = 0x805b
     017a : e00f ; -- <0171> jmp :cmd_loop
-// fl16 = 0x6d88
+-- fl16 = 0x6d88
     017b : 00ff ; -- <0171> "
-// fl16 = 0x7d78
+-- fl16 = 0x7d78
 -- :skip_run -- = 0x017c
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
 
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
 -- -- command = interrupt / break target.
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
 -- asc b = "i"
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
 -- bn eq :skip_brk
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
 -- bus_ctrl = 0
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
 -- bus_ctrl = $bp_step_mask
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
 -- call :wait_for_bp
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
 -- jmp :cmd_loop
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
 -- :skip_brk
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
 
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
 -- command = set breakpoint.
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
     017c : 0662 ; -- <0184> b = 98 -- asc b = "b"
-// fl16 = 0x6e78
+-- fl16 = 0x6e78
     017d : e407 ; -- <0185> bn eq :skip_setbrk
-// fl16 = 0x2ae0
+-- fl16 = 0x2ae0
     017e : 0184 ; -- <0185> "
-// fl16 = 0xdecc
+-- fl16 = 0xdecc
     017f : fba0 ; -- <0186> call :set_bp
-// fl16 = 0x8252
+-- fl16 = 0x8252
     0180 : 01b2 ; -- <0186> "
-// fl16 = 0x64ee
+-- fl16 = 0x64ee
     0181 : fc00 ; -- <0186> "
-// fl16 = 0xa8a2
+-- fl16 = 0xa8a2
     0182 : e00f ; -- <0187> jmp :cmd_loop
-// fl16 = 0xea9f
+-- fl16 = 0xea9f
     0183 : 00ff ; -- <0187> "
-// fl16 = 0x298f
+-- fl16 = 0x298f
 -- :skip_setbrk -- = 0x0184
-// fl16 = 0x488f
+-- fl16 = 0x488f
 
-// fl16 = 0x488f
+-- fl16 = 0x488f
     0184 : 023f ; -- <0190> a = 63 -- putasc "?"
-// fl16 = 0x488f
+-- fl16 = 0x488f
     0185 : 0000 ; -- <0190> a = a -- putasc "?"
-// fl16 = 0xe7d0
+-- fl16 = 0xe7d0
     0186 : fba0 ; -- <0190> putasc "?"
-// fl16 = 0x89d0
+-- fl16 = 0x89d0
     0187 : 0032 ; -- <0190> "
-// fl16 = 0x686d
+-- fl16 = 0x686d
     0188 : fc00 ; -- <0190> "
-// fl16 = 0xa79f
+-- fl16 = 0xa79f
     0189 : 020d ; -- <0191> a = 13 -- puteol
-// fl16 = 0xe39c
+-- fl16 = 0xe39c
     018a : 0000 ; -- <0191> a = a -- puteol
-// fl16 = 0x39ab
+-- fl16 = 0x39ab
     018b : fba0 ; -- <0191> puteol
-// fl16 = 0x90ab
+-- fl16 = 0x90ab
     018c : 0032 ; -- <0191> "
-// fl16 = 0x2548
+-- fl16 = 0x2548
     018d : fc00 ; -- <0191> "
-// fl16 = 0x1a7a
+-- fl16 = 0x1a7a
     018e : 020a ; -- <0191> a = 10 -- puteol
-// fl16 = 0x0c77
+-- fl16 = 0x0c77
     018f : 0000 ; -- <0191> a = a -- puteol
-// fl16 = 0x1183
+-- fl16 = 0x1183
     0190 : fba0 ; -- <0191> puteol
-// fl16 = 0x1883
+-- fl16 = 0x1883
     0191 : 0032 ; -- <0191> "
-// fl16 = 0x5c20
+-- fl16 = 0x5c20
     0192 : fc00 ; -- <0191> "
-// fl16 = 0x0152
+-- fl16 = 0x0152
     0193 : e00f ; -- <0192> jmp :cmd_loop
-// fl16 = 0xa24f
+-- fl16 = 0xa24f
     0194 : 00ff ; -- <0192> "
-// fl16 = 0x403f
+-- fl16 = 0x403f
 
-// fl16 = 0xbe3f
+-- fl16 = 0xbe3f
 -- demonstrations ------------------------------
-// fl16 = 0xbe3f
+-- fl16 = 0xbe3f
 
-// fl16 = 0xbe3f
+-- fl16 = 0xbe3f
 -- set a breakpoint, wait til it hits.
-// fl16 = 0xbe3f
+-- fl16 = 0xbe3f
     0195 : 2615 ; -- <0197> bp0_addr = 0x15
-// fl16 = 0xbe3f
+-- fl16 = 0xbe3f
 -- :main_loop -- = 0x0196
-// fl16 = 0x8d7a
+-- fl16 = 0x8d7a
     0196 : fba0 ; -- <0199> call :wait_for_bp
-// fl16 = 0x8d7a
+-- fl16 = 0x8d7a
     0197 : 01ae ; -- <0199> "
-// fl16 = 0xbf17
+-- fl16 = 0xbf17
     0198 : fc00 ; -- <0199> "
-// fl16 = 0x4cc6
+-- fl16 = 0x4cc6
 
-// fl16 = 0xd6c3
+-- fl16 = 0xd6c3
 -- release target to run full speed.
-// fl16 = 0xd6c3
+-- fl16 = 0xd6c3
     0199 : 3e00 ; -- <0202> bus_ctrl = 0
-// fl16 = 0xd6c3
+-- fl16 = 0xd6c3
 
-// fl16 = 0x9c02
+-- fl16 = 0x9c02
 -- interrupt the target and single step it a few times.
-// fl16 = 0x9c02
+-- fl16 = 0x9c02
     019a : 3e08 ; -- <0205> bus_ctrl = $bp_step_mask
-// fl16 = 0x9c02
+-- fl16 = 0x9c02
     019b : fba0 ; -- <0206> call :wait_for_bp
-// fl16 = 0xee48
+-- fl16 = 0xee48
     019c : 01ae ; -- <0206> "
-// fl16 = 0xbce4
+-- fl16 = 0xbce4
     019d : fc00 ; -- <0206> "
-// fl16 = 0xe494
+-- fl16 = 0xe494
     019e : 2409 ; -- <0207> bp0_addr = bp0_addr
-// fl16 = 0x0b91
+-- fl16 = 0x0b91
     019f : fba0 ; -- <0208> call :wait_for_bp
-// fl16 = 0x64be
+-- fl16 = 0x64be
     01a0 : 01ae ; -- <0208> "
-// fl16 = 0x1f5b
+-- fl16 = 0x1f5b
     01a1 : fc00 ; -- <0208> "
-// fl16 = 0x340b
+-- fl16 = 0x340b
     01a2 : 2409 ; -- <0209> bp0_addr = bp0_addr
-// fl16 = 0x4708
+-- fl16 = 0x4708
     01a3 : fba0 ; -- <0210> call :wait_for_bp
-// fl16 = 0x8d35
+-- fl16 = 0x8d35
     01a4 : 01ae ; -- <0210> "
-// fl16 = 0x35d1
+-- fl16 = 0x35d1
     01a5 : fc00 ; -- <0210> "
-// fl16 = 0x3781
+-- fl16 = 0x3781
     01a6 : 2409 ; -- <0211> bp0_addr = bp0_addr
-// fl16 = 0x377e
+-- fl16 = 0x377e
     01a7 : fba0 ; -- <0212> call :wait_for_bp
-// fl16 = 0x6aab
+-- fl16 = 0x6aab
     01a8 : 01ae ; -- <0212> "
-// fl16 = 0xfe48
+-- fl16 = 0xfe48
     01a9 : fc00 ; -- <0212> "
-// fl16 = 0xedf7
+-- fl16 = 0xedf7
     01aa : 3e00 ; -- <0213> bus_ctrl = 0
-// fl16 = 0xdaf4
+-- fl16 = 0xdaf4
 
-// fl16 = 0x0333
+-- fl16 = 0x0333
 -- release target to pass breakpoint once.
-// fl16 = 0x0333
+-- fl16 = 0x0333
     01ab : 2409 ; -- <0216> bp0_addr = bp0_addr
-// fl16 = 0x0333
+-- fl16 = 0x0333
 
-// fl16 = 0x9f60
+-- fl16 = 0x9f60
     01ac : e00f ; -- <0218> jmp :main_loop
-// fl16 = 0x9f60
+-- fl16 = 0x9f60
     01ad : 0196 ; -- <0218> "
-// fl16 = 0x5f50
+-- fl16 = 0x5f50
 
-// fl16 = 0x2ee7
+-- fl16 = 0x2ee7
 -- :poll -- = 0x01ae
-// fl16 = 0x2ee7
+-- fl16 = 0x2ee7
     01ae : 0018 ; -- <0222> a = bp_status
-// fl16 = 0x2ee7
+-- fl16 = 0x2ee7
     01af : e000 ; -- <0223> br az :poll
-// fl16 = 0x2e00
+-- fl16 = 0x2e00
     01b0 : 01ae ; -- <0223> "
-// fl16 = 0x0fe0
+-- fl16 = 0x0fe0
     01b1 : fc00 ; -- <0224> rtn
-// fl16 = 0x2f90
+-- fl16 = 0x2f90
 
-// fl16 = 0x4d8d
+-- fl16 = 0x4d8d
     01b2 : 2004 ; -- <0226> push x -- func set_bp
-// fl16 = 0x4d8d
+-- fl16 = 0x4d8d
     01b3 : 2005 ; -- <0226> push y -- "
-// fl16 = 0x90b1
+-- fl16 = 0x90b1
     01b4 : 203e ; -- <0226> push rtna -- "
-// fl16 = 0x1ed6
+-- fl16 = 0x1ed6
     01b5 : fba0 ; -- <0227> getchar
-// fl16 = 0x6835
+-- fl16 = 0x6835
     01b6 : 0041 ; -- <0227> "
-// fl16 = 0x10d1
+-- fl16 = 0x10d1
     01b7 : fc00 ; -- <0227> "
-// fl16 = 0x3613
+-- fl16 = 0x3613
     01b8 : 2000 ; -- <0227> push a -- "
-// fl16 = 0x5910
+-- fl16 = 0x5910
     01b9 : 0000 ; -- <0227> a = a -- "
-// fl16 = 0x9930
+-- fl16 = 0x9930
     01ba : fba0 ; -- <0227> "
-// fl16 = 0xf930
+-- fl16 = 0xf930
     01bb : 0032 ; -- <0227> "
-// fl16 = 0x97cc
+-- fl16 = 0x97cc
     01bc : fc00 ; -- <0227> "
-// fl16 = 0x95fe
+-- fl16 = 0x95fe
     01bd : 0008 ; -- <0227> pop a -- "
-// fl16 = 0x90fb
+-- fl16 = 0x90fb
     01be : 1000 ; -- <0228> x = a
-// fl16 = 0x9804
+-- fl16 = 0x9804
     01bf : fba0 ; -- <0229> getchar
-// fl16 = 0xb014
+-- fl16 = 0xb014
     01c0 : 0041 ; -- <0229> "
-// fl16 = 0x16b0
+-- fl16 = 0x16b0
     01c1 : fc00 ; -- <0229> "
-// fl16 = 0xf9f1
+-- fl16 = 0xf9f1
     01c2 : 2000 ; -- <0229> push a -- "
-// fl16 = 0xdaee
+-- fl16 = 0xdaee
     01c3 : 0000 ; -- <0229> a = a -- "
-// fl16 = 0xd80f
+-- fl16 = 0xd80f
     01c4 : fba0 ; -- <0229> "
-// fl16 = 0xf60f
+-- fl16 = 0xf60f
     01c5 : 0032 ; -- <0229> "
-// fl16 = 0x52ab
+-- fl16 = 0x52ab
     01c6 : fc00 ; -- <0229> "
-// fl16 = 0x0edd
+-- fl16 = 0x0edd
     01c7 : 0008 ; -- <0229> pop a -- "
-// fl16 = 0xc6da
+-- fl16 = 0xc6da
     01c8 : 063d ; -- <0230> b = 61 -- asc b = "="
-// fl16 = 0x8ce2
+-- fl16 = 0x8ce2
     01c9 : e407 ; -- <0231> bn eq :fail
-// fl16 = 0xd226
+-- fl16 = 0xd226
     01ca : 01f5 ; -- <0231> "
-// fl16 = 0x1212
+-- fl16 = 0x1212
     01cb : fba0 ; -- <0232> call :get4x
-// fl16 = 0x2309
+-- fl16 = 0x2309
     01cc : 009a ; -- <0232> "
-// fl16 = 0x72a5
+-- fl16 = 0x72a5
     01cd : fc00 ; -- <0232> "
-// fl16 = 0xf240
+-- fl16 = 0xf240
     01ce : 1400 ; -- <0233> y = a
-// fl16 = 0x703d
+-- fl16 = 0x703d
     01cf : 0200 ; -- <0234> a = 0
-// fl16 = 0xfe51
+-- fl16 = 0xfe51
     01d0 : e407 ; -- <0235> bn eq :fail
-// fl16 = 0xa353
+-- fl16 = 0xa353
     01d1 : 01f5 ; -- <0235> "
-// fl16 = 0x3d3f
+-- fl16 = 0x3d3f
     01d2 : 0004 ; -- <0236> a = x
-// fl16 = 0xa836
+-- fl16 = 0xa836
     01d3 : 0630 ; -- <0237> b = 48 -- asc b = "0"
-// fl16 = 0x1d3a
+-- fl16 = 0x1d3a
     01d4 : e007 ; -- <0238> br eq :b0
-// fl16 = 0xf770
+-- fl16 = 0xf770
     01d5 : 01e1 ; -- <0238> "
-// fl16 = 0xc758
+-- fl16 = 0xc758
     01d6 : 0631 ; -- <0239> b = 49 -- asc b = "1"
-// fl16 = 0x3d3b
+-- fl16 = 0x3d3b
     01d7 : e007 ; -- <0240> br eq :b1
-// fl16 = 0x1c72
+-- fl16 = 0x1c72
     01d8 : 01e6 ; -- <0240> "
-// fl16 = 0xef5a
+-- fl16 = 0xef5a
     01d9 : 0632 ; -- <0241> b = 50 -- asc b = "2"
-// fl16 = 0x7342
+-- fl16 = 0x7342
     01da : e007 ; -- <0242> br eq :b2
-// fl16 = 0x627a
+-- fl16 = 0x627a
     01db : 01eb ; -- <0242> "
-// fl16 = 0x4662
+-- fl16 = 0x4662
     01dc : 0633 ; -- <0243> b = 51 -- asc b = "3"
-// fl16 = 0xe34f
+-- fl16 = 0xe34f
     01dd : e007 ; -- <0244> br eq :b3
-// fl16 = 0xee88
+-- fl16 = 0xee88
     01de : 01f0 ; -- <0244> "
-// fl16 = 0xee70
+-- fl16 = 0xee70
     01df : e00f ; -- <0245> jmp :fail
-// fl16 = 0xb262
+-- fl16 = 0xb262
     01e0 : 01f5 ; -- <0245> "
-// fl16 = 0x7652
+-- fl16 = 0x7652
 -- :b0 -- = 0x01e1
-// fl16 = 0x0849
+-- fl16 = 0x0849
     01e1 : 2405 ; -- <0247> bp0_addr = y
-// fl16 = 0x0849
+-- fl16 = 0x0849
     01e2 : f808 ; -- <0248> pop rtna -- rtn
-// fl16 = 0xc872
+-- fl16 = 0xc872
     01e3 : 1408 ; -- <0248> pop y -- "
-// fl16 = 0xb673
+-- fl16 = 0xb673
     01e4 : 1008 ; -- <0248> pop x -- "
-// fl16 = 0xc18f
+-- fl16 = 0xc18f
     01e5 : fc00 ; -- <0248> rtn
-// fl16 = 0x01a7
+-- fl16 = 0x01a7
 -- :b1 -- = 0x01e6
-// fl16 = 0x4da4
+-- fl16 = 0x4da4
     01e6 : 2805 ; -- <0250> bp1_addr = y
-// fl16 = 0x4da4
+-- fl16 = 0x4da4
     01e7 : f808 ; -- <0251> pop rtna -- rtn
-// fl16 = 0xc8d1
+-- fl16 = 0xc8d1
     01e8 : 1408 ; -- <0251> pop y -- "
-// fl16 = 0x75d2
+-- fl16 = 0x75d2
     01e9 : 1008 ; -- <0251> pop x -- "
-// fl16 = 0x3fee
+-- fl16 = 0x3fee
     01ea : fc00 ; -- <0251> rtn
-// fl16 = 0x3d07
+-- fl16 = 0x3d07
 -- :b2 -- = 0x01eb
-// fl16 = 0x4804
+-- fl16 = 0x4804
     01eb : 2c05 ; -- <0253> bp2_addr = y
-// fl16 = 0x4804
+-- fl16 = 0x4804
     01ec : f808 ; -- <0254> pop rtna -- rtn
-// fl16 = 0x8635
+-- fl16 = 0x8635
     01ed : 1408 ; -- <0254> pop y -- "
-// fl16 = 0xf936
+-- fl16 = 0xf936
     01ee : 1008 ; -- <0254> pop x -- "
-// fl16 = 0x8a52
+-- fl16 = 0x8a52
     01ef : fc00 ; -- <0254> rtn
-// fl16 = 0x4f6a
+-- fl16 = 0x4f6a
 -- :b3 -- = 0x01f0
-// fl16 = 0x2167
+-- fl16 = 0x2167
     01f0 : 3005 ; -- <0256> bp3_addr = y
-// fl16 = 0x2167
+-- fl16 = 0x2167
     01f1 : f808 ; -- <0257> pop rtna -- rtn
-// fl16 = 0x2a9c
+-- fl16 = 0x2a9c
     01f2 : 1408 ; -- <0257> pop y -- "
-// fl16 = 0x6c9d
+-- fl16 = 0x6c9d
     01f3 : 1008 ; -- <0257> pop x -- "
-// fl16 = 0xcbb9
+-- fl16 = 0xcbb9
     01f4 : fc00 ; -- <0257> rtn
-// fl16 = 0x5fd1
+-- fl16 = 0x5fd1
 -- :fail -- = 0x01f5
-// fl16 = 0x00ce
+-- fl16 = 0x00ce
     01f5 : 023f ; -- <0259> a = 63 -- putasc "?"
-// fl16 = 0x00ce
+-- fl16 = 0x00ce
     01f6 : 0000 ; -- <0259> a = a -- putasc "?"
-// fl16 = 0x1e10
+-- fl16 = 0x1e10
     01f7 : fba0 ; -- <0259> putasc "?"
-// fl16 = 0x3e10
+-- fl16 = 0x3e10
     01f8 : 0032 ; -- <0259> "
-// fl16 = 0x9bac
+-- fl16 = 0x9bac
     01f9 : fc00 ; -- <0259> "
-// fl16 = 0x59de
+-- fl16 = 0x59de
     01fa : 020d ; -- <0260> a = 13 -- puteol
-// fl16 = 0x14db
+-- fl16 = 0x14db
     01fb : 0000 ; -- <0260> a = a -- puteol
-// fl16 = 0xe7ea
+-- fl16 = 0xe7ea
     01fc : fba0 ; -- <0260> puteol
-// fl16 = 0xbdea
+-- fl16 = 0xbdea
     01fd : 0032 ; -- <0260> "
-// fl16 = 0xd087
+-- fl16 = 0xd087
     01fe : fc00 ; -- <0260> "
-// fl16 = 0x44b9
+-- fl16 = 0x44b9
     01ff : 020a ; -- <0260> a = 10 -- puteol
-// fl16 = 0xb4b6
+-- fl16 = 0xb4b6
     0200 : 0000 ; -- <0260> a = a -- puteol
-// fl16 = 0x38c2
+-- fl16 = 0x38c2
     0201 : fba0 ; -- <0260> puteol
-// fl16 = 0xbdc2
+-- fl16 = 0xbdc2
     0202 : 0032 ; -- <0260> "
-// fl16 = 0x805f
+-- fl16 = 0x805f
     0203 : fc00 ; -- <0260> "
-// fl16 = 0xa391
+-- fl16 = 0xa391
     0204 : f808 ; -- <0261> pop rtna -- rtn
-// fl16 = 0xc38e
+-- fl16 = 0xc38e
     0205 : 1408 ; -- <0261> pop y -- "
-// fl16 = 0xe98f
+-- fl16 = 0xe98f
     0206 : 1008 ; -- <0261> pop x -- "
-// fl16 = 0x2dab
+-- fl16 = 0x2dab
     0207 : fc00 ; -- <0261> rtn
-// fl16 = 0xa4c3
+-- fl16 = 0xa4c3
 
-// fl16 = 0x29c0
+-- fl16 = 0x29c0
     0208 : 2002 ; -- <0263> push i -- func load_program
-// fl16 = 0x29c0
+-- fl16 = 0x29c0
     0209 : 2003 ; -- <0263> push j -- "
-// fl16 = 0xcee2
+-- fl16 = 0xcee2
     020a : 2004 ; -- <0263> push x -- "
-// fl16 = 0xba06
+-- fl16 = 0xba06
     020b : 2006 ; -- <0263> push g6 -- "
-// fl16 = 0xee2a
+-- fl16 = 0xee2a
     020c : 203e ; -- <0263> push rtna -- "
-// fl16 = 0x6f50
+-- fl16 = 0x6f50
 -- load target program from UART.
-// fl16 = 0xacae
+-- fl16 = 0xacae
 -- length, little-endian.  memorize in x.
-// fl16 = 0xacae
+-- fl16 = 0xacae
     020d : 024c ; -- <0266> a = 76 -- putasc L
-// fl16 = 0xacae
+-- fl16 = 0xacae
     020e : 0000 ; -- <0266> a = a -- putasc L
-// fl16 = 0xa4fc
+-- fl16 = 0xa4fc
     020f : fba0 ; -- <0266> putasc L
-// fl16 = 0x9efc
+-- fl16 = 0x9efc
     0210 : 0032 ; -- <0266> "
-// fl16 = 0xd599
+-- fl16 = 0xd599
     0211 : fc00 ; -- <0266> "
-// fl16 = 0x6dcb
+-- fl16 = 0x6dcb
     0212 : fba0 ; -- <0267> get16 x
-// fl16 = 0x02c8
+-- fl16 = 0x02c8
     0213 : 0041 ; -- <0267> "
-// fl16 = 0xd065
+-- fl16 = 0xd065
     0214 : fc00 ; -- <0267> "
-// fl16 = 0x1ea6
+-- fl16 = 0x1ea6
     0215 : 2000 ; -- <0267> push a -- "
-// fl16 = 0x68a3
+-- fl16 = 0x68a3
     0216 : fba0 ; -- <0267> "
-// fl16 = 0xcfc3
+-- fl16 = 0xcfc3
     0217 : 0041 ; -- <0267> "
-// fl16 = 0x9460
+-- fl16 = 0x9460
     0218 : fc00 ; -- <0267> "
-// fl16 = 0xd7a1
+-- fl16 = 0xd7a1
     0219 : 0352 ; -- <0267> "
-// fl16 = 0x189e
+-- fl16 = 0x189e
     021a : 0352 ; -- <0267> "
-// fl16 = 0xfcf3
+-- fl16 = 0xfcf3
     021b : 0408 ; -- <0267> pop b -- "
-// fl16 = 0x8c49
+-- fl16 = 0x8c49
     021c : c800 ; -- <0267> "
-// fl16 = 0x3355
+-- fl16 = 0x3355
     021d : 1334 ; -- <0267> "
-// fl16 = 0xa61e
+-- fl16 = 0xa61e
     021e : 0004 ; -- <0268> a = x
-// fl16 = 0x5e65
+-- fl16 = 0x5e65
     021f : fba0 ; -- <0269> call put4x
-// fl16 = 0x3169
+-- fl16 = 0x3169
     0220 : 005d ; -- <0269> "
-// fl16 = 0x4106
+-- fl16 = 0x4106
     0221 : fc00 ; -- <0269> "
-// fl16 = 0x0863
+-- fl16 = 0x0863
 -- put target into reset again, in case this is a target warm boot.
-// fl16 = 0xcb60
+-- fl16 = 0xcb60
     0222 : 3e02 ; -- <0271> bus_ctrl = $tg_reset_mask
-// fl16 = 0xcb60
+-- fl16 = 0xcb60
 -- load opcodes.  count up address in i.
-// fl16 = 0xcea0
+-- fl16 = 0xcea0
     0223 : 0a00 ; -- <0273> i = 0
-// fl16 = 0xcea0
+-- fl16 = 0xcea0
     0224 : 0e01 ; -- <0274> j = 1
-// fl16 = 0x1aaa
+-- fl16 = 0x1aaa
 -- :loadword -- = 0x0225
-// fl16 = 0x7fb9
+-- fl16 = 0x7fb9
     0225 : 0241 ; -- <0276> a = 65 -- putasc A
-// fl16 = 0x7fb9
+-- fl16 = 0x7fb9
     0226 : 0000 ; -- <0276> a = a -- putasc A
-// fl16 = 0x77fc
+-- fl16 = 0x77fc
     0227 : fba0 ; -- <0276> putasc A
-// fl16 = 0x71fc
+-- fl16 = 0x71fc
     0228 : 0032 ; -- <0276> "
-// fl16 = 0xa899
+-- fl16 = 0xa899
     0229 : fc00 ; -- <0276> "
-// fl16 = 0x40cb
+-- fl16 = 0x40cb
     022a : 0002 ; -- <0277> a = i
-// fl16 = 0xd4c8
+-- fl16 = 0xd4c8
     022b : fba0 ; -- <0278> call put4x
-// fl16 = 0x6aca
+-- fl16 = 0x6aca
     022c : 005d ; -- <0278> "
-// fl16 = 0x3d67
+-- fl16 = 0x3d67
     022d : fc00 ; -- <0278> "
-// fl16 = 0xc6c4
+-- fl16 = 0xc6c4
     022e : 023d ; -- <0279> a = 61 -- putasc "="
-// fl16 = 0x4dc1
+-- fl16 = 0x4dc1
     022f : 0000 ; -- <0279> a = a -- putasc "="
-// fl16 = 0x4d01
+-- fl16 = 0x4d01
     0230 : fba0 ; -- <0279> putasc "="
-// fl16 = 0x4f01
+-- fl16 = 0x4f01
     0231 : 0032 ; -- <0279> "
-// fl16 = 0x8e9d
+-- fl16 = 0x8e9d
     0232 : fc00 ; -- <0279> "
-// fl16 = 0x2ecf
+-- fl16 = 0x2ecf
     0233 : fba0 ; -- <0280> get16 g6
-// fl16 = 0xcacc
+-- fl16 = 0xcacc
     0234 : 0041 ; -- <0280> "
-// fl16 = 0xa169
+-- fl16 = 0xa169
     0235 : fc00 ; -- <0280> "
-// fl16 = 0xf6aa
+-- fl16 = 0xf6aa
     0236 : 2000 ; -- <0280> push a -- "
-// fl16 = 0x49a7
+-- fl16 = 0x49a7
     0237 : fba0 ; -- <0280> "
-// fl16 = 0xb8c7
+-- fl16 = 0xb8c7
     0238 : 0041 ; -- <0280> "
-// fl16 = 0x8564
+-- fl16 = 0x8564
     0239 : fc00 ; -- <0280> "
-// fl16 = 0xd0a5
+-- fl16 = 0xd0a5
     023a : 0352 ; -- <0280> "
-// fl16 = 0x19a2
+-- fl16 = 0x19a2
     023b : 0352 ; -- <0280> "
-// fl16 = 0x06f7
+-- fl16 = 0x06f7
     023c : 0408 ; -- <0280> pop b -- "
-// fl16 = 0x9d4d
+-- fl16 = 0x9d4d
     023d : c800 ; -- <0280> "
-// fl16 = 0x4c59
+-- fl16 = 0x4c59
     023e : 1b34 ; -- <0280> "
-// fl16 = 0xc722
+-- fl16 = 0xc722
     023f : 0006 ; -- <0281> a = g6
-// fl16 = 0x8f71
+-- fl16 = 0x8f71
     0240 : fba0 ; -- <0282> call put4x
-// fl16 = 0x7e77
+-- fl16 = 0x7e77
     0241 : 005d ; -- <0282> "
-// fl16 = 0xaa14
+-- fl16 = 0xaa14
     0242 : fc00 ; -- <0282> "
-// fl16 = 0x8d71
+-- fl16 = 0x8d71
     0243 : 023d ; -- <0283> a = 61 -- putasc "="
-// fl16 = 0x6d6e
+-- fl16 = 0x6d6e
     0244 : 0000 ; -- <0283> a = a -- putasc "="
-// fl16 = 0xc6ad
+-- fl16 = 0xc6ad
     0245 : fba0 ; -- <0283> putasc "="
-// fl16 = 0x22ad
+-- fl16 = 0x22ad
     0246 : 0032 ; -- <0283> "
-// fl16 = 0xba4a
+-- fl16 = 0xba4a
     0247 : fc00 ; -- <0283> "
-// fl16 = 0xb37c
+-- fl16 = 0xb37c
     0248 : 4c02 ; -- <0284> m9k_addr = i
-// fl16 = 0xa979
+-- fl16 = 0xa979
     0249 : 5006 ; -- <0285> m9k_data = g6
-// fl16 = 0xecc7
+-- fl16 = 0xecc7
     024a : 0014 ; -- <0286> a = m9k_data
-// fl16 = 0xd81e
+-- fl16 = 0xd81e
     024b : fba0 ; -- <0287> call put4x
-// fl16 = 0x3d32
+-- fl16 = 0x3d32
     024c : 005d ; -- <0287> "
-// fl16 = 0xdece
+-- fl16 = 0xdece
     024d : fc00 ; -- <0287> "
-// fl16 = 0x372c
+-- fl16 = 0x372c
     024e : 020d ; -- <0288> a = 13 -- puteol
-// fl16 = 0x8c29
+-- fl16 = 0x8c29
     024f : 0000 ; -- <0288> a = a -- puteol
-// fl16 = 0xfa38
+-- fl16 = 0xfa38
     0250 : fba0 ; -- <0288> puteol
-// fl16 = 0x6b38
+-- fl16 = 0x6b38
     0251 : 0032 ; -- <0288> "
-// fl16 = 0x19d4
+-- fl16 = 0x19d4
     0252 : fc00 ; -- <0288> "
-// fl16 = 0x2707
+-- fl16 = 0x2707
     0253 : 020a ; -- <0288> a = 10 -- puteol
-// fl16 = 0x3204
+-- fl16 = 0x3204
     0254 : 0000 ; -- <0288> a = a -- puteol
-// fl16 = 0x5010
+-- fl16 = 0x5010
     0255 : fba0 ; -- <0288> puteol
-// fl16 = 0x7010
+-- fl16 = 0x7010
     0256 : 0032 ; -- <0288> "
-// fl16 = 0xcdac
+-- fl16 = 0xcdac
     0257 : fc00 ; -- <0288> "
-// fl16 = 0x8bde
+-- fl16 = 0x8bde
     0258 : c800 ; -- <0289> i = i+j
-// fl16 = 0x46db
+-- fl16 = 0x46db
     0259 : 0b10 ; -- <0289> "
-// fl16 = 0xc6a4
+-- fl16 = 0xc6a4
     025a : 0002 ; -- <0290> a = i
-// fl16 = 0x3bbf
+-- fl16 = 0x3bbf
     025b : 0404 ; -- <0291> b = x
-// fl16 = 0xbec1
+-- fl16 = 0xbec1
     025c : e407 ; -- <0292> bn eq :loadword
-// fl16 = 0x4ec9
+-- fl16 = 0x4ec9
     025d : 0225 ; -- <0292> "
-// fl16 = 0xd4b5
+-- fl16 = 0xd4b5
     025e : f808 ; -- <0293> pop rtna -- rtn
-// fl16 = 0x8cdc
+-- fl16 = 0x8cdc
     025f : 1808 ; -- <0293> pop g6 -- "
-// fl16 = 0x4fdd
+-- fl16 = 0x4fdd
     0260 : 1008 ; -- <0293> pop x -- "
-// fl16 = 0x33fd
+-- fl16 = 0x33fd
     0261 : 0c08 ; -- <0293> pop j -- "
-// fl16 = 0x4f16
+-- fl16 = 0x4f16
     0262 : 0808 ; -- <0293> pop i -- "
-// fl16 = 0x972a
+-- fl16 = 0x972a
     0263 : fc00 ; -- <0293> rtn
-// fl16 = 0x043a
+-- fl16 = 0x043a
 
-// fl16 = 0x7537
+-- fl16 = 0x7537
 -- observe a register.  return its value in peek_data.
-// fl16 = 0x7537
+-- fl16 = 0x7537
 -- pass its register address in a.
-// fl16 = 0x7537
+-- fl16 = 0x7537
     0264 : 07a0 ; -- <0298> b = 0x3ff
-// fl16 = 0x7537
+-- fl16 = 0x7537
     0265 : 03ff ; -- <0298> "
-// fl16 = 0x2cde
+-- fl16 = 0x2cde
     0266 : c800 ; -- <0299> a = and
-// fl16 = 0xece1
+-- fl16 = 0xece1
     0267 : 0330 ; -- <0299> "
-// fl16 = 0x79aa
+-- fl16 = 0x79aa
 -- debug_peek_reg = 31 << 10
-// fl16 = 0x32dd
+-- fl16 = 0x32dd
     0268 : 07a0 ; -- <0301> b = 0x7c00
-// fl16 = 0x32dd
+-- fl16 = 0x32dd
     0269 : 7c00 ; -- <0301> "
-// fl16 = 0x3685
+-- fl16 = 0x3685
     026a : c800 ; -- <0302> force_opcode = or
-// fl16 = 0xbd02
+-- fl16 = 0xbd02
     026b : 3734 ; -- <0302> "
-// fl16 = 0x8aca
+-- fl16 = 0x8aca
     026c : 3e04 ; -- <0303> bus_ctrl = $divert_code_bus_mask
-// fl16 = 0xbf36
+-- fl16 = 0xbf36
     026d : 4201 ; -- <0304> tg_force = $hold_state_mask
-// fl16 = 0x7278
+-- fl16 = 0x7278
     026e : 4203 ; -- <0305> tg_force = ($hold_state_mask | $force_load_exr_mask)
-// fl16 = 0xa7bb
+-- fl16 = 0xa7bb
     026f : 4205 ; -- <0306> tg_force = ($hold_state_mask | $force_exec_mask)
-// fl16 = 0x6701
+-- fl16 = 0x6701
     0270 : 4201 ; -- <0307> tg_force = $hold_state_mask
-// fl16 = 0xb548
+-- fl16 = 0xb548
 -- target's register value is now in peek_data.
-// fl16 = 0x8a8b
+-- fl16 = 0x8a8b
 -- refill target exr so it can resume seamlessly.
-// fl16 = 0x8a8b
+-- fl16 = 0x8a8b
     0271 : 3415 ; -- <0310> force_opcode = exr_shadow
-// fl16 = 0x8a8b
+-- fl16 = 0x8a8b
     0272 : 4203 ; -- <0311> tg_force = ($hold_state_mask | $force_load_exr_mask)
-// fl16 = 0x00d4
+-- fl16 = 0x00d4
     0273 : 4200 ; -- <0312> tg_force = 0
-// fl16 = 0xf11a
+-- fl16 = 0xf11a
     0274 : fc00 ; -- <0313> rtn
-// fl16 = 0x685c
+-- fl16 = 0x685c
 
-// fl16 = 0x1e59
+-- fl16 = 0x1e59
 -- show target status display.
-// fl16 = 0x1e59
+-- fl16 = 0x1e59
     0275 : 2002 ; -- <0316> push i -- func dump_target
-// fl16 = 0x1e59
+-- fl16 = 0x1e59
     0276 : 2003 ; -- <0316> push j -- "
-// fl16 = 0xf47b
+-- fl16 = 0xf47b
     0277 : 2004 ; -- <0316> push x -- "
-// fl16 = 0x129e
+-- fl16 = 0x129e
     0278 : 2005 ; -- <0316> push y -- "
-// fl16 = 0x77c2
+-- fl16 = 0x77c2
     0279 : 203e ; -- <0316> push rtna -- "
-// fl16 = 0x27e7
+-- fl16 = 0x27e7
     027a : 020d ; -- <0317> a = 13 -- puteol
-// fl16 = 0x9346
+-- fl16 = 0x9346
     027b : 0000 ; -- <0317> a = a -- puteol
-// fl16 = 0x3c55
+-- fl16 = 0x3c55
     027c : fba0 ; -- <0317> puteol
-// fl16 = 0xe655
+-- fl16 = 0xe655
     027d : 0032 ; -- <0317> "
-// fl16 = 0xcef1
+-- fl16 = 0xcef1
     027e : fc00 ; -- <0317> "
-// fl16 = 0x1724
+-- fl16 = 0x1724
     027f : 020a ; -- <0317> a = 10 -- puteol
-// fl16 = 0x5c21
+-- fl16 = 0x5c21
     0280 : 0000 ; -- <0317> a = a -- puteol
-// fl16 = 0xb42d
+-- fl16 = 0xb42d
     0281 : fba0 ; -- <0317> puteol
-// fl16 = 0x0f2d
+-- fl16 = 0x0f2d
     0282 : 0032 ; -- <0317> "
-// fl16 = 0xa6c9
+-- fl16 = 0xa6c9
     0283 : fc00 ; -- <0317> "
-// fl16 = 0x9efb
+-- fl16 = 0x9efb
     0284 : 0a00 ; -- <0318> i = 0
-// fl16 = 0x93f8
+-- fl16 = 0x93f8
 -- :next_reg -- = 0x0285
-// fl16 = 0x8f03
+-- fl16 = 0x8f03
 -- fetch register name from table in target program.
-// fl16 = 0x8f03
+-- fl16 = 0x8f03
     0285 : 1200 ; -- <0321> x = 0
-// fl16 = 0x8f03
+-- fl16 = 0x8f03
     0286 : 1601 ; -- <0322> y = 1
-// fl16 = 0xa715
+-- fl16 = 0xa715
 -- :next_chars -- = 0x0287
-// fl16 = 0xe92c
+-- fl16 = 0xe92c
     0287 : 0002 ; -- <0324> a = i
-// fl16 = 0xe92c
+-- fl16 = 0xe92c
     0288 : 0351 ; -- <0325> a = a<<1
-// fl16 = 0x462e
+-- fl16 = 0x462e
     0289 : 0351 ; -- <0326> a = a<<1
-// fl16 = 0x4882
+-- fl16 = 0x4882
     028a : 0603 ; -- <0327> b = 3
-// fl16 = 0xf2d6
+-- fl16 = 0xf2d6
     028b : c800 ; -- <0328> a = a+b
-// fl16 = 0xacdf
+-- fl16 = 0xacdf
     028c : 0300 ; -- <0328> "
-// fl16 = 0x35a8
+-- fl16 = 0x35a8
     028d : 0404 ; -- <0329> b = x
-// fl16 = 0x89ab
+-- fl16 = 0x89ab
     028e : c800 ; -- <0330> m9k_addr = a+b
-// fl16 = 0xecb3
+-- fl16 = 0xecb3
     028f : 4f00 ; -- <0330> "
-// fl16 = 0x1d7c
+-- fl16 = 0x1d7c
     0290 : 0014 ; -- <0331> a = m9k_data -- putchar m9k_data
-// fl16 = 0x65cb
+-- fl16 = 0x65cb
     0291 : fba0 ; -- <0331> putchar m9k_data
-// fl16 = 0x25df
+-- fl16 = 0x25df
     0292 : 0032 ; -- <0331> "
-// fl16 = 0x227c
+-- fl16 = 0x227c
     0293 : fc00 ; -- <0331> "
-// fl16 = 0x7fae
+-- fl16 = 0x7fae
     0294 : 0014 ; -- <0332> a = m9k_data
-// fl16 = 0xd9ab
+-- fl16 = 0xd9ab
     0295 : 0353 ; -- <0333> a = a>>4
-// fl16 = 0x59bf
+-- fl16 = 0x59bf
     0296 : 0353 ; -- <0334> a = a>>4
-// fl16 = 0x8216
+-- fl16 = 0x8216
     0297 : 0000 ; -- <0335> a = a -- putchar a
-// fl16 = 0x586c
+-- fl16 = 0x586c
     0298 : fba0 ; -- <0335> putchar a
-// fl16 = 0x316c
+-- fl16 = 0x316c
     0299 : 0032 ; -- <0335> "
-// fl16 = 0x4709
+-- fl16 = 0x4709
     029a : fc00 ; -- <0335> "
-// fl16 = 0xbd3b
+-- fl16 = 0xbd3b
     029b : c800 ; -- <0336> x = x+y
-// fl16 = 0x3138
+-- fl16 = 0x3138
     029c : 1320 ; -- <0336> "
-// fl16 = 0x6a01
+-- fl16 = 0x6a01
     029d : 0004 ; -- <0337> a = x
-// fl16 = 0xbf34
+-- fl16 = 0xbf34
     029e : 0604 ; -- <0338> b = 4
-// fl16 = 0x3038
+-- fl16 = 0x3038
     029f : e407 ; -- <0339> bn eq :next_chars
-// fl16 = 0xae42
+-- fl16 = 0xae42
     02a0 : 0287 ; -- <0339> "
-// fl16 = 0x262e
+-- fl16 = 0x262e
     02a1 : 023d ; -- <0340> a = 61 -- putasc "="
-// fl16 = 0x93b7
+-- fl16 = 0x93b7
     02a2 : 0000 ; -- <0340> a = a -- putasc "="
-// fl16 = 0x7ff6
+-- fl16 = 0x7ff6
     02a3 : fba0 ; -- <0340> putasc "="
-// fl16 = 0x6df6
+-- fl16 = 0x6df6
     02a4 : 0032 ; -- <0340> "
-// fl16 = 0x9893
+-- fl16 = 0x9893
     02a5 : fc00 ; -- <0340> "
-// fl16 = 0x24c5
+-- fl16 = 0x24c5
     02a6 : 0002 ; -- <0341> a = i
-// fl16 = 0xacc2
+-- fl16 = 0xacc2
     02a7 : fba0 ; -- <0342> call :peek
-// fl16 = 0x36c4
+-- fl16 = 0x36c4
     02a8 : 0264 ; -- <0342> "
-// fl16 = 0xfc61
+-- fl16 = 0xfc61
     02a9 : fc00 ; -- <0342> "
-// fl16 = 0x8ac7
+-- fl16 = 0x8ac7
     02aa : 0017 ; -- <0343> a = peek_data
-// fl16 = 0x17c4
+-- fl16 = 0x17c4
     02ab : fba0 ; -- <0344> call :put4x
-// fl16 = 0xcedb
+-- fl16 = 0xcedb
     02ac : 005d ; -- <0344> "
-// fl16 = 0xc378
+-- fl16 = 0xc378
     02ad : fc00 ; -- <0344> "
-// fl16 = 0x6fd5
+-- fl16 = 0x6fd5
     02ae : 0220 ; -- <0345> a = 32 -- putasc " "
-// fl16 = 0x18d2
+-- fl16 = 0x18d2
     02af : 0000 ; -- <0345> a = a -- putasc " "
-// fl16 = 0x00f4
+-- fl16 = 0x00f4
     02b0 : fba0 ; -- <0345> putasc " "
-// fl16 = 0xe9f4
+-- fl16 = 0xe9f4
     02b1 : 0032 ; -- <0345> "
-// fl16 = 0x1191
+-- fl16 = 0x1191
     02b2 : fc00 ; -- <0345> "
-// fl16 = 0x98c3
+-- fl16 = 0x98c3
     02b3 : 0e01 ; -- <0346> j = 1
-// fl16 = 0x1dc0
+-- fl16 = 0x1dc0
     02b4 : c800 ; -- <0347> i = i+j
-// fl16 = 0xaecf
+-- fl16 = 0xaecf
     02b5 : 0b10 ; -- <0347> "
-// fl16 = 0x1798
+-- fl16 = 0x1798
 -- loop up to the number of registers in the target program's register name table.
-// fl16 = 0x73b3
+-- fl16 = 0x73b3
     02b6 : 4e02 ; -- <0349> m9k_addr = 2
-// fl16 = 0x73b3
+-- fl16 = 0x73b3
     02b7 : 0414 ; -- <0350> b = m9k_data
-// fl16 = 0x2d04
+-- fl16 = 0x2d04
     02b8 : 0002 ; -- <0351> a = i
-// fl16 = 0x611c
+-- fl16 = 0x611c
     02b9 : e407 ; -- <0352> bn eq :next_reg
-// fl16 = 0x9d1e
+-- fl16 = 0x9d1e
     02ba : 0285 ; -- <0352> "
-// fl16 = 0xcc0a
+-- fl16 = 0xcc0a
     02bb : 020d ; -- <0353> a = 13 -- puteol
-// fl16 = 0xed91
+-- fl16 = 0xed91
     02bc : 0000 ; -- <0353> a = a -- puteol
-// fl16 = 0x2da0
+-- fl16 = 0x2da0
     02bd : fba0 ; -- <0353> puteol
-// fl16 = 0x6ea0
+-- fl16 = 0x6ea0
     02be : 0032 ; -- <0353> "
-// fl16 = 0xec3d
+-- fl16 = 0xec3d
     02bf : fc00 ; -- <0353> "
-// fl16 = 0xcb6f
+-- fl16 = 0xcb6f
     02c0 : 020a ; -- <0353> a = 10 -- puteol
-// fl16 = 0xa76c
+-- fl16 = 0xa76c
     02c1 : 0000 ; -- <0353> a = a -- puteol
-// fl16 = 0x9678
+-- fl16 = 0x9678
     02c2 : fba0 ; -- <0353> puteol
-// fl16 = 0x8778
+-- fl16 = 0x8778
     02c3 : 0032 ; -- <0353> "
-// fl16 = 0xb515
+-- fl16 = 0xb515
     02c4 : fc00 ; -- <0353> "
-// fl16 = 0x4447
+-- fl16 = 0x4447
     02c5 : f808 ; -- <0354> pop rtna -- rtn
-// fl16 = 0xcf44
+-- fl16 = 0xcf44
     02c6 : 1408 ; -- <0354> pop y -- "
-// fl16 = 0x6145
+-- fl16 = 0x6145
     02c7 : 1008 ; -- <0354> pop x -- "
-// fl16 = 0x1061
+-- fl16 = 0x1061
     02c8 : 0c08 ; -- <0354> pop j -- "
-// fl16 = 0xf279
+-- fl16 = 0xf279
     02c9 : 0808 ; -- <0354> pop i -- "
-// fl16 = 0x028d
+-- fl16 = 0x028d
     02ca : fc00 ; -- <0354> rtn
-// fl16 = 0x359d
+-- fl16 = 0x359d
         
         END;
     

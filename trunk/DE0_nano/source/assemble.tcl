@@ -272,7 +272,7 @@ proc emit_mif {args} {
     # "puts" given args into the MIF memory initialization file.
     if {$::asm_pass == $::pass(emit)} {
         eval puts $::mif_file [string map {{//} {--}} $args]
-        puts $::mif_file "// fl16 = 0x[format %04x [expr ($::chksum2 << 8) + $::chksum1]]"
+        puts $::mif_file "-- fl16 = 0x[format %04x [expr ($::chksum2 << 8) + $::chksum1]]"
     }
 }
 
