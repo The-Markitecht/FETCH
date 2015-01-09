@@ -31,24 +31,29 @@ namespace CVtool
         protected DispatcherTimer rx_tmr = null;
         protected const int RETAIN_CHARS = 500;
         protected StringBuilder rx_sbuf = new StringBuilder(RETAIN_CHARS * 2);
-        protected Dictionary<UInt16,UInt16> old_values = new Dictionary<UInt16,UInt16>();
+        //protected Dictionary<UInt16,UInt16> old_values = new Dictionary<UInt16,UInt16>();
         protected Dictionary<UInt16,UInt16> line_nums = new Dictionary<UInt16,UInt16>();
         protected Regex ipr_re = new Regex("\n([0-9a-f]{4}),([0-9a-f]{4}) >$", RegexOptions.Compiled);
         protected List<Paragraph> lines = new List<Paragraph>();
+        protected string source_fn = null;
+        protected UInt16 last_ipr = 0;
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void load_source(string src_fn)
         {
-            // parse source file.  memorize line number of each address.
-            string src_fn = System.IO.Path.Combine(app_path, @"..\..\..\..\..\DE0_nano\target_program.mif");
+            bool timer_on = rx_tmr.IsEnabled;
+            rx_tmr.Stop();
             log(src_fn);
             string patn = @" ^ \s* ([0-9a-f]{4}) \s* : \s* ([0-9a-f]{4}) \s* ; \s* -- \s* <(\d\d\d\d)> ";
             Regex re = new Regex(patn, RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
             UInt16 lnum = 0;
+            lines.Clear();
+            line_nums.Clear();
+            src_doc.Blocks.Clear();
             using (System.IO.StreamReader rdr = new System.IO.StreamReader(src_fn))
             {                
                 while ( ! rdr.EndOfStream) 
@@ -66,8 +71,14 @@ namespace CVtool
                     src_doc.Blocks.Add(p);
                     lnum++;
                 }
-            }
+            }            
+            show_ipr(last_ipr);
+            if (timer_on)
+                rx_tmr.Start();
+        }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
             port = new SerialPort("COM9", 115200, Parity.None, 8, StopBits.One);
             port.WriteTimeout = 500;
             port.ReadTimeout = 1;
@@ -77,9 +88,28 @@ namespace CVtool
             rx_tmr = new DispatcherTimer();
             rx_tmr.Interval = TimeSpan.FromMilliseconds(100);
             rx_tmr.Tick += rx_tmr_tick;
+
+            // parse source file.  memorize line number of each address.
+            source_fn = System.IO.Path.Combine(app_path, @"..\..\..\..\..\DE0_nano\target_program.mif");
+            load_source(source_fn);
             rx_tmr.Start();
 
             this.WindowState = System.Windows.WindowState.Maximized;
+        }
+
+        protected void show_ipr(UInt16 addr)
+        {
+            if (line_nums.ContainsKey(addr))
+            {
+                //src_txt.ScrollToVerticalOffset()
+                //src_txt.BringIntoView()
+                UInt16 lnum = line_nums[addr];
+                Paragraph lin = lines[lnum];
+                src_txt.Focus();
+                lin.BringIntoView();
+                src_txt.Selection.Select(lin.ContentStart, lin.ContentEnd);
+                last_ipr = addr;
+            }            
         }
 
         public void rx_tmr_tick(object sender, EventArgs args)
@@ -102,17 +132,7 @@ namespace CVtool
                     Match m = ipr_re.Match(s);
                     if (m.Success)
                     {
-                        UInt16 addr = UInt16.Parse(m.Groups[1].Value, System.Globalization.NumberStyles.HexNumber);
-                        if (line_nums.ContainsKey(addr))
-                        {
-                            //src_txt.ScrollToVerticalOffset()
-                            //src_txt.BringIntoView()
-                            UInt16 lnum = line_nums[addr];
-                            Paragraph lin = lines[lnum];
-                            src_txt.Focus();
-                            lin.BringIntoView();
-                            src_txt.Selection.Select(lin.ContentStart, lin.ContentEnd);
-                        }
+                        show_ipr(UInt16.Parse(m.Groups[1].Value, System.Globalization.NumberStyles.HexNumber));
                     }
                 }
             }
@@ -192,6 +212,7 @@ namespace CVtool
                 fs.Read(b, 0, (int)fs.Length);
             }
             send(b, 0, b.Length);
+            load_source(source_fn);
         }
 
         private void set_bp(int bpnum, TextBox tb)
