@@ -19,6 +19,10 @@ vdefine arx_busy_mask           0x0004
         call $lin getchar_atx
     }
     
+    proc pollchar_atx {lin} {
+        call $lin pollchar_atx
+    }
+    
     proc puteol_atx {lin} {
         asc $lin a = "\r"
         putchar $lin a
@@ -67,3 +71,21 @@ func getchar_atx
     bn and0z :wait_for_idle
     a = atx_data
     rtn
+
+// returns a character in a, or -1 if none.
+// this version can miss characters if not polled while the character is arriving.
+func pollchar_atx
+    // check for UART is busy, then idle.
+    a = $arx_busy_mask
+    b = atx_ctrl
+    br and0z :none
+    :wait_for_idle
+    b = atx_ctrl
+    bn and0z :wait_for_idle
+    a = atx_data
+    rtn
+    :none
+    a = -1
+    rtn
+
+    

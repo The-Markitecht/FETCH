@@ -15,6 +15,10 @@
         pop \" a
     }
 
+    proc pollchar {lin} {
+        pollchar_$::asm::console_driver $lin 
+    }
+
     proc asc {lin reg eq char} {
         # assign ASCII value of a literal character.
         if {[scan $char %c c] != 1} {

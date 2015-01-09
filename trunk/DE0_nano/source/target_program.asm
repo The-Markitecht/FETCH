@@ -69,19 +69,79 @@
     
     // ////////////////////////////////////////////
     :main
-    a = g6
-    b = 1
-    a = a+b
-    g6 = a
-    a = a>>4
-    leds = a>>4
 
+    leds = 0
+    
+    // a = g6
+    // b = 1
+    // a = a+b
+    // g6 = a
+    // a = a>>4
+    // leds = a>>4
+
+    :cmd_loop
+    getchar
+    
+    // command = set breakpoint.
+    asc b = "b"
+    bn eq :skip_setbrk
+    call :set_bp
+    a = g7
+    call :put4x
+    puteol
+    jmp :cmd_loop
+    :skip_setbrk
+    
+    putasc "?"
+    puteol
+    jmp :cmd_loop
+    
+func set_bp
+    getchar
+    x = a
+    getchar
+    asc b = "="
+    bn eq :fail
+    call :get4x
+    y = a
+    a = 0
+    bn eq :fail
+    a = x
+    asc b = "0"
+    br eq :b0
+    asc b = "1"
+    br eq :b1
+    asc b = "2"
+    br eq :b2
+    asc b = "3"
+    br eq :b3
+    jmp :fail
+    :b0
+    g7 = y
+    rtn
+    :b1
+    g7 = y
+    rtn
+    :b2
+    g7 = y
+    rtn
+    :b3
+    g7 = y
+    rtn
+    :fail
+    putasc "?"
+    puteol
+    rtn
+    
 // debugging version of get4x    
     // y = digit counter
     // j = sum
     y = 4
     :again
-    asc a = "f"
+    a = leds
+    b = 1
+    leds = a+b
+    getchar
     x = :hexdigits
     i = 16
     call :find_in_fetch
@@ -97,9 +157,11 @@
     bn az :again
     a = j    
     b = 0
+    call :put4x
     jmp :main
     :fail
     b = -1
+    putasc "?"
     jmp :main
     
     // // a = 65

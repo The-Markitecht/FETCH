@@ -103,22 +103,37 @@
     :cmd_loop
     a = bus_ctrl
     b = 0
-    br eq :nodump
+    br eq :running_prompt
+    
     call :dump_target
     a = tg_code_addr
     call :put4x
     putasc ","
     a = exr_shadow
     call :put4x
-    jmp :prompt_done
-    :nodump
-    putasc "R"
-    putasc "U"
-    putasc "N"
-    :prompt_done
     putasc " "
     putasc ">"
     getchar
+    jmp :parse_cmd
+    
+    :running_prompt
+    puteol
+    putasc "R"
+    putasc "U"
+    putasc "N"
+    putasc " "
+    putasc ">"
+    :run_poll
+    pollchar
+    b = -1
+    bn eq :parse_cmd
+    a = bp_status
+    br az :run_poll
+    // target hit a breakpoint; switch to stepping mode.
+    bus_ctrl = $bp_step_mask
+    jmp :cmd_loop
+
+    :parse_cmd
     
     // command = step next instruction.
     asc b = "n"
@@ -203,8 +218,9 @@
     jmp :main_loop
     
 func wait_for_bp    
+    :poll
     a = bp_status
-    br az :wait_for_bp
+    br az :poll
     rtn
     
 func set_bp
@@ -218,13 +234,13 @@ func set_bp
     a = 0
     bn eq :fail
     a = x
-    b = 0
+    asc b = "0"
     br eq :b0
-    b = 1
+    asc b = "1"
     br eq :b1
-    b = 2
+    asc b = "2"
     br eq :b2
-    b = 3
+    asc b = "3"
     br eq :b3
     jmp :fail
     :b0

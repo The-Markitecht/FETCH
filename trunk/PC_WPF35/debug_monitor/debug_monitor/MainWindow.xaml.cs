@@ -181,7 +181,7 @@ namespace CVtool
 
         private void set_bp0_btn_Click(object sender, RoutedEventArgs e)
         {
-            send("b0=0045"); // + bp0_txt.Text.Trim().ToLower());
+            send("b0=" + bp0_txt.Text.Trim().ToLower());
         }
 
         private void load_btn_Click(object sender, RoutedEventArgs e)
