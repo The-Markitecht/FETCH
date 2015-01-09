@@ -137,18 +137,6 @@ assign LED = r[`DR_LEDS][7:0];
 // plumbing of target MCU inputs.
 assign r[`SR_KEYS] = {14'h0, KEY}; 
 
-//patch: synthesis debugging only.
-//assign out0 = r[`DR_AV_WRITEDATA];
-//assign out1 = r[`DR_AV_ADDRESS];
-
-// // old direct wiring for software-driven avalon master
-// std_reg av_writedata_reg(sysclk, sysreset, r[`DR_AV_WRITEDATA], r_load_data, r_load[`DR_AV_WRITEDATA]);
-// wire[15:0] av_writedata             = r[`DR_AV_WRITEDATA];
-// std_reg av_address_reg(sysclk, sysreset, r[`DR_AV_ADDRESS], r_load_data, r_load[`DR_AV_ADDRESS]);
-// wire[15:0] av_address               = r[`DR_AV_ADDRESS];
-// std_reg #(.WIDTH(2)) av_ctrl_reg(sysclk, sysreset, r[`DR_AV_CTRL], r_load_data[1:0], r_load[`DR_AV_CTRL]);
-// wire av_write      = r[`DR_AV_CTRL][0];
-
 // Avalon MM master.
 // program should always write (or read) the "write data" register last, because accessing it triggers the Avalon transaction.
 // that way, the program can read from the "read data" register after it's copied data from Avalon, without triggering another read transaction.
@@ -161,17 +149,6 @@ std_reg av_ad_hi_reg(sysclk, sysreset, r[`DR_AV_AD_HI], r_load_data, r_load[`DR_
 std_reg av_ad_lo_reg(sysclk, sysreset, r[`DR_AV_AD_LO], r_load_data, r_load[`DR_AV_AD_LO]);
 std_reg av_write_data_reg(sysclk, sysreset, r[`DR_AV_WRITE_DATA], r_load_data, r_load[`DR_AV_WRITE_DATA]);
 std_reg av_read_data_reg(sysclk, sysreset, r[`SR_AV_READ_DATA], m0_readdata, av_read_capture);
-// reg av_write_begin = 0;
-// reg av_write_hold = 0;
-// wire av_write = av_write_begin || (av_write_hold && av_waitrequest);
-// always_ff @(posedge sysclk) begin
-    // if (av_write_begin) begin
-        // av_write_begin <= 0; // move to 2nd step of write transaction, where av_write ends as soon as av_waitrequest ends, mid-cycle.
-    // end else if (r_load[`DR_AV_AD_LO]) begin
-        // av_write_begin <= 1; // begin write transaction.
-        // av_write_hold <= 1; // set up this register right away, to prevent a glitch in av_write at the end of the next clock cycle.
-    // end
-// end
 always_ff @(posedge sysclk) begin
     if (av_write && ! av_waitrequest) begin
         av_write <= 0; // write transaction has ended.

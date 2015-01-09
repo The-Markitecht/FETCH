@@ -374,7 +374,7 @@ module synapse316 #(
         muxa_src_addr == 10'h334 ? or0 :
         muxa_src_addr == 10'h338 ? xor0 :
         
-        muxa_src_addr == 10'h340 ? flags :
+//        muxa_src_addr == 10'h340 ? flags : // this is never used, and it costs 20 LE's and 2 Mhz.
         
         muxa_src_addr == 10'h350 ? sh1r0 :
         muxa_src_addr == 10'h351 ? sh1l0 : 

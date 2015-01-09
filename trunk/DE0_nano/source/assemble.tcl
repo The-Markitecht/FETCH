@@ -12,7 +12,6 @@ set ::asrc [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     and0    0x330   \
     or0     0x334   \
     xor0    0x338   \
-    flags   0x340   \
     sh1r0   0x350   \
     sh1l0   0x351   \
     sh4l0   0x352   \
@@ -22,6 +21,7 @@ set ::asrc [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     fetchd  0x3b0   \
     nop     0       \
     ]
+#    flags   0x340   \
 
 set ::adest [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     r8 8 r9 9 r10 10 r11 11 r12 12 r13 13 r14 14 r15 15 \
