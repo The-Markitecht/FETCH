@@ -442,61 +442,126 @@ addr == 16'h135 ? 16'hfc00 :  // <0053> rtn
 // ////////////////////////////////////////////
 // :main // = 0x0136
 
-// x = 20
-// :gain
-// fetch a from x
-// call :put4x
-// puteol
-// y = -1
-// x = x+y
-// bn xz :gain
+// copy 203 words of program over and over, to all of SDRAM.
+// x = program pointer
+addr == 16'h136 ? 16'hfba0 :  // <0076> call :fletcher16_init
+addr == 16'h137 ? 16'h00ff :  // <0076> "
+addr == 16'h138 ? 16'hfc00 :  // <0076> "
+addr == 16'h139 ? 16'h1200 :  // <0077> x = 0
+addr == 16'h13a ? 16'h1601 :  // <0078> y = 1
+addr == 16'h13b ? 16'h3600 :  // <0079> av_ad_hi = 0
+addr == 16'h13c ? 16'h3a00 :  // <0080> av_ad_lo = 0
+// :nextword // = 0x013d
+addr == 16'h13d ? 16'hd004 :  // <0083> fetch a from x
+addr == 16'h13e ? 16'h03b0 :  // <0083> "
+addr == 16'h13f ? 16'h2c00 :  // <0084> av_write_data = a
+addr == 16'h140 ? 16'hfba0 :  // <0085> call :fletcher16_input16
+addr == 16'h141 ? 16'h011e :  // <0085> "
+addr == 16'h142 ? 16'hfc00 :  // <0085> "
+addr == 16'h143 ? 16'h000e :  // <0086> a = av_ad_lo
+addr == 16'h144 ? 16'h0602 :  // <0087> b = 2
+addr == 16'h145 ? 16'hc800 :  // <0088> a = a+b
+addr == 16'h146 ? 16'h0300 :  // <0088> "
+addr == 16'h147 ? 16'h3800 :  // <0089> av_ad_lo = a
+addr == 16'h148 ? 16'he400 :  // <0090> bn az :same_page
+addr == 16'h149 ? 16'h0153 :  // <0090> "
+addr == 16'h14a ? 16'h000d :  // <0091> a = av_ad_hi
+addr == 16'h14b ? 16'h0601 :  // <0092> b = 1
+addr == 16'h14c ? 16'hc800 :  // <0093> a = a+b
+addr == 16'h14d ? 16'h0300 :  // <0093> "
+addr == 16'h14e ? 16'h3400 :  // <0094> av_ad_hi = a
+addr == 16'h14f ? 16'h07a0 :  // <0095> b = $sdram_page_beyond
+addr == 16'h150 ? 16'h0200 :  // <0095> "
+addr == 16'h151 ? 16'he007 :  // <0096> br eq :ram_full
+addr == 16'h152 ? 16'h015c :  // <0096> "
+// :same_page // = 0x0153
+addr == 16'h153 ? 16'hc800 :  // <0098> x = x+y
+addr == 16'h154 ? 16'h1320 :  // <0098> "
+addr == 16'h155 ? 16'h0004 :  // <0099> a = x
+addr == 16'h156 ? 16'h06cb :  // <0100> b = 203
+addr == 16'h157 ? 16'he407 :  // <0101> bn eq :nextword
+addr == 16'h158 ? 16'h013d :  // <0101> "
+addr == 16'h159 ? 16'h1200 :  // <0102> x = 0
+addr == 16'h15a ? 16'he00f :  // <0103> jmp :nextword
+addr == 16'h15b ? 16'h013d :  // <0103> "
+// :ram_full // = 0x015c
+addr == 16'h15c ? 16'h020a :  // <0105> a = 10 // puteol
+addr == 16'h15d ? 16'h37a0 :  // <0105> puteol
+addr == 16'h15e ? 16'h0200 :  // <0105> "
+addr == 16'h15f ? 16'h3a00 :  // <0105> "
+addr == 16'h160 ? 16'h2c00 :  // <0105> "
+addr == 16'h161 ? 16'h0257 :  // <0106> a = 87 // putasc "W"
+addr == 16'h162 ? 16'h37a0 :  // <0106> putasc "W"
+addr == 16'h163 ? 16'h0200 :  // <0106> "
+addr == 16'h164 ? 16'h3a00 :  // <0106> "
+addr == 16'h165 ? 16'h2c00 :  // <0106> "
+addr == 16'h166 ? 16'h0252 :  // <0107> a = 82 // putasc "R"
+addr == 16'h167 ? 16'h37a0 :  // <0107> putasc "R"
+addr == 16'h168 ? 16'h0200 :  // <0107> "
+addr == 16'h169 ? 16'h3a00 :  // <0107> "
+addr == 16'h16a ? 16'h2c00 :  // <0107> "
+addr == 16'h16b ? 16'hfba0 :  // <0108> call :fletcher16_result
+addr == 16'h16c ? 16'h012f :  // <0108> "
+addr == 16'h16d ? 16'hfc00 :  // <0108> "
+addr == 16'h16e ? 16'hfba0 :  // <0109> call :put4x
+addr == 16'h16f ? 16'h007f :  // <0109> "
+addr == 16'h170 ? 16'hfc00 :  // <0109> "
 
-addr == 16'h136 ? 16'hfba0 :  // <0083> call :fletcher16_init
-addr == 16'h137 ? 16'h00ff :  // <0083> "
-addr == 16'h138 ? 16'hfc00 :  // <0083> "
-addr == 16'h139 ? 16'h1200 :  // <0084> x = 0
-addr == 16'h13a ? 16'h1601 :  // <0085> y = 1
-// :nextword // = 0x013b
-addr == 16'h13b ? 16'hd004 :  // <0087> fetch a from x
-addr == 16'h13c ? 16'h03b0 :  // <0087> "
-addr == 16'h13d ? 16'hfba0 :  // <0088> call :fletcher16_input16
-addr == 16'h13e ? 16'h011e :  // <0088> "
-addr == 16'h13f ? 16'hfc00 :  // <0088> "
-addr == 16'h140 ? 16'hc800 :  // <0089> x = x+y
-addr == 16'h141 ? 16'h1320 :  // <0089> "
-addr == 16'h142 ? 16'h0004 :  // <0090> a = x
-addr == 16'h143 ? 16'h06c8 :  // <0091> b = 200
-addr == 16'h144 ? 16'he407 :  // <0092> bn eq :nextword
-addr == 16'h145 ? 16'h013b :  // <0092> "
-addr == 16'h146 ? 16'h020a :  // <0093> a = 10 // puteol
-addr == 16'h147 ? 16'h37a0 :  // <0093> puteol
-addr == 16'h148 ? 16'h0200 :  // <0093> "
-addr == 16'h149 ? 16'h3a00 :  // <0093> "
-addr == 16'h14a ? 16'h2c00 :  // <0093> "
-addr == 16'h14b ? 16'h0246 :  // <0094> a = 70 // putasc "F"
-addr == 16'h14c ? 16'h37a0 :  // <0094> putasc "F"
-addr == 16'h14d ? 16'h0200 :  // <0094> "
-addr == 16'h14e ? 16'h3a00 :  // <0094> "
-addr == 16'h14f ? 16'h2c00 :  // <0094> "
-addr == 16'h150 ? 16'h024c :  // <0095> a = 76 // putasc "L"
-addr == 16'h151 ? 16'h37a0 :  // <0095> putasc "L"
-addr == 16'h152 ? 16'h0200 :  // <0095> "
-addr == 16'h153 ? 16'h3a00 :  // <0095> "
-addr == 16'h154 ? 16'h2c00 :  // <0095> "
-addr == 16'h155 ? 16'hfba0 :  // <0096> call :fletcher16_result
-addr == 16'h156 ? 16'h012f :  // <0096> "
-addr == 16'h157 ? 16'hfc00 :  // <0096> "
-addr == 16'h158 ? 16'hfba0 :  // <0097> call :put4x
-addr == 16'h159 ? 16'h007f :  // <0097> "
-addr == 16'h15a ? 16'hfc00 :  // <0097> "
-
-addr == 16'h15b ? 16'h03a0 :  // <0099> a = 1000
-addr == 16'h15c ? 16'h03e8 :  // <0099> "
-addr == 16'h15d ? 16'hfba0 :  // <0100> call :spinwait
-addr == 16'h15e ? 16'h00ee :  // <0100> "
-addr == 16'h15f ? 16'hfc00 :  // <0100> "
-addr == 16'h160 ? 16'he00f :  // <0101> jmp :main
-addr == 16'h161 ? 16'h0136 :  // <0101> "
+// read back all of SDRAM.
+addr == 16'h171 ? 16'hfba0 :  // <0112> call :fletcher16_init
+addr == 16'h172 ? 16'h00ff :  // <0112> "
+addr == 16'h173 ? 16'hfc00 :  // <0112> "
+addr == 16'h174 ? 16'h3600 :  // <0113> av_ad_hi = 0
+addr == 16'h175 ? 16'h3a00 :  // <0114> av_ad_lo = 0
+// :read_nextword // = 0x0176
+addr == 16'h176 ? 16'h000b :  // <0116> a = av_write_data
+addr == 16'h177 ? 16'h000c :  // <0117> a = av_read_data
+addr == 16'h178 ? 16'hfba0 :  // <0118> call :fletcher16_input16
+addr == 16'h179 ? 16'h011e :  // <0118> "
+addr == 16'h17a ? 16'hfc00 :  // <0118> "
+addr == 16'h17b ? 16'h000e :  // <0119> a = av_ad_lo
+addr == 16'h17c ? 16'h0602 :  // <0120> b = 2
+addr == 16'h17d ? 16'hc800 :  // <0121> a = a+b
+addr == 16'h17e ? 16'h0300 :  // <0121> "
+addr == 16'h17f ? 16'h3800 :  // <0122> av_ad_lo = a
+addr == 16'h180 ? 16'he400 :  // <0123> bn az :read_same_page
+addr == 16'h181 ? 16'h018b :  // <0123> "
+addr == 16'h182 ? 16'h000d :  // <0124> a = av_ad_hi
+addr == 16'h183 ? 16'h0601 :  // <0125> b = 1
+addr == 16'h184 ? 16'hc800 :  // <0126> a = a+b
+addr == 16'h185 ? 16'h0300 :  // <0126> "
+addr == 16'h186 ? 16'h3400 :  // <0127> av_ad_hi = a
+addr == 16'h187 ? 16'h07a0 :  // <0128> b = $sdram_page_beyond
+addr == 16'h188 ? 16'h0200 :  // <0128> "
+addr == 16'h189 ? 16'he007 :  // <0129> br eq :read_ram_full
+addr == 16'h18a ? 16'h018d :  // <0129> "
+// :read_same_page // = 0x018b
+addr == 16'h18b ? 16'he00f :  // <0131> jmp :read_nextword
+addr == 16'h18c ? 16'h0176 :  // <0131> "
+// :read_ram_full // = 0x018d
+addr == 16'h18d ? 16'h020a :  // <0133> a = 10 // puteol
+addr == 16'h18e ? 16'h37a0 :  // <0133> puteol
+addr == 16'h18f ? 16'h0200 :  // <0133> "
+addr == 16'h190 ? 16'h3a00 :  // <0133> "
+addr == 16'h191 ? 16'h2c00 :  // <0133> "
+addr == 16'h192 ? 16'h0252 :  // <0134> a = 82 // putasc "R"
+addr == 16'h193 ? 16'h37a0 :  // <0134> putasc "R"
+addr == 16'h194 ? 16'h0200 :  // <0134> "
+addr == 16'h195 ? 16'h3a00 :  // <0134> "
+addr == 16'h196 ? 16'h2c00 :  // <0134> "
+addr == 16'h197 ? 16'h0244 :  // <0135> a = 68 // putasc "D"
+addr == 16'h198 ? 16'h37a0 :  // <0135> putasc "D"
+addr == 16'h199 ? 16'h0200 :  // <0135> "
+addr == 16'h19a ? 16'h3a00 :  // <0135> "
+addr == 16'h19b ? 16'h2c00 :  // <0135> "
+addr == 16'h19c ? 16'hfba0 :  // <0136> call :fletcher16_result
+addr == 16'h19d ? 16'h012f :  // <0136> "
+addr == 16'h19e ? 16'hfc00 :  // <0136> "
+addr == 16'h19f ? 16'hfba0 :  // <0137> call :put4x
+addr == 16'h1a0 ? 16'h007f :  // <0137> "
+addr == 16'h1a1 ? 16'hfc00 :  // <0137> "
+addr == 16'h1a2 ? 16'he00f :  // <0138> jmp :main
+addr == 16'h1a3 ? 16'h0136 :  // <0138> "
 
 // // Avalon write to SDRAM.
 // av_ad_hi = 0
