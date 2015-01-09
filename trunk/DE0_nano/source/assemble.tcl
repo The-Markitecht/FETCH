@@ -272,14 +272,24 @@ proc emit_mif {args} {
     # "puts" given args into the MIF memory initialization file.
     if {$::asm_pass == $::pass(emit)} {
         eval puts $::mif_file [string map {{//} {--}} $args]
+        puts $::mif_file "// fl16 = 0x[format %04x [expr ($::chksum2 << 8) + $::chksum1]]"
     }
 }
 
 proc emit_bin {w} {
     # "puts" given 16-bit Tcl integer into the binary file.
     if {$::asm_pass == $::pass(emit)} {
-        puts -nonewline $::bin_file [format %c%c [expr {$w & 0xff}] [expr {($w >> 8) & 0xff}] ]
+        set lo [expr {$w & 0xff}]
+        set hi [expr {($w >> 8) & 0xff}]
+        puts -nonewline $::bin_file [format %c%c $lo $hi ]
+        fletcher16 $lo
+        fletcher16 $hi
     }
+}
+
+proc fletcher16 {b} {
+    set ::chksum1 [expr ($::chksum1 + $b) % 255]
+    set ::chksum2 [expr ($::chksum2 + $::chksum1) % 255]
 }
 
 proc pack {dest_addr src_addr} {
@@ -296,6 +306,8 @@ proc parse_text {asm_lines pass_num} {
     set ::multi_line {}
     set ::func {}
     set ::stackable [list]
+    set ::chksum1 0
+    set ::chksum2 0
     #catch {namespace delete ::asm} ;# can't do this since it deletes all macros too.
     foreach vn [info vars ::asm::*] {
         unset $vn

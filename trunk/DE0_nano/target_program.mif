@@ -7,870 +7,1179 @@
         BEGIN
     
 -- #########################################################################
+// fl16 = 0x0000
 -- assembly source code.
+// fl16 = 0x0000
 -- to write some data on the UART.
+// fl16 = 0x0000
 
+// fl16 = 0x0000
 -- register file configuration
+// fl16 = 0x0000
 
+// fl16 = 0x0000
 -- application-specific register aliases.
+// fl16 = 0x0000
 
+// fl16 = 0x0000
 -- all Avalon addresses are BYTE addresses.  all Avalon sizes are in BYTES.
+// fl16 = 0x0000
 -- SDRAM notes:
+// fl16 = 0x0000
 -- - all addresses are BYTE addresses.  all must be divisible by 2, because this
+// fl16 = 0x0000
 -- system only supports 16-bit word accesses.  writes to an odd-numbered address
+// fl16 = 0x0000
 -- will be forced to the word boundary instead, overwriting data there.
+// fl16 = 0x0000
 -- JTAG UART notes:
+// fl16 = 0x0000
 -- - on read, program MUST test bit 15 of jtag_uart_data_lsw.  jtag uart continues to
+// fl16 = 0x0000
 -- report the same data byte on subsequent reads when no further data has arrived.
+// fl16 = 0x0000
 -- bit 15 RVALID = 1 is the only indication of proper data.
+// fl16 = 0x0000
 -- - reading jtag_uart_data_msw also counts as a FIFO read, causing loss of a data byte,
+// fl16 = 0x0000
 -- probably because jtag uart has no byteenable wires.
+// fl16 = 0x0000
 -- - on write, the data is lost if the write FIFO is full.  Avalon is not stalled.
--- alias_both av_ctrl          [incr counter]
---    vdefine av_write_mask                   0x0001
--- alias_src  av_waitrequest   [incr counter]
+// fl16 = 0x0000
 
+// fl16 = 0x0000
 
-    0000 : e00f ; -- <0049> jmp :main
-    0001 : 00ff ; -- <0049> "
+// fl16 = 0x0000
+    0000 : e00f ; -- <0046> jmp :main
+// fl16 = 0x0000
+    0001 : 013c ; -- <0046> "
+// fl16 = 0xfeef
 
+// fl16 = 0x582d
 -- register names for use by debugger.
-    0002 : 000a ; -- <0052> ([src rstk])
+// fl16 = 0x582d
+    0002 : 000a ; -- <0049> ([src rstk])
+// fl16 = 0x582d
 -- "\r\n     a"
-    0003 : 0a0d ; -- <0053>   
-    0004 : 2020 ; -- <0053>   
-    0005 : 2020 ; -- <0053>   
-    0006 : 6120 ; -- <0053> a 
+// fl16 = 0xc637
+    0003 : 0a0d ; -- <0050>   
+// fl16 = 0xc637
+    0004 : 2020 ; -- <0050>   
+// fl16 = 0x594e
+    0005 : 2020 ; -- <0050>   
+// fl16 = 0x568e
+    0006 : 6120 ; -- <0050> a 
+// fl16 = 0xd3ce
 -- "       b"
-    0007 : 2020 ; -- <0054>   
-    0008 : 2020 ; -- <0054>   
-    0009 : 2020 ; -- <0054>   
-    000a : 6220 ; -- <0054> b 
+// fl16 = 0x1350
+    0007 : 2020 ; -- <0051>   
+// fl16 = 0x1350
+    0008 : 2020 ; -- <0051>   
+// fl16 = 0x1490
+    0009 : 2020 ; -- <0051>   
+// fl16 = 0x95d0
+    000a : 6220 ; -- <0051> b 
+// fl16 = 0x9711
 -- "       i"
-    000b : 2020 ; -- <0055>   
-    000c : 2020 ; -- <0055>   
-    000d : 2020 ; -- <0055>   
-    000e : 6920 ; -- <0055> i 
+// fl16 = 0x5c93
+    000b : 2020 ; -- <0052>   
+// fl16 = 0x5c93
+    000c : 2020 ; -- <0052>   
+// fl16 = 0xe3d3
+    000d : 2020 ; -- <0052>   
+// fl16 = 0xeb14
+    000e : 6920 ; -- <0052> i 
+// fl16 = 0x7454
 -- "       j"
-    000f : 2020 ; -- <0056>   
-    0010 : 2020 ; -- <0056>   
-    0011 : 2020 ; -- <0056>   
-    0012 : 6a20 ; -- <0056> j 
+// fl16 = 0xc6dd
+    000f : 2020 ; -- <0053>   
+// fl16 = 0xc6dd
+    0010 : 2020 ; -- <0053>   
+// fl16 = 0xe21e
+    0011 : 2020 ; -- <0053>   
+// fl16 = 0x7f5e
+    0012 : 6a20 ; -- <0053> j 
+// fl16 = 0x9c9e
 -- "\r\n     x"
-    0013 : 0a0d ; -- <0057>   
-    0014 : 2020 ; -- <0057>   
-    0015 : 2020 ; -- <0057>   
-    0016 : 7820 ; -- <0057> x 
+// fl16 = 0x8429
+    0013 : 0a0d ; -- <0054>   
+// fl16 = 0x8429
+    0014 : 2020 ; -- <0054>   
+// fl16 = 0xfa40
+    0015 : 2020 ; -- <0054>   
+// fl16 = 0xdb80
+    0016 : 7820 ; -- <0054> x 
+// fl16 = 0x3dc0
 -- "       y"
-    0017 : 2020 ; -- <0058>   
-    0018 : 2020 ; -- <0058>   
-    0019 : 2020 ; -- <0058>   
-    001a : 7920 ; -- <0058> y 
+// fl16 = 0x7759
+    0017 : 2020 ; -- <0055>   
+// fl16 = 0x7759
+    0018 : 2020 ; -- <0055>   
+// fl16 = 0x8a99
+    0019 : 2020 ; -- <0055>   
+// fl16 = 0x1ed9
+    001a : 7920 ; -- <0055> y 
+// fl16 = 0x321a
 -- "      g6"
-    001b : 2020 ; -- <0059>   
-    001c : 2020 ; -- <0059>   
-    001d : 2020 ; -- <0059>   
-    001e : 3667 ; -- <0059> 6g
+// fl16 = 0x20b3
+    001b : 2020 ; -- <0056>   
+// fl16 = 0x20b3
+    001c : 2020 ; -- <0056>   
+// fl16 = 0xe7f3
+    001d : 2020 ; -- <0056>   
+// fl16 = 0x3034
+    001e : 3667 ; -- <0056> 6g
+// fl16 = 0xf874
 -- "      g7"
-    001f : 2020 ; -- <0060>   
-    0020 : 2020 ; -- <0060>   
-    0021 : 2020 ; -- <0060>   
-    0022 : 3767 ; -- <0060> 7g
+// fl16 = 0xe612
+    001f : 2020 ; -- <0057>   
+// fl16 = 0xe612
+    0020 : 2020 ; -- <0057>   
+// fl16 = 0x6b52
+    0021 : 2020 ; -- <0057>   
+// fl16 = 0x7092
+    0022 : 3767 ; -- <0057> 7g
+// fl16 = 0xf5d2
 -- "\r\n  keys"
-    0023 : 0a0d ; -- <0061>   
-    0024 : 2020 ; -- <0061>   
-    0025 : 656b ; -- <0061> ek
-    0026 : 7379 ; -- <0061> sy
+// fl16 = 0xa171
+    0023 : 0a0d ; -- <0058>   
+// fl16 = 0xa171
+    0024 : 2020 ; -- <0058>   
+// fl16 = 0xa888
+    0025 : 656b ; -- <0058> ek
+// fl16 = 0x1ac8
+    0026 : 7379 ; -- <0058> sy
+// fl16 = 0xe799
 -- "    leds"
-    0027 : 2020 ; -- <0062>   
-    0028 : 2020 ; -- <0062>   
-    0029 : 656c ; -- <0062> el
-    002a : 7364 ; -- <0062> sd
+// fl16 = 0x8186
+    0027 : 2020 ; -- <0059>   
+// fl16 = 0x8186
+    0028 : 2020 ; -- <0059>   
+// fl16 = 0xeec6
+    0029 : 656c ; -- <0059> el
+// fl16 = 0xdc07
+    002a : 7364 ; -- <0059> sd
+// fl16 = 0x29d8
 
+// fl16 = 0x17b0
 -- libraries
+// fl16 = 0x17b0
 
+// fl16 = 0x17b0
 -- pick a byte from an array of packed words in program space.  fetch & return it in a.
+// fl16 = 0x17b0
 -- pass array base address in x, byte offset in a.
+// fl16 = 0x17b0
     002b : 0601 ; -- <0005> b = 1
+// fl16 = 0x17b0
     002c : e003 ; -- <0006> br and0z :pick_byte_even
+// fl16 = 0x80b7
     002d : 0036 ; -- <0006> "
+// fl16 = 0xd69b
     002e : 0350 ; -- <0007> a = a>>1
+// fl16 = 0x7ad1
     002f : 0404 ; -- <0008> b = x
+// fl16 = 0xc125
     0030 : c800 ; -- <0009> fetch a from a+b
+// fl16 = 0x182d
     0031 : d300 ; -- <0009> "
+// fl16 = 0x3bf5
     0032 : 03b0 ; -- <0009> "
+// fl16 = 0xfac9
     0033 : 0353 ; -- <0010> a = a>>4
+// fl16 = 0xf27d
     0034 : 0353 ; -- <0011> a = a>>4
+// fl16 = 0x97d3
     0035 : fc00 ; -- <0012> rtn
+// fl16 = 0xe82a
 -- :pick_byte_even -- = 0x0036
+// fl16 = 0x3a27
     0036 : 0350 ; -- <0014> a = a>>1
+// fl16 = 0x3a27
     0037 : 0404 ; -- <0015> b = x
+// fl16 = 0x2c7a
     0038 : c800 ; -- <0016> fetch a from a+b
+// fl16 = 0x2d82
     0039 : d300 ; -- <0016> "
+// fl16 = 0xfa4b
     003a : 03b0 ; -- <0016> "
+// fl16 = 0x651f
     003b : 06ff ; -- <0017> b = 0xff
+// fl16 = 0x08d2
     003c : c800 ; -- <0018> a = and
+// fl16 = 0xb3d8
     003d : 0330 ; -- <0018> "
+// fl16 = 0x2ea1
     003e : fc00 ; -- <0019> rtn
+// fl16 = 0xd4d4
 
+// fl16 = 0x7bd1
 -- find a byte in an array of packed words in program space.
+// fl16 = 0x7bd1
 -- pass data byte in a.
+// fl16 = 0x7bd1
 -- pass array base address in x.
+// fl16 = 0x7bd1
 -- array length in i.
+// fl16 = 0x7bd1
 -- returns found index in a (or -1 if not found).
+// fl16 = 0x7bd1
 -- if the data byte occurs more than once, the final one's position is returned.
+// fl16 = 0x7bd1
     003f : 2802 ; -- <0027> push i -- func find_in_fetch
+// fl16 = 0x7bd1
     0040 : 2803 ; -- <0027> push j -- "
+// fl16 = 0x4bfb
     0041 : 2805 ; -- <0027> push y -- "
+// fl16 = 0x7127
     0042 : 283e ; -- <0027> push rtna -- "
+// fl16 = 0xf154
     0043 : 1400 ; -- <0028> y = a
+// fl16 = 0x3fba
     0044 : 0f60 ; -- <0029> j = -1
+// fl16 = 0xc8ce
 -- :again -- = 0x0045
+// fl16 = 0x363e
     0045 : e001 ; -- <0031> br iz :fail
+// fl16 = 0x363e
     0046 : 0055 ; -- <0031> "
+// fl16 = 0x9520
     0047 : 0b10 ; -- <0032> i = ad1
+// fl16 = 0x8075
     0048 : 0002 ; -- <0033> a = i
+// fl16 = 0x9690
     0049 : fba0 ; -- <0034> call :fetch_byte
+// fl16 = 0xbb92
     004a : 002b ; -- <0034> "
+// fl16 = 0x1e2f
     004b : fc00 ; -- <0034> "
+// fl16 = 0xd25a
     004c : 0405 ; -- <0035> b = y
+// fl16 = 0x8457
     004d : e407 ; -- <0036> bn eq :again
+// fl16 = 0x4160
     004e : 0045 ; -- <0036> "
+// fl16 = 0xf44c
 -- :found -- = 0x004f
+// fl16 = 0x1891
     004f : 0002 ; -- <0038> a = i
+// fl16 = 0x1891
     0050 : f80a ; -- <0039> pop rtna -- rtn
+// fl16 = 0x3f93
     0051 : 140a ; -- <0039> pop y -- "
+// fl16 = 0x7396
     0052 : 0c0a ; -- <0039> pop j -- "
+// fl16 = 0xc8b4
     0053 : 080a ; -- <0039> pop i -- "
+// fl16 = 0x52ca
     0054 : fc00 ; -- <0039> rtn
+// fl16 = 0x04dc
 -- :fail -- = 0x0055
+// fl16 = 0xbad9
     0055 : 0360 ; -- <0041> a = -1
+// fl16 = 0xbad9
     0056 : f80a ; -- <0042> pop rtna -- rtn
+// fl16 = 0x323d
     0057 : 140a ; -- <0042> pop y -- "
+// fl16 = 0xb940
     0058 : 0c0a ; -- <0042> pop j -- "
+// fl16 = 0x625e
     0059 : 080a ; -- <0042> pop i -- "
+// fl16 = 0x3f74
     005a : fc00 ; -- <0042> rtn
+// fl16 = 0x4486
 
+// fl16 = 0x4e83
 
+// fl16 = 0x4e83
 
+// fl16 = 0x4e83
 -- driver library for JTAG UART accessed by my hardware-assisted Avalon MM master.
+// fl16 = 0x4e83
 
+// fl16 = 0x4e83
 
+// fl16 = 0x4e83
 
+// fl16 = 0x4e83
     005b : 07a0 ; -- <0031> b = 0x8000
+// fl16 = 0x4e83
     005c : 8000 ; -- <0031> "
+// fl16 = 0x9d2b
     005d : 37a0 ; -- <0032> av_ad_hi = $::asm::jtag_uart_data_lsw_hi
+// fl16 = 0x74ab
     005e : 0200 ; -- <0032> "
+// fl16 = 0x4483
     005f : 3a00 ; -- <0033> av_ad_lo = $::asm::jtag_uart_data_lsw_lo
+// fl16 = 0x4d85
 -- :poll -- = 0x0060
+// fl16 = 0x92bf
     0060 : 000b ; -- <0035> a = av_write_data
+// fl16 = 0x92bf
     0061 : 000c ; -- <0036> a = av_read_data
+// fl16 = 0x28ca
     0062 : e003 ; -- <0037> br and0z :poll
+// fl16 = 0xd5d6
     0063 : 0060 ; -- <0037> "
+// fl16 = 0x6aba
     0064 : 06ff ; -- <0038> b = 0xff
+// fl16 = 0xa01b
     0065 : c800 ; -- <0039> a = and
+// fl16 = 0xdc21
     0066 : 0330 ; -- <0039> "
+// fl16 = 0xe7e9
     0067 : fc00 ; -- <0040> rtn
+// fl16 = 0x1f1d
 
+// fl16 = 0x561a
 -- returns a character in a, or -1 if none.
+// fl16 = 0x561a
     0068 : 07a0 ; -- <0044> b = 0x8000
+// fl16 = 0x561a
     0069 : 8000 ; -- <0044> "
+// fl16 = 0xd2c1
     006a : 37a0 ; -- <0045> av_ad_hi = $::asm::jtag_uart_data_lsw_hi
+// fl16 = 0xd642
     006b : 0200 ; -- <0045> "
+// fl16 = 0xd31a
     006c : 3a00 ; -- <0046> av_ad_lo = $::asm::jtag_uart_data_lsw_lo
+// fl16 = 0x0a1c
     006d : 000b ; -- <0047> a = av_write_data
+// fl16 = 0x7c56
     006e : 000c ; -- <0048> a = av_read_data
+// fl16 = 0x3f61
     006f : e403 ; -- <0049> bn and0z :gotchar
+// fl16 = 0x1a6d
     0070 : 0075 ; -- <0049> "
+// fl16 = 0xdf55
     0071 : 06ff ; -- <0050> b = 0xff
+// fl16 = 0x75ca
     0072 : c800 ; -- <0051> a = and
+// fl16 = 0x11d0
     0073 : 0330 ; -- <0051> "
+// fl16 = 0x7b99
     0074 : fc00 ; -- <0052> rtn
+// fl16 = 0x12cc
 -- :gotchar -- = 0x0075
+// fl16 = 0xa8c9
     0075 : 0360 ; -- <0054> a = -1
+// fl16 = 0xa8c9
     0076 : fc00 ; -- <0055> rtn
+// fl16 = 0x002d
 
+// fl16 = 0x572a
 -- function library for simple console i/o based on putchar & getchar.
+// fl16 = 0x572a
 -- requires a console driver library to be included prior to including this.
+// fl16 = 0x572a
 
+// fl16 = 0x572a
 
+// fl16 = 0x572a
 -- :hexdigits -- = 0x0077
+// fl16 = 0x572a
 -- "0123456789abcdef"
+// fl16 = 0x572a
     0077 : 3130 ; -- <0054> 10
+// fl16 = 0x572a
     0078 : 3332 ; -- <0054> 32
+// fl16 = 0x3d8b
     0079 : 3534 ; -- <0054> 54
+// fl16 = 0xebf0
     007a : 3736 ; -- <0054> 76
+// fl16 = 0x6b5a
     007b : 3938 ; -- <0054> 98
+// fl16 = 0xc3c7
     007c : 6261 ; -- <0054> ba
+// fl16 = 0xfc39
     007d : 6463 ; -- <0054> dc
+// fl16 = 0x94fc
     007e : 6665 ; -- <0054> fe
+// fl16 = 0xb9c4
 
+// fl16 = 0x7490
 -- function to print a 16-bit number formatted as 4 hex digits.
+// fl16 = 0x7490
 -- pass number in a.
+// fl16 = 0x7490
     007f : 2804 ; -- <0058> push x -- func put4x
+// fl16 = 0x7490
     0080 : 2806 ; -- <0058> push g6 -- "
+// fl16 = 0xc5bc
     0081 : 283e ; -- <0058> push rtna -- "
+// fl16 = 0x73ea
     0082 : 13a0 ; -- <0059> x = :hexdigits
+// fl16 = 0xed51
     0083 : 0077 ; -- <0059> "
+// fl16 = 0xe405
 
+// fl16 = 0xdd7c
     0084 : 1800 ; -- <0061> g6 = a
+// fl16 = 0xdd7c
     0085 : 07a0 ; -- <0062> b = 0xF000
+// fl16 = 0xee94
     0086 : f000 ; -- <0062> "
+// fl16 = 0x603c
     0087 : c800 ; -- <0063> a = and
+// fl16 = 0xc92d
     0088 : 0330 ; -- <0063> "
+// fl16 = 0xecf5
     0089 : 0353 ; -- <0064> a = a>>4
+// fl16 = 0x3c29
     008a : 0353 ; -- <0065> a = a>>4
+// fl16 = 0x387f
     008b : 0353 ; -- <0066> a = a>>4
+// fl16 = 0xe0d5
     008c : fba0 ; -- <0067> call fetch_byte
+// fl16 = 0x362c
     008d : 002b ; -- <0067> "
+// fl16 = 0xcbc8
     008e : fc00 ; -- <0067> "
+// fl16 = 0xb3f3
     008f : 37a0 ; -- <0068> putchar a
+// fl16 = 0x98f0
     0090 : 0200 ; -- <0068> "
+// fl16 = 0xf2c8
     0091 : 3a00 ; -- <0068> "
+// fl16 = 0x86ca
     0092 : 2c00 ; -- <0068> "
+// fl16 = 0x5605
 
+// fl16 = 0x8c31
     0093 : 0006 ; -- <0070> a = g6
+// fl16 = 0x8c31
     0094 : 07a0 ; -- <0071> b = 0x0F00
+// fl16 = 0xfa37
     0095 : 0f00 ; -- <0071> "
+// fl16 = 0xb1de
     0096 : c800 ; -- <0072> a = and
+// fl16 = 0x7eed
     0097 : 0330 ; -- <0072> "
+// fl16 = 0x23b6
     0098 : 0353 ; -- <0073> a = a>>4
+// fl16 = 0xf3e9
     0099 : 0353 ; -- <0074> a = a>>4
+// fl16 = 0x7140
     009a : fba0 ; -- <0075> call fetch_byte
+// fl16 = 0x9b96
     009b : 002b ; -- <0075> "
+// fl16 = 0x0633
     009c : fc00 ; -- <0075> "
+// fl16 = 0xc25e
     009d : 37a0 ; -- <0076> putchar a
+// fl16 = 0x7c5b
     009e : 0200 ; -- <0076> "
+// fl16 = 0xab33
     009f : 3a00 ; -- <0076> "
+// fl16 = 0x1435
     00a0 : 2c00 ; -- <0076> "
+// fl16 = 0xb86f
 
+// fl16 = 0xc39b
     00a1 : 0006 ; -- <0078> a = g6
+// fl16 = 0xc39b
     00a2 : 06f0 ; -- <0079> b = 0x00F0
+// fl16 = 0x07a1
     00a3 : c800 ; -- <0080> a = and
+// fl16 = 0x3298
     00a4 : 0330 ; -- <0080> "
+// fl16 = 0x2c61
     00a5 : 0353 ; -- <0081> a = a>>4
+// fl16 = 0x5294
     00a6 : fba0 ; -- <0082> call fetch_byte
+// fl16 = 0x25ea
     00a7 : 002b ; -- <0082> "
+// fl16 = 0x3887
     00a8 : fc00 ; -- <0082> "
+// fl16 = 0x9db2
     00a9 : 37a0 ; -- <0083> putchar a
+// fl16 = 0x00af
     00aa : 0200 ; -- <0083> "
+// fl16 = 0xd787
     00ab : 3a00 ; -- <0083> "
+// fl16 = 0xe889
     00ac : 2c00 ; -- <0083> "
+// fl16 = 0x36c3
 
+// fl16 = 0xe9ef
     00ad : 0006 ; -- <0085> a = g6
+// fl16 = 0xe9ef
     00ae : 060f ; -- <0086> b = 0x000F
+// fl16 = 0xd5f5
     00af : c800 ; -- <0087> a = and
+// fl16 = 0xe50b
     00b0 : 0330 ; -- <0087> "
+// fl16 = 0xc4d3
     00b1 : fba0 ; -- <0088> call fetch_byte
+// fl16 = 0xcf07
     00b2 : 002b ; -- <0088> "
+// fl16 = 0x1ba3
     00b3 : fc00 ; -- <0088> "
+// fl16 = 0xb8ce
     00b4 : 37a0 ; -- <0089> putchar a
+// fl16 = 0x53cb
     00b5 : 0200 ; -- <0089> "
+// fl16 = 0x63a3
     00b6 : 3a00 ; -- <0089> "
+// fl16 = 0xaca5
     00b7 : 2c00 ; -- <0089> "
+// fl16 = 0x32df
 
+// fl16 = 0x1e0c
     00b8 : f80a ; -- <0091> pop rtna -- rtn
+// fl16 = 0x1e0c
     00b9 : 180a ; -- <0091> pop g6 -- "
+// fl16 = 0x430f
     00ba : 100a ; -- <0091> pop x -- "
+// fl16 = 0x8d31
     00bb : fc00 ; -- <0091> rtn
+// fl16 = 0x144b
 
+// fl16 = 0xa748
 -- function to scan a 16-bit number formatted as 4 hex digits.
+// fl16 = 0xa748
 -- return number in a.  return 0 for success in b.
+// fl16 = 0xa748
     00bc : 2802 ; -- <0095> push i -- func get4x
+// fl16 = 0xa748
     00bd : 2803 ; -- <0095> push j -- "
+// fl16 = 0x6472
     00be : 2804 ; -- <0095> push x -- "
+// fl16 = 0x779d
     00bf : 2805 ; -- <0095> push y -- "
+// fl16 = 0xe2c9
     00c0 : 283e ; -- <0095> push rtna -- "
+// fl16 = 0xa8f6
 -- y = digit counter
+// fl16 = 0x3b5d
 -- j = sum
+// fl16 = 0x3b5d
     00c1 : 1604 ; -- <0098> y = 4
+// fl16 = 0x3b5d
 -- :again -- = 0x00c2
+// fl16 = 0x1477
     00c2 : fba0 ; -- <0100> getchar
+// fl16 = 0x1477
     00c3 : 005b ; -- <0100> "
+// fl16 = 0x4014
     00c4 : fc00 ; -- <0100> "
+// fl16 = 0x1f6f
     00c5 : 2800 ; -- <0100> push a -- "
+// fl16 = 0xfa6c
     00c6 : 37a0 ; -- <0100> "
+// fl16 = 0xfb94
     00c7 : 0200 ; -- <0100> "
+// fl16 = 0x9d6c
     00c8 : 3a00 ; -- <0100> "
+// fl16 = 0x786e
     00c9 : 2c00 ; -- <0100> "
+// fl16 = 0x8fa8
     00ca : 000a ; -- <0100> pop a -- "
+// fl16 = 0x0dd4
     00cb : 13a0 ; -- <0101> x = :hexdigits
+// fl16 = 0xcade
     00cc : 0077 ; -- <0101> "
+// fl16 = 0xdc92
     00cd : 0a10 ; -- <0102> i = 16
+// fl16 = 0xf00a
     00ce : fba0 ; -- <0103> call :find_in_fetch
+// fl16 = 0x2f24
     00cf : 003f ; -- <0103> "
+// fl16 = 0xb4c0
     00d0 : fc00 ; -- <0103> "
+// fl16 = 0xb400
     00d1 : 0760 ; -- <0104> b = -1
+// fl16 = 0xb1fc
     00d2 : e007 ; -- <0105> br eq :fail
+// fl16 = 0x7364
     00d3 : 00e7 ; -- <0105> "
+// fl16 = 0x2b4c
     00d4 : 0400 ; -- <0106> b = a
+// fl16 = 0x9334
     00d5 : 0003 ; -- <0107> a = j
+// fl16 = 0x0038
     00d6 : 0352 ; -- <0108> a = a<<4
+// fl16 = 0x763b
     00d7 : c800 ; -- <0109> j = or
+// fl16 = 0x9490
     00d8 : 0f34 ; -- <0109> "
+// fl16 = 0x7e59
     00d9 : 1360 ; -- <0110> x = -1
+// fl16 = 0xa89c
     00da : c800 ; -- <0111> y = x+y
+// fl16 = 0xb510
     00db : 1720 ; -- <0111> "
+// fl16 = 0x9ed8
     00dc : 0005 ; -- <0112> a = y
+// fl16 = 0xa710
     00dd : e400 ; -- <0113> bn az :again
+// fl16 = 0xd115
     00de : 00c2 ; -- <0113> "
+// fl16 = 0xe0f9
     00df : 0003 ; -- <0114> a = j
+// fl16 = 0x5abc
     00e0 : 0600 ; -- <0115> b = 0
+// fl16 = 0xd9bf
     00e1 : f80a ; -- <0116> pop rtna -- rtn
+// fl16 = 0x5fc5
     00e2 : 140a ; -- <0116> pop y -- "
+// fl16 = 0xf7c8
     00e3 : 100a ; -- <0116> pop x -- "
+// fl16 = 0xb1e6
     00e4 : 0c0a ; -- <0116> pop j -- "
+// fl16 = 0xa301
     00e5 : 080a ; -- <0116> pop i -- "
+// fl16 = 0xc517
     00e6 : fc00 ; -- <0116> rtn
+// fl16 = 0x1029
 -- :fail -- = 0x00e7
+// fl16 = 0x5f26
     00e7 : 0760 ; -- <0118> b = -1
+// fl16 = 0x5f26
     00e8 : f80a ; -- <0119> pop rtna -- rtn
+// fl16 = 0x738d
     00e9 : 140a ; -- <0119> pop y -- "
+// fl16 = 0x9b90
     00ea : 100a ; -- <0119> pop x -- "
+// fl16 = 0xe4ae
     00eb : 0c0a ; -- <0119> pop j -- "
+// fl16 = 0x66c8
     00ec : 080a ; -- <0119> pop i -- "
+// fl16 = 0x18de
     00ed : fc00 ; -- <0119> rtn
+// fl16 = 0xf1f0
 
+// fl16 = 0xd0ed
 -- routine waits a number of milliseconds given in a.
+// fl16 = 0xd0ed
     00ee : 2804 ; -- <0002> push x -- func spinwait
+// fl16 = 0xd0ed
     00ef : 2805 ; -- <0002> push y -- "
+// fl16 = 0xdc1a
 --patch
+// fl16 = 0x4347
 --rtn
+// fl16 = 0x4347
     00f0 : 0760 ; -- <0005> b = -1
+// fl16 = 0x4347
 -- :spinwait_outer -- = 0x00f1
+// fl16 = 0x99ae
     00f1 : 13a0 ; -- <0007> x = 16666
+// fl16 = 0x99ae
     00f2 : 411a ; -- <0007> "
+// fl16 = 0x4b62
     00f3 : 1760 ; -- <0008> y = -1
+// fl16 = 0x85bd
     00f4 : c800 ; -- <0009> nop
+// fl16 = 0xd835
 -- :spinwait_inner -- = 0x00f5
+// fl16 = 0x0cfd
 -- use of the ad2 name overrides auto-nop here.
+// fl16 = 0x0cfd
     00f5 : 1320 ; -- <0012> x = ad2
+// fl16 = 0x0cfd
     00f6 : e402 ; -- <0013> bn xz :spinwait_inner
+// fl16 = 0x5b31
     00f7 : 00f5 ; -- <0013> "
+// fl16 = 0xa618
     00f8 : c800 ; -- <0014> a = a+b
+// fl16 = 0xc20e
     00f9 : 0300 ; -- <0014> "
+// fl16 = 0xa7d6
     00fa : e400 ; -- <0015> bn az :spinwait_outer
+// fl16 = 0x58d9
     00fb : 00f1 ; -- <0015> "
+// fl16 = 0xf0be
     00fc : 140a ; -- <0016> pop y -- rtn
+// fl16 = 0x52b0
     00fd : 100a ; -- <0016> pop x -- "
+// fl16 = 0xdbce
     00fe : fc00 ; -- <0016> rtn
+// fl16 = 0x9de8
 
+// fl16 = 0x6ce5
 
+// fl16 = 0x6ce5
 
+// fl16 = 0x6ce5
+-- compute the modulus(255) of a number given in a.  return remainder in a.
+// fl16 = 0x6ce5
+    00ff : 2806 ; -- <0003> push g6 -- func mod255
+// fl16 = 0x6ce5
+    0100 : 2807 ; -- <0003> push g7 -- "
+// fl16 = 0x6c14
+-- while a is greater than 254, subtract 255.
+// fl16 = 0xca43
+-- :mod255_again -- = 0x0101
+// fl16 = 0xca43
+    0101 : 06fe ; -- <0006> b = 0xfe
+// fl16 = 0xca43
+    0102 : e006 ; -- <0007> br gt :mod255_greater
+// fl16 = 0x5548
+    0103 : 0107 ; -- <0007> "
+// fl16 = 0xd22f
+    0104 : 1c0a ; -- <0008> pop g7 -- rtn
+// fl16 = 0x4037
+    0105 : 180a ; -- <0008> pop g6 -- "
+// fl16 = 0xde5d
+    0106 : fc00 ; -- <0008> rtn
+// fl16 = 0xc57f
+-- :mod255_greater -- = 0x0107
+// fl16 = 0xc17c
+    0107 : 07a0 ; -- <0010> b = 0xff01
+// fl16 = 0xc17c
+    0108 : ff01 ; -- <0010> "
+// fl16 = 0x0324
+    0109 : c800 ; -- <0011> a = a+b
+// fl16 = 0x4d25
+    010a : 0300 ; -- <0011> "
+// fl16 = 0x60ed
+    010b : e00f ; -- <0012> jmp :mod255_again
+// fl16 = 0x3ff0
+    010c : 0101 ; -- <0012> "
+// fl16 = 0x20e0
+
+// fl16 = 0xe4e2
+-- set up Fletcher16 checksum algorithm to accumulate in the 2 given register names.
+// fl16 = 0xe4e2
+
+// fl16 = 0xe4e2
+    010d : 1a00 ; -- <0022> fletcher16_init g6 g7
+// fl16 = 0xe4e2
+    010e : 1e00 ; -- <0022> "
+// fl16 = 0xc4fc
+
+// fl16 = 0xdc1b
+-- accumulate a Fletcher16 checksum, given the next byte of data in a.
+// fl16 = 0xdc1b
+    010f : 2806 ; -- <0025> push g6 -- func fletcher16_input8
+// fl16 = 0xdc1b
+    0110 : 2807 ; -- <0025> push g7 -- "
+// fl16 = 0x4749
+    0111 : 283e ; -- <0025> push rtna -- "
+// fl16 = 0x1078
+--patch: need a way to declare summing registers as "static" or "preserve" so they're not auto-stacked.
+// fl16 = 0xa5de
+    0112 : 0406 ; -- <0027> b = $fletcher_sum1_reg
+// fl16 = 0xa5de
+    0113 : c800 ; -- <0028> a = a+b
+// fl16 = 0x73e8
+    0114 : 0300 ; -- <0028> "
+// fl16 = 0x0eb1
+    0115 : fba0 ; -- <0029> call :mod255
+// fl16 = 0x74b4
+    0116 : 00ff ; -- <0029> "
+// fl16 = 0x1b51
+    0117 : fc00 ; -- <0029> "
+// fl16 = 0xbd51
+    0118 : 1800 ; -- <0030> $fletcher_sum1_reg = a
+// fl16 = 0x5d4e
+
+// fl16 = 0x1266
+    0119 : 0407 ; -- <0032> b = $fletcher_sum2_reg
+// fl16 = 0x1266
+    011a : c800 ; -- <0033> a = a+b
+// fl16 = 0xf071
+    011b : 0300 ; -- <0033> "
+// fl16 = 0x9c3a
+    011c : fba0 ; -- <0034> call :mod255
+// fl16 = 0x143d
+    011d : 00ff ; -- <0034> "
+// fl16 = 0xcbd9
+    011e : fc00 ; -- <0034> "
+// fl16 = 0x7fd9
+    011f : 1c00 ; -- <0035> $fletcher_sum2_reg = a
+// fl16 = 0x30d6
+    0120 : f80a ; -- <0036> pop rtna -- rtn
+// fl16 = 0xf9f2
+    0121 : 1c0a ; -- <0036> pop g7 -- "
+// fl16 = 0xecf5
+    0122 : 180a ; -- <0036> pop g6 -- "
+// fl16 = 0x091c
+    0123 : fc00 ; -- <0036> rtn
+// fl16 = 0x6d3e
+
+// fl16 = 0xe63b
+-- accumulate a Fletcher16 checksum, given the next word of data in a.
+// fl16 = 0xe63b
+    0124 : 2802 ; -- <0039> push i -- func fletcher16_input16
+// fl16 = 0xe63b
+    0125 : 283e ; -- <0039> push rtna -- "
+// fl16 = 0x8965
+    0126 : 0b53 ; -- <0040> i = a>>4
+// fl16 = 0xf8cb
+    0127 : 06ff ; -- <0041> b = 0xff
+// fl16 = 0x422a
+    0128 : c800 ; -- <0042> a = and
+// fl16 = 0x9c30
+    0129 : 0330 ; -- <0042> "
+// fl16 = 0xc5f8
+    012a : fba0 ; -- <0043> call :fletcher16_input8
+// fl16 = 0x1b2c
+    012b : 010f ; -- <0043> "
+// fl16 = 0xb0c8
+    012c : fc00 ; -- <0043> "
+// fl16 = 0x61d8
+    012d : 0002 ; -- <0044> a = i
+// fl16 = 0x10d5
+    012e : 0353 ; -- <0045> a = a>>4
+// fl16 = 0xbfd7
+    012f : fba0 ; -- <0046> call :fletcher16_input8
+// fl16 = 0x192e
+    0130 : 010f ; -- <0046> "
+// fl16 = 0xb2ca
+    0131 : fc00 ; -- <0046> "
+// fl16 = 0x67da
+    0132 : f80a ; -- <0047> pop rtna -- rtn
+// fl16 = 0x1ad7
+    0133 : 080a ; -- <0047> pop i -- "
+// fl16 = 0xd6da
+    0134 : fc00 ; -- <0047> rtn
+// fl16 = 0xa8ec
+
+// fl16 = 0x7fe9
+-- return the combined 16-bit result of Fletcher16 checksum in a.
+// fl16 = 0x7fe9
+    0135 : 0007 ; -- <0051> a = $fletcher_sum2_reg
+// fl16 = 0x7fe9
+    0136 : 0352 ; -- <0052> a = a<<4
+// fl16 = 0x61f0
+    0137 : 0352 ; -- <0053> a = a<<4
+// fl16 = 0xea46
+    0138 : 0406 ; -- <0054> b = $fletcher_sum1_reg
+// fl16 = 0x1f9b
+    0139 : c800 ; -- <0055> a = or
+// fl16 = 0x66a5
+    013a : 0334 ; -- <0055> "
+// fl16 = 0x7a6e
+    013b : fc00 ; -- <0056> rtn
+// fl16 = 0xc2a5
+
+// fl16 = 0x0ba2
+
+// fl16 = 0x0ba2
+
+// fl16 = 0x0ba2
 -- --------------------------------------------
--- :main -- = 0x00ff
+// fl16 = 0x0ba2
+-- :main -- = 0x013c
+// fl16 = 0x0ba2
 
-    00ff : 2600 ; -- <0073> leds = 0
+// fl16 = 0x0ba2
+-- x = 20
+// fl16 = 0x0ba2
+-- :gain
+// fl16 = 0x0ba2
+-- fetch a from x
+// fl16 = 0x0ba2
+-- call :put4x
+// fl16 = 0x0ba2
+-- puteol
+// fl16 = 0x0ba2
+-- y = -1
+// fl16 = 0x0ba2
+-- x = x+y
+// fl16 = 0x0ba2
+-- bn xz :gain
+// fl16 = 0x0ba2
 
--- a = g6
--- b = 1
--- a = a+b
--- g6 = a
--- a = a>>4
--- leds = a>>4
+// fl16 = 0x0ba2
+-- DO NOT USE JTAG UART while Fletcher is accumulating in Avalon registers.
+// fl16 = 0x0ba2
+    013c : 3a00 ; -- <0081> fletcher16_init  av_ad_lo  av_ad_hi
+// fl16 = 0x0ba2
+    013d : 3600 ; -- <0081> "
+// fl16 = 0x8adc
+    013e : 1200 ; -- <0082> x = 0
+// fl16 = 0x7a13
+    013f : 1601 ; -- <0083> y = 1
+// fl16 = 0xb225
+-- :nextword -- = 0x0140
+// fl16 = 0x153c
+    0140 : d004 ; -- <0085> fetch a from x
+// fl16 = 0x153c
+    0141 : 03b0 ; -- <0085> "
+// fl16 = 0x6611
+    0142 : fba0 ; -- <0086> call :fletcher16_input16
+// fl16 = 0xecc4
+    0143 : 0124 ; -- <0086> "
+// fl16 = 0xb361
+    0144 : fc00 ; -- <0086> "
+// fl16 = 0xbf86
+    0145 : c800 ; -- <0087> x = x+y
+// fl16 = 0xc983
+    0146 : 1320 ; -- <0087> "
+// fl16 = 0x994c
+    0147 : 0004 ; -- <0088> a = x
+// fl16 = 0x857f
+    0148 : 06c8 ; -- <0089> b = 200
+// fl16 = 0x8c83
+    0149 : e407 ; -- <0090> bn eq :nextword
+// fl16 = 0x2b52
+    014a : 0140 ; -- <0090> "
+// fl16 = 0xc23e
+    014b : fba0 ; -- <0091> call :fletcher16_result
+// fl16 = 0xc07f
+    014c : 0135 ; -- <0091> "
+// fl16 = 0xfc1c
+    014d : fc00 ; -- <0091> "
+// fl16 = 0xa052
+    014e : 020a ; -- <0092> a = 10 -- puteol
+// fl16 = 0x424f
+    014f : 37a0 ; -- <0092> puteol
+// fl16 = 0xf65b
+    0150 : 0200 ; -- <0092> "
+// fl16 = 0x2633
+    0151 : 3a00 ; -- <0092> "
+// fl16 = 0x8e35
+    0152 : 2c00 ; -- <0092> "
+// fl16 = 0x336f
+    0153 : 0246 ; -- <0093> a = 70 -- putasc "F"
+// fl16 = 0x3e9b
+    0154 : 37a0 ; -- <0093> putasc "F"
+// fl16 = 0x04e3
+    0155 : 0200 ; -- <0093> "
+// fl16 = 0x44bb
+    0156 : 3a00 ; -- <0093> "
+// fl16 = 0xbdbd
+    0157 : 2c00 ; -- <0093> "
+// fl16 = 0x73f7
+    0158 : 024c ; -- <0094> a = 76 -- putasc "L"
+// fl16 = 0x8f24
+    0159 : 37a0 ; -- <0094> putasc "L"
+// fl16 = 0x7272
+    015a : 0200 ; -- <0094> "
+// fl16 = 0xcf4a
+    015b : 3a00 ; -- <0094> "
+// fl16 = 0x664c
+    015c : 2c00 ; -- <0094> "
+// fl16 = 0x3986
+    015d : fba0 ; -- <0095> call :put4x
+// fl16 = 0x72b2
+    015e : 007f ; -- <0095> "
+// fl16 = 0x154f
+    015f : fc00 ; -- <0095> "
+// fl16 = 0xb2ce
 
--- :cmd_loop -- = 0x0100
-    0100 : fba0 ; -- <0083> getchar
-    0101 : 005b ; -- <0083> "
-    0102 : fc00 ; -- <0083> "
-    0103 : 2800 ; -- <0083> push a -- "
-    0104 : 37a0 ; -- <0083> "
-    0105 : 0200 ; -- <0083> "
-    0106 : 3a00 ; -- <0083> "
-    0107 : 2c00 ; -- <0083> "
-    0108 : 000a ; -- <0083> pop a -- "
+// fl16 = 0x4dcb
+    0160 : 03a0 ; -- <0097> a = 1000
+// fl16 = 0x4dcb
+    0161 : 03e8 ; -- <0097> "
+// fl16 = 0x296f
+    0162 : fba0 ; -- <0098> call :spinwait
+// fl16 = 0xdc5b
+    0163 : 00ee ; -- <0098> "
+// fl16 = 0xd0f7
+    0164 : fc00 ; -- <0098> "
+// fl16 = 0x9ee6
+    0165 : e00f ; -- <0099> jmp :main
+// fl16 = 0x69e3
+    0166 : 013c ; -- <0099> "
+// fl16 = 0x30d3
 
--- command = set breakpoint.
-    0109 : 0662 ; -- <0086> b = 98 -- asc b = "b"
-    010a : e407 ; -- <0087> bn eq :skip_setbrk
-    010b : 011a ; -- <0087> "
-    010c : fba0 ; -- <0088> call :set_bp
-    010d : 0126 ; -- <0088> "
-    010e : fc00 ; -- <0088> "
-    010f : 0007 ; -- <0089> a = g7
-    0110 : fba0 ; -- <0090> call :put4x
-    0111 : 007f ; -- <0090> "
-    0112 : fc00 ; -- <0090> "
-    0113 : 020a ; -- <0091> a = 10 -- puteol
-    0114 : 37a0 ; -- <0091> puteol
-    0115 : 0200 ; -- <0091> "
-    0116 : 3a00 ; -- <0091> "
-    0117 : 2c00 ; -- <0091> "
-    0118 : e00f ; -- <0092> jmp :cmd_loop
-    0119 : 0100 ; -- <0092> "
--- :skip_setbrk -- = 0x011a
-
-    011a : 023f ; -- <0095> a = 63 -- putasc "?"
-    011b : 37a0 ; -- <0095> putasc "?"
-    011c : 0200 ; -- <0095> "
-    011d : 3a00 ; -- <0095> "
-    011e : 2c00 ; -- <0095> "
-    011f : 020a ; -- <0096> a = 10 -- puteol
-    0120 : 37a0 ; -- <0096> puteol
-    0121 : 0200 ; -- <0096> "
-    0122 : 3a00 ; -- <0096> "
-    0123 : 2c00 ; -- <0096> "
-    0124 : e00f ; -- <0097> jmp :cmd_loop
-    0125 : 0100 ; -- <0097> "
-
-    0126 : 2802 ; -- <0099> push i -- func set_bp
-    0127 : 2803 ; -- <0099> push j -- "
-    0128 : 2804 ; -- <0099> push x -- "
-    0129 : 2805 ; -- <0099> push y -- "
-    012a : 2807 ; -- <0099> push g7 -- "
-    012b : 283e ; -- <0099> push rtna -- "
-    012c : fba0 ; -- <0100> getchar
-    012d : 005b ; -- <0100> "
-    012e : fc00 ; -- <0100> "
-    012f : 2800 ; -- <0100> push a -- "
-    0130 : 37a0 ; -- <0100> "
-    0131 : 0200 ; -- <0100> "
-    0132 : 3a00 ; -- <0100> "
-    0133 : 2c00 ; -- <0100> "
-    0134 : 000a ; -- <0100> pop a -- "
-    0135 : 1000 ; -- <0101> x = a
-    0136 : fba0 ; -- <0102> getchar
-    0137 : 005b ; -- <0102> "
-    0138 : fc00 ; -- <0102> "
-    0139 : 2800 ; -- <0102> push a -- "
-    013a : 37a0 ; -- <0102> "
-    013b : 0200 ; -- <0102> "
-    013c : 3a00 ; -- <0102> "
-    013d : 2c00 ; -- <0102> "
-    013e : 000a ; -- <0102> pop a -- "
-    013f : 063d ; -- <0103> b = 61 -- asc b = "="
-    0140 : e407 ; -- <0104> bn eq :fail
-    0141 : 01b2 ; -- <0104> "
-    0142 : fba0 ; -- <0105> call :get4x
-    0143 : 00bc ; -- <0105> "
-    0144 : fc00 ; -- <0105> "
-    0145 : 1400 ; -- <0106> y = a
-    0146 : 0200 ; -- <0107> a = 0
-    0147 : e407 ; -- <0108> bn eq :fail
-    0148 : 01b2 ; -- <0108> "
-    0149 : 0004 ; -- <0109> a = x
-    014a : 0630 ; -- <0110> b = 48 -- asc b = "0"
-    014b : e007 ; -- <0111> br eq :b0
-    014c : 0158 ; -- <0111> "
-    014d : 0631 ; -- <0112> b = 49 -- asc b = "1"
-    014e : e007 ; -- <0113> br eq :b1
-    014f : 0160 ; -- <0113> "
-    0150 : 0632 ; -- <0114> b = 50 -- asc b = "2"
-    0151 : e007 ; -- <0115> br eq :b2
-    0152 : 0168 ; -- <0115> "
-    0153 : 0633 ; -- <0116> b = 51 -- asc b = "3"
-    0154 : e007 ; -- <0117> br eq :b3
-    0155 : 0170 ; -- <0117> "
-    0156 : e00f ; -- <0118> jmp :fail
-    0157 : 01b2 ; -- <0118> "
--- :b0 -- = 0x0158
-    0158 : 1c05 ; -- <0120> g7 = y
-    0159 : f80a ; -- <0121> pop rtna -- rtn
-    015a : 1c0a ; -- <0121> pop g7 -- "
-    015b : 140a ; -- <0121> pop y -- "
-    015c : 100a ; -- <0121> pop x -- "
-    015d : 0c0a ; -- <0121> pop j -- "
-    015e : 080a ; -- <0121> pop i -- "
-    015f : fc00 ; -- <0121> rtn
--- :b1 -- = 0x0160
-    0160 : 1c05 ; -- <0123> g7 = y
-    0161 : f80a ; -- <0124> pop rtna -- rtn
-    0162 : 1c0a ; -- <0124> pop g7 -- "
-    0163 : 140a ; -- <0124> pop y -- "
-    0164 : 100a ; -- <0124> pop x -- "
-    0165 : 0c0a ; -- <0124> pop j -- "
-    0166 : 080a ; -- <0124> pop i -- "
-    0167 : fc00 ; -- <0124> rtn
--- :b2 -- = 0x0168
-    0168 : 1c05 ; -- <0126> g7 = y
-    0169 : f80a ; -- <0127> pop rtna -- rtn
-    016a : 1c0a ; -- <0127> pop g7 -- "
-    016b : 140a ; -- <0127> pop y -- "
-    016c : 100a ; -- <0127> pop x -- "
-    016d : 0c0a ; -- <0127> pop j -- "
-    016e : 080a ; -- <0127> pop i -- "
-    016f : fc00 ; -- <0127> rtn
--- :b3 -- = 0x0170
-    0170 : 1c05 ; -- <0129> g7 = y
-    0171 : f80a ; -- <0130> pop rtna -- rtn
-    0172 : 1c0a ; -- <0130> pop g7 -- "
-    0173 : 140a ; -- <0130> pop y -- "
-    0174 : 100a ; -- <0130> pop x -- "
-    0175 : 0c0a ; -- <0130> pop j -- "
-    0176 : 080a ; -- <0130> pop i -- "
-    0177 : fc00 ; -- <0130> rtn
--- :fail -- = 0x0178
-    0178 : 023f ; -- <0132> a = 63 -- putasc "?"
-    0179 : 37a0 ; -- <0132> putasc "?"
-    017a : 0200 ; -- <0132> "
-    017b : 3a00 ; -- <0132> "
-    017c : 2c00 ; -- <0132> "
-    017d : 020a ; -- <0133> a = 10 -- puteol
-    017e : 37a0 ; -- <0133> puteol
-    017f : 0200 ; -- <0133> "
-    0180 : 3a00 ; -- <0133> "
-    0181 : 2c00 ; -- <0133> "
-    0182 : f80a ; -- <0134> pop rtna -- rtn
-    0183 : 1c0a ; -- <0134> pop g7 -- "
-    0184 : 140a ; -- <0134> pop y -- "
-    0185 : 100a ; -- <0134> pop x -- "
-    0186 : 0c0a ; -- <0134> pop j -- "
-    0187 : 080a ; -- <0134> pop i -- "
-    0188 : fc00 ; -- <0134> rtn
-
--- debugging version of get4x
--- y = digit counter
--- j = sum
-    0189 : 1604 ; -- <0139> y = 4
--- :again -- = 0x018a
-    018a : 0009 ; -- <0141> a = leds
-    018b : 0601 ; -- <0142> b = 1
-    018c : c800 ; -- <0143> leds = a+b
-    018d : 2700 ; -- <0143> "
-    018e : fba0 ; -- <0144> getchar
-    018f : 005b ; -- <0144> "
-    0190 : fc00 ; -- <0144> "
-    0191 : 2800 ; -- <0144> push a -- "
-    0192 : 37a0 ; -- <0144> "
-    0193 : 0200 ; -- <0144> "
-    0194 : 3a00 ; -- <0144> "
-    0195 : 2c00 ; -- <0144> "
-    0196 : 000a ; -- <0144> pop a -- "
-    0197 : 13a0 ; -- <0145> x = :hexdigits
-    0198 : 0077 ; -- <0145> "
-    0199 : 0a10 ; -- <0146> i = 16
-    019a : fba0 ; -- <0147> call :find_in_fetch
-    019b : 003f ; -- <0147> "
-    019c : fc00 ; -- <0147> "
-    019d : 0760 ; -- <0148> b = -1
-    019e : e007 ; -- <0149> br eq :fail
-    019f : 0178 ; -- <0149> "
-    01a0 : 0400 ; -- <0150> b = a
-    01a1 : 0003 ; -- <0151> a = j
-    01a2 : 0352 ; -- <0152> a = a<<4
-    01a3 : c800 ; -- <0153> j = or
-    01a4 : 0f34 ; -- <0153> "
-    01a5 : 1360 ; -- <0154> x = -1
-    01a6 : c800 ; -- <0155> y = x+y
-    01a7 : 1720 ; -- <0155> "
-    01a8 : 0005 ; -- <0156> a = y
-    01a9 : e400 ; -- <0157> bn az :again
-    01aa : 018a ; -- <0157> "
-    01ab : 0003 ; -- <0158> a = j
-    01ac : 0600 ; -- <0159> b = 0
-    01ad : fba0 ; -- <0160> call :put4x
-    01ae : 007f ; -- <0160> "
-    01af : fc00 ; -- <0160> "
-    01b0 : e00f ; -- <0161> jmp :main
-    01b1 : 00ff ; -- <0161> "
--- :fail -- = 0x01b2
-    01b2 : 0760 ; -- <0163> b = -1
-    01b3 : 023f ; -- <0164> a = 63 -- putasc "?"
-    01b4 : 37a0 ; -- <0164> putasc "?"
-    01b5 : 0200 ; -- <0164> "
-    01b6 : 3a00 ; -- <0164> "
-    01b7 : 2c00 ; -- <0164> "
-    01b8 : e00f ; -- <0165> jmp :main
-    01b9 : 00ff ; -- <0165> "
-
--- -- a = 65
--- -- push a
--- -- a = 66
--- -- push a
--- -- a = 67
--- -- push a
--- -- a = 68
--- -- push a
--- -- a = 69
--- -- push a
-
--- -- pop b
--- -- putchar b
--- -- pop b
--- -- putchar b
--- -- pop b
--- -- putchar b
--- -- pop b
--- -- putchar b
--- -- pop b
--- -- putchar b
-
--- -- a = 0x1234
--- -- call put4x
-
--- -- x = 0x1234
--- -- y = 1
--- -- a = 0
--- -- :nextwrite
--- -- m9k_addr = a
--- -- m9k_data = x
--- -- x = x+y
--- -- b = 1
--- -- a = a+b
--- -- b = 1024
--- -- br lt :nextwrite
-
--- --patch
--- x = 0
--- y = 1
--- :patch
-
--- a = leds
--- b = 1
--- leds = a+b
-
--- -- -- Avalon write to JTAG UART.
--- -- putasc A
--- -- putasc B
--- -- putasc C
--- -- putasc D
--- -- putasc E
--- -- putasc F
--- -- putasc G
--- -- putasc H
--- -- putasc I
--- -- putasc J
--- -- putasc K
--- -- putasc L
--- -- putasc M
--- -- putasc N
-
--- -- -- Avalon read from JTAG UART.
--- -- :poll_jtag_uart
--- -- a = 0x1234
--- -- call put4x
--- -- a = 1000
--- -- call :spinwait
--- -- putasc "/"
--- -- a = 1000
--- -- call :spinwait
--- -- av_ad_hi = $jtag_uart_data_lsw_hi
--- -- av_ad_lo = $jtag_uart_data_lsw_lo
--- -- a = av_write_data
--- -- a = av_read_data
--- -- call put4x
--- -- a = 1000
--- -- call :spinwait
--- -- putasc ","
--- -- a = 1000
--- -- call :spinwait
--- -- av_ad_hi = $jtag_uart_data_msw_hi
--- -- av_ad_lo = $jtag_uart_data_msw_lo
--- -- a = av_write_data
--- -- a = av_read_data
--- -- call put4x
--- -- a = 1000
--- -- call :spinwait
--- -- putasc ","
--- -- a = 1000
--- -- call :spinwait
--- -- av_ad_hi = $jtag_uart_ctrl_lsw_hi
--- -- av_ad_lo = $jtag_uart_ctrl_lsw_lo
--- -- a = av_write_data
--- -- a = av_read_data
--- -- call put4x
--- -- a = 1000
--- -- call :spinwait
--- -- putasc ","
--- -- a = 1000
--- -- call :spinwait
--- -- av_ad_hi = $jtag_uart_ctrl_msw_hi
--- -- av_ad_lo = $jtag_uart_ctrl_msw_lo
--- -- a = av_write_data
--- -- a = av_read_data
--- -- call put4x
--- -- a = 1000
--- -- call :spinwait
--- -- putasc "/"
--- -- a = 1000
--- -- call :spinwait
--- -- a = 0x5678
--- -- call put4x
--- -- a = 1000
--- -- call :spinwait
--- -- putasc "\r"
--- -- putasc "\n"
--- -- a = 1000
--- -- call :spinwait
--- -- jmp :poll_jtag_uart
-
+// fl16 = 0x5111
 -- -- Avalon write to SDRAM.
+// fl16 = 0x5111
 -- av_ad_hi = 0
+// fl16 = 0x5111
 -- av_ad_lo = 0x20
+// fl16 = 0x5111
 -- av_write_data = 0x6789
+// fl16 = 0x5111
 -- -- Avalon read from SDRAM.
+// fl16 = 0x5111
 -- a = av_write_data
+// fl16 = 0x5111
 -- a = av_read_data
+// fl16 = 0x5111
 -- call put4x
+// fl16 = 0x5111
 -- a = 1000
+// fl16 = 0x5111
 -- call :spinwait
+// fl16 = 0x5111
 
+// fl16 = 0x5111
 -- :verify_all
+// fl16 = 0x5111
 -- a = 1000
+// fl16 = 0x5111
 -- call :spinwait
+// fl16 = 0x5111
 -- putasc {-}
+// fl16 = 0x5111
 -- i = 0x200
+// fl16 = 0x5111
 -- j = -1
+// fl16 = 0x5111
 -- :next_page
+// fl16 = 0x5111
 -- i = i+j
+// fl16 = 0x5111
 -- av_ad_hi = i
+// fl16 = 0x5111
 
+// fl16 = 0x5111
 -- -- fill SDRAM page with a pattern.
+// fl16 = 0x5111
 -- putasc W
+// fl16 = 0x5111
 -- x = 0x0000
+// fl16 = 0x5111
 -- :fill_more
+// fl16 = 0x5111
 -- a = x
+// fl16 = 0x5111
 -- b = 0xffff
+// fl16 = 0x5111
 -- g6 = xor
+// fl16 = 0x5111
 -- av_ad_hi = i
+// fl16 = 0x5111
 -- av_ad_lo = x
+// fl16 = 0x5111
 -- av_write_data = g6
+// fl16 = 0x5111
 -- y = 2
+// fl16 = 0x5111
 -- x = x+y
+// fl16 = 0x5111
 -- bn xz :fill_more
+// fl16 = 0x5111
 
+// fl16 = 0x5111
 -- -- verify pattern in SDRAM.
+// fl16 = 0x5111
 -- x = 0x0000
+// fl16 = 0x5111
 -- :verify_more
+// fl16 = 0x5111
 -- av_ad_hi = i
+// fl16 = 0x5111
 -- av_ad_lo = x
+// fl16 = 0x5111
 -- g6 = av_write_data
+// fl16 = 0x5111
 -- g6 = av_read_data
+// fl16 = 0x5111
 -- -- a = x
+// fl16 = 0x5111
 -- -- call put4x
+// fl16 = 0x5111
 -- -- putasc "="
+// fl16 = 0x5111
 -- -- a = 500
+// fl16 = 0x5111
 -- -- call :spinwait
+// fl16 = 0x5111
 -- -- a = g6
+// fl16 = 0x5111
 -- -- call put4x
+// fl16 = 0x5111
 -- -- putasc "\r"
+// fl16 = 0x5111
 -- -- putasc "\n"
+// fl16 = 0x5111
 -- -- a = 500
+// fl16 = 0x5111
 -- -- call :spinwait
+// fl16 = 0x5111
 -- a = x
+// fl16 = 0x5111
 -- b = 0xffff
+// fl16 = 0x5111
 -- a = xor
+// fl16 = 0x5111
 -- b = g6
+// fl16 = 0x5111
 -- bn eq :sdram_err
+// fl16 = 0x5111
 -- y = 2
+// fl16 = 0x5111
 -- x = x+y
+// fl16 = 0x5111
 -- bn xz :verify_more
+// fl16 = 0x5111
 
+// fl16 = 0x5111
 -- a = i
+// fl16 = 0x5111
 -- b = 0
+// fl16 = 0x5111
 -- bn z :next_page
+// fl16 = 0x5111
 -- jmp :verify_all
+// fl16 = 0x5111
 
+// fl16 = 0x5111
 -- :sdram_err
+// fl16 = 0x5111
 -- y = a
+// fl16 = 0x5111
 -- a = 1000
+// fl16 = 0x5111
 -- call :spinwait
+// fl16 = 0x5111
 -- a = g6
+// fl16 = 0x5111
 -- call :put4x
+// fl16 = 0x5111
 -- a = 1000
+// fl16 = 0x5111
 -- call :spinwait
+// fl16 = 0x5111
 -- putasc "!"
+// fl16 = 0x5111
 -- putasc "="
+// fl16 = 0x5111
 -- a = y
+// fl16 = 0x5111
 -- call :put4x
+// fl16 = 0x5111
 -- a = 1000
+// fl16 = 0x5111
 -- call :spinwait
+// fl16 = 0x5111
 -- putasc "@"
+// fl16 = 0x5111
 -- a = av_ad_hi
+// fl16 = 0x5111
 -- call :put4x
+// fl16 = 0x5111
 -- a = 1000
+// fl16 = 0x5111
 -- call :spinwait
+// fl16 = 0x5111
 -- a = av_ad_lo
+// fl16 = 0x5111
 -- call put4x
+// fl16 = 0x5111
 -- :halt
+// fl16 = 0x5111
 -- jmp :halt
+// fl16 = 0x5111
 
+// fl16 = 0x5111
 -- -- :wait_key_press
+// fl16 = 0x5111
 -- -- a = 0x03
+// fl16 = 0x5111
 -- -- b = keys
+// fl16 = 0x5111
 -- -- br eq :wait_key_press
+// fl16 = 0x5111
 -- -- :wait_key_release
+// fl16 = 0x5111
 -- -- b = keys
+// fl16 = 0x5111
 -- -- bn eq :wait_key_release
+// fl16 = 0x5111
 
--- -- getchar
--- -- b = 1
--- -- putchar a+b
+// fl16 = 0x5111
 
--- -- b = 85
--- -- putchar b
+// fl16 = 0x5111
 
--- -- x = x+y
--- -- a = x
--- -- call put4x
-
--- a = 100
--- call :spinwait
-
--- -- b = 32
--- -- putchar b
--- -- m9k_addr = x
--- -- a = m9k_data
--- -- call put4x
-
--- -- b = 13
--- -- putchar b
--- -- b = 10
--- -- putchar b
-
--- jmp :patch
-
-
-
-
-
--- -- using i as index into string.
--- i = 0
-
--- -- cache the string limit in g6.
--- a = 16
--- b = 0xffff
--- g6 = xor
-
--- :again
--- -- -- wait for keypress.
--- -- :wait_key_press
--- -- a = 0
--- -- b = keys
--- -- br z :wait_key_press
--- -- :wait_key_release
--- -- b = keys
--- -- bn z :wait_key_release
-
--- a = 100
--- call :spinwait
-
--- -- increment LEDs
--- a = leds
--- b = 1
--- leds = a+b
-
--- -- fetch a word from test pattern to the UART.  its low byte is a character.
--- j = :msg
--- fetch a from i+j
--- --    putchar a
-
--- -- increment index & wrap around end of pattern.
--- j = 1
--- i = i+j
--- j = g6
--- i = i+j
--- bn iz :no_wrap
--- i = 0
--- :no_wrap
-
--- -- repeat forever.
--- jmp :again
-
--- :msg
--- "1234567890abcdef\n\x00"
-
-
+// fl16 = 0x5111
         
         END;
     

@@ -40,9 +40,6 @@
         // - reading jtag_uart_data_msw also counts as a FIFO read, causing loss of a data byte,
         // probably because jtag uart has no byteenable wires.
         // - on write, the data is lost if the write FIFO is full.  Avalon is not stalled.
-    // alias_both av_ctrl          [incr counter]
-    //    vdefine av_write_mask                   0x0001   
-    // alias_src  av_waitrequest   [incr counter]
         
     convention_gpx
     
@@ -66,224 +63,40 @@
     include lib/jtag_uart.asm
     include lib/console.asm
     include lib/time.asm
+    include lib/fletcher.asm
     
     // ////////////////////////////////////////////
     :main
 
-    leds = 0
+    // x = 20
+    // :gain
+    // fetch a from x
+    // call :put4x
+    // puteol
+    // y = -1
+    // x = x+y
+    // bn xz :gain
     
-    // a = g6
-    // b = 1
-    // a = a+b
-    // g6 = a
-    // a = a>>4
-    // leds = a>>4
-
-    :cmd_loop
-    getchar
-    
-    // command = set breakpoint.
-    asc b = "b"
-    bn eq :skip_setbrk
-    call :set_bp
-    a = g7
-    call :put4x
-    puteol
-    jmp :cmd_loop
-    :skip_setbrk
-    
-    putasc "?"
-    puteol
-    jmp :cmd_loop
-    
-func set_bp
-    getchar
-    x = a
-    getchar
-    asc b = "="
-    bn eq :fail
-    call :get4x
-    y = a
-    a = 0
-    bn eq :fail
+    // DO NOT USE JTAG UART while Fletcher is accumulating in Avalon registers.
+    fletcher16_init  av_ad_lo  av_ad_hi
+    x = 0
+    y = 1
+    :nextword
+    fetch a from x
+    call :fletcher16_input16    
+    x = x+y
     a = x
-    asc b = "0"
-    br eq :b0
-    asc b = "1"
-    br eq :b1
-    asc b = "2"
-    br eq :b2
-    asc b = "3"
-    br eq :b3
-    jmp :fail
-    :b0
-    g7 = y
-    rtn
-    :b1
-    g7 = y
-    rtn
-    :b2
-    g7 = y
-    rtn
-    :b3
-    g7 = y
-    rtn
-    :fail
-    putasc "?"
+    b = 200
+    bn eq :nextword
+    call :fletcher16_result
     puteol
-    rtn
-    
-// debugging version of get4x    
-    // y = digit counter
-    // j = sum
-    y = 4
-    :again
-    a = leds
-    b = 1
-    leds = a+b
-    getchar
-    x = :hexdigits
-    i = 16
-    call :find_in_fetch
-    b = -1
-    br eq :fail
-    b = a
-    a = j
-    a = a<<4
-    j = or
-    x = -1
-    y = x+y
-    a = y
-    bn az :again
-    a = j    
-    b = 0
+    putasc "F"
+    putasc "L"
     call :put4x
+    
+    a = 1000
+    call :spinwait
     jmp :main
-    :fail
-    b = -1
-    putasc "?"
-    jmp :main
-    
-    // // a = 65
-    // // push a
-    // // a = 66
-    // // push a
-    // // a = 67
-    // // push a
-    // // a = 68
-    // // push a
-    // // a = 69
-    // // push a
-    
-    // // pop b
-    // // putchar b
-    // // pop b
-    // // putchar b
-    // // pop b
-    // // putchar b
-    // // pop b
-    // // putchar b
-    // // pop b
-    // // putchar b
-    
-    // // a = 0x1234
-    // // call put4x
-
-    // // x = 0x1234
-    // // y = 1
-    // // a = 0
-    // // :nextwrite
-    // // m9k_addr = a
-    // // m9k_data = x
-    // // x = x+y
-    // // b = 1
-    // // a = a+b
-    // // b = 1024
-    // // br lt :nextwrite    
-    
-// //patch
-    // x = 0
-    // y = 1
-    // :patch
-
-    // a = leds
-    // b = 1
-    // leds = a+b
-
-    // // // Avalon write to JTAG UART. 
-    // // putasc A
-    // // putasc B
-    // // putasc C
-    // // putasc D
-    // // putasc E
-    // // putasc F
-    // // putasc G
-    // // putasc H
-    // // putasc I
-    // // putasc J
-    // // putasc K
-    // // putasc L
-    // // putasc M
-    // // putasc N
-
-    // // // Avalon read from JTAG UART.
-    // // :poll_jtag_uart    
-    // // a = 0x1234
-    // // call put4x
-    // // a = 1000
-    // // call :spinwait
-    // // putasc "/"    
-    // // a = 1000
-    // // call :spinwait
-    // // av_ad_hi = $jtag_uart_data_lsw_hi
-    // // av_ad_lo = $jtag_uart_data_lsw_lo
-    // // a = av_write_data
-    // // a = av_read_data
-    // // call put4x
-    // // a = 1000
-    // // call :spinwait
-    // // putasc ","
-    // // a = 1000
-    // // call :spinwait
-    // // av_ad_hi = $jtag_uart_data_msw_hi
-    // // av_ad_lo = $jtag_uart_data_msw_lo
-    // // a = av_write_data
-    // // a = av_read_data
-    // // call put4x
-    // // a = 1000
-    // // call :spinwait
-    // // putasc ","
-    // // a = 1000
-    // // call :spinwait
-    // // av_ad_hi = $jtag_uart_ctrl_lsw_hi
-    // // av_ad_lo = $jtag_uart_ctrl_lsw_lo
-    // // a = av_write_data
-    // // a = av_read_data
-    // // call put4x
-    // // a = 1000
-    // // call :spinwait
-    // // putasc ","
-    // // a = 1000
-    // // call :spinwait
-    // // av_ad_hi = $jtag_uart_ctrl_msw_hi
-    // // av_ad_lo = $jtag_uart_ctrl_msw_lo
-    // // a = av_write_data
-    // // a = av_read_data
-    // // call put4x
-    // // a = 1000
-    // // call :spinwait
-    // // putasc "/"    
-    // // a = 1000
-    // // call :spinwait
-    // // a = 0x5678
-    // // call put4x
-    // // a = 1000
-    // // call :spinwait
-    // // putasc "\r"
-    // // putasc "\n"
-    // // a = 1000
-    // // call :spinwait    
-    // // jmp :poll_jtag_uart       
     
     // // Avalon write to SDRAM.  
     // av_ad_hi = 0
@@ -384,80 +197,4 @@ func set_bp
     // // b = keys
     // // bn eq :wait_key_release
     
-    // // getchar
-    // // b = 1
-    // // putchar a+b
-
-    // // b = 85
-    // // putchar b
-
-    // // x = x+y
-    // // a = x
-    // // call put4x
-    
-    // a = 100
-    // call :spinwait
-    
-    // // b = 32
-    // // putchar b
-    // // m9k_addr = x
-    // // a = m9k_data
-    // // call put4x
-    
-    // // b = 13
-    // // putchar b
-    // // b = 10
-    // // putchar b
-    
-    // jmp :patch
-
-    
-    
-    
-    
-    // // using i as index into string.
-    // i = 0
-    
-    // // cache the string limit in g6.
-    // a = 16
-    // b = 0xffff
-    // g6 = xor
-    
-    // :again
-    // // // wait for keypress.
-// // :wait_key_press    
-    // // a = 0
-    // // b = keys
-    // // br z :wait_key_press
-// // :wait_key_release   
-    // // b = keys
-    // // bn z :wait_key_release
-    
-    // a = 100
-    // call :spinwait
-    
-    // // increment LEDs
-    // a = leds
-    // b = 1
-    // leds = a+b
-    
-    // // fetch a word from test pattern to the UART.  its low byte is a character.
-    // j = :msg
-    // fetch a from i+j
-// //    putchar a
-    
-    // // increment index & wrap around end of pattern.
-    // j = 1
-    // i = i+j
-    // j = g6
-    // i = i+j
-    // bn iz :no_wrap
-    // i = 0
-    // :no_wrap
-    
-    // // repeat forever.
-    // jmp :again        
-
-    // :msg
-    // "1234567890abcdef\n\x00"
     

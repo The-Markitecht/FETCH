@@ -12,18 +12,17 @@ func mod255
     jmp :mod255_again
 
 // set up Fletcher16 checksum algorithm to accumulate in the 2 given register names.
-<< proc ::asm_fletcher16_init {lin sum1_reg sum2_reg} {
+<< proc fletcher16_init {lin sum1_reg sum2_reg} {
     set ::asm::fletcher_sum1_reg $sum1_reg
     set ::asm::fletcher_sum2_reg $sum2_reg
-    parse3 $::asm::fletcher_sum1_reg = 0 $lin
-    parse3 $::asm::fletcher_sum2_reg = 0 \"
+    parse3 $sum1_reg = 0 $lin
+    parse3 $sum2_reg = 0 \"
 } >>
 
     fletcher16_init g6 g7
     
-// accumulate a Fletcher16 checksum in g6 and g7, 
-// given the next byte of data in a.    
-func fletcher16_input
+// accumulate a Fletcher16 checksum, given the next byte of data in a.    
+func fletcher16_input8
 //patch: need a way to declare summing registers as "static" or "preserve" so they're not auto-stacked.
     b = $fletcher_sum1_reg
     a = a+b
@@ -34,6 +33,17 @@ func fletcher16_input
     a = a+b
     call :mod255
     $fletcher_sum2_reg = a
+    rtn
+
+// accumulate a Fletcher16 checksum, given the next word of data in a.    
+func fletcher16_input16
+    i = a>>4
+    b = 0xff
+    a = and
+    call :fletcher16_input8
+    a = i
+    a = a>>4
+    call :fletcher16_input8
     rtn
 
 // return the combined 16-bit result of Fletcher16 checksum in a.    
