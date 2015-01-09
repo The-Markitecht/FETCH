@@ -71,12 +71,14 @@ wire sysclk = clk50m;
 wire clk_async; // PLL output for UARTs.  4x desired bit rate.  460,800 hz for 115,200 bps.   38,400 hz for 9,600 bps.
 wire clk_progmem; // PLL output for MCU program memory.  doubled relative to sysclk.  posedge aligned ( = 0 degree phase).
 wire clk_sdram; // PLL output for SDRAM chip.  doubled relative to sysclk.  -60 degree phase.
+wire clk_spi; // PLL output for SPI bus.  2 Mhz.
 wire async_pll_lock;
 async_pll async_pll_inst (
     .inclk0 ( sysclk ),
     .c0 ( clk_async ),
     .c1 ( clk_progmem ),
     .c2 ( clk_sdram ),
+    .c3 ( clk_spi ),
     .locked ( async_pll_lock )
 );
 reg rst0 = 1, rst1 = 1, rst2 = 1;
@@ -92,7 +94,7 @@ wire sysreset = rst2;
 // a2 =15   7       gpio_22     c14     gpio_2[2]   2
 // a1 =16   5       gpio_20     a14     gpio_2[0]   1
 // a0 =1    6       gpio_21     b16     gpio_2[1]   0
-wire[3:0] anmux_ctrl =0; // dg408 pins en, a2, a1, a0
+wire[3:0] anmux_ctrl; // dg408 pins en, a2, a1, a0
 assign GPIO_2[3] = anmux_ctrl[3];
 assign GPIO_2[2] = anmux_ctrl[2];
 assign GPIO_2[0] = anmux_ctrl[1];
@@ -130,12 +132,32 @@ std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`T
 
 stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`DR_RSTK]);
 
-// plumbing of target MCU outputs.
+// plumbing of target MCU I/O.
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
 assign LED = r[`DR_LEDS][7:0];
 
-// plumbing of target MCU inputs.
 assign r[`SR_KEYS] = {14'h0, KEY}; 
+
+std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, r[`DR_ANMUX_CTRL], r_load_data[3:0], r_load[`DR_ANMUX_CTRL]);
+assign anmux_ctrl = r[`DR_ANMUX_CTRL][3:0];
+
+wire[15:0] de0nadc_ctrl;
+std_reg #(.WIDTH(4)) de0nano_adc_ctrl_reg(sysclk, sysreset, de0nadc_ctrl, r_load_data[3:0], r_load[`DR_DE0NANO_ADC_CTRL]);
+wire de0nadc_done;
+ADC_READ ADC_READ_Inst(
+				.clk(clk_spi),		
+				.reset_n( ! sysreset),							
+				.Channel(de0nadc_ctrl[2:0]),			
+				.Data(r[`SR_DE0NANO_ADC_DATA][11:0]),			
+				.Start(de0nadc_ctrl[3]),		
+				.Done(de0nadc_done),							
+				.oDIN(ADC_SADDR),	
+				.oCS_n(ADC_CS_N),	
+				.oSCLK(ADC_SCLK),			
+				.iDOUT(ADC_SDAT)			
+			);
+assign r[`SR_DE0NANO_ADC_DATA][15:12] = 0;         
+assign r[`DR_DE0NANO_ADC_CTRL] = {11'd0, de0nadc_done, de0nadc_ctrl[3:0]};
 
 // Avalon MM master.
 // program should always write (or read) the "write data" register last, because accessing it triggers the Avalon transaction.

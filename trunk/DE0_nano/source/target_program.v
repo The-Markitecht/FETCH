@@ -15,6 +15,8 @@
 
 // application-specific register aliases.
 
+
+
 // all Avalon addresses are BYTE addresses.  all Avalon sizes are in BYTES.
 // SDRAM notes:
 // - all addresses are BYTE addresses.  all must be divisible by 2, because this
@@ -29,61 +31,61 @@
 // - on write, the data is lost if the write FIFO is full.  Avalon is not stalled.
 
 
-addr == 16'h00 ? 16'he00f :  // <0046> jmp :main
-addr == 16'h01 ? 16'h0136 :  // <0046> "
+addr == 16'h00 ? 16'he00f :  // <0054> jmp :main
+addr == 16'h01 ? 16'h00ff :  // <0054> "
 
 // register names for use by debugger.
-addr == 16'h02 ? 16'h000a :  // <0049> ([src rstk])
+addr == 16'h02 ? 16'h000a :  // <0057> ([src rstk])
 // "\r\n     a"
-addr == 16'h03 ? 16'h0a0d :  // <0050>   
-addr == 16'h04 ? 16'h2020 :  // <0050>   
-addr == 16'h05 ? 16'h2020 :  // <0050>   
-addr == 16'h06 ? 16'h6120 :  // <0050> a 
+addr == 16'h03 ? 16'h0a0d :  // <0058>   
+addr == 16'h04 ? 16'h2020 :  // <0058>   
+addr == 16'h05 ? 16'h2020 :  // <0058>   
+addr == 16'h06 ? 16'h6120 :  // <0058> a 
 // "       b"
-addr == 16'h07 ? 16'h2020 :  // <0051>   
-addr == 16'h08 ? 16'h2020 :  // <0051>   
-addr == 16'h09 ? 16'h2020 :  // <0051>   
-addr == 16'h0a ? 16'h6220 :  // <0051> b 
+addr == 16'h07 ? 16'h2020 :  // <0059>   
+addr == 16'h08 ? 16'h2020 :  // <0059>   
+addr == 16'h09 ? 16'h2020 :  // <0059>   
+addr == 16'h0a ? 16'h6220 :  // <0059> b 
 // "       i"
-addr == 16'h0b ? 16'h2020 :  // <0052>   
-addr == 16'h0c ? 16'h2020 :  // <0052>   
-addr == 16'h0d ? 16'h2020 :  // <0052>   
-addr == 16'h0e ? 16'h6920 :  // <0052> i 
+addr == 16'h0b ? 16'h2020 :  // <0060>   
+addr == 16'h0c ? 16'h2020 :  // <0060>   
+addr == 16'h0d ? 16'h2020 :  // <0060>   
+addr == 16'h0e ? 16'h6920 :  // <0060> i 
 // "       j"
-addr == 16'h0f ? 16'h2020 :  // <0053>   
-addr == 16'h10 ? 16'h2020 :  // <0053>   
-addr == 16'h11 ? 16'h2020 :  // <0053>   
-addr == 16'h12 ? 16'h6a20 :  // <0053> j 
+addr == 16'h0f ? 16'h2020 :  // <0061>   
+addr == 16'h10 ? 16'h2020 :  // <0061>   
+addr == 16'h11 ? 16'h2020 :  // <0061>   
+addr == 16'h12 ? 16'h6a20 :  // <0061> j 
 // "\r\n     x"
-addr == 16'h13 ? 16'h0a0d :  // <0054>   
-addr == 16'h14 ? 16'h2020 :  // <0054>   
-addr == 16'h15 ? 16'h2020 :  // <0054>   
-addr == 16'h16 ? 16'h7820 :  // <0054> x 
+addr == 16'h13 ? 16'h0a0d :  // <0062>   
+addr == 16'h14 ? 16'h2020 :  // <0062>   
+addr == 16'h15 ? 16'h2020 :  // <0062>   
+addr == 16'h16 ? 16'h7820 :  // <0062> x 
 // "       y"
-addr == 16'h17 ? 16'h2020 :  // <0055>   
-addr == 16'h18 ? 16'h2020 :  // <0055>   
-addr == 16'h19 ? 16'h2020 :  // <0055>   
-addr == 16'h1a ? 16'h7920 :  // <0055> y 
+addr == 16'h17 ? 16'h2020 :  // <0063>   
+addr == 16'h18 ? 16'h2020 :  // <0063>   
+addr == 16'h19 ? 16'h2020 :  // <0063>   
+addr == 16'h1a ? 16'h7920 :  // <0063> y 
 // "      g6"
-addr == 16'h1b ? 16'h2020 :  // <0056>   
-addr == 16'h1c ? 16'h2020 :  // <0056>   
-addr == 16'h1d ? 16'h2020 :  // <0056>   
-addr == 16'h1e ? 16'h3667 :  // <0056> 6g
+addr == 16'h1b ? 16'h2020 :  // <0064>   
+addr == 16'h1c ? 16'h2020 :  // <0064>   
+addr == 16'h1d ? 16'h2020 :  // <0064>   
+addr == 16'h1e ? 16'h3667 :  // <0064> 6g
 // "      g7"
-addr == 16'h1f ? 16'h2020 :  // <0057>   
-addr == 16'h20 ? 16'h2020 :  // <0057>   
-addr == 16'h21 ? 16'h2020 :  // <0057>   
-addr == 16'h22 ? 16'h3767 :  // <0057> 7g
+addr == 16'h1f ? 16'h2020 :  // <0065>   
+addr == 16'h20 ? 16'h2020 :  // <0065>   
+addr == 16'h21 ? 16'h2020 :  // <0065>   
+addr == 16'h22 ? 16'h3767 :  // <0065> 7g
 // "\r\n  keys"
-addr == 16'h23 ? 16'h0a0d :  // <0058>   
-addr == 16'h24 ? 16'h2020 :  // <0058>   
-addr == 16'h25 ? 16'h656b :  // <0058> ek
-addr == 16'h26 ? 16'h7379 :  // <0058> sy
+addr == 16'h23 ? 16'h0a0d :  // <0066>   
+addr == 16'h24 ? 16'h2020 :  // <0066>   
+addr == 16'h25 ? 16'h656b :  // <0066> ek
+addr == 16'h26 ? 16'h7379 :  // <0066> sy
 // "    leds"
-addr == 16'h27 ? 16'h2020 :  // <0059>   
-addr == 16'h28 ? 16'h2020 :  // <0059>   
-addr == 16'h29 ? 16'h656c :  // <0059> el
-addr == 16'h2a ? 16'h7364 :  // <0059> sd
+addr == 16'h27 ? 16'h2020 :  // <0067>   
+addr == 16'h28 ? 16'h2020 :  // <0067>   
+addr == 16'h29 ? 16'h656c :  // <0067> el
+addr == 16'h2a ? 16'h7364 :  // <0067> sd
 
 // libraries
 
@@ -160,12 +162,12 @@ addr == 16'h5a ? 16'hfc00 :  // <0042> rtn
 // func getchar_jtag_func // = 0x005b
 addr == 16'h5b ? 16'h07a0 :  // <0031> b = 0x8000
 addr == 16'h5c ? 16'h8000 :  // <0031> "
-addr == 16'h5d ? 16'h37a0 :  // <0032> av_ad_hi = $::asm::jtag_uart_data_lsw_hi
+addr == 16'h5d ? 16'h43a0 :  // <0032> av_ad_hi = $::asm::jtag_uart_data_lsw_hi
 addr == 16'h5e ? 16'h0200 :  // <0032> "
-addr == 16'h5f ? 16'h3a00 :  // <0033> av_ad_lo = $::asm::jtag_uart_data_lsw_lo
+addr == 16'h5f ? 16'h4600 :  // <0033> av_ad_lo = $::asm::jtag_uart_data_lsw_lo
 // :poll // = 0x0060
-addr == 16'h60 ? 16'h000b :  // <0035> a = av_write_data
-addr == 16'h61 ? 16'h000c :  // <0036> a = av_read_data
+addr == 16'h60 ? 16'h000e :  // <0035> a = av_write_data
+addr == 16'h61 ? 16'h000f :  // <0036> a = av_read_data
 addr == 16'h62 ? 16'he003 :  // <0037> br and0z :poll
 addr == 16'h63 ? 16'h0060 :  // <0037> "
 addr == 16'h64 ? 16'h06ff :  // <0038> b = 0xff
@@ -177,11 +179,11 @@ addr == 16'h67 ? 16'hfc00 :  // <0040> rtn
 // func pollchar_jtag_func // = 0x0068
 addr == 16'h68 ? 16'h07a0 :  // <0044> b = 0x8000
 addr == 16'h69 ? 16'h8000 :  // <0044> "
-addr == 16'h6a ? 16'h37a0 :  // <0045> av_ad_hi = $::asm::jtag_uart_data_lsw_hi
+addr == 16'h6a ? 16'h43a0 :  // <0045> av_ad_hi = $::asm::jtag_uart_data_lsw_hi
 addr == 16'h6b ? 16'h0200 :  // <0045> "
-addr == 16'h6c ? 16'h3a00 :  // <0046> av_ad_lo = $::asm::jtag_uart_data_lsw_lo
-addr == 16'h6d ? 16'h000b :  // <0047> a = av_write_data
-addr == 16'h6e ? 16'h000c :  // <0048> a = av_read_data
+addr == 16'h6c ? 16'h4600 :  // <0046> av_ad_lo = $::asm::jtag_uart_data_lsw_lo
+addr == 16'h6d ? 16'h000e :  // <0047> a = av_write_data
+addr == 16'h6e ? 16'h000f :  // <0048> a = av_read_data
 addr == 16'h6f ? 16'he403 :  // <0049> bn and0z :gotchar
 addr == 16'h70 ? 16'h0075 :  // <0049> "
 addr == 16'h71 ? 16'h06ff :  // <0050> b = 0xff
@@ -227,10 +229,10 @@ addr == 16'h8b ? 16'h0353 :  // <0066> a = a>>4
 addr == 16'h8c ? 16'hfba0 :  // <0067> call fetch_byte
 addr == 16'h8d ? 16'h002b :  // <0067> "
 addr == 16'h8e ? 16'hfc00 :  // <0067> "
-addr == 16'h8f ? 16'h37a0 :  // <0068> putchar a
+addr == 16'h8f ? 16'h43a0 :  // <0068> putchar a
 addr == 16'h90 ? 16'h0200 :  // <0068> "
-addr == 16'h91 ? 16'h3a00 :  // <0068> "
-addr == 16'h92 ? 16'h2c00 :  // <0068> "
+addr == 16'h91 ? 16'h4600 :  // <0068> "
+addr == 16'h92 ? 16'h3800 :  // <0068> "
 
 addr == 16'h93 ? 16'h0006 :  // <0070> a = g6
 addr == 16'h94 ? 16'h07a0 :  // <0071> b = 0x0F00
@@ -242,10 +244,10 @@ addr == 16'h99 ? 16'h0353 :  // <0074> a = a>>4
 addr == 16'h9a ? 16'hfba0 :  // <0075> call fetch_byte
 addr == 16'h9b ? 16'h002b :  // <0075> "
 addr == 16'h9c ? 16'hfc00 :  // <0075> "
-addr == 16'h9d ? 16'h37a0 :  // <0076> putchar a
+addr == 16'h9d ? 16'h43a0 :  // <0076> putchar a
 addr == 16'h9e ? 16'h0200 :  // <0076> "
-addr == 16'h9f ? 16'h3a00 :  // <0076> "
-addr == 16'ha0 ? 16'h2c00 :  // <0076> "
+addr == 16'h9f ? 16'h4600 :  // <0076> "
+addr == 16'ha0 ? 16'h3800 :  // <0076> "
 
 addr == 16'ha1 ? 16'h0006 :  // <0078> a = g6
 addr == 16'ha2 ? 16'h06f0 :  // <0079> b = 0x00F0
@@ -255,10 +257,10 @@ addr == 16'ha5 ? 16'h0353 :  // <0081> a = a>>4
 addr == 16'ha6 ? 16'hfba0 :  // <0082> call fetch_byte
 addr == 16'ha7 ? 16'h002b :  // <0082> "
 addr == 16'ha8 ? 16'hfc00 :  // <0082> "
-addr == 16'ha9 ? 16'h37a0 :  // <0083> putchar a
+addr == 16'ha9 ? 16'h43a0 :  // <0083> putchar a
 addr == 16'haa ? 16'h0200 :  // <0083> "
-addr == 16'hab ? 16'h3a00 :  // <0083> "
-addr == 16'hac ? 16'h2c00 :  // <0083> "
+addr == 16'hab ? 16'h4600 :  // <0083> "
+addr == 16'hac ? 16'h3800 :  // <0083> "
 
 addr == 16'had ? 16'h0006 :  // <0085> a = g6
 addr == 16'hae ? 16'h060f :  // <0086> b = 0x000F
@@ -267,10 +269,10 @@ addr == 16'hb0 ? 16'h0330 :  // <0087> "
 addr == 16'hb1 ? 16'hfba0 :  // <0088> call fetch_byte
 addr == 16'hb2 ? 16'h002b :  // <0088> "
 addr == 16'hb3 ? 16'hfc00 :  // <0088> "
-addr == 16'hb4 ? 16'h37a0 :  // <0089> putchar a
+addr == 16'hb4 ? 16'h43a0 :  // <0089> putchar a
 addr == 16'hb5 ? 16'h0200 :  // <0089> "
-addr == 16'hb6 ? 16'h3a00 :  // <0089> "
-addr == 16'hb7 ? 16'h2c00 :  // <0089> "
+addr == 16'hb6 ? 16'h4600 :  // <0089> "
+addr == 16'hb7 ? 16'h3800 :  // <0089> "
 
 addr == 16'hb8 ? 16'hf80a :  // <0091> pop rtna // rtn
 addr == 16'hb9 ? 16'h180a :  // <0091> pop g6 // "
@@ -293,10 +295,10 @@ addr == 16'hc2 ? 16'hfba0 :  // <0100> getchar
 addr == 16'hc3 ? 16'h005b :  // <0100> "
 addr == 16'hc4 ? 16'hfc00 :  // <0100> "
 addr == 16'hc5 ? 16'h2800 :  // <0100> push a // "
-addr == 16'hc6 ? 16'h37a0 :  // <0100> "
+addr == 16'hc6 ? 16'h43a0 :  // <0100> "
 addr == 16'hc7 ? 16'h0200 :  // <0100> "
-addr == 16'hc8 ? 16'h3a00 :  // <0100> "
-addr == 16'hc9 ? 16'h2c00 :  // <0100> "
+addr == 16'hc8 ? 16'h4600 :  // <0100> "
+addr == 16'hc9 ? 16'h3800 :  // <0100> "
 addr == 16'hca ? 16'h000a :  // <0100> pop a // "
 addr == 16'hcb ? 16'h13a0 :  // <0101> x = :hexdigits
 addr == 16'hcc ? 16'h0077 :  // <0101> "
@@ -361,309 +363,86 @@ addr == 16'hfd ? 16'h100a :  // <0016> pop x // "
 addr == 16'hfe ? 16'hfc00 :  // <0016> rtn
 
 
-
-
-
-// func fletcher16_init // = 0x00ff
-addr == 16'hff ? 16'h1a00 :  // <0005> $fletcher_sum1_reg = 0
-addr == 16'h100 ? 16'h1e00 :  // <0006> $fletcher_sum2_reg = 0
-addr == 16'h101 ? 16'hfc00 :  // <0007> rtn
-
-// compute the modulus(255) of a number given in a.  return remainder in a.
-// func mod255 // = 0x0102
-// while a is greater than 254, subtract 255.
-// :mod255_again // = 0x0102
-addr == 16'h102 ? 16'h06fe :  // <0013> b = 0xfe
-addr == 16'h103 ? 16'he006 :  // <0014> br gt :mod255_greater
-addr == 16'h104 ? 16'h0106 :  // <0014> "
-addr == 16'h105 ? 16'hfc00 :  // <0015> rtn
-// :mod255_greater // = 0x0106
-addr == 16'h106 ? 16'h07a0 :  // <0017> b = 0xff01
-addr == 16'h107 ? 16'hff01 :  // <0017> "
-addr == 16'h108 ? 16'hc800 :  // <0018> a = a+b
-addr == 16'h109 ? 16'h0300 :  // <0018> "
-addr == 16'h10a ? 16'he00f :  // <0019> jmp :mod255_again
-addr == 16'h10b ? 16'h0102 :  // <0019> "
-addr == 16'h10c ? 16'hfc00 :  // <0020> rtn
-
-// accumulate a Fletcher16 checksum, given the next byte of data in a.
-// func fletcher16_input8 // = 0x010d
-addr == 16'h10d ? 16'h283e :  // <0023> push rtna // func fletcher16_input8
-addr == 16'h10e ? 16'h0406 :  // <0024> b = $fletcher_sum1_reg
-addr == 16'h10f ? 16'hc800 :  // <0025> a = a+b
-addr == 16'h110 ? 16'h0300 :  // <0025> "
-addr == 16'h111 ? 16'hfba0 :  // <0026> call :mod255
-addr == 16'h112 ? 16'h0102 :  // <0026> "
-addr == 16'h113 ? 16'hfc00 :  // <0026> "
-addr == 16'h114 ? 16'h1800 :  // <0027> $fletcher_sum1_reg = a
-
-addr == 16'h115 ? 16'h0407 :  // <0029> b = $fletcher_sum2_reg
-addr == 16'h116 ? 16'hc800 :  // <0030> a = a+b
-addr == 16'h117 ? 16'h0300 :  // <0030> "
-addr == 16'h118 ? 16'hfba0 :  // <0031> call :mod255
-addr == 16'h119 ? 16'h0102 :  // <0031> "
-addr == 16'h11a ? 16'hfc00 :  // <0031> "
-addr == 16'h11b ? 16'h1c00 :  // <0032> $fletcher_sum2_reg = a
-addr == 16'h11c ? 16'hf80a :  // <0033> pop rtna // rtn
-addr == 16'h11d ? 16'hfc00 :  // <0033> rtn
-
-// accumulate a Fletcher16 checksum, given the next word of data in a.
-// func fletcher16_input16 // = 0x011e
-addr == 16'h11e ? 16'h2802 :  // <0036> push i // func fletcher16_input16
-addr == 16'h11f ? 16'h283e :  // <0036> push rtna // "
-addr == 16'h120 ? 16'h0b53 :  // <0037> i = a>>4
-addr == 16'h121 ? 16'h06ff :  // <0038> b = 0xff
-addr == 16'h122 ? 16'hc800 :  // <0039> a = and
-addr == 16'h123 ? 16'h0330 :  // <0039> "
-addr == 16'h124 ? 16'hfba0 :  // <0040> call :fletcher16_input8
-addr == 16'h125 ? 16'h010d :  // <0040> "
-addr == 16'h126 ? 16'hfc00 :  // <0040> "
-addr == 16'h127 ? 16'h0002 :  // <0041> a = i
-addr == 16'h128 ? 16'h0353 :  // <0042> a = a>>4
-addr == 16'h129 ? 16'hfba0 :  // <0043> call :fletcher16_input8
-addr == 16'h12a ? 16'h010d :  // <0043> "
-addr == 16'h12b ? 16'hfc00 :  // <0043> "
-addr == 16'h12c ? 16'hf80a :  // <0044> pop rtna // rtn
-addr == 16'h12d ? 16'h080a :  // <0044> pop i // "
-addr == 16'h12e ? 16'hfc00 :  // <0044> rtn
-
-// return the combined 16-bit result of Fletcher16 checksum in a.
-// func fletcher16_result // = 0x012f
-addr == 16'h12f ? 16'h0007 :  // <0048> a = $fletcher_sum2_reg
-addr == 16'h130 ? 16'h0352 :  // <0049> a = a<<4
-addr == 16'h131 ? 16'h0352 :  // <0050> a = a<<4
-addr == 16'h132 ? 16'h0406 :  // <0051> b = $fletcher_sum1_reg
-addr == 16'h133 ? 16'hc800 :  // <0052> a = or
-addr == 16'h134 ? 16'h0334 :  // <0052> "
-addr == 16'h135 ? 16'hfc00 :  // <0053> rtn
-
-
+// pass desired ADC channel in a.
+// returns ADC reading in a.
+// func de0nano_adc_read // = 0x00ff
 
 // ////////////////////////////////////////////
-// :main // = 0x0136
+// :main // = 0x00ff
 
-// copy 203 words of program over and over, to all of SDRAM.
-// x = program pointer
-addr == 16'h136 ? 16'hfba0 :  // <0076> call :fletcher16_init
-addr == 16'h137 ? 16'h00ff :  // <0076> "
-addr == 16'h138 ? 16'hfc00 :  // <0076> "
-addr == 16'h139 ? 16'h1200 :  // <0077> x = 0
-addr == 16'h13a ? 16'h1601 :  // <0078> y = 1
-addr == 16'h13b ? 16'h3600 :  // <0079> av_ad_hi = 0
-addr == 16'h13c ? 16'h3a00 :  // <0080> av_ad_lo = 0
-// :nextword // = 0x013d
-addr == 16'h13d ? 16'hd004 :  // <0083> fetch a from x
-addr == 16'h13e ? 16'h03b0 :  // <0083> "
-addr == 16'h13f ? 16'h2c00 :  // <0084> av_write_data = a
-addr == 16'h140 ? 16'hfba0 :  // <0085> call :fletcher16_input16
-addr == 16'h141 ? 16'h011e :  // <0085> "
-addr == 16'h142 ? 16'hfc00 :  // <0085> "
-addr == 16'h143 ? 16'h000e :  // <0086> a = av_ad_lo
-addr == 16'h144 ? 16'h0602 :  // <0087> b = 2
-addr == 16'h145 ? 16'hc800 :  // <0088> a = a+b
-addr == 16'h146 ? 16'h0300 :  // <0088> "
-addr == 16'h147 ? 16'h3800 :  // <0089> av_ad_lo = a
-addr == 16'h148 ? 16'he400 :  // <0090> bn az :same_page
-addr == 16'h149 ? 16'h0153 :  // <0090> "
-addr == 16'h14a ? 16'h000d :  // <0091> a = av_ad_hi
-addr == 16'h14b ? 16'h0601 :  // <0092> b = 1
-addr == 16'h14c ? 16'hc800 :  // <0093> a = a+b
-addr == 16'h14d ? 16'h0300 :  // <0093> "
-addr == 16'h14e ? 16'h3400 :  // <0094> av_ad_hi = a
-addr == 16'h14f ? 16'h07a0 :  // <0095> b = $sdram_page_beyond
-addr == 16'h150 ? 16'h0200 :  // <0095> "
-addr == 16'h151 ? 16'he007 :  // <0096> br eq :ram_full
-addr == 16'h152 ? 16'h015c :  // <0096> "
-// :same_page // = 0x0153
-addr == 16'h153 ? 16'hc800 :  // <0098> x = x+y
-addr == 16'h154 ? 16'h1320 :  // <0098> "
-addr == 16'h155 ? 16'h0004 :  // <0099> a = x
-addr == 16'h156 ? 16'h06cb :  // <0100> b = 203
-addr == 16'h157 ? 16'he407 :  // <0101> bn eq :nextword
-addr == 16'h158 ? 16'h013d :  // <0101> "
-addr == 16'h159 ? 16'h1200 :  // <0102> x = 0
-addr == 16'h15a ? 16'he00f :  // <0103> jmp :nextword
-addr == 16'h15b ? 16'h013d :  // <0103> "
-// :ram_full // = 0x015c
-addr == 16'h15c ? 16'h020a :  // <0105> a = 10 // puteol
-addr == 16'h15d ? 16'h37a0 :  // <0105> puteol
-addr == 16'h15e ? 16'h0200 :  // <0105> "
-addr == 16'h15f ? 16'h3a00 :  // <0105> "
-addr == 16'h160 ? 16'h2c00 :  // <0105> "
-addr == 16'h161 ? 16'h0257 :  // <0106> a = 87 // putasc "W"
-addr == 16'h162 ? 16'h37a0 :  // <0106> putasc "W"
-addr == 16'h163 ? 16'h0200 :  // <0106> "
-addr == 16'h164 ? 16'h3a00 :  // <0106> "
-addr == 16'h165 ? 16'h2c00 :  // <0106> "
-addr == 16'h166 ? 16'h0252 :  // <0107> a = 82 // putasc "R"
-addr == 16'h167 ? 16'h37a0 :  // <0107> putasc "R"
-addr == 16'h168 ? 16'h0200 :  // <0107> "
-addr == 16'h169 ? 16'h3a00 :  // <0107> "
-addr == 16'h16a ? 16'h2c00 :  // <0107> "
-addr == 16'h16b ? 16'hfba0 :  // <0108> call :fletcher16_result
-addr == 16'h16c ? 16'h012f :  // <0108> "
-addr == 16'h16d ? 16'hfc00 :  // <0108> "
-addr == 16'h16e ? 16'hfba0 :  // <0109> call :put4x
-addr == 16'h16f ? 16'h007f :  // <0109> "
-addr == 16'h170 ? 16'hfc00 :  // <0109> "
+// unit 2 (better built sensor)
+addr == 16'hff ? 16'h0267 :  // <0080> a = 103 // putasc "g"
+addr == 16'h100 ? 16'h43a0 :  // <0080> putasc "g"
+addr == 16'h101 ? 16'h0200 :  // <0080> "
+addr == 16'h102 ? 16'h4600 :  // <0080> "
+addr == 16'h103 ? 16'h3800 :  // <0080> "
+addr == 16'h104 ? 16'h023d :  // <0081> a = 61 // putasc "="
+addr == 16'h105 ? 16'h43a0 :  // <0081> putasc "="
+addr == 16'h106 ? 16'h0200 :  // <0081> "
+addr == 16'h107 ? 16'h4600 :  // <0081> "
+addr == 16'h108 ? 16'h3800 :  // <0081> "
+addr == 16'h109 ? 16'h0200 :  // <0082> a = 0
+addr == 16'h10a ? 16'hfba0 :  // <0083> call :anmux_read_chn
+addr == 16'h10b ? 16'h0132 :  // <0083> "
+addr == 16'h10c ? 16'hfc00 :  // <0083> "
+addr == 16'h10d ? 16'hfba0 :  // <0084> call :put4x
+addr == 16'h10e ? 16'h007f :  // <0084> "
+addr == 16'h10f ? 16'hfc00 :  // <0084> "
 
-// read back all of SDRAM.
-addr == 16'h171 ? 16'hfba0 :  // <0112> call :fletcher16_init
-addr == 16'h172 ? 16'h00ff :  // <0112> "
-addr == 16'h173 ? 16'hfc00 :  // <0112> "
-addr == 16'h174 ? 16'h3600 :  // <0113> av_ad_hi = 0
-addr == 16'h175 ? 16'h3a00 :  // <0114> av_ad_lo = 0
-// :read_nextword // = 0x0176
-addr == 16'h176 ? 16'h000b :  // <0116> a = av_write_data
-addr == 16'h177 ? 16'h000c :  // <0117> a = av_read_data
-addr == 16'h178 ? 16'hfba0 :  // <0118> call :fletcher16_input16
-addr == 16'h179 ? 16'h011e :  // <0118> "
-addr == 16'h17a ? 16'hfc00 :  // <0118> "
-addr == 16'h17b ? 16'h000e :  // <0119> a = av_ad_lo
-addr == 16'h17c ? 16'h0602 :  // <0120> b = 2
-addr == 16'h17d ? 16'hc800 :  // <0121> a = a+b
-addr == 16'h17e ? 16'h0300 :  // <0121> "
-addr == 16'h17f ? 16'h3800 :  // <0122> av_ad_lo = a
-addr == 16'h180 ? 16'he400 :  // <0123> bn az :read_same_page
-addr == 16'h181 ? 16'h018b :  // <0123> "
-addr == 16'h182 ? 16'h000d :  // <0124> a = av_ad_hi
-addr == 16'h183 ? 16'h0601 :  // <0125> b = 1
-addr == 16'h184 ? 16'hc800 :  // <0126> a = a+b
-addr == 16'h185 ? 16'h0300 :  // <0126> "
-addr == 16'h186 ? 16'h3400 :  // <0127> av_ad_hi = a
-addr == 16'h187 ? 16'h07a0 :  // <0128> b = $sdram_page_beyond
-addr == 16'h188 ? 16'h0200 :  // <0128> "
-addr == 16'h189 ? 16'he007 :  // <0129> br eq :read_ram_full
-addr == 16'h18a ? 16'h018d :  // <0129> "
-// :read_same_page // = 0x018b
-addr == 16'h18b ? 16'he00f :  // <0131> jmp :read_nextword
-addr == 16'h18c ? 16'h0176 :  // <0131> "
-// :read_ram_full // = 0x018d
-addr == 16'h18d ? 16'h020a :  // <0133> a = 10 // puteol
-addr == 16'h18e ? 16'h37a0 :  // <0133> puteol
-addr == 16'h18f ? 16'h0200 :  // <0133> "
-addr == 16'h190 ? 16'h3a00 :  // <0133> "
-addr == 16'h191 ? 16'h2c00 :  // <0133> "
-addr == 16'h192 ? 16'h0252 :  // <0134> a = 82 // putasc "R"
-addr == 16'h193 ? 16'h37a0 :  // <0134> putasc "R"
-addr == 16'h194 ? 16'h0200 :  // <0134> "
-addr == 16'h195 ? 16'h3a00 :  // <0134> "
-addr == 16'h196 ? 16'h2c00 :  // <0134> "
-addr == 16'h197 ? 16'h0244 :  // <0135> a = 68 // putasc "D"
-addr == 16'h198 ? 16'h37a0 :  // <0135> putasc "D"
-addr == 16'h199 ? 16'h0200 :  // <0135> "
-addr == 16'h19a ? 16'h3a00 :  // <0135> "
-addr == 16'h19b ? 16'h2c00 :  // <0135> "
-addr == 16'h19c ? 16'hfba0 :  // <0136> call :fletcher16_result
-addr == 16'h19d ? 16'h012f :  // <0136> "
-addr == 16'h19e ? 16'hfc00 :  // <0136> "
-addr == 16'h19f ? 16'hfba0 :  // <0137> call :put4x
-addr == 16'h1a0 ? 16'h007f :  // <0137> "
-addr == 16'h1a1 ? 16'hfc00 :  // <0137> "
-addr == 16'h1a2 ? 16'he00f :  // <0138> jmp :main
-addr == 16'h1a3 ? 16'h0136 :  // <0138> "
+// unit 1 (shoddy built sensor)
+addr == 16'h110 ? 16'h0262 :  // <0087> a = 98 // putasc "b"
+addr == 16'h111 ? 16'h43a0 :  // <0087> putasc "b"
+addr == 16'h112 ? 16'h0200 :  // <0087> "
+addr == 16'h113 ? 16'h4600 :  // <0087> "
+addr == 16'h114 ? 16'h3800 :  // <0087> "
+addr == 16'h115 ? 16'h023d :  // <0088> a = 61 // putasc "="
+addr == 16'h116 ? 16'h43a0 :  // <0088> putasc "="
+addr == 16'h117 ? 16'h0200 :  // <0088> "
+addr == 16'h118 ? 16'h4600 :  // <0088> "
+addr == 16'h119 ? 16'h3800 :  // <0088> "
+addr == 16'h11a ? 16'h0201 :  // <0089> a = 1
+addr == 16'h11b ? 16'hfba0 :  // <0090> call :anmux_read_chn
+addr == 16'h11c ? 16'h0132 :  // <0090> "
+addr == 16'h11d ? 16'hfc00 :  // <0090> "
+addr == 16'h11e ? 16'hfba0 :  // <0091> call :put4x
+addr == 16'h11f ? 16'h007f :  // <0091> "
+addr == 16'h120 ? 16'hfc00 :  // <0091> "
 
-// // Avalon write to SDRAM.
-// av_ad_hi = 0
-// av_ad_lo = 0x20
-// av_write_data = 0x6789
-// // Avalon read from SDRAM.
-// a = av_write_data
-// a = av_read_data
-// call put4x
-// a = 1000
-// call :spinwait
+// dead channel
+addr == 16'h121 ? 16'h026e :  // <0094> a = 110 // putasc "n"
+addr == 16'h122 ? 16'h43a0 :  // <0094> putasc "n"
+addr == 16'h123 ? 16'h0200 :  // <0094> "
+addr == 16'h124 ? 16'h4600 :  // <0094> "
+addr == 16'h125 ? 16'h3800 :  // <0094> "
+addr == 16'h126 ? 16'h023d :  // <0095> a = 61 // putasc "="
+addr == 16'h127 ? 16'h43a0 :  // <0095> putasc "="
+addr == 16'h128 ? 16'h0200 :  // <0095> "
+addr == 16'h129 ? 16'h4600 :  // <0095> "
+addr == 16'h12a ? 16'h3800 :  // <0095> "
+addr == 16'h12b ? 16'h0202 :  // <0096> a = 2
+addr == 16'h12c ? 16'hfba0 :  // <0097> call :anmux_read_chn
+addr == 16'h12d ? 16'h0132 :  // <0097> "
+addr == 16'h12e ? 16'hfc00 :  // <0097> "
+addr == 16'h12f ? 16'hfba0 :  // <0098> call :put4x
+addr == 16'h130 ? 16'h007f :  // <0098> "
+addr == 16'h131 ? 16'hfc00 :  // <0098> "
 
-// :verify_all
-// a = 1000
-// call :spinwait
-// putasc {-}
-// i = 0x200
-// j = -1
-// :next_page
-// i = i+j
-// av_ad_hi = i
+// pass desired anmux channel in a.
+// return ADC reading in a.
+// func anmux_read_chn // = 0x0132
+addr == 16'h132 ? 16'h283e :  // <0102> push rtna // func anmux_read_chn
+// set & enable analog muxer
+addr == 16'h133 ? 16'h0608 :  // <0104> b = $anmux_enable_mask
+addr == 16'h134 ? 16'hc800 :  // <0105> anmux_ctrl = or
+addr == 16'h135 ? 16'h2f34 :  // <0105> "
 
-// // fill SDRAM page with a pattern.
-// putasc W
-// x = 0x0000
-// :fill_more
-// a = x
-// b = 0xffff
-// g6 = xor
-// av_ad_hi = i
-// av_ad_lo = x
-// av_write_data = g6
-// y = 2
-// x = x+y
-// bn xz :fill_more
-
-// // verify pattern in SDRAM.
-// x = 0x0000
-// :verify_more
-// av_ad_hi = i
-// av_ad_lo = x
-// g6 = av_write_data
-// g6 = av_read_data
-// // a = x
-// // call put4x
-// // putasc "="
-// // a = 500
-// // call :spinwait
-// // a = g6
-// // call put4x
-// // putasc "\r"
-// // putasc "\n"
-// // a = 500
-// // call :spinwait
-// a = x
-// b = 0xffff
-// a = xor
-// b = g6
-// bn eq :sdram_err
-// y = 2
-// x = x+y
-// bn xz :verify_more
-
-// a = i
-// b = 0
-// bn z :next_page
-// jmp :verify_all
-
-// :sdram_err
-// y = a
-// a = 1000
-// call :spinwait
-// a = g6
-// call :put4x
-// a = 1000
-// call :spinwait
-// putasc "!"
-// putasc "="
-// a = y
-// call :put4x
-// a = 1000
-// call :spinwait
-// putasc "@"
-// a = av_ad_hi
-// call :put4x
-// a = 1000
-// call :spinwait
-// a = av_ad_lo
-// call put4x
-// :halt
-// jmp :halt
-
-// // :wait_key_press
-// // a = 0x03
-// // b = keys
-// // br eq :wait_key_press
-// // :wait_key_release
-// // b = keys
-// // bn eq :wait_key_release
-
-
-
+// read ADC channel 7.  12 bits resolution.
+addr == 16'h136 ? 16'h0207 :  // <0108> a = 7
+addr == 16'h137 ? 16'hfba0 :  // <0109> call :de0nano_adc_read
+addr == 16'h138 ? 16'h00ff :  // <0109> "
+addr == 16'h139 ? 16'hfc00 :  // <0109> "
+addr == 16'h13a ? 16'hf80a :  // <0110> pop rtna // rtn
+addr == 16'h13b ? 16'hfc00 :  // <0110> rtn
         
                 16'hxxxx;
         endmodule

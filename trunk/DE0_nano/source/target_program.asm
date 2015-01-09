@@ -16,6 +16,14 @@
     alias_src  keys                 [incr counter]
     alias_both leds                 [incr counter] 
     alias_both rstk                 [incr counter] 
+    
+    alias_both anmux_ctrl           [incr counter] 
+        vdefine     anmux_enable_mask       0x0008
+            
+    alias_both de0nano_adc_data     [incr counter] 
+    alias_both de0nano_adc_ctrl     [incr counter] 
+        vdefine     anmux_start_mask        0x0008
+        vdefine     anmux_done_mask         0x0010
             
     alias_both av_write_data        [incr counter]
     alias_src  av_read_data	        [incr counter]
@@ -63,177 +71,40 @@
     include lib/jtag_uart.asm
     include lib/console.asm
     include lib/time.asm
-    
-    setvar fletcher_sum1_reg g6
-    setvar fletcher_sum2_reg g7
-    include lib/fletcher.asm
+    include lib/de0nano_adc.asm
     
     // ////////////////////////////////////////////
     :main
 
-    // copy 203 words of program over and over, to all of SDRAM.  203 was chosen to create misalignment vs. SDRAM page boundaries.
-    // x = program pointer
-    call :fletcher16_init
-    x = 0
-    y = 1
-    av_ad_hi = 0
-    av_ad_lo = 0    
-    setvar sdram_page_beyond ($sdram_size >> 16)
-    :nextword
-    fetch a from x
-    av_write_data = a
-    call :fletcher16_input16    
-    a = av_ad_lo
-    b = 2
-    a = a+b
-    av_ad_lo = a
-    bn az :same_page
-    a = av_ad_hi
-    b = 1
-    a = a+b
-    av_ad_hi = a
-    b = $sdram_page_beyond
-    br eq :ram_full
-    :same_page    
-    x = x+y
-    a = x
-    b = 203
-    bn eq :nextword
-    x = 0
-    jmp :nextword
-    :ram_full
-    puteol
-    putasc "W"
-    putasc "R"
-    call :fletcher16_result
-    call :put4x   
+    // unit 2 (better built sensor)
+    putasc "g"
+    putasc "="
+    a = 0
+    call :anmux_read_chn
+    call :put4x
     
-    // read back all of SDRAM.
-    call :fletcher16_init
-    av_ad_hi = 0
-    av_ad_lo = 0    
-    :read_nextword
-    a = av_write_data
-    a = av_read_data
-    call :fletcher16_input16    
-    a = av_ad_lo
-    b = 2
-    a = a+b
-    av_ad_lo = a
-    bn az :read_same_page
-    a = av_ad_hi
-    b = 1
-    a = a+b
-    av_ad_hi = a
-    b = $sdram_page_beyond
-    br eq :read_ram_full
-    :read_same_page    
-    jmp :read_nextword
-    :read_ram_full
-    puteol
-    putasc "R"
-    putasc "D"
-    call :fletcher16_result
-    call :put4x   
-    jmp :main
-    
-    // // Avalon write to SDRAM.  
-    // av_ad_hi = 0
-    // av_ad_lo = 0x20
-    // av_write_data = 0x6789
-    // // Avalon read from SDRAM.  
-    // a = av_write_data
-    // a = av_read_data
-    // call put4x
-    // a = 1000
-    // call :spinwait    
-    
-    // :verify_all
-    // a = 1000
-    // call :spinwait    
-    // putasc {-}
-    // i = 0x200
-    // j = -1
-    // :next_page    
-    // i = i+j
-    // av_ad_hi = i
+    // unit 1 (shoddy built sensor)
+    putasc "b"
+    putasc "="
+    a = 1
+    call :anmux_read_chn
+    call :put4x
 
-    // // fill SDRAM page with a pattern.
-    // putasc W
-    // x = 0x0000
-    // :fill_more
-    // a = x
-    // b = 0xffff
-    // g6 = xor
-    // av_ad_hi = i
-    // av_ad_lo = x
-    // av_write_data = g6
-    // y = 2
-    // x = x+y
-    // bn xz :fill_more
+    // dead channel
+    putasc "n"
+    putasc "="
+    a = 2
+    call :anmux_read_chn
+    call :put4x
     
-    // // verify pattern in SDRAM.
-    // x = 0x0000
-    // :verify_more
-    // av_ad_hi = i
-    // av_ad_lo = x
-    // g6 = av_write_data
-    // g6 = av_read_data
-    // // a = x
-    // // call put4x
-    // // putasc "="
-    // // a = 500
-    // // call :spinwait        
-    // // a = g6
-    // // call put4x
-    // // putasc "\r"
-    // // putasc "\n"
-    // // a = 500
-    // // call :spinwait     
-    // a = x
-    // b = 0xffff
-    // a = xor
-    // b = g6
-    // bn eq :sdram_err
-    // y = 2
-    // x = x+y
-    // bn xz :verify_more
-    
-    // a = i
-    // b = 0
-    // bn z :next_page
-    // jmp :verify_all
-    
-    // :sdram_err
-    // y = a
-    // a = 1000
-    // call :spinwait        
-    // a = g6
-    // call :put4x
-    // a = 1000
-    // call :spinwait            
-    // putasc "!"
-    // putasc "="
-    // a = y
-    // call :put4x
-    // a = 1000
-    // call :spinwait            
-    // putasc "@"
-    // a = av_ad_hi
-    // call :put4x
-    // a = 1000
-    // call :spinwait        
-    // a = av_ad_lo
-    // call put4x
-    // :halt
-    // jmp :halt
-    
-// // :wait_key_press    
-    // // a = 0x03
-    // // b = keys
-    // // br eq :wait_key_press
-// // :wait_key_release   
-    // // b = keys
-    // // bn eq :wait_key_release
-    
-    
+// pass desired anmux channel in a.
+// return ADC reading in a.
+func anmux_read_chn
+    // set & enable analog muxer
+    b = $anmux_enable_mask
+    anmux_ctrl = or
+
+    // read ADC channel 7.  12 bits resolution.
+    a = 7
+    call :de0nano_adc_read
+    rtn
