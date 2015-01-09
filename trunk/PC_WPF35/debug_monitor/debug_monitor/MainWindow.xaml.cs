@@ -179,10 +179,6 @@ namespace CVtool
             send("r");
         }
 
-        private void set_bp0_btn_Click(object sender, RoutedEventArgs e)
-        {
-            send("b0=" + bp0_txt.Text.Trim().ToLower());
-        }
 
         private void load_btn_Click(object sender, RoutedEventArgs e)
         {
@@ -197,6 +193,66 @@ namespace CVtool
             }
             send(b, 0, b.Length);
         }
+
+        private void set_bp(int bpnum, TextBox tb)
+        {
+            try
+            {                
+                string s = tb.Text.Trim().ToLower();
+                UInt16 addr = UInt16.Parse(s, System.Globalization.NumberStyles.HexNumber);
+                send("b" + bpnum + "=" + addr.ToString("x4"));            
+            }
+            catch (Exception ex)
+            {
+                log(ex.ToString());
+            }
+        }
+
+        private void set_bp0_btn_Click(object sender, RoutedEventArgs e)
+        {
+            set_bp(0, bp0_txt);
+        }
+
+        private void set_bp1_btn_Click(object sender, RoutedEventArgs e)
+        {
+            set_bp(1, bp1_txt);
+        }
+
+        private void set_bp2_btn_Click(object sender, RoutedEventArgs e)
+        {
+            set_bp(2, bp2_txt);
+        }
+
+        private void set_bp3_btn_Click(object sender, RoutedEventArgs e)
+        {
+            set_bp(3, bp3_txt);
+        }
+
+        private void bp3_txt_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                set_bp3_btn_Click(null, null);
+        }
+
+        private void bp2_txt_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                set_bp2_btn_Click(null, null);
+        }
+
+        private void bp1_txt_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                set_bp1_btn_Click(null, null);
+        }
+
+        private void bp0_txt_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                set_bp0_btn_Click(null, null);
+        }
+
+
 
 
 

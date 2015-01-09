@@ -10,7 +10,19 @@
             <TextBlock Margin="4,4,4,0">BP0:</TextBlock>
             <DockPanel LastChildFill="True">
                 <Button Name="set_bp0_btn" DockPanel.Dock="Right"  Margin="0,0,4,4" Click="set_bp0_btn_Click">Set</Button>
-                <TextBox Name="bp0_txt" Margin="4,0,0,4" TabIndex="0" MinWidth="50"></TextBox>
+                <TextBox Name="bp0_txt" Margin="4,0,0,4" TabIndex="0" MinWidth="50" KeyUp="bp0_txt_KeyUp"></TextBox>
+            </DockPanel>
+            <DockPanel LastChildFill="True">
+                <Button Name="set_bp1_btn" DockPanel.Dock="Right"  Margin="0,0,4,4" Click="set_bp1_btn_Click">Set</Button>
+                <TextBox Name="bp1_txt" Margin="4,0,0,4" TabIndex="0" MinWidth="50" KeyUp="bp1_txt_KeyUp"></TextBox>
+            </DockPanel>
+            <DockPanel LastChildFill="True">
+                <Button Name="set_bp2_btn" DockPanel.Dock="Right"  Margin="0,0,4,4" Click="set_bp2_btn_Click">Set</Button>
+                <TextBox Name="bp2_txt" Margin="4,0,0,4" TabIndex="0" MinWidth="50" KeyUp="bp2_txt_KeyUp"></TextBox>
+            </DockPanel>
+            <DockPanel LastChildFill="True">
+                <Button Name="set_bp3_btn" DockPanel.Dock="Right"  Margin="0,0,4,4" Click="set_bp3_btn_Click">Set</Button>
+                <TextBox Name="bp3_txt" Margin="4,0,0,4" TabIndex="0" MinWidth="50" KeyUp="bp3_txt_KeyUp"></TextBox>
             </DockPanel>
             <Button Name="run_btn" Margin="4" Content="Run" Click="run_btn_Click"></Button>
             <Button Name="step_btn" Margin="4" Content="Step" Click="step_btn_Click"></Button>
