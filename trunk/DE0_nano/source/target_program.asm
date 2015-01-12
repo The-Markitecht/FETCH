@@ -21,10 +21,10 @@
         vdefine     anmux_enable_mask       0x0008
             
     alias_both de0nano_adc_ctrl     [incr counter] 
-        vdefine     de0nano_adc_load_mask        0x0008
-    alias_both de0nano_adc_data     [incr counter] 
-        vdefine     de0nano_adc_busy_mask         0x8000
-        vdefine     de0nano_adc_data_mask         0x0fff
+        vdefine     de0nano_adc_csn_mask         0x0004
+        vdefine     de0nano_adc_sck_mask         0x0002
+        vdefine     de0nano_adc_mo_mask          0x0001
+        vdefine     de0nano_adc_mi_mask          0x0001
             
     alias_both av_write_data        [incr counter]
     alias_src  av_read_data	        [incr counter]

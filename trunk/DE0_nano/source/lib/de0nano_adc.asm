@@ -1,17 +1,62 @@
 
+// bit-bang a complete SPI transaction.
+// pass mo data in a, transaction width (# of bits) in b.
+// returns mi data in a
+func spi_exchange
+    // keeping mo data in g6, mi data in g7.
+    g6 = a
+    g7 = 0
+    // keeping bit counter in i.
+    i = b
+    j = -1
+    y = -1
+    :next_bit
+    // output the msb of mo, along with a low clock phase and low csn.
+    a = g6
+    a = a>>1
+    g6 = a
+    a = a>>1
+    a = a>>1
+    a = a>>4
+    a = a>>4
+    de0nano_adc_ctrl = a>>4
+    // wait about 500 ns (for about 1 Mhz sck) assuming 50 MHz sysclk.
+    x = 6
+    :wait1
+    x = x+y
+    bn xz :wait1
+    // output a high clock phase.
+    b = $de0nano_adc_sck_mask
+    de0nano_adc_ctrl = or
+    // sample mi.
+    a = g7
+    a = a<<1
+    b = de0nano_adc_ctrl
+    g7 = or
+    // wait about 500 ns (for about 1 Mhz sck) assuming 50 MHz sysclk.
+    x = 6
+    :wait2
+    x = x+y
+    bn xz :wait2
+    // count bits
+    i = i+j
+    bn iz :next_bit
+    // idle the SPI bus with a high clock phase and high csn.
+    de0nano_adc_ctrl = ($de0nano_adc_csn_mask | $de0nano_adc_sck_mask)
+    a = g7
+    rtn
+
 // pass desired ADC channel in a.
 // returns ADC reading in a.
 func de0nano_adc_read
-    b = $de0nano_adc_load_mask
-    de0nano_adc_ctrl = or
-    b = $de0nano_adc_busy_mask
-    :poll_for_busy
-    a = de0nano_adc_data
-    br and0z :poll_for_busy
-    de0nano_adc_ctrl = 0
-    :poll_for_idle
-    a = de0nano_adc_data
-    bn and0z :poll_for_idle
+    // keeping mo data in g6, mi data in g7.
+    a = a<<4
+    a = a<<4
+    a = a<<1
+    a = a<<1
+    a = a<<1
+    b = 16
+    call :spi_exchange
     rtn
     
 // pass desired anmux channel in a.
