@@ -69,6 +69,34 @@
 { "" "" "" "PLL \"async_pll:async_pll_inst\|altpll:altpll_component\|async_pll_altpll:auto_generated\|pll1\" has parameter compensate_clock set to clock0 but port CLK\[0\] is not connected" {  } {  } 0 15897 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "PLL \"async_pll:async_pll_inst\|altpll:altpll_component\|async_pll_altpll:auto_generated\|pll1\" has parameters clk0_multiply_by and clk0_divide_by specified but port CLK\[0\] is not connected" {  } {  } 0 15899 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Changed operation mode of PLL \"async_pll:async_pll_inst\|altpll:altpll_component\|async_pll_altpll:auto_generated\|pll1\" to No Compensation" {  } {  } 0 15090 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Qsys2.jtag_uart_0: Interrupt sender jtag_uart_0.irq is not connected to an interrupt receiver" {  } {  } 0 12251 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at visor_program_defines.v(11): overriding existing definition for macro \"SR_RSTK\", which was defined in \"source/target_program_defines.v\", line 14" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at visor_program_defines.v(12): overriding existing definition for macro \"DR_RSTK\", which was defined in \"source/target_program_defines.v\", line 15" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at target_program_defines.v(14): overriding existing definition for macro \"SR_RSTK\", which was defined in \"source/target_program_defines.v\", line 14" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at target_program_defines.v(15): overriding existing definition for macro \"DR_RSTK\", which was defined in \"source/target_program_defines.v\", line 15" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL or VHDL warning at visor.v(82): object \"poke_data\" assigned a value but never read" {  } {  } 0 10036 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[31..25\]\" at visor.v(46) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Output port \"tg_poke_data\" at visor.v(33) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Output port \"av_address\" at visor.v(38) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Output port \"av_writedata\" at visor.v(40) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Output port \"av_write\" at visor.v(41) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[31..18\]\" at top.v(104) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"dbg_av_waitrequest\" at top.v(109) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL warning at qsys2_sdram_test_component.v(234): extended using \"x\" or \"z\"" {  } {  } 0 10273 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL warning at qsys2_sdram_test_component.v(235): extended using \"x\" or \"z\"" {  } {  } 0 10273 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"DRAM_CKE\" is stuck at VCC" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"DRAM_DQM\[0\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"DRAM_DQM\[1\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"GPIO_2\[4\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"GPIO_2\[5\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"GPIO_2\[6\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"GPIO_2\[7\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"GPIO_2\[8\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"GPIO_2\[9\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"sld_hub:auto_hub\|receive\[0\]\[0\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "No output dependent on input pin \"reserved\"" {  } {  } 0 15610 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Node: std_reg:de0nano_adc_ctrl_reg\|r\[3\] was determined to be a clock but was found without an associated clock assignment." {  } {  } 0 332060 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Node: ADC_READ:ADC_READ_Inst\|st.st_02 was determined to be a clock but was found without an associated clock assignment." {  } {  } 0 332060 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

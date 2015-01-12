@@ -141,23 +141,25 @@ assign r[`SR_KEYS] = {14'h0, KEY};
 std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, r[`DR_ANMUX_CTRL], r_load_data[3:0], r_load[`DR_ANMUX_CTRL]);
 assign anmux_ctrl = r[`DR_ANMUX_CTRL][3:0];
 
-wire[15:0] de0nadc_ctrl;
-std_reg #(.WIDTH(4)) de0nano_adc_ctrl_reg(sysclk, sysreset, de0nadc_ctrl, r_load_data[3:0], r_load[`DR_DE0NANO_ADC_CTRL]);
-wire de0nadc_done;
-ADC_READ ADC_READ_Inst(
+std_reg #(.WIDTH(4)) de0nano_adc_ctrl_reg(sysclk, sysreset, r[`DR_DE0NANO_ADC_CTRL], r_load_data[3:0], r_load[`DR_DE0NANO_ADC_CTRL]);
+wire de0nadc_load_sync;
+syncer de0nadc_load_syncer(.in(r[`DR_DE0NANO_ADC_CTRL][3]), .out(de0nadc_load_sync), .clk(clk_spi));
+wire de0nadc_busy;
+spi_master #(.WIDTH(16)) adc_read_inst(
 				.clk(clk_spi),		
-				.reset_n( ! sysreset),							
-				.Channel(de0nadc_ctrl[2:0]),			
-				.Data(r[`SR_DE0NANO_ADC_DATA][11:0]),			
-				.Start(de0nadc_ctrl[3]),		
-				.Done(de0nadc_done),							
-				.oDIN(ADC_SADDR),	
-				.oCS_n(ADC_CS_N),	
-				.oSCLK(ADC_SCLK),			
-				.iDOUT(ADC_SDAT)			
+				.reset(sysreset),							
+				.mo_data( {2'b0, r[`DR_DE0NANO_ADC_CTRL][2:0], 11'b0} ),	
+                .mo_load( de0nadc_load_sync ),
+				.mi_data(r[`SR_DE0NANO_ADC_DATA][11:0]),			
+				.busy(de0nadc_busy),							
+				.spi_mo(ADC_SADDR),	
+				.spi_cs(ADC_CS_N),	
+				.spi_sck(ADC_SCLK),			
+				.spi_mi(ADC_SDAT)			
 			);
-assign r[`SR_DE0NANO_ADC_DATA][15:12] = 0;         
-assign r[`DR_DE0NANO_ADC_CTRL] = {11'd0, de0nadc_done, de0nadc_ctrl[3:0]};
+wire de0nadc_busy_sync;
+syncer3 de0nadc_busy_syncer(.in(de0nadc_busy), .out(de0nadc_busy_sync), .in_clk(clk_spi), .out_clk(sysclk));
+assign r[`SR_DE0NANO_ADC_DATA][15:12] = {de0nadc_busy_sync, 3'b0};         
 
 // Avalon MM master.
 // program should always write (or read) the "write data" register last, because accessing it triggers the Avalon transaction.

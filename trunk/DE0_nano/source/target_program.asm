@@ -20,10 +20,11 @@
     alias_both anmux_ctrl           [incr counter] 
         vdefine     anmux_enable_mask       0x0008
             
-    alias_both de0nano_adc_data     [incr counter] 
     alias_both de0nano_adc_ctrl     [incr counter] 
-        vdefine     anmux_start_mask        0x0008
-        vdefine     anmux_done_mask         0x0010
+        vdefine     de0nano_adc_load_mask        0x0008
+    alias_both de0nano_adc_data     [incr counter] 
+        vdefine     de0nano_adc_busy_mask         0x8000
+        vdefine     de0nano_adc_data_mask         0x0fff
             
     alias_both av_write_data        [incr counter]
     alias_src  av_read_data	        [incr counter]
@@ -82,29 +83,30 @@
     a = 0
     call :anmux_read_chn
     call :put4x
+    a = 500
+    call :spinwait
     
     // unit 1 (shoddy built sensor)
+    putasc " "
     putasc "b"
     putasc "="
     a = 1
     call :anmux_read_chn
     call :put4x
+    a = 500
+    call :spinwait
 
     // dead channel
+    putasc " "
     putasc "n"
     putasc "="
     a = 2
     call :anmux_read_chn
     call :put4x
+    a = 500
+    call :spinwait
     
-// pass desired anmux channel in a.
-// return ADC reading in a.
-func anmux_read_chn
-    // set & enable analog muxer
-    b = $anmux_enable_mask
-    anmux_ctrl = or
-
-    // read ADC channel 7.  12 bits resolution.
-    a = 7
-    call :de0nano_adc_read
-    rtn
+    puteol
+    a = 1000
+    call :spinwait
+    jmp :main
