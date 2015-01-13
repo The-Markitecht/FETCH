@@ -76,7 +76,119 @@
     
     // ////////////////////////////////////////////
     :main
+    puteol
+    a = 0
+    call :muxtrans
+    putasc " "
+    a = 1
+    call :muxtrans
+    putasc " "
+    a = 2
+    call :muxtrans
+// typical output:  0=7=0000010010101010 1=7=0000010010110100 2=7=0000111111111110    
+    
+    jmp :main
 
+// pass anmux channel in a    
+func muxtrans
+    de0nano_adc_ctrl = ($de0nano_adc_csn_mask | $de0nano_adc_sck_mask)
+    b = $anmux_enable_mask
+    anmux_ctrl = or    
+    asc b = "0"
+    putchar a+b
+    putasc "="
+    // wait for muxer & current driver to settle down.  some delay here is absolutely required (per testing).
+    a = 10
+    call :spinwait
+    a = 7
+    call :trans
+    rtn
+    
+// pass ADC channel in a    
+func trans
+    g6 = a
+    a = 0
+    call :outbit    
+    a = 0
+    call :outbit    
+    a = g6
+    a = a>>1
+    a = a>>1
+    b = 1
+    a = and
+    call :outbit    
+    a = g6
+    a = a>>1
+    b = 1
+    a = and
+    call :outbit    
+    a = g6
+    b = 1
+    a = and
+    call :outbit    
+    
+    // this should be 11 but seems to input a fixed 1-bit after the initial four 0-bits.
+    i = 12
+    j = -1
+    :next_bit
+    av_ad_hi = 0
+    a = i
+    av_ad_lo = a<<1
+    a = 0
+    call :outbit    
+    av_write_data = a
+    // count bits    
+    i = i+j
+    bn iz :next_bit    
+    de0nano_adc_ctrl = ($de0nano_adc_csn_mask | $de0nano_adc_sck_mask)
+    
+    // report
+    a = g6
+    asc b = "0"
+    putchar a+b
+    putasc "="
+    i = 16
+    j = -1
+    :next_report
+    av_ad_hi = 0
+    a = i
+    av_ad_lo = a<<1
+    a = av_write_data
+    a = av_read_data
+    asc b = "0"
+    putchar a+b
+    a = 50
+    call :spinwait
+    i = i+j
+    bn iz :next_report    
+    
+    rtn
+    
+// pass mo bit in a
+// returns mi bit in a
+func outbit
+    // output the msb of mo, along with a low clock phase and low csn.
+    g6 = a
+    de0nano_adc_ctrl = g6
+    x = 60
+    :wait1
+    x = x+y
+    bn xz :wait1
+    // output a high clock phase.
+    a = g6
+    b = $de0nano_adc_sck_mask
+    de0nano_adc_ctrl = or
+    // sample mi.
+    a = de0nano_adc_ctrl    
+    // wait about 500 ns (for about 1 Mhz sck) assuming 50 MHz sysclk.
+    x = 60
+    :wait2
+    x = x+y
+    bn xz :wait2
+    rtn
+    
+    
+    
     // unit 2 (better built sensor)
     putasc "g"
     putasc "="
