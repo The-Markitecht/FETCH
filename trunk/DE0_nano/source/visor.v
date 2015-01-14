@@ -19,6 +19,8 @@ module visor (
     
     ,input wire                       mcu_wait
     
+    ,input wire                       boot_break
+    
     // signals to & from the target MCU.
     ,input wire[15:0]                 tg_code_addr
     ,output wire[15:0]                tg_code_in
@@ -104,15 +106,17 @@ assign r[`SR_PEEK_DATA] = tg_peek_data;
 // irregular sized inputs.
 //assign r[`SR_TG_DEBUG_OUT][`DEBUG_OUT_WIDTH-1:0] = tg_debug_out;
 assign r[`SR_BP_STATUS] = {15'h0, bp_hit}; 
+assign r[`SR_BOOT_BREAK] = {15'h0, boot_break}; 
 
 // debugger logic
 wire tg_debug_loading_exr = tg_debug_out[1];
 wire tg_debug_enable_exec = tg_debug_out[0];
+wire program_break = tg_debug_out[6];
 wire bp_matched_comb =   tg_code_addr == r[`DR_BP0_ADDR] 
                       || tg_code_addr == r[`DR_BP1_ADDR] 
                       || tg_code_addr == r[`DR_BP2_ADDR] 
                       || tg_code_addr == r[`DR_BP3_ADDR]
-                      || bp_step;
+                      || bp_step || program_break;
 wire bp_load_comb =    r_load[`DR_BP0_ADDR] 
                     || r_load[`DR_BP1_ADDR] 
                     || r_load[`DR_BP2_ADDR] 

@@ -97,6 +97,9 @@
 { "" "" "" "No output dependent on input pin \"reserved\"" {  } {  } 0 15610 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Node: std_reg:de0nano_adc_ctrl_reg\|r\[3\] was determined to be a clock but was found without an associated clock assignment." {  } {  } 0 332060 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Node: ADC_READ:ADC_READ_Inst\|st.st_02 was determined to be a clock but was found without an associated clock assignment." {  } {  } 0 332060 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[31..17\]\" at top.v(87) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Output port \"GPIO_2\[5..4\]\" at top.v(48) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[31..26\]\" at visor.v(48) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

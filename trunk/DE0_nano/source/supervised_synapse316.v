@@ -11,6 +11,8 @@ module supervised_synapse316 (
     
     ,input wire                       mcu_wait
     
+    ,input wire                       boot_break
+    
     // register file, for any combination of general-purpose registers and i/o addressing.
     // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
     ,input wire[15:0]                 r[`TOP_REG:0]
@@ -76,6 +78,7 @@ visor visr(
     // ,.rom_code_in     (mcu_wait ? 16'hffff : rom_code_in)
     // ,.rom_code_ready  (rom_code_ready && ! mcu_wait)
     ,.mcu_wait        (mcu_wait      )
+    ,.boot_break      (boot_break    )
     ,.tg_code_addr    (tg_code_addr  )
     ,.tg_code_in      (tg_code_in    )
     ,.tg_code_ready   (tg_code_ready )

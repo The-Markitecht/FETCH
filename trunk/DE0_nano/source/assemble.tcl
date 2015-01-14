@@ -29,6 +29,7 @@ set ::adest [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     setf    0x31    \
     nop     0x32    \
     fetcha  0x34    \
+    breakpt 0x35    \
     br      0x38    \
     bn      0x39    \
     rtna    0x3e    \

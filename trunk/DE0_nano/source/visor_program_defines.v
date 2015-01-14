@@ -45,6 +45,7 @@
 `define SR_TG_CODE_ADDR  22
 `define SR_PEEK_DATA  23
 `define SR_BP_STATUS  24
+`define SR_BOOT_BREAK  25
 `define ATX_LOAD_MASK  1
 `define ATX_BUSY_MASK  2
 `define ARX_BUSY_MASK  4

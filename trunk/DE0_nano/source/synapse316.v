@@ -117,6 +117,7 @@ module synapse316 #(
     wire clrf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h30);
     wire setf_operator          = muxa_do_copy && (muxa_dest_addr == 6'h31);
     wire random_fetch_operator  = muxa_do_copy && (muxa_dest_addr == 6'h34); // this indicates a 16-bit value should be read from the program with random access.
+    wire program_break_operator = muxa_do_copy && (muxa_dest_addr == 6'h35);
     wire br_operator            = muxa_do_copy && (muxa_dest_addr == 6'h38);
     wire bn_operator            = muxa_do_copy && (muxa_dest_addr == 6'h39);
     wire muxa_dest_return_addr  = muxa_do_copy && (muxa_dest_addr == 6'h3e);
@@ -180,8 +181,8 @@ module synapse316 #(
     end    
     
     // debugger output flattener.
-    assign debug_out = {branching_cycle, const16cycle1, random_fetch_cycle1, 
-        random_fetch_cycle2, load_exr, enable_exec};
+    assign debug_out = {program_break_operator, branching_cycle, const16cycle1, 
+        random_fetch_cycle1, random_fetch_cycle2, load_exr, enable_exec};
     
     // plumbing for register file r.  for operands, general use, and i/o.
     // registers r0 and r1 are the operands for ad0 and certain other binary operators.

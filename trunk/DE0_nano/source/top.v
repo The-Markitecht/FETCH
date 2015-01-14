@@ -1,24 +1,12 @@
 `include "header.v"
 
 module top (
-
-//patch:
-//output[15:0] out0,
-//output[15:0] out1,
-
-    //////////// CLOCK //////////
     input wire 		          		clk50m,
 
-    //////////// LED //////////
-    output wire		     [7:0]		LED,
-
-    //////////// KEY //////////
-    input wire 		     [1:0]		KEY,
-
-    // //////////// SW //////////
+    output wire		     [7:0]		LED, // active HIGH
+    input wire 		     [1:0]		KEY, // active LOW
     // input 		     [3:0]		SW,
 
-    //////////// SDRAM //////////
     output wire		    [12:0]		DRAM_ADDR,
     output wire		     [1:0]		DRAM_BA,
     output wire		          		DRAM_CAS_N,
@@ -30,7 +18,6 @@ module top (
     output wire		          		DRAM_RAS_N,
     output wire		          		DRAM_WE_N,
 
-    // //////////// EPCS //////////
     // output wire		          		EPCS_ASDO,
     // input wire 		          		EPCS_DATA0,
     // output wire		          		EPCS_DCLK,
@@ -42,24 +29,20 @@ module top (
     // output wire		          		I2C_SCLK,
     // inout wire 		          		I2C_SDAT,
 
-    //////////// ADC //////////
     output wire		          		ADC_CS_N,
     output wire		          		ADC_SADDR,
     output wire		          		ADC_SCLK,
     input wire 		          		ADC_SDAT,
 
-    //////////// 2x13 GPIO Header //////////
     input wire                          reserved,
     output wire                         async_tx_line,
     input wire                          async_rx_line,
     output wire 		    [9:0]		GPIO_2
     //input wire 		     [2:0]		GPIO_2_IN
 
-    // //////////// GPIO_0, GPIO_0 connect to GPIO Default //////////
     // inout wire 		    [33:0]		g0,
     // input wire 		     [1:0]		g0_IN,
 
-    // //////////// GPIO_1, GPIO_1 connect to GPIO Default //////////
     // inout wire 		    [33:0]		g1,
     // input wire 		     [1:0]		g1_IN
 );
@@ -116,6 +99,7 @@ supervised_synapse316 supmcu(
     .clk_progmem     (clk_progmem),
     .clk_async       (clk_async),
     .mcu_wait        (mcu_wait),
+    .boot_break      (KEY[0]), // KEY is active LOW.  so press KEY 0 (low) to avoid breaking & directly run the target program.
     .r               (r),
     .r_read          (r_read),
     .r_load          (r_load),

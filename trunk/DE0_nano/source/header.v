@@ -17,7 +17,7 @@
 // those have been moved to the assembly program for each core, and from there auto-generated into a _defines.v file.
 
 `define DEBUG_IN_WIDTH          3
-`define DEBUG_OUT_WIDTH         6
+`define DEBUG_OUT_WIDTH         7
 `define DEBUG_PEEK_REG          `TOP_REG
 // `define DEBUG_POKE_REG       `TOP_REG - 1   
 

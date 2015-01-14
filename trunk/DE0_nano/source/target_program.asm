@@ -82,6 +82,7 @@
     y = 1
     
     :next_pass
+    leds = x
     a = x
     call :put4x 
     putasc ":"

@@ -45,6 +45,7 @@
     alias_src  peek_data        [incr counter]
     //alias_src  tg_debug_out	    [incr counter]
     alias_src  bp_status	    [incr counter]
+    alias_src  boot_break       [incr counter]
 
     convention_gpx
     
@@ -66,38 +67,24 @@
     bp1_addr = $bp_disable
     bp0_addr = $bp_disable
 
+    // startup message
+    puteol
     putasc "V"
     putasc "I"
     putasc "S"
     putasc "O"
     putasc "R"
     
-    //call :load_program
-    
+    // check for bootloader signal.
+    a = boot_break
+    br az :boot_run
     // step into the first target instruction.
     bus_ctrl = $bp_step_mask
     call :wait_for_bp
-
-// :runagain
-// // release target reset, to run.
-// bus_ctrl = 0   
-// bp0_addr = bp0_addr
-// a = 1000
-// call :spinwait
-// bus_ctrl = $bp_step_mask
-// call :wait_for_bp
-// call :dump_target
-// a = tg_code_addr
-// call :put4x
-// putasc ","
-// a = exr_shadow
-// call :put4x
-// putasc " "
-// putasc ">"
-// getchar
-// a = 1000
-// call :spinwait
-// jmp :runagain
+    jmp :cmd_loop
+    // release target reset, to run.
+    :boot_run
+    bus_ctrl = 0   
 
     // command prompt loop.
     :cmd_loop
@@ -170,15 +157,6 @@
     bp0_addr = bp0_addr
     jmp :cmd_loop
     :skip_run
-
-    // // command = interrupt / break target.
-    // asc b = "i"
-    // bn eq :skip_brk
-    // bus_ctrl = 0   
-    // bus_ctrl = $bp_step_mask
-    // call :wait_for_bp
-    // jmp :cmd_loop
-    // :skip_brk
 
     // command = set breakpoint.
     asc b = "b"
