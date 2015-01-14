@@ -33,13 +33,6 @@ func spi_exchange
     a = a<<1
     b = de0nano_adc_ctrl
     g7 = or
-    
-av_ad_hi = 0
-a = i
-av_ad_lo = a<<1
-av_write_data = de0nano_adc_ctrl
-    
-    
     // wait about 500 ns (for about 1 Mhz sck) assuming 50 MHz sysclk.
     x = 6
     :wait2
@@ -59,23 +52,6 @@ av_write_data = de0nano_adc_ctrl
     :wait3
     x = x+y
     bn xz :wait3
-    
-// report
-i = 16
-j = -1
-:next_report
-av_ad_hi = 0
-a = i
-av_ad_lo = a<<1
-a = av_write_data
-a = av_read_data
-asc b = "0"
-putchar a+b
-i = i+j
-bn iz :next_report    
-putasc ","
-    
-    
     a = g7
     rtn
 

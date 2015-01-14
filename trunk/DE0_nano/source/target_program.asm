@@ -76,126 +76,20 @@
     
     // ////////////////////////////////////////////
     :main
-    jmp :oldmain
     
-    puteol
-    a = 0
-    call :muxtrans
+    // pass counter in x.
+    x = 0
+    y = 1
+    
+    :next_pass
+    a = x
+    call :put4x 
+    putasc ":"
     putasc " "
-    a = 1
-    call :muxtrans
-    putasc " "
-    a = 2
-    call :muxtrans
-// typical output:  0=7=0000010010101010 1=7=0000010010110100 2=7=0000111111111110    
     
-    a = 1000
-    call :spinwait
-    
-    jmp :main
-
-// pass anmux channel in a    
-func muxtrans
-    de0nano_adc_ctrl = ($de0nano_adc_csn_mask | $de0nano_adc_sck_mask)
-    b = $anmux_enable_mask
-    anmux_ctrl = or    
-    asc b = "0"
-    putchar a+b
-    putasc "="
-    // wait for muxer & current driver to settle down.  some delay here is absolutely required (per testing).
-    a = 10
-    call :spinwait
-    a = 7
-    call :trans
-    rtn
-    
-// pass ADC channel in a    
-func trans
-    g6 = a
-    a = 0
-    call :outbit    
-    a = 0
-    call :outbit    
-    a = g6
-    a = a>>1
-    a = a>>1
-    b = 1
-    a = and
-    call :outbit    
-    a = g6
-    a = a>>1
-    b = 1
-    a = and
-    call :outbit    
-    a = g6
-    b = 1
-    a = and
-    call :outbit    
-    
-    // this should be 11 but seems to input a fixed 1-bit after the initial four 0-bits.
-    i = 12
-    j = -1
-    :next_bit
-    av_ad_hi = 0
-    a = i
-    av_ad_lo = a<<1
-    a = 0
-    call :outbit    
-    av_write_data = a
-    // count bits    
-    i = i+j
-    bn iz :next_bit    
-    de0nano_adc_ctrl = ($de0nano_adc_csn_mask | $de0nano_adc_sck_mask)
-    
-    // report
-    a = g6
-    asc b = "0"
-    putchar a+b
-    putasc "="
-    i = 12
-    j = -1
-    :next_report
-    av_ad_hi = 0
-    a = i
-    av_ad_lo = a<<1
-    a = av_write_data
-    a = av_read_data
-    asc b = "0"
-    putchar a+b
-    i = i+j
-    bn iz :next_report    
-    
-    rtn
-    
-// pass mo bit in a
-// returns mi bit in a
-func outbit
-    // output the msb of mo, along with a low clock phase and low csn.
-    g6 = a
-    y = -1
-    de0nano_adc_ctrl = g6
-    x = 6
-    :wait1
-    x = x+y
-    bn xz :wait1
-    // output a high clock phase.
-    a = g6
-    b = $de0nano_adc_sck_mask
-    de0nano_adc_ctrl = or
-    // sample mi.
-    a = de0nano_adc_ctrl    
-    // wait about 500 ns (for about 1 Mhz sck) assuming 50 MHz sysclk.
-    x = 6
-    :wait2
-    x = x+y
-    bn xz :wait2
-    rtn
-    
-func ""    
-    
-:oldmain    
     // unit 2 (better built sensor)
-    putasc "g"
+    putasc "s"
+    putasc "2"
     putasc "="
     a = 0
     call :anmux_read_chn
@@ -203,7 +97,8 @@ func ""
     
     // unit 1 (shoddy built sensor)
     putasc " "
-    putasc "b"
+    putasc "s"
+    putasc "1"
     putasc "="
     a = 1
     call :anmux_read_chn
@@ -211,7 +106,9 @@ func ""
 
     // dead channel
     putasc " "
-    putasc "n"
+    putasc "r"
+    putasc "e"
+    putasc "f"
     putasc "="
     a = 2
     call :anmux_read_chn
@@ -220,4 +117,6 @@ func ""
     puteol
     a = 1000
     call :spinwait
-    jmp :main
+    
+    x = x+y
+    jmp :next_pass
