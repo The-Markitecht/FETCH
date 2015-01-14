@@ -5,11 +5,8 @@ setvar console_driver jtag
 
 <<
     proc putchar_jtag {lin reg} {
-        parse3 av_ad_hi = $::asm::jtag_uart_data_lsw_hi $lin
-        parse3 av_ad_lo = $::asm::jtag_uart_data_lsw_lo \"
-        parse3 av_write_data = $reg \"
-        # parse3 a = 100 \"
-        # call \" :spinwait
+        parse3 b = $reg $lin
+        call \" :putchar_jtag_func
     }
 
     proc getchar_jtag {lin} {
@@ -26,6 +23,18 @@ setvar console_driver jtag
     }
     
 >>
+
+func putchar_jtag_func
+    av_ad_hi = $jtag_uart_ctrl_msw_hi 
+    av_ad_lo = $jtag_uart_ctrl_msw_lo 
+    :poll_fifo
+    a = av_write_data
+    a = av_read_data
+    br az :poll_fifo
+    //av_ad_hi = $jtag_uart_data_lsw_hi 
+    av_ad_lo = $jtag_uart_data_lsw_lo 
+    av_write_data = b
+    rtn
 
 func getchar_jtag_func
     b = 0x8000

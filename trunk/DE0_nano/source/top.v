@@ -147,6 +147,10 @@ assign r[`DR_DE0NANO_ADC_CTRL] = {15'b0, ADC_SDAT};
 assign ADC_CS_N =  de0nadc_ctrl[2];
 assign ADC_SCLK =  de0nadc_ctrl[1];
 assign ADC_SADDR = de0nadc_ctrl[0];
+assign GPIO_2[9] = ADC_SCLK;
+assign GPIO_2[8] = ADC_CS_N;
+assign GPIO_2[7] = ADC_SADDR;
+assign GPIO_2[6] = ADC_SDAT;
 
 // Avalon MM master.
 // program should always write (or read) the "write data" register last, because accessing it triggers the Avalon transaction.

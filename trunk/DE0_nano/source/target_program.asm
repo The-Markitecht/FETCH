@@ -76,6 +76,8 @@
     
     // ////////////////////////////////////////////
     :main
+    jmp :oldmain
+    
     puteol
     a = 0
     call :muxtrans
@@ -86,6 +88,9 @@
     a = 2
     call :muxtrans
 // typical output:  0=7=0000010010101010 1=7=0000010010110100 2=7=0000111111111110    
+    
+    a = 1000
+    call :spinwait
     
     jmp :main
 
@@ -147,7 +152,7 @@ func trans
     asc b = "0"
     putchar a+b
     putasc "="
-    i = 16
+    i = 12
     j = -1
     :next_report
     av_ad_hi = 0
@@ -157,8 +162,6 @@ func trans
     a = av_read_data
     asc b = "0"
     putchar a+b
-    a = 50
-    call :spinwait
     i = i+j
     bn iz :next_report    
     
@@ -169,8 +172,9 @@ func trans
 func outbit
     // output the msb of mo, along with a low clock phase and low csn.
     g6 = a
+    y = -1
     de0nano_adc_ctrl = g6
-    x = 60
+    x = 6
     :wait1
     x = x+y
     bn xz :wait1
@@ -181,22 +185,21 @@ func outbit
     // sample mi.
     a = de0nano_adc_ctrl    
     // wait about 500 ns (for about 1 Mhz sck) assuming 50 MHz sysclk.
-    x = 60
+    x = 6
     :wait2
     x = x+y
     bn xz :wait2
     rtn
     
+func ""    
     
-    
+:oldmain    
     // unit 2 (better built sensor)
     putasc "g"
     putasc "="
     a = 0
     call :anmux_read_chn
     call :put4x
-    a = 500
-    call :spinwait
     
     // unit 1 (shoddy built sensor)
     putasc " "
@@ -205,8 +208,6 @@ func outbit
     a = 1
     call :anmux_read_chn
     call :put4x
-    a = 500
-    call :spinwait
 
     // dead channel
     putasc " "
@@ -215,8 +216,6 @@ func outbit
     a = 2
     call :anmux_read_chn
     call :put4x
-    a = 500
-    call :spinwait
     
     puteol
     a = 1000
