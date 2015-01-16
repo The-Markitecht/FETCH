@@ -34,12 +34,6 @@ module visor (
     // visor async interface.
     ,input wire                       async_rx_line
     ,output wire                      async_tx_line
-    
-    // Avalon MM master
-    ,output wire[15:0]                av_address
-    ,input wire                       av_waitrequest
-    ,output wire[15:0]                av_writedata
-    ,output wire                      av_write
 );
 
 // supervisor Synapse 316 with its own code ROM.  totally independent of the target MCU.
@@ -82,6 +76,7 @@ stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[
 std_reg output_reg[5:0](sysclk, sysreset, r[`DR_POKE_DATA:`DR_BP0_ADDR], r_load_data, r_load[`DR_POKE_DATA:`DR_BP0_ADDR]);
 wire[15:0] force_opcode         = r[`DR_FORCE_OPCODE];
 wire[15:0] poke_data            = r[`DR_POKE_DATA];
+assign tg_poke_data = 0;
 
 // irregular sized outputs.
 reg bp_hit = 0;

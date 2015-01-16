@@ -100,6 +100,13 @@
 { "" "" "" "Net \"r\[31..17\]\" at top.v(87) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Output port \"GPIO_2\[5..4\]\" at top.v(48) has no driver" {  } {  } 0 10034 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Net \"r\[31..26\]\" at visor.v(48) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Ignoring some wildcard destinations of fast I/O register assignments" {  } {  } 0 176251 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Ignoring invalid fast I/O register assignments. See the Ignored Assignments panel in the Fitter Compilation Report for more information." {  } {  } 0 176250 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Qsys2.generic_master_1.m0/jtag_uart_0.avalon_jtag_slave: jtag_uart_0.avalon_jtag_slave does not have byteenables. Writes from narrow master generic_master_1.m0 may result in data corruption." {  } {  } 0 12251 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[31..17\]\" at top.v(85) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[31..26\]\" at visor.v(42) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL or VHDL warning at visor.v(78): object \"poke_data\" assigned a value but never read" {  } {  } 0 10036 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "PLL \"async_pll:async_pll_inst\|altpll:altpll_component\|async_pll_altpll:auto_generated\|pll1\" output port clk\[2\] feeds output pin \"DRAM_CLK~output\" via non-dedicated routing -- jitter performance depends on switching rate of other design elements. Use PLL dedicated clock outputs to ensure jitter performance" {  } {  } 0 15064 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

@@ -23,13 +23,6 @@ module supervised_synapse316 (
     // visor async interface.
     ,input wire                       dbg_async_rx_line
     ,output wire                      dbg_async_tx_line
-    
-    // Avalon MM master
-    ,output wire[15:0]                dbg_av_address
-    ,input wire                       dbg_av_waitrequest
-    ,output wire[15:0]                dbg_av_writedata
-    ,output wire                      dbg_av_write
-    
 ); 
 
 // Synapse316 with code ROM.
@@ -89,10 +82,6 @@ visor visr(
     ,.tg_poke_data    ()
     ,.async_rx_line   (dbg_async_rx_line)
     ,.async_tx_line   (dbg_async_tx_line)
-    ,.av_address      (dbg_av_address     )
-    ,.av_waitrequest  (dbg_av_waitrequest )
-    ,.av_writedata    (dbg_av_writedata   )
-    ,.av_write        (dbg_av_write       )    
 );
 
 endmodule

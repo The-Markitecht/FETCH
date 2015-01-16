@@ -50,6 +50,11 @@ derive_clock_uncertainty
 # Set False Path
 #**************************************************************
 
+# i think this is ineffective.
+#set_false_path -from [get_clocks clk50m] -to [get_clocks clk_async]
+# this works OK i think.
+set_false_path -from [get_clocks clk50m] -to [get_clocks {async_pll_inst|altpll_component|auto_generated|pll1|clk[0]}]
+set_false_path -from [get_clocks {async_pll_inst|altpll_component|auto_generated|pll1|clk[0]}] -to [get_clocks clk50m]
 
 
 #**************************************************************

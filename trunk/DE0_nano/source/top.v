@@ -54,14 +54,12 @@ wire sysclk = clk50m;
 wire clk_async; // PLL output for UARTs.  4x desired bit rate.  460,800 hz for 115,200 bps.   38,400 hz for 9,600 bps.
 wire clk_progmem; // PLL output for MCU program memory.  doubled relative to sysclk.  posedge aligned ( = 0 degree phase).
 wire clk_sdram; // PLL output for SDRAM chip.  doubled relative to sysclk.  -60 degree phase.
-wire clk_spi; // PLL output for SPI bus.  2 Mhz.
 wire async_pll_lock;
 async_pll async_pll_inst (
     .inclk0 ( sysclk ),
     .c0 ( clk_async ),
     .c1 ( clk_progmem ),
     .c2 ( clk_sdram ),
-    .c3 ( clk_spi ),
     .locked ( async_pll_lock )
 );
 reg rst0 = 1, rst1 = 1, rst2 = 1;
@@ -88,10 +86,6 @@ wire[15:0]                r[`TOP_REG:0];
 wire[`TOP_REG:0]          r_read;  
 wire[`TOP_REG:0]          r_load;
 wire[15:0]                r_load_data;  
-wire[15:0]                dbg_av_address;
-wire                      dbg_av_waitrequest;
-wire[15:0]                dbg_av_writedata;
-wire                      dbg_av_write;
 wire                      mcu_wait;
 supervised_synapse316 supmcu(
     .sysclk          (sysclk      ) ,
@@ -105,11 +99,7 @@ supervised_synapse316 supmcu(
     .r_load          (r_load),
     .r_load_data     (r_load_data),
     .dbg_async_rx_line   (async_rx_line),
-    .dbg_async_tx_line   (async_tx_line),
-    .dbg_av_address      (dbg_av_address),
-    .dbg_av_waitrequest  (dbg_av_waitrequest),
-    .dbg_av_writedata    (dbg_av_writedata),
-    .dbg_av_write        (dbg_av_write)
+    .dbg_async_tx_line   (async_tx_line)
 );    
 
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
