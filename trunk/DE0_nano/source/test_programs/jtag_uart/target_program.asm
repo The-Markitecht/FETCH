@@ -37,9 +37,18 @@
         // - all addresses are BYTE addresses.  all must be divisible by 2, because this
         // system only supports 16-bit word accesses.  writes to an odd-numbered address
         // will be forced to the word boundary instead, overwriting data there.
-
-    alias_both atx_data             [incr counter] 
-    alias_both atx_ctrl             [incr counter] 
+        vdefine32 jtag_uart_base             0x02000000
+        vdefine32 jtag_uart_data_lsw ($jtag_uart_base + 0)
+        vdefine32 jtag_uart_data_msw ($jtag_uart_base + 2)
+        vdefine32 jtag_uart_ctrl_lsw ($jtag_uart_base + 4)
+        vdefine32 jtag_uart_ctrl_msw ($jtag_uart_base + 6)
+        // JTAG UART notes:
+        // - on read, program MUST test bit 15 of jtag_uart_data_lsw.  jtag uart continues to
+        // report the same data byte on subsequent reads when no further data has arrived.
+        // bit 15 RVALID = 1 is the only indication of proper data.
+        // - reading jtag_uart_data_msw also counts as a FIFO read, causing loss of a data byte,
+        // probably because jtag uart has no byteenable wires.
+        // - on write, the data is lost if the write FIFO is full.  Avalon is not stalled.
         
     convention_gpx
     
@@ -60,7 +69,7 @@
     
     // libraries
     include lib/string.asm
-    include lib/my_uart_v2.asm
+    include lib/jtag_uart.asm
     include lib/console.asm
     include lib/time.asm
     include lib/de0nano_adc.asm

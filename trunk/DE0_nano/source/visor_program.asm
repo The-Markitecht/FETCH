@@ -76,8 +76,11 @@
     putasc "R"
     
     // check for bootloader signal.
-    a = boot_break
-    br az :boot_run
+    a = boot_break    
+    bn az :boot_run
+    // ^^^ for press-to-debug; runs target by default.
+    // br az :boot_run
+    // ^^^ for press-to-run; debugs target by default.
     // step into the first target instruction.
     bus_ctrl = $bp_step_mask
     call :wait_for_bp

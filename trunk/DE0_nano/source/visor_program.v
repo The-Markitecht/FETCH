@@ -384,548 +384,551 @@ addr == 16'h104 ? 16'hfc00 :  // <0076> "
 
 // check for bootloader signal.
 addr == 16'h105 ? 16'h0019 :  // <0079> a = boot_break
-addr == 16'h106 ? 16'he000 :  // <0080> br az :boot_run
+addr == 16'h106 ? 16'he400 :  // <0080> bn az :boot_run
 addr == 16'h107 ? 16'h010e :  // <0080> "
+// ^^^ for press-to-debug; runs target by default.
+// br az :boot_run
+// ^^^ for press-to-run; debugs target by default.
 // step into the first target instruction.
-addr == 16'h108 ? 16'h3e08 :  // <0082> bus_ctrl = $bp_step_mask
-addr == 16'h109 ? 16'hfba0 :  // <0083> call :wait_for_bp
-addr == 16'h10a ? 16'h01be :  // <0083> "
-addr == 16'h10b ? 16'hfc00 :  // <0083> "
-addr == 16'h10c ? 16'he00f :  // <0084> jmp :cmd_loop
-addr == 16'h10d ? 16'h010f :  // <0084> "
+addr == 16'h108 ? 16'h3e08 :  // <0085> bus_ctrl = $bp_step_mask
+addr == 16'h109 ? 16'hfba0 :  // <0086> call :wait_for_bp
+addr == 16'h10a ? 16'h01be :  // <0086> "
+addr == 16'h10b ? 16'hfc00 :  // <0086> "
+addr == 16'h10c ? 16'he00f :  // <0087> jmp :cmd_loop
+addr == 16'h10d ? 16'h010f :  // <0087> "
 // release target reset, to run.
 // :boot_run // = 0x010e
-addr == 16'h10e ? 16'h3e00 :  // <0087> bus_ctrl = 0
+addr == 16'h10e ? 16'h3e00 :  // <0090> bus_ctrl = 0
 
 // command prompt loop.
 // :cmd_loop // = 0x010f
-addr == 16'h10f ? 16'h000f :  // <0091> a = bus_ctrl
-addr == 16'h110 ? 16'h0600 :  // <0092> b = 0
-addr == 16'h111 ? 16'he007 :  // <0093> br eq :running_prompt
-addr == 16'h112 ? 16'h0138 :  // <0093> "
+addr == 16'h10f ? 16'h000f :  // <0094> a = bus_ctrl
+addr == 16'h110 ? 16'h0600 :  // <0095> b = 0
+addr == 16'h111 ? 16'he007 :  // <0096> br eq :running_prompt
+addr == 16'h112 ? 16'h0138 :  // <0096> "
 
-addr == 16'h113 ? 16'hfba0 :  // <0095> call :dump_target
-addr == 16'h114 ? 16'h0285 :  // <0095> "
-addr == 16'h115 ? 16'hfc00 :  // <0095> "
-addr == 16'h116 ? 16'h0016 :  // <0096> a = tg_code_addr
-addr == 16'h117 ? 16'hfba0 :  // <0097> call :put4x
-addr == 16'h118 ? 16'h005d :  // <0097> "
-addr == 16'h119 ? 16'hfc00 :  // <0097> "
-addr == 16'h11a ? 16'h022c :  // <0098> a = 44 // putasc ","
-addr == 16'h11b ? 16'h0000 :  // <0098> a = a // putasc ","
-addr == 16'h11c ? 16'hfba0 :  // <0098> putasc ","
-addr == 16'h11d ? 16'h0032 :  // <0098> "
-addr == 16'h11e ? 16'hfc00 :  // <0098> "
-addr == 16'h11f ? 16'h0015 :  // <0099> a = exr_shadow
-addr == 16'h120 ? 16'hfba0 :  // <0100> call :put4x
-addr == 16'h121 ? 16'h005d :  // <0100> "
-addr == 16'h122 ? 16'hfc00 :  // <0100> "
-addr == 16'h123 ? 16'h0220 :  // <0101> a = 32 // putasc " "
-addr == 16'h124 ? 16'h0000 :  // <0101> a = a // putasc " "
-addr == 16'h125 ? 16'hfba0 :  // <0101> putasc " "
-addr == 16'h126 ? 16'h0032 :  // <0101> "
-addr == 16'h127 ? 16'hfc00 :  // <0101> "
-addr == 16'h128 ? 16'h023e :  // <0102> a = 62 // putasc ">"
-addr == 16'h129 ? 16'h0000 :  // <0102> a = a // putasc ">"
-addr == 16'h12a ? 16'hfba0 :  // <0102> putasc ">"
-addr == 16'h12b ? 16'h0032 :  // <0102> "
-addr == 16'h12c ? 16'hfc00 :  // <0102> "
-addr == 16'h12d ? 16'hfba0 :  // <0103> getchar
-addr == 16'h12e ? 16'h0041 :  // <0103> "
-addr == 16'h12f ? 16'hfc00 :  // <0103> "
-addr == 16'h130 ? 16'h2000 :  // <0103> push a // "
-addr == 16'h131 ? 16'h0000 :  // <0103> a = a // "
-addr == 16'h132 ? 16'hfba0 :  // <0103> "
-addr == 16'h133 ? 16'h0032 :  // <0103> "
-addr == 16'h134 ? 16'hfc00 :  // <0103> "
-addr == 16'h135 ? 16'h0008 :  // <0103> pop a // "
-addr == 16'h136 ? 16'he00f :  // <0104> jmp :parse_cmd
-addr == 16'h137 ? 16'h0167 :  // <0104> "
+addr == 16'h113 ? 16'hfba0 :  // <0098> call :dump_target
+addr == 16'h114 ? 16'h0285 :  // <0098> "
+addr == 16'h115 ? 16'hfc00 :  // <0098> "
+addr == 16'h116 ? 16'h0016 :  // <0099> a = tg_code_addr
+addr == 16'h117 ? 16'hfba0 :  // <0100> call :put4x
+addr == 16'h118 ? 16'h005d :  // <0100> "
+addr == 16'h119 ? 16'hfc00 :  // <0100> "
+addr == 16'h11a ? 16'h022c :  // <0101> a = 44 // putasc ","
+addr == 16'h11b ? 16'h0000 :  // <0101> a = a // putasc ","
+addr == 16'h11c ? 16'hfba0 :  // <0101> putasc ","
+addr == 16'h11d ? 16'h0032 :  // <0101> "
+addr == 16'h11e ? 16'hfc00 :  // <0101> "
+addr == 16'h11f ? 16'h0015 :  // <0102> a = exr_shadow
+addr == 16'h120 ? 16'hfba0 :  // <0103> call :put4x
+addr == 16'h121 ? 16'h005d :  // <0103> "
+addr == 16'h122 ? 16'hfc00 :  // <0103> "
+addr == 16'h123 ? 16'h0220 :  // <0104> a = 32 // putasc " "
+addr == 16'h124 ? 16'h0000 :  // <0104> a = a // putasc " "
+addr == 16'h125 ? 16'hfba0 :  // <0104> putasc " "
+addr == 16'h126 ? 16'h0032 :  // <0104> "
+addr == 16'h127 ? 16'hfc00 :  // <0104> "
+addr == 16'h128 ? 16'h023e :  // <0105> a = 62 // putasc ">"
+addr == 16'h129 ? 16'h0000 :  // <0105> a = a // putasc ">"
+addr == 16'h12a ? 16'hfba0 :  // <0105> putasc ">"
+addr == 16'h12b ? 16'h0032 :  // <0105> "
+addr == 16'h12c ? 16'hfc00 :  // <0105> "
+addr == 16'h12d ? 16'hfba0 :  // <0106> getchar
+addr == 16'h12e ? 16'h0041 :  // <0106> "
+addr == 16'h12f ? 16'hfc00 :  // <0106> "
+addr == 16'h130 ? 16'h2000 :  // <0106> push a // "
+addr == 16'h131 ? 16'h0000 :  // <0106> a = a // "
+addr == 16'h132 ? 16'hfba0 :  // <0106> "
+addr == 16'h133 ? 16'h0032 :  // <0106> "
+addr == 16'h134 ? 16'hfc00 :  // <0106> "
+addr == 16'h135 ? 16'h0008 :  // <0106> pop a // "
+addr == 16'h136 ? 16'he00f :  // <0107> jmp :parse_cmd
+addr == 16'h137 ? 16'h0167 :  // <0107> "
 
 // :running_prompt // = 0x0138
-addr == 16'h138 ? 16'h020d :  // <0107> a = 13 // puteol
-addr == 16'h139 ? 16'h0000 :  // <0107> a = a // puteol
-addr == 16'h13a ? 16'hfba0 :  // <0107> puteol
-addr == 16'h13b ? 16'h0032 :  // <0107> "
-addr == 16'h13c ? 16'hfc00 :  // <0107> "
-addr == 16'h13d ? 16'h020a :  // <0107> a = 10 // puteol
-addr == 16'h13e ? 16'h0000 :  // <0107> a = a // puteol
-addr == 16'h13f ? 16'hfba0 :  // <0107> puteol
-addr == 16'h140 ? 16'h0032 :  // <0107> "
-addr == 16'h141 ? 16'hfc00 :  // <0107> "
-addr == 16'h142 ? 16'h0252 :  // <0108> a = 82 // putasc "R"
-addr == 16'h143 ? 16'h0000 :  // <0108> a = a // putasc "R"
-addr == 16'h144 ? 16'hfba0 :  // <0108> putasc "R"
-addr == 16'h145 ? 16'h0032 :  // <0108> "
-addr == 16'h146 ? 16'hfc00 :  // <0108> "
-addr == 16'h147 ? 16'h0255 :  // <0109> a = 85 // putasc "U"
-addr == 16'h148 ? 16'h0000 :  // <0109> a = a // putasc "U"
-addr == 16'h149 ? 16'hfba0 :  // <0109> putasc "U"
-addr == 16'h14a ? 16'h0032 :  // <0109> "
-addr == 16'h14b ? 16'hfc00 :  // <0109> "
-addr == 16'h14c ? 16'h024e :  // <0110> a = 78 // putasc "N"
-addr == 16'h14d ? 16'h0000 :  // <0110> a = a // putasc "N"
-addr == 16'h14e ? 16'hfba0 :  // <0110> putasc "N"
-addr == 16'h14f ? 16'h0032 :  // <0110> "
-addr == 16'h150 ? 16'hfc00 :  // <0110> "
-addr == 16'h151 ? 16'h0220 :  // <0111> a = 32 // putasc " "
-addr == 16'h152 ? 16'h0000 :  // <0111> a = a // putasc " "
-addr == 16'h153 ? 16'hfba0 :  // <0111> putasc " "
-addr == 16'h154 ? 16'h0032 :  // <0111> "
-addr == 16'h155 ? 16'hfc00 :  // <0111> "
-addr == 16'h156 ? 16'h023e :  // <0112> a = 62 // putasc ">"
-addr == 16'h157 ? 16'h0000 :  // <0112> a = a // putasc ">"
-addr == 16'h158 ? 16'hfba0 :  // <0112> putasc ">"
-addr == 16'h159 ? 16'h0032 :  // <0112> "
-addr == 16'h15a ? 16'hfc00 :  // <0112> "
+addr == 16'h138 ? 16'h020d :  // <0110> a = 13 // puteol
+addr == 16'h139 ? 16'h0000 :  // <0110> a = a // puteol
+addr == 16'h13a ? 16'hfba0 :  // <0110> puteol
+addr == 16'h13b ? 16'h0032 :  // <0110> "
+addr == 16'h13c ? 16'hfc00 :  // <0110> "
+addr == 16'h13d ? 16'h020a :  // <0110> a = 10 // puteol
+addr == 16'h13e ? 16'h0000 :  // <0110> a = a // puteol
+addr == 16'h13f ? 16'hfba0 :  // <0110> puteol
+addr == 16'h140 ? 16'h0032 :  // <0110> "
+addr == 16'h141 ? 16'hfc00 :  // <0110> "
+addr == 16'h142 ? 16'h0252 :  // <0111> a = 82 // putasc "R"
+addr == 16'h143 ? 16'h0000 :  // <0111> a = a // putasc "R"
+addr == 16'h144 ? 16'hfba0 :  // <0111> putasc "R"
+addr == 16'h145 ? 16'h0032 :  // <0111> "
+addr == 16'h146 ? 16'hfc00 :  // <0111> "
+addr == 16'h147 ? 16'h0255 :  // <0112> a = 85 // putasc "U"
+addr == 16'h148 ? 16'h0000 :  // <0112> a = a // putasc "U"
+addr == 16'h149 ? 16'hfba0 :  // <0112> putasc "U"
+addr == 16'h14a ? 16'h0032 :  // <0112> "
+addr == 16'h14b ? 16'hfc00 :  // <0112> "
+addr == 16'h14c ? 16'h024e :  // <0113> a = 78 // putasc "N"
+addr == 16'h14d ? 16'h0000 :  // <0113> a = a // putasc "N"
+addr == 16'h14e ? 16'hfba0 :  // <0113> putasc "N"
+addr == 16'h14f ? 16'h0032 :  // <0113> "
+addr == 16'h150 ? 16'hfc00 :  // <0113> "
+addr == 16'h151 ? 16'h0220 :  // <0114> a = 32 // putasc " "
+addr == 16'h152 ? 16'h0000 :  // <0114> a = a // putasc " "
+addr == 16'h153 ? 16'hfba0 :  // <0114> putasc " "
+addr == 16'h154 ? 16'h0032 :  // <0114> "
+addr == 16'h155 ? 16'hfc00 :  // <0114> "
+addr == 16'h156 ? 16'h023e :  // <0115> a = 62 // putasc ">"
+addr == 16'h157 ? 16'h0000 :  // <0115> a = a // putasc ">"
+addr == 16'h158 ? 16'hfba0 :  // <0115> putasc ">"
+addr == 16'h159 ? 16'h0032 :  // <0115> "
+addr == 16'h15a ? 16'hfc00 :  // <0115> "
 // :run_poll // = 0x015b
-addr == 16'h15b ? 16'hfba0 :  // <0114> pollchar
-addr == 16'h15c ? 16'h004a :  // <0114> "
-addr == 16'h15d ? 16'hfc00 :  // <0114> "
-addr == 16'h15e ? 16'h0760 :  // <0115> b = -1
-addr == 16'h15f ? 16'he407 :  // <0116> bn eq :parse_cmd
-addr == 16'h160 ? 16'h0167 :  // <0116> "
-addr == 16'h161 ? 16'h0018 :  // <0117> a = bp_status
-addr == 16'h162 ? 16'he000 :  // <0118> br az :run_poll
-addr == 16'h163 ? 16'h015b :  // <0118> "
+addr == 16'h15b ? 16'hfba0 :  // <0117> pollchar
+addr == 16'h15c ? 16'h004a :  // <0117> "
+addr == 16'h15d ? 16'hfc00 :  // <0117> "
+addr == 16'h15e ? 16'h0760 :  // <0118> b = -1
+addr == 16'h15f ? 16'he407 :  // <0119> bn eq :parse_cmd
+addr == 16'h160 ? 16'h0167 :  // <0119> "
+addr == 16'h161 ? 16'h0018 :  // <0120> a = bp_status
+addr == 16'h162 ? 16'he000 :  // <0121> br az :run_poll
+addr == 16'h163 ? 16'h015b :  // <0121> "
 // target hit a breakpoint; switch to stepping mode.
-addr == 16'h164 ? 16'h3e08 :  // <0120> bus_ctrl = $bp_step_mask
-addr == 16'h165 ? 16'he00f :  // <0121> jmp :cmd_loop
-addr == 16'h166 ? 16'h010f :  // <0121> "
+addr == 16'h164 ? 16'h3e08 :  // <0123> bus_ctrl = $bp_step_mask
+addr == 16'h165 ? 16'he00f :  // <0124> jmp :cmd_loop
+addr == 16'h166 ? 16'h010f :  // <0124> "
 
 // :parse_cmd // = 0x0167
 
 // command = step next instruction.
-addr == 16'h167 ? 16'h066e :  // <0126> b = 110 // asc b = "n"
-addr == 16'h168 ? 16'he407 :  // <0127> bn eq :skip_step
-addr == 16'h169 ? 16'h0171 :  // <0127> "
-addr == 16'h16a ? 16'h3e08 :  // <0128> bus_ctrl = $bp_step_mask
-addr == 16'h16b ? 16'h2409 :  // <0129> bp0_addr = bp0_addr
-addr == 16'h16c ? 16'hfba0 :  // <0130> call :wait_for_bp
-addr == 16'h16d ? 16'h01be :  // <0130> "
-addr == 16'h16e ? 16'hfc00 :  // <0130> "
-addr == 16'h16f ? 16'he00f :  // <0131> jmp :cmd_loop
-addr == 16'h170 ? 16'h010f :  // <0131> "
+addr == 16'h167 ? 16'h066e :  // <0129> b = 110 // asc b = "n"
+addr == 16'h168 ? 16'he407 :  // <0130> bn eq :skip_step
+addr == 16'h169 ? 16'h0171 :  // <0130> "
+addr == 16'h16a ? 16'h3e08 :  // <0131> bus_ctrl = $bp_step_mask
+addr == 16'h16b ? 16'h2409 :  // <0132> bp0_addr = bp0_addr
+addr == 16'h16c ? 16'hfba0 :  // <0133> call :wait_for_bp
+addr == 16'h16d ? 16'h01be :  // <0133> "
+addr == 16'h16e ? 16'hfc00 :  // <0133> "
+addr == 16'h16f ? 16'he00f :  // <0134> jmp :cmd_loop
+addr == 16'h170 ? 16'h010f :  // <0134> "
 // :skip_step // = 0x0171
 
 // command = reset target.
-addr == 16'h171 ? 16'h0652 :  // <0135> b = 82 // asc b = "R"
-addr == 16'h172 ? 16'he407 :  // <0136> bn eq :skip_reset
-addr == 16'h173 ? 16'h017d :  // <0136> "
-addr == 16'h174 ? 16'h3e02 :  // <0137> bus_ctrl = $tg_reset_mask
-addr == 16'h175 ? 16'hc800 :  // <0138> nop
-addr == 16'h176 ? 16'hc800 :  // <0139> nop
-addr == 16'h177 ? 16'h3e08 :  // <0140> bus_ctrl = $bp_step_mask
-addr == 16'h178 ? 16'hfba0 :  // <0141> call :wait_for_bp
-addr == 16'h179 ? 16'h01be :  // <0141> "
-addr == 16'h17a ? 16'hfc00 :  // <0141> "
-addr == 16'h17b ? 16'he00f :  // <0142> jmp :cmd_loop
-addr == 16'h17c ? 16'h010f :  // <0142> "
+addr == 16'h171 ? 16'h0652 :  // <0138> b = 82 // asc b = "R"
+addr == 16'h172 ? 16'he407 :  // <0139> bn eq :skip_reset
+addr == 16'h173 ? 16'h017d :  // <0139> "
+addr == 16'h174 ? 16'h3e02 :  // <0140> bus_ctrl = $tg_reset_mask
+addr == 16'h175 ? 16'hc800 :  // <0141> nop
+addr == 16'h176 ? 16'hc800 :  // <0142> nop
+addr == 16'h177 ? 16'h3e08 :  // <0143> bus_ctrl = $bp_step_mask
+addr == 16'h178 ? 16'hfba0 :  // <0144> call :wait_for_bp
+addr == 16'h179 ? 16'h01be :  // <0144> "
+addr == 16'h17a ? 16'hfc00 :  // <0144> "
+addr == 16'h17b ? 16'he00f :  // <0145> jmp :cmd_loop
+addr == 16'h17c ? 16'h010f :  // <0145> "
 // :skip_reset // = 0x017d
 
 // command = load program.
-addr == 16'h17d ? 16'h066c :  // <0146> b = 108 // asc b = "l"
-addr == 16'h17e ? 16'he407 :  // <0147> bn eq :skip_load
-addr == 16'h17f ? 16'h0185 :  // <0147> "
-addr == 16'h180 ? 16'hfba0 :  // <0148> call :load_program
-addr == 16'h181 ? 16'h0218 :  // <0148> "
-addr == 16'h182 ? 16'hfc00 :  // <0148> "
-addr == 16'h183 ? 16'he00f :  // <0149> jmp :cmd_loop
-addr == 16'h184 ? 16'h010f :  // <0149> "
+addr == 16'h17d ? 16'h066c :  // <0149> b = 108 // asc b = "l"
+addr == 16'h17e ? 16'he407 :  // <0150> bn eq :skip_load
+addr == 16'h17f ? 16'h0185 :  // <0150> "
+addr == 16'h180 ? 16'hfba0 :  // <0151> call :load_program
+addr == 16'h181 ? 16'h0218 :  // <0151> "
+addr == 16'h182 ? 16'hfc00 :  // <0151> "
+addr == 16'h183 ? 16'he00f :  // <0152> jmp :cmd_loop
+addr == 16'h184 ? 16'h010f :  // <0152> "
 // :skip_load // = 0x0185
 
 // command = run full speed.
-addr == 16'h185 ? 16'h0672 :  // <0153> b = 114 // asc b = "r"
-addr == 16'h186 ? 16'he407 :  // <0154> bn eq :skip_run
-addr == 16'h187 ? 16'h018c :  // <0154> "
+addr == 16'h185 ? 16'h0672 :  // <0156> b = 114 // asc b = "r"
+addr == 16'h186 ? 16'he407 :  // <0157> bn eq :skip_run
+addr == 16'h187 ? 16'h018c :  // <0157> "
 // release target reset, to run.
-addr == 16'h188 ? 16'h3e00 :  // <0156> bus_ctrl = 0
-addr == 16'h189 ? 16'h2409 :  // <0157> bp0_addr = bp0_addr
-addr == 16'h18a ? 16'he00f :  // <0158> jmp :cmd_loop
-addr == 16'h18b ? 16'h010f :  // <0158> "
+addr == 16'h188 ? 16'h3e00 :  // <0159> bus_ctrl = 0
+addr == 16'h189 ? 16'h2409 :  // <0160> bp0_addr = bp0_addr
+addr == 16'h18a ? 16'he00f :  // <0161> jmp :cmd_loop
+addr == 16'h18b ? 16'h010f :  // <0161> "
 // :skip_run // = 0x018c
 
 // command = set breakpoint.
-addr == 16'h18c ? 16'h0662 :  // <0162> b = 98 // asc b = "b"
-addr == 16'h18d ? 16'he407 :  // <0163> bn eq :skip_setbrk
-addr == 16'h18e ? 16'h0194 :  // <0163> "
-addr == 16'h18f ? 16'hfba0 :  // <0164> call :set_bp
-addr == 16'h190 ? 16'h01c2 :  // <0164> "
-addr == 16'h191 ? 16'hfc00 :  // <0164> "
-addr == 16'h192 ? 16'he00f :  // <0165> jmp :cmd_loop
-addr == 16'h193 ? 16'h010f :  // <0165> "
+addr == 16'h18c ? 16'h0662 :  // <0165> b = 98 // asc b = "b"
+addr == 16'h18d ? 16'he407 :  // <0166> bn eq :skip_setbrk
+addr == 16'h18e ? 16'h0194 :  // <0166> "
+addr == 16'h18f ? 16'hfba0 :  // <0167> call :set_bp
+addr == 16'h190 ? 16'h01c2 :  // <0167> "
+addr == 16'h191 ? 16'hfc00 :  // <0167> "
+addr == 16'h192 ? 16'he00f :  // <0168> jmp :cmd_loop
+addr == 16'h193 ? 16'h010f :  // <0168> "
 // :skip_setbrk // = 0x0194
 
-addr == 16'h194 ? 16'h023f :  // <0168> a = 63 // putasc "?"
-addr == 16'h195 ? 16'h0000 :  // <0168> a = a // putasc "?"
-addr == 16'h196 ? 16'hfba0 :  // <0168> putasc "?"
-addr == 16'h197 ? 16'h0032 :  // <0168> "
-addr == 16'h198 ? 16'hfc00 :  // <0168> "
-addr == 16'h199 ? 16'h020d :  // <0169> a = 13 // puteol
-addr == 16'h19a ? 16'h0000 :  // <0169> a = a // puteol
-addr == 16'h19b ? 16'hfba0 :  // <0169> puteol
-addr == 16'h19c ? 16'h0032 :  // <0169> "
-addr == 16'h19d ? 16'hfc00 :  // <0169> "
-addr == 16'h19e ? 16'h020a :  // <0169> a = 10 // puteol
-addr == 16'h19f ? 16'h0000 :  // <0169> a = a // puteol
-addr == 16'h1a0 ? 16'hfba0 :  // <0169> puteol
-addr == 16'h1a1 ? 16'h0032 :  // <0169> "
-addr == 16'h1a2 ? 16'hfc00 :  // <0169> "
-addr == 16'h1a3 ? 16'he00f :  // <0170> jmp :cmd_loop
-addr == 16'h1a4 ? 16'h010f :  // <0170> "
+addr == 16'h194 ? 16'h023f :  // <0171> a = 63 // putasc "?"
+addr == 16'h195 ? 16'h0000 :  // <0171> a = a // putasc "?"
+addr == 16'h196 ? 16'hfba0 :  // <0171> putasc "?"
+addr == 16'h197 ? 16'h0032 :  // <0171> "
+addr == 16'h198 ? 16'hfc00 :  // <0171> "
+addr == 16'h199 ? 16'h020d :  // <0172> a = 13 // puteol
+addr == 16'h19a ? 16'h0000 :  // <0172> a = a // puteol
+addr == 16'h19b ? 16'hfba0 :  // <0172> puteol
+addr == 16'h19c ? 16'h0032 :  // <0172> "
+addr == 16'h19d ? 16'hfc00 :  // <0172> "
+addr == 16'h19e ? 16'h020a :  // <0172> a = 10 // puteol
+addr == 16'h19f ? 16'h0000 :  // <0172> a = a // puteol
+addr == 16'h1a0 ? 16'hfba0 :  // <0172> puteol
+addr == 16'h1a1 ? 16'h0032 :  // <0172> "
+addr == 16'h1a2 ? 16'hfc00 :  // <0172> "
+addr == 16'h1a3 ? 16'he00f :  // <0173> jmp :cmd_loop
+addr == 16'h1a4 ? 16'h010f :  // <0173> "
 
 // demonstrations //////////////////////////////
 
 // set a breakpoint, wait til it hits.
-addr == 16'h1a5 ? 16'h2615 :  // <0175> bp0_addr = 0x15
+addr == 16'h1a5 ? 16'h2615 :  // <0178> bp0_addr = 0x15
 // :main_loop // = 0x01a6
-addr == 16'h1a6 ? 16'hfba0 :  // <0177> call :wait_for_bp
-addr == 16'h1a7 ? 16'h01be :  // <0177> "
-addr == 16'h1a8 ? 16'hfc00 :  // <0177> "
+addr == 16'h1a6 ? 16'hfba0 :  // <0180> call :wait_for_bp
+addr == 16'h1a7 ? 16'h01be :  // <0180> "
+addr == 16'h1a8 ? 16'hfc00 :  // <0180> "
 
 // release target to run full speed.
-addr == 16'h1a9 ? 16'h3e00 :  // <0180> bus_ctrl = 0
+addr == 16'h1a9 ? 16'h3e00 :  // <0183> bus_ctrl = 0
 
 // interrupt the target and single step it a few times.
-addr == 16'h1aa ? 16'h3e08 :  // <0183> bus_ctrl = $bp_step_mask
-addr == 16'h1ab ? 16'hfba0 :  // <0184> call :wait_for_bp
-addr == 16'h1ac ? 16'h01be :  // <0184> "
-addr == 16'h1ad ? 16'hfc00 :  // <0184> "
-addr == 16'h1ae ? 16'h2409 :  // <0185> bp0_addr = bp0_addr
-addr == 16'h1af ? 16'hfba0 :  // <0186> call :wait_for_bp
-addr == 16'h1b0 ? 16'h01be :  // <0186> "
-addr == 16'h1b1 ? 16'hfc00 :  // <0186> "
-addr == 16'h1b2 ? 16'h2409 :  // <0187> bp0_addr = bp0_addr
-addr == 16'h1b3 ? 16'hfba0 :  // <0188> call :wait_for_bp
-addr == 16'h1b4 ? 16'h01be :  // <0188> "
-addr == 16'h1b5 ? 16'hfc00 :  // <0188> "
-addr == 16'h1b6 ? 16'h2409 :  // <0189> bp0_addr = bp0_addr
-addr == 16'h1b7 ? 16'hfba0 :  // <0190> call :wait_for_bp
-addr == 16'h1b8 ? 16'h01be :  // <0190> "
-addr == 16'h1b9 ? 16'hfc00 :  // <0190> "
-addr == 16'h1ba ? 16'h3e00 :  // <0191> bus_ctrl = 0
+addr == 16'h1aa ? 16'h3e08 :  // <0186> bus_ctrl = $bp_step_mask
+addr == 16'h1ab ? 16'hfba0 :  // <0187> call :wait_for_bp
+addr == 16'h1ac ? 16'h01be :  // <0187> "
+addr == 16'h1ad ? 16'hfc00 :  // <0187> "
+addr == 16'h1ae ? 16'h2409 :  // <0188> bp0_addr = bp0_addr
+addr == 16'h1af ? 16'hfba0 :  // <0189> call :wait_for_bp
+addr == 16'h1b0 ? 16'h01be :  // <0189> "
+addr == 16'h1b1 ? 16'hfc00 :  // <0189> "
+addr == 16'h1b2 ? 16'h2409 :  // <0190> bp0_addr = bp0_addr
+addr == 16'h1b3 ? 16'hfba0 :  // <0191> call :wait_for_bp
+addr == 16'h1b4 ? 16'h01be :  // <0191> "
+addr == 16'h1b5 ? 16'hfc00 :  // <0191> "
+addr == 16'h1b6 ? 16'h2409 :  // <0192> bp0_addr = bp0_addr
+addr == 16'h1b7 ? 16'hfba0 :  // <0193> call :wait_for_bp
+addr == 16'h1b8 ? 16'h01be :  // <0193> "
+addr == 16'h1b9 ? 16'hfc00 :  // <0193> "
+addr == 16'h1ba ? 16'h3e00 :  // <0194> bus_ctrl = 0
 
 // release target to pass breakpoint once.
-addr == 16'h1bb ? 16'h2409 :  // <0194> bp0_addr = bp0_addr
+addr == 16'h1bb ? 16'h2409 :  // <0197> bp0_addr = bp0_addr
 
-addr == 16'h1bc ? 16'he00f :  // <0196> jmp :main_loop
-addr == 16'h1bd ? 16'h01a6 :  // <0196> "
+addr == 16'h1bc ? 16'he00f :  // <0199> jmp :main_loop
+addr == 16'h1bd ? 16'h01a6 :  // <0199> "
 
 // func wait_for_bp // = 0x01be
 // :poll // = 0x01be
-addr == 16'h1be ? 16'h0018 :  // <0200> a = bp_status
-addr == 16'h1bf ? 16'he000 :  // <0201> br az :poll
-addr == 16'h1c0 ? 16'h01be :  // <0201> "
-addr == 16'h1c1 ? 16'hfc00 :  // <0202> rtn
+addr == 16'h1be ? 16'h0018 :  // <0203> a = bp_status
+addr == 16'h1bf ? 16'he000 :  // <0204> br az :poll
+addr == 16'h1c0 ? 16'h01be :  // <0204> "
+addr == 16'h1c1 ? 16'hfc00 :  // <0205> rtn
 
 // func set_bp // = 0x01c2
-addr == 16'h1c2 ? 16'h2004 :  // <0204> push x // func set_bp
-addr == 16'h1c3 ? 16'h2005 :  // <0204> push y // "
-addr == 16'h1c4 ? 16'h203e :  // <0204> push rtna // "
-addr == 16'h1c5 ? 16'hfba0 :  // <0205> getchar
-addr == 16'h1c6 ? 16'h0041 :  // <0205> "
-addr == 16'h1c7 ? 16'hfc00 :  // <0205> "
-addr == 16'h1c8 ? 16'h2000 :  // <0205> push a // "
-addr == 16'h1c9 ? 16'h0000 :  // <0205> a = a // "
-addr == 16'h1ca ? 16'hfba0 :  // <0205> "
-addr == 16'h1cb ? 16'h0032 :  // <0205> "
-addr == 16'h1cc ? 16'hfc00 :  // <0205> "
-addr == 16'h1cd ? 16'h0008 :  // <0205> pop a // "
-addr == 16'h1ce ? 16'h1000 :  // <0206> x = a
-addr == 16'h1cf ? 16'hfba0 :  // <0207> getchar
-addr == 16'h1d0 ? 16'h0041 :  // <0207> "
-addr == 16'h1d1 ? 16'hfc00 :  // <0207> "
-addr == 16'h1d2 ? 16'h2000 :  // <0207> push a // "
-addr == 16'h1d3 ? 16'h0000 :  // <0207> a = a // "
-addr == 16'h1d4 ? 16'hfba0 :  // <0207> "
-addr == 16'h1d5 ? 16'h0032 :  // <0207> "
-addr == 16'h1d6 ? 16'hfc00 :  // <0207> "
-addr == 16'h1d7 ? 16'h0008 :  // <0207> pop a // "
-addr == 16'h1d8 ? 16'h063d :  // <0208> b = 61 // asc b = "="
-addr == 16'h1d9 ? 16'he407 :  // <0209> bn eq :fail
-addr == 16'h1da ? 16'h0205 :  // <0209> "
-addr == 16'h1db ? 16'hfba0 :  // <0210> call :get4x
-addr == 16'h1dc ? 16'h009a :  // <0210> "
-addr == 16'h1dd ? 16'hfc00 :  // <0210> "
-addr == 16'h1de ? 16'h1400 :  // <0211> y = a
-addr == 16'h1df ? 16'h0200 :  // <0212> a = 0
-addr == 16'h1e0 ? 16'he407 :  // <0213> bn eq :fail
-addr == 16'h1e1 ? 16'h0205 :  // <0213> "
-addr == 16'h1e2 ? 16'h0004 :  // <0214> a = x
-addr == 16'h1e3 ? 16'h0630 :  // <0215> b = 48 // asc b = "0"
-addr == 16'h1e4 ? 16'he007 :  // <0216> br eq :b0
-addr == 16'h1e5 ? 16'h01f1 :  // <0216> "
-addr == 16'h1e6 ? 16'h0631 :  // <0217> b = 49 // asc b = "1"
-addr == 16'h1e7 ? 16'he007 :  // <0218> br eq :b1
-addr == 16'h1e8 ? 16'h01f6 :  // <0218> "
-addr == 16'h1e9 ? 16'h0632 :  // <0219> b = 50 // asc b = "2"
-addr == 16'h1ea ? 16'he007 :  // <0220> br eq :b2
-addr == 16'h1eb ? 16'h01fb :  // <0220> "
-addr == 16'h1ec ? 16'h0633 :  // <0221> b = 51 // asc b = "3"
-addr == 16'h1ed ? 16'he007 :  // <0222> br eq :b3
-addr == 16'h1ee ? 16'h0200 :  // <0222> "
-addr == 16'h1ef ? 16'he00f :  // <0223> jmp :fail
-addr == 16'h1f0 ? 16'h0205 :  // <0223> "
+addr == 16'h1c2 ? 16'h2004 :  // <0207> push x // func set_bp
+addr == 16'h1c3 ? 16'h2005 :  // <0207> push y // "
+addr == 16'h1c4 ? 16'h203e :  // <0207> push rtna // "
+addr == 16'h1c5 ? 16'hfba0 :  // <0208> getchar
+addr == 16'h1c6 ? 16'h0041 :  // <0208> "
+addr == 16'h1c7 ? 16'hfc00 :  // <0208> "
+addr == 16'h1c8 ? 16'h2000 :  // <0208> push a // "
+addr == 16'h1c9 ? 16'h0000 :  // <0208> a = a // "
+addr == 16'h1ca ? 16'hfba0 :  // <0208> "
+addr == 16'h1cb ? 16'h0032 :  // <0208> "
+addr == 16'h1cc ? 16'hfc00 :  // <0208> "
+addr == 16'h1cd ? 16'h0008 :  // <0208> pop a // "
+addr == 16'h1ce ? 16'h1000 :  // <0209> x = a
+addr == 16'h1cf ? 16'hfba0 :  // <0210> getchar
+addr == 16'h1d0 ? 16'h0041 :  // <0210> "
+addr == 16'h1d1 ? 16'hfc00 :  // <0210> "
+addr == 16'h1d2 ? 16'h2000 :  // <0210> push a // "
+addr == 16'h1d3 ? 16'h0000 :  // <0210> a = a // "
+addr == 16'h1d4 ? 16'hfba0 :  // <0210> "
+addr == 16'h1d5 ? 16'h0032 :  // <0210> "
+addr == 16'h1d6 ? 16'hfc00 :  // <0210> "
+addr == 16'h1d7 ? 16'h0008 :  // <0210> pop a // "
+addr == 16'h1d8 ? 16'h063d :  // <0211> b = 61 // asc b = "="
+addr == 16'h1d9 ? 16'he407 :  // <0212> bn eq :fail
+addr == 16'h1da ? 16'h0205 :  // <0212> "
+addr == 16'h1db ? 16'hfba0 :  // <0213> call :get4x
+addr == 16'h1dc ? 16'h009a :  // <0213> "
+addr == 16'h1dd ? 16'hfc00 :  // <0213> "
+addr == 16'h1de ? 16'h1400 :  // <0214> y = a
+addr == 16'h1df ? 16'h0200 :  // <0215> a = 0
+addr == 16'h1e0 ? 16'he407 :  // <0216> bn eq :fail
+addr == 16'h1e1 ? 16'h0205 :  // <0216> "
+addr == 16'h1e2 ? 16'h0004 :  // <0217> a = x
+addr == 16'h1e3 ? 16'h0630 :  // <0218> b = 48 // asc b = "0"
+addr == 16'h1e4 ? 16'he007 :  // <0219> br eq :b0
+addr == 16'h1e5 ? 16'h01f1 :  // <0219> "
+addr == 16'h1e6 ? 16'h0631 :  // <0220> b = 49 // asc b = "1"
+addr == 16'h1e7 ? 16'he007 :  // <0221> br eq :b1
+addr == 16'h1e8 ? 16'h01f6 :  // <0221> "
+addr == 16'h1e9 ? 16'h0632 :  // <0222> b = 50 // asc b = "2"
+addr == 16'h1ea ? 16'he007 :  // <0223> br eq :b2
+addr == 16'h1eb ? 16'h01fb :  // <0223> "
+addr == 16'h1ec ? 16'h0633 :  // <0224> b = 51 // asc b = "3"
+addr == 16'h1ed ? 16'he007 :  // <0225> br eq :b3
+addr == 16'h1ee ? 16'h0200 :  // <0225> "
+addr == 16'h1ef ? 16'he00f :  // <0226> jmp :fail
+addr == 16'h1f0 ? 16'h0205 :  // <0226> "
 // :b0 // = 0x01f1
-addr == 16'h1f1 ? 16'h2405 :  // <0225> bp0_addr = y
-addr == 16'h1f2 ? 16'hf808 :  // <0226> pop rtna // rtn
-addr == 16'h1f3 ? 16'h1408 :  // <0226> pop y // "
-addr == 16'h1f4 ? 16'h1008 :  // <0226> pop x // "
-addr == 16'h1f5 ? 16'hfc00 :  // <0226> rtn
+addr == 16'h1f1 ? 16'h2405 :  // <0228> bp0_addr = y
+addr == 16'h1f2 ? 16'hf808 :  // <0229> pop rtna // rtn
+addr == 16'h1f3 ? 16'h1408 :  // <0229> pop y // "
+addr == 16'h1f4 ? 16'h1008 :  // <0229> pop x // "
+addr == 16'h1f5 ? 16'hfc00 :  // <0229> rtn
 // :b1 // = 0x01f6
-addr == 16'h1f6 ? 16'h2805 :  // <0228> bp1_addr = y
-addr == 16'h1f7 ? 16'hf808 :  // <0229> pop rtna // rtn
-addr == 16'h1f8 ? 16'h1408 :  // <0229> pop y // "
-addr == 16'h1f9 ? 16'h1008 :  // <0229> pop x // "
-addr == 16'h1fa ? 16'hfc00 :  // <0229> rtn
+addr == 16'h1f6 ? 16'h2805 :  // <0231> bp1_addr = y
+addr == 16'h1f7 ? 16'hf808 :  // <0232> pop rtna // rtn
+addr == 16'h1f8 ? 16'h1408 :  // <0232> pop y // "
+addr == 16'h1f9 ? 16'h1008 :  // <0232> pop x // "
+addr == 16'h1fa ? 16'hfc00 :  // <0232> rtn
 // :b2 // = 0x01fb
-addr == 16'h1fb ? 16'h2c05 :  // <0231> bp2_addr = y
-addr == 16'h1fc ? 16'hf808 :  // <0232> pop rtna // rtn
-addr == 16'h1fd ? 16'h1408 :  // <0232> pop y // "
-addr == 16'h1fe ? 16'h1008 :  // <0232> pop x // "
-addr == 16'h1ff ? 16'hfc00 :  // <0232> rtn
+addr == 16'h1fb ? 16'h2c05 :  // <0234> bp2_addr = y
+addr == 16'h1fc ? 16'hf808 :  // <0235> pop rtna // rtn
+addr == 16'h1fd ? 16'h1408 :  // <0235> pop y // "
+addr == 16'h1fe ? 16'h1008 :  // <0235> pop x // "
+addr == 16'h1ff ? 16'hfc00 :  // <0235> rtn
 // :b3 // = 0x0200
-addr == 16'h200 ? 16'h3005 :  // <0234> bp3_addr = y
-addr == 16'h201 ? 16'hf808 :  // <0235> pop rtna // rtn
-addr == 16'h202 ? 16'h1408 :  // <0235> pop y // "
-addr == 16'h203 ? 16'h1008 :  // <0235> pop x // "
-addr == 16'h204 ? 16'hfc00 :  // <0235> rtn
+addr == 16'h200 ? 16'h3005 :  // <0237> bp3_addr = y
+addr == 16'h201 ? 16'hf808 :  // <0238> pop rtna // rtn
+addr == 16'h202 ? 16'h1408 :  // <0238> pop y // "
+addr == 16'h203 ? 16'h1008 :  // <0238> pop x // "
+addr == 16'h204 ? 16'hfc00 :  // <0238> rtn
 // :fail // = 0x0205
-addr == 16'h205 ? 16'h023f :  // <0237> a = 63 // putasc "?"
-addr == 16'h206 ? 16'h0000 :  // <0237> a = a // putasc "?"
-addr == 16'h207 ? 16'hfba0 :  // <0237> putasc "?"
-addr == 16'h208 ? 16'h0032 :  // <0237> "
-addr == 16'h209 ? 16'hfc00 :  // <0237> "
-addr == 16'h20a ? 16'h020d :  // <0238> a = 13 // puteol
-addr == 16'h20b ? 16'h0000 :  // <0238> a = a // puteol
-addr == 16'h20c ? 16'hfba0 :  // <0238> puteol
-addr == 16'h20d ? 16'h0032 :  // <0238> "
-addr == 16'h20e ? 16'hfc00 :  // <0238> "
-addr == 16'h20f ? 16'h020a :  // <0238> a = 10 // puteol
-addr == 16'h210 ? 16'h0000 :  // <0238> a = a // puteol
-addr == 16'h211 ? 16'hfba0 :  // <0238> puteol
-addr == 16'h212 ? 16'h0032 :  // <0238> "
-addr == 16'h213 ? 16'hfc00 :  // <0238> "
-addr == 16'h214 ? 16'hf808 :  // <0239> pop rtna // rtn
-addr == 16'h215 ? 16'h1408 :  // <0239> pop y // "
-addr == 16'h216 ? 16'h1008 :  // <0239> pop x // "
-addr == 16'h217 ? 16'hfc00 :  // <0239> rtn
+addr == 16'h205 ? 16'h023f :  // <0240> a = 63 // putasc "?"
+addr == 16'h206 ? 16'h0000 :  // <0240> a = a // putasc "?"
+addr == 16'h207 ? 16'hfba0 :  // <0240> putasc "?"
+addr == 16'h208 ? 16'h0032 :  // <0240> "
+addr == 16'h209 ? 16'hfc00 :  // <0240> "
+addr == 16'h20a ? 16'h020d :  // <0241> a = 13 // puteol
+addr == 16'h20b ? 16'h0000 :  // <0241> a = a // puteol
+addr == 16'h20c ? 16'hfba0 :  // <0241> puteol
+addr == 16'h20d ? 16'h0032 :  // <0241> "
+addr == 16'h20e ? 16'hfc00 :  // <0241> "
+addr == 16'h20f ? 16'h020a :  // <0241> a = 10 // puteol
+addr == 16'h210 ? 16'h0000 :  // <0241> a = a // puteol
+addr == 16'h211 ? 16'hfba0 :  // <0241> puteol
+addr == 16'h212 ? 16'h0032 :  // <0241> "
+addr == 16'h213 ? 16'hfc00 :  // <0241> "
+addr == 16'h214 ? 16'hf808 :  // <0242> pop rtna // rtn
+addr == 16'h215 ? 16'h1408 :  // <0242> pop y // "
+addr == 16'h216 ? 16'h1008 :  // <0242> pop x // "
+addr == 16'h217 ? 16'hfc00 :  // <0242> rtn
 
 // func load_program // = 0x0218
-addr == 16'h218 ? 16'h2002 :  // <0241> push i // func load_program
-addr == 16'h219 ? 16'h2003 :  // <0241> push j // "
-addr == 16'h21a ? 16'h2004 :  // <0241> push x // "
-addr == 16'h21b ? 16'h2006 :  // <0241> push g6 // "
-addr == 16'h21c ? 16'h203e :  // <0241> push rtna // "
+addr == 16'h218 ? 16'h2002 :  // <0244> push i // func load_program
+addr == 16'h219 ? 16'h2003 :  // <0244> push j // "
+addr == 16'h21a ? 16'h2004 :  // <0244> push x // "
+addr == 16'h21b ? 16'h2006 :  // <0244> push g6 // "
+addr == 16'h21c ? 16'h203e :  // <0244> push rtna // "
 // load target program from UART.
 // length, little-endian.  memorize in x.
-addr == 16'h21d ? 16'h024c :  // <0244> a = 76 // putasc L
-addr == 16'h21e ? 16'h0000 :  // <0244> a = a // putasc L
-addr == 16'h21f ? 16'hfba0 :  // <0244> putasc L
-addr == 16'h220 ? 16'h0032 :  // <0244> "
-addr == 16'h221 ? 16'hfc00 :  // <0244> "
-addr == 16'h222 ? 16'hfba0 :  // <0245> get16 x
-addr == 16'h223 ? 16'h0041 :  // <0245> "
-addr == 16'h224 ? 16'hfc00 :  // <0245> "
-addr == 16'h225 ? 16'h2000 :  // <0245> push a // "
-addr == 16'h226 ? 16'hfba0 :  // <0245> "
-addr == 16'h227 ? 16'h0041 :  // <0245> "
-addr == 16'h228 ? 16'hfc00 :  // <0245> "
-addr == 16'h229 ? 16'h0352 :  // <0245> "
-addr == 16'h22a ? 16'h0352 :  // <0245> "
-addr == 16'h22b ? 16'h0408 :  // <0245> pop b // "
-addr == 16'h22c ? 16'hc800 :  // <0245> "
-addr == 16'h22d ? 16'h1334 :  // <0245> "
-addr == 16'h22e ? 16'h0004 :  // <0246> a = x
-addr == 16'h22f ? 16'hfba0 :  // <0247> call put4x
-addr == 16'h230 ? 16'h005d :  // <0247> "
-addr == 16'h231 ? 16'hfc00 :  // <0247> "
+addr == 16'h21d ? 16'h024c :  // <0247> a = 76 // putasc L
+addr == 16'h21e ? 16'h0000 :  // <0247> a = a // putasc L
+addr == 16'h21f ? 16'hfba0 :  // <0247> putasc L
+addr == 16'h220 ? 16'h0032 :  // <0247> "
+addr == 16'h221 ? 16'hfc00 :  // <0247> "
+addr == 16'h222 ? 16'hfba0 :  // <0248> get16 x
+addr == 16'h223 ? 16'h0041 :  // <0248> "
+addr == 16'h224 ? 16'hfc00 :  // <0248> "
+addr == 16'h225 ? 16'h2000 :  // <0248> push a // "
+addr == 16'h226 ? 16'hfba0 :  // <0248> "
+addr == 16'h227 ? 16'h0041 :  // <0248> "
+addr == 16'h228 ? 16'hfc00 :  // <0248> "
+addr == 16'h229 ? 16'h0352 :  // <0248> "
+addr == 16'h22a ? 16'h0352 :  // <0248> "
+addr == 16'h22b ? 16'h0408 :  // <0248> pop b // "
+addr == 16'h22c ? 16'hc800 :  // <0248> "
+addr == 16'h22d ? 16'h1334 :  // <0248> "
+addr == 16'h22e ? 16'h0004 :  // <0249> a = x
+addr == 16'h22f ? 16'hfba0 :  // <0250> call put4x
+addr == 16'h230 ? 16'h005d :  // <0250> "
+addr == 16'h231 ? 16'hfc00 :  // <0250> "
 // put target into reset again, in case this is a target warm boot.
-addr == 16'h232 ? 16'h3e02 :  // <0249> bus_ctrl = $tg_reset_mask
+addr == 16'h232 ? 16'h3e02 :  // <0252> bus_ctrl = $tg_reset_mask
 // load opcodes.  count up address in i.
-addr == 16'h233 ? 16'h0a00 :  // <0251> i = 0
-addr == 16'h234 ? 16'h0e01 :  // <0252> j = 1
+addr == 16'h233 ? 16'h0a00 :  // <0254> i = 0
+addr == 16'h234 ? 16'h0e01 :  // <0255> j = 1
 // :loadword // = 0x0235
-addr == 16'h235 ? 16'h0241 :  // <0254> a = 65 // putasc A
-addr == 16'h236 ? 16'h0000 :  // <0254> a = a // putasc A
-addr == 16'h237 ? 16'hfba0 :  // <0254> putasc A
-addr == 16'h238 ? 16'h0032 :  // <0254> "
-addr == 16'h239 ? 16'hfc00 :  // <0254> "
-addr == 16'h23a ? 16'h0002 :  // <0255> a = i
-addr == 16'h23b ? 16'hfba0 :  // <0256> call put4x
-addr == 16'h23c ? 16'h005d :  // <0256> "
-addr == 16'h23d ? 16'hfc00 :  // <0256> "
-addr == 16'h23e ? 16'h023d :  // <0257> a = 61 // putasc "="
-addr == 16'h23f ? 16'h0000 :  // <0257> a = a // putasc "="
-addr == 16'h240 ? 16'hfba0 :  // <0257> putasc "="
-addr == 16'h241 ? 16'h0032 :  // <0257> "
-addr == 16'h242 ? 16'hfc00 :  // <0257> "
-addr == 16'h243 ? 16'hfba0 :  // <0258> get16 g6
-addr == 16'h244 ? 16'h0041 :  // <0258> "
-addr == 16'h245 ? 16'hfc00 :  // <0258> "
-addr == 16'h246 ? 16'h2000 :  // <0258> push a // "
-addr == 16'h247 ? 16'hfba0 :  // <0258> "
-addr == 16'h248 ? 16'h0041 :  // <0258> "
-addr == 16'h249 ? 16'hfc00 :  // <0258> "
-addr == 16'h24a ? 16'h0352 :  // <0258> "
-addr == 16'h24b ? 16'h0352 :  // <0258> "
-addr == 16'h24c ? 16'h0408 :  // <0258> pop b // "
-addr == 16'h24d ? 16'hc800 :  // <0258> "
-addr == 16'h24e ? 16'h1b34 :  // <0258> "
-addr == 16'h24f ? 16'h0006 :  // <0259> a = g6
-addr == 16'h250 ? 16'hfba0 :  // <0260> call put4x
-addr == 16'h251 ? 16'h005d :  // <0260> "
-addr == 16'h252 ? 16'hfc00 :  // <0260> "
-addr == 16'h253 ? 16'h023d :  // <0261> a = 61 // putasc "="
-addr == 16'h254 ? 16'h0000 :  // <0261> a = a // putasc "="
-addr == 16'h255 ? 16'hfba0 :  // <0261> putasc "="
-addr == 16'h256 ? 16'h0032 :  // <0261> "
-addr == 16'h257 ? 16'hfc00 :  // <0261> "
-addr == 16'h258 ? 16'h4c02 :  // <0262> m9k_addr = i
-addr == 16'h259 ? 16'h5006 :  // <0263> m9k_data = g6
-addr == 16'h25a ? 16'h0014 :  // <0264> a = m9k_data
-addr == 16'h25b ? 16'hfba0 :  // <0265> call put4x
-addr == 16'h25c ? 16'h005d :  // <0265> "
-addr == 16'h25d ? 16'hfc00 :  // <0265> "
-addr == 16'h25e ? 16'h020d :  // <0266> a = 13 // puteol
-addr == 16'h25f ? 16'h0000 :  // <0266> a = a // puteol
-addr == 16'h260 ? 16'hfba0 :  // <0266> puteol
-addr == 16'h261 ? 16'h0032 :  // <0266> "
-addr == 16'h262 ? 16'hfc00 :  // <0266> "
-addr == 16'h263 ? 16'h020a :  // <0266> a = 10 // puteol
-addr == 16'h264 ? 16'h0000 :  // <0266> a = a // puteol
-addr == 16'h265 ? 16'hfba0 :  // <0266> puteol
-addr == 16'h266 ? 16'h0032 :  // <0266> "
-addr == 16'h267 ? 16'hfc00 :  // <0266> "
-addr == 16'h268 ? 16'hc800 :  // <0267> i = i+j
-addr == 16'h269 ? 16'h0b10 :  // <0267> "
-addr == 16'h26a ? 16'h0002 :  // <0268> a = i
-addr == 16'h26b ? 16'h0404 :  // <0269> b = x
-addr == 16'h26c ? 16'he407 :  // <0270> bn eq :loadword
-addr == 16'h26d ? 16'h0235 :  // <0270> "
-addr == 16'h26e ? 16'hf808 :  // <0271> pop rtna // rtn
-addr == 16'h26f ? 16'h1808 :  // <0271> pop g6 // "
-addr == 16'h270 ? 16'h1008 :  // <0271> pop x // "
-addr == 16'h271 ? 16'h0c08 :  // <0271> pop j // "
-addr == 16'h272 ? 16'h0808 :  // <0271> pop i // "
-addr == 16'h273 ? 16'hfc00 :  // <0271> rtn
+addr == 16'h235 ? 16'h0241 :  // <0257> a = 65 // putasc A
+addr == 16'h236 ? 16'h0000 :  // <0257> a = a // putasc A
+addr == 16'h237 ? 16'hfba0 :  // <0257> putasc A
+addr == 16'h238 ? 16'h0032 :  // <0257> "
+addr == 16'h239 ? 16'hfc00 :  // <0257> "
+addr == 16'h23a ? 16'h0002 :  // <0258> a = i
+addr == 16'h23b ? 16'hfba0 :  // <0259> call put4x
+addr == 16'h23c ? 16'h005d :  // <0259> "
+addr == 16'h23d ? 16'hfc00 :  // <0259> "
+addr == 16'h23e ? 16'h023d :  // <0260> a = 61 // putasc "="
+addr == 16'h23f ? 16'h0000 :  // <0260> a = a // putasc "="
+addr == 16'h240 ? 16'hfba0 :  // <0260> putasc "="
+addr == 16'h241 ? 16'h0032 :  // <0260> "
+addr == 16'h242 ? 16'hfc00 :  // <0260> "
+addr == 16'h243 ? 16'hfba0 :  // <0261> get16 g6
+addr == 16'h244 ? 16'h0041 :  // <0261> "
+addr == 16'h245 ? 16'hfc00 :  // <0261> "
+addr == 16'h246 ? 16'h2000 :  // <0261> push a // "
+addr == 16'h247 ? 16'hfba0 :  // <0261> "
+addr == 16'h248 ? 16'h0041 :  // <0261> "
+addr == 16'h249 ? 16'hfc00 :  // <0261> "
+addr == 16'h24a ? 16'h0352 :  // <0261> "
+addr == 16'h24b ? 16'h0352 :  // <0261> "
+addr == 16'h24c ? 16'h0408 :  // <0261> pop b // "
+addr == 16'h24d ? 16'hc800 :  // <0261> "
+addr == 16'h24e ? 16'h1b34 :  // <0261> "
+addr == 16'h24f ? 16'h0006 :  // <0262> a = g6
+addr == 16'h250 ? 16'hfba0 :  // <0263> call put4x
+addr == 16'h251 ? 16'h005d :  // <0263> "
+addr == 16'h252 ? 16'hfc00 :  // <0263> "
+addr == 16'h253 ? 16'h023d :  // <0264> a = 61 // putasc "="
+addr == 16'h254 ? 16'h0000 :  // <0264> a = a // putasc "="
+addr == 16'h255 ? 16'hfba0 :  // <0264> putasc "="
+addr == 16'h256 ? 16'h0032 :  // <0264> "
+addr == 16'h257 ? 16'hfc00 :  // <0264> "
+addr == 16'h258 ? 16'h4c02 :  // <0265> m9k_addr = i
+addr == 16'h259 ? 16'h5006 :  // <0266> m9k_data = g6
+addr == 16'h25a ? 16'h0014 :  // <0267> a = m9k_data
+addr == 16'h25b ? 16'hfba0 :  // <0268> call put4x
+addr == 16'h25c ? 16'h005d :  // <0268> "
+addr == 16'h25d ? 16'hfc00 :  // <0268> "
+addr == 16'h25e ? 16'h020d :  // <0269> a = 13 // puteol
+addr == 16'h25f ? 16'h0000 :  // <0269> a = a // puteol
+addr == 16'h260 ? 16'hfba0 :  // <0269> puteol
+addr == 16'h261 ? 16'h0032 :  // <0269> "
+addr == 16'h262 ? 16'hfc00 :  // <0269> "
+addr == 16'h263 ? 16'h020a :  // <0269> a = 10 // puteol
+addr == 16'h264 ? 16'h0000 :  // <0269> a = a // puteol
+addr == 16'h265 ? 16'hfba0 :  // <0269> puteol
+addr == 16'h266 ? 16'h0032 :  // <0269> "
+addr == 16'h267 ? 16'hfc00 :  // <0269> "
+addr == 16'h268 ? 16'hc800 :  // <0270> i = i+j
+addr == 16'h269 ? 16'h0b10 :  // <0270> "
+addr == 16'h26a ? 16'h0002 :  // <0271> a = i
+addr == 16'h26b ? 16'h0404 :  // <0272> b = x
+addr == 16'h26c ? 16'he407 :  // <0273> bn eq :loadword
+addr == 16'h26d ? 16'h0235 :  // <0273> "
+addr == 16'h26e ? 16'hf808 :  // <0274> pop rtna // rtn
+addr == 16'h26f ? 16'h1808 :  // <0274> pop g6 // "
+addr == 16'h270 ? 16'h1008 :  // <0274> pop x // "
+addr == 16'h271 ? 16'h0c08 :  // <0274> pop j // "
+addr == 16'h272 ? 16'h0808 :  // <0274> pop i // "
+addr == 16'h273 ? 16'hfc00 :  // <0274> rtn
 
 // observe a register.  return its value in peek_data.
 // pass its register address in a.
 // func peek // = 0x0274
-addr == 16'h274 ? 16'h07a0 :  // <0276> b = 0x3ff
-addr == 16'h275 ? 16'h03ff :  // <0276> "
-addr == 16'h276 ? 16'hc800 :  // <0277> a = and
-addr == 16'h277 ? 16'h0330 :  // <0277> "
+addr == 16'h274 ? 16'h07a0 :  // <0279> b = 0x3ff
+addr == 16'h275 ? 16'h03ff :  // <0279> "
+addr == 16'h276 ? 16'hc800 :  // <0280> a = and
+addr == 16'h277 ? 16'h0330 :  // <0280> "
 // debug_peek_reg = 31 << 10
-addr == 16'h278 ? 16'h07a0 :  // <0279> b = 0x7c00
-addr == 16'h279 ? 16'h7c00 :  // <0279> "
-addr == 16'h27a ? 16'hc800 :  // <0280> force_opcode = or
-addr == 16'h27b ? 16'h3734 :  // <0280> "
-addr == 16'h27c ? 16'h3e04 :  // <0281> bus_ctrl = $divert_code_bus_mask
-addr == 16'h27d ? 16'h4201 :  // <0282> tg_force = $hold_state_mask
-addr == 16'h27e ? 16'h4203 :  // <0283> tg_force = ($hold_state_mask | $force_load_exr_mask)
-addr == 16'h27f ? 16'h4205 :  // <0284> tg_force = ($hold_state_mask | $force_exec_mask)
-addr == 16'h280 ? 16'h4201 :  // <0285> tg_force = $hold_state_mask
+addr == 16'h278 ? 16'h07a0 :  // <0282> b = 0x7c00
+addr == 16'h279 ? 16'h7c00 :  // <0282> "
+addr == 16'h27a ? 16'hc800 :  // <0283> force_opcode = or
+addr == 16'h27b ? 16'h3734 :  // <0283> "
+addr == 16'h27c ? 16'h3e04 :  // <0284> bus_ctrl = $divert_code_bus_mask
+addr == 16'h27d ? 16'h4201 :  // <0285> tg_force = $hold_state_mask
+addr == 16'h27e ? 16'h4203 :  // <0286> tg_force = ($hold_state_mask | $force_load_exr_mask)
+addr == 16'h27f ? 16'h4205 :  // <0287> tg_force = ($hold_state_mask | $force_exec_mask)
+addr == 16'h280 ? 16'h4201 :  // <0288> tg_force = $hold_state_mask
 // target's register value is now in peek_data.
 // refill target exr so it can resume seamlessly.
-addr == 16'h281 ? 16'h3415 :  // <0288> force_opcode = exr_shadow
-addr == 16'h282 ? 16'h4203 :  // <0289> tg_force = ($hold_state_mask | $force_load_exr_mask)
-addr == 16'h283 ? 16'h4200 :  // <0290> tg_force = 0
-addr == 16'h284 ? 16'hfc00 :  // <0291> rtn
+addr == 16'h281 ? 16'h3415 :  // <0291> force_opcode = exr_shadow
+addr == 16'h282 ? 16'h4203 :  // <0292> tg_force = ($hold_state_mask | $force_load_exr_mask)
+addr == 16'h283 ? 16'h4200 :  // <0293> tg_force = 0
+addr == 16'h284 ? 16'hfc00 :  // <0294> rtn
 
 // show target status display.
 // func dump_target // = 0x0285
-addr == 16'h285 ? 16'h2002 :  // <0294> push i // func dump_target
-addr == 16'h286 ? 16'h2003 :  // <0294> push j // "
-addr == 16'h287 ? 16'h2004 :  // <0294> push x // "
-addr == 16'h288 ? 16'h2005 :  // <0294> push y // "
-addr == 16'h289 ? 16'h203e :  // <0294> push rtna // "
-addr == 16'h28a ? 16'h020d :  // <0295> a = 13 // puteol
-addr == 16'h28b ? 16'h0000 :  // <0295> a = a // puteol
-addr == 16'h28c ? 16'hfba0 :  // <0295> puteol
-addr == 16'h28d ? 16'h0032 :  // <0295> "
-addr == 16'h28e ? 16'hfc00 :  // <0295> "
-addr == 16'h28f ? 16'h020a :  // <0295> a = 10 // puteol
-addr == 16'h290 ? 16'h0000 :  // <0295> a = a // puteol
-addr == 16'h291 ? 16'hfba0 :  // <0295> puteol
-addr == 16'h292 ? 16'h0032 :  // <0295> "
-addr == 16'h293 ? 16'hfc00 :  // <0295> "
-addr == 16'h294 ? 16'h0a00 :  // <0296> i = 0
+addr == 16'h285 ? 16'h2002 :  // <0297> push i // func dump_target
+addr == 16'h286 ? 16'h2003 :  // <0297> push j // "
+addr == 16'h287 ? 16'h2004 :  // <0297> push x // "
+addr == 16'h288 ? 16'h2005 :  // <0297> push y // "
+addr == 16'h289 ? 16'h203e :  // <0297> push rtna // "
+addr == 16'h28a ? 16'h020d :  // <0298> a = 13 // puteol
+addr == 16'h28b ? 16'h0000 :  // <0298> a = a // puteol
+addr == 16'h28c ? 16'hfba0 :  // <0298> puteol
+addr == 16'h28d ? 16'h0032 :  // <0298> "
+addr == 16'h28e ? 16'hfc00 :  // <0298> "
+addr == 16'h28f ? 16'h020a :  // <0298> a = 10 // puteol
+addr == 16'h290 ? 16'h0000 :  // <0298> a = a // puteol
+addr == 16'h291 ? 16'hfba0 :  // <0298> puteol
+addr == 16'h292 ? 16'h0032 :  // <0298> "
+addr == 16'h293 ? 16'hfc00 :  // <0298> "
+addr == 16'h294 ? 16'h0a00 :  // <0299> i = 0
 // :next_reg // = 0x0295
 // fetch register name from table in target program.
-addr == 16'h295 ? 16'h1200 :  // <0299> x = 0
-addr == 16'h296 ? 16'h1601 :  // <0300> y = 1
+addr == 16'h295 ? 16'h1200 :  // <0302> x = 0
+addr == 16'h296 ? 16'h1601 :  // <0303> y = 1
 // :next_chars // = 0x0297
-addr == 16'h297 ? 16'h0002 :  // <0302> a = i
-addr == 16'h298 ? 16'h0351 :  // <0303> a = a<<1
-addr == 16'h299 ? 16'h0351 :  // <0304> a = a<<1
-addr == 16'h29a ? 16'h0603 :  // <0305> b = 3
-addr == 16'h29b ? 16'hc800 :  // <0306> a = a+b
-addr == 16'h29c ? 16'h0300 :  // <0306> "
-addr == 16'h29d ? 16'h0404 :  // <0307> b = x
-addr == 16'h29e ? 16'hc800 :  // <0308> m9k_addr = a+b
-addr == 16'h29f ? 16'h4f00 :  // <0308> "
-addr == 16'h2a0 ? 16'h0014 :  // <0309> a = m9k_data // putchar m9k_data
-addr == 16'h2a1 ? 16'hfba0 :  // <0309> putchar m9k_data
-addr == 16'h2a2 ? 16'h0032 :  // <0309> "
-addr == 16'h2a3 ? 16'hfc00 :  // <0309> "
-addr == 16'h2a4 ? 16'h0014 :  // <0310> a = m9k_data
-addr == 16'h2a5 ? 16'h0353 :  // <0311> a = a>>4
-addr == 16'h2a6 ? 16'h0353 :  // <0312> a = a>>4
-addr == 16'h2a7 ? 16'h0000 :  // <0313> a = a // putchar a
-addr == 16'h2a8 ? 16'hfba0 :  // <0313> putchar a
-addr == 16'h2a9 ? 16'h0032 :  // <0313> "
-addr == 16'h2aa ? 16'hfc00 :  // <0313> "
-addr == 16'h2ab ? 16'hc800 :  // <0314> x = x+y
-addr == 16'h2ac ? 16'h1320 :  // <0314> "
-addr == 16'h2ad ? 16'h0004 :  // <0315> a = x
-addr == 16'h2ae ? 16'h0604 :  // <0316> b = 4
-addr == 16'h2af ? 16'he407 :  // <0317> bn eq :next_chars
-addr == 16'h2b0 ? 16'h0297 :  // <0317> "
-addr == 16'h2b1 ? 16'h023d :  // <0318> a = 61 // putasc "="
-addr == 16'h2b2 ? 16'h0000 :  // <0318> a = a // putasc "="
-addr == 16'h2b3 ? 16'hfba0 :  // <0318> putasc "="
-addr == 16'h2b4 ? 16'h0032 :  // <0318> "
-addr == 16'h2b5 ? 16'hfc00 :  // <0318> "
-addr == 16'h2b6 ? 16'h0002 :  // <0319> a = i
-addr == 16'h2b7 ? 16'hfba0 :  // <0320> call :peek
-addr == 16'h2b8 ? 16'h0274 :  // <0320> "
-addr == 16'h2b9 ? 16'hfc00 :  // <0320> "
-addr == 16'h2ba ? 16'h0017 :  // <0321> a = peek_data
-addr == 16'h2bb ? 16'hfba0 :  // <0322> call :put4x
-addr == 16'h2bc ? 16'h005d :  // <0322> "
-addr == 16'h2bd ? 16'hfc00 :  // <0322> "
-addr == 16'h2be ? 16'h0220 :  // <0323> a = 32 // putasc " "
-addr == 16'h2bf ? 16'h0000 :  // <0323> a = a // putasc " "
-addr == 16'h2c0 ? 16'hfba0 :  // <0323> putasc " "
-addr == 16'h2c1 ? 16'h0032 :  // <0323> "
-addr == 16'h2c2 ? 16'hfc00 :  // <0323> "
-addr == 16'h2c3 ? 16'h0e01 :  // <0324> j = 1
-addr == 16'h2c4 ? 16'hc800 :  // <0325> i = i+j
-addr == 16'h2c5 ? 16'h0b10 :  // <0325> "
+addr == 16'h297 ? 16'h0002 :  // <0305> a = i
+addr == 16'h298 ? 16'h0351 :  // <0306> a = a<<1
+addr == 16'h299 ? 16'h0351 :  // <0307> a = a<<1
+addr == 16'h29a ? 16'h0603 :  // <0308> b = 3
+addr == 16'h29b ? 16'hc800 :  // <0309> a = a+b
+addr == 16'h29c ? 16'h0300 :  // <0309> "
+addr == 16'h29d ? 16'h0404 :  // <0310> b = x
+addr == 16'h29e ? 16'hc800 :  // <0311> m9k_addr = a+b
+addr == 16'h29f ? 16'h4f00 :  // <0311> "
+addr == 16'h2a0 ? 16'h0014 :  // <0312> a = m9k_data // putchar m9k_data
+addr == 16'h2a1 ? 16'hfba0 :  // <0312> putchar m9k_data
+addr == 16'h2a2 ? 16'h0032 :  // <0312> "
+addr == 16'h2a3 ? 16'hfc00 :  // <0312> "
+addr == 16'h2a4 ? 16'h0014 :  // <0313> a = m9k_data
+addr == 16'h2a5 ? 16'h0353 :  // <0314> a = a>>4
+addr == 16'h2a6 ? 16'h0353 :  // <0315> a = a>>4
+addr == 16'h2a7 ? 16'h0000 :  // <0316> a = a // putchar a
+addr == 16'h2a8 ? 16'hfba0 :  // <0316> putchar a
+addr == 16'h2a9 ? 16'h0032 :  // <0316> "
+addr == 16'h2aa ? 16'hfc00 :  // <0316> "
+addr == 16'h2ab ? 16'hc800 :  // <0317> x = x+y
+addr == 16'h2ac ? 16'h1320 :  // <0317> "
+addr == 16'h2ad ? 16'h0004 :  // <0318> a = x
+addr == 16'h2ae ? 16'h0604 :  // <0319> b = 4
+addr == 16'h2af ? 16'he407 :  // <0320> bn eq :next_chars
+addr == 16'h2b0 ? 16'h0297 :  // <0320> "
+addr == 16'h2b1 ? 16'h023d :  // <0321> a = 61 // putasc "="
+addr == 16'h2b2 ? 16'h0000 :  // <0321> a = a // putasc "="
+addr == 16'h2b3 ? 16'hfba0 :  // <0321> putasc "="
+addr == 16'h2b4 ? 16'h0032 :  // <0321> "
+addr == 16'h2b5 ? 16'hfc00 :  // <0321> "
+addr == 16'h2b6 ? 16'h0002 :  // <0322> a = i
+addr == 16'h2b7 ? 16'hfba0 :  // <0323> call :peek
+addr == 16'h2b8 ? 16'h0274 :  // <0323> "
+addr == 16'h2b9 ? 16'hfc00 :  // <0323> "
+addr == 16'h2ba ? 16'h0017 :  // <0324> a = peek_data
+addr == 16'h2bb ? 16'hfba0 :  // <0325> call :put4x
+addr == 16'h2bc ? 16'h005d :  // <0325> "
+addr == 16'h2bd ? 16'hfc00 :  // <0325> "
+addr == 16'h2be ? 16'h0220 :  // <0326> a = 32 // putasc " "
+addr == 16'h2bf ? 16'h0000 :  // <0326> a = a // putasc " "
+addr == 16'h2c0 ? 16'hfba0 :  // <0326> putasc " "
+addr == 16'h2c1 ? 16'h0032 :  // <0326> "
+addr == 16'h2c2 ? 16'hfc00 :  // <0326> "
+addr == 16'h2c3 ? 16'h0e01 :  // <0327> j = 1
+addr == 16'h2c4 ? 16'hc800 :  // <0328> i = i+j
+addr == 16'h2c5 ? 16'h0b10 :  // <0328> "
 // loop up to the number of registers in the target program's register name table.
-addr == 16'h2c6 ? 16'h4e02 :  // <0327> m9k_addr = 2
-addr == 16'h2c7 ? 16'h0414 :  // <0328> b = m9k_data
-addr == 16'h2c8 ? 16'h0002 :  // <0329> a = i
-addr == 16'h2c9 ? 16'he407 :  // <0330> bn eq :next_reg
-addr == 16'h2ca ? 16'h0295 :  // <0330> "
-addr == 16'h2cb ? 16'h020d :  // <0331> a = 13 // puteol
-addr == 16'h2cc ? 16'h0000 :  // <0331> a = a // puteol
-addr == 16'h2cd ? 16'hfba0 :  // <0331> puteol
-addr == 16'h2ce ? 16'h0032 :  // <0331> "
-addr == 16'h2cf ? 16'hfc00 :  // <0331> "
-addr == 16'h2d0 ? 16'h020a :  // <0331> a = 10 // puteol
-addr == 16'h2d1 ? 16'h0000 :  // <0331> a = a // puteol
-addr == 16'h2d2 ? 16'hfba0 :  // <0331> puteol
-addr == 16'h2d3 ? 16'h0032 :  // <0331> "
-addr == 16'h2d4 ? 16'hfc00 :  // <0331> "
-addr == 16'h2d5 ? 16'hf808 :  // <0332> pop rtna // rtn
-addr == 16'h2d6 ? 16'h1408 :  // <0332> pop y // "
-addr == 16'h2d7 ? 16'h1008 :  // <0332> pop x // "
-addr == 16'h2d8 ? 16'h0c08 :  // <0332> pop j // "
-addr == 16'h2d9 ? 16'h0808 :  // <0332> pop i // "
-addr == 16'h2da ? 16'hfc00 :  // <0332> rtn
+addr == 16'h2c6 ? 16'h4e02 :  // <0330> m9k_addr = 2
+addr == 16'h2c7 ? 16'h0414 :  // <0331> b = m9k_data
+addr == 16'h2c8 ? 16'h0002 :  // <0332> a = i
+addr == 16'h2c9 ? 16'he407 :  // <0333> bn eq :next_reg
+addr == 16'h2ca ? 16'h0295 :  // <0333> "
+addr == 16'h2cb ? 16'h020d :  // <0334> a = 13 // puteol
+addr == 16'h2cc ? 16'h0000 :  // <0334> a = a // puteol
+addr == 16'h2cd ? 16'hfba0 :  // <0334> puteol
+addr == 16'h2ce ? 16'h0032 :  // <0334> "
+addr == 16'h2cf ? 16'hfc00 :  // <0334> "
+addr == 16'h2d0 ? 16'h020a :  // <0334> a = 10 // puteol
+addr == 16'h2d1 ? 16'h0000 :  // <0334> a = a // puteol
+addr == 16'h2d2 ? 16'hfba0 :  // <0334> puteol
+addr == 16'h2d3 ? 16'h0032 :  // <0334> "
+addr == 16'h2d4 ? 16'hfc00 :  // <0334> "
+addr == 16'h2d5 ? 16'hf808 :  // <0335> pop rtna // rtn
+addr == 16'h2d6 ? 16'h1408 :  // <0335> pop y // "
+addr == 16'h2d7 ? 16'h1008 :  // <0335> pop x // "
+addr == 16'h2d8 ? 16'h0c08 :  // <0335> pop j // "
+addr == 16'h2d9 ? 16'h0808 :  // <0335> pop i // "
+addr == 16'h2da ? 16'hfc00 :  // <0335> rtn
         
                 16'hxxxx;
         endmodule
