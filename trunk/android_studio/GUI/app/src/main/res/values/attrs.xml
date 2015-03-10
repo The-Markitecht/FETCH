@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomGaugeMasterView">
+        <attr name="scale_min" format="integer" />
+        <attr name="scale_max" format="integer" />
+        <attr name="dial_thickness" format="dimension" />
+        <attr name="dial_color" format="color" />
+        <attr name="pointer_thickness" format="dimension" />
+        <attr name="color_1" format="color" />
+        <attr name="color_1_max" format="integer" />
+        <attr name="color_2" format="color" />
+        <attr name="color_2_min" format="integer" />
+        <attr name="color_2_max" format="integer" />
+        <attr name="color_3" format="color" />
+        <attr name="color_3_min" format="integer" />
+        <attr name="text_color" format="color" />
+    </declare-styleable>
+
+</resources>
