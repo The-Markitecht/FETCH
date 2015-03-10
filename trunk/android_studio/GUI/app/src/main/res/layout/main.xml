@@ -179,7 +179,7 @@
 		 			android:scaleType="centerInside"
 		 			android:background="@drawable/button_pattern"
 		 			android:layout_weight="1"
-		 			android:text="Config"
+		 			android:text="Open Device"
                         android:onClick="config_click" />
     	</LinearLayout>
     

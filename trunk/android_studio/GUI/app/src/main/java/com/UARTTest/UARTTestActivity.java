@@ -78,8 +78,8 @@ public class UARTTestActivity extends Activity
     long cal_time_1, cal_time_2;
     int totalDataCount = 0;
 
-	public save_data_thread save_data_Thread;
-	public send_file_thread send_file_Thread;
+//	public save_data_thread save_data_Thread;
+//	public send_file_thread send_file_Thread;
 
 	public Context global_context;
    
@@ -173,70 +173,70 @@ public class UARTTestActivity extends Activity
         server = new HelloServer();
         server.uart = uartInterface;
 
-        savefileButton.setOnClickListener(new View.OnClickListener()
-        {			
-			//@Override
-			public void onClick(View v) {
-				if(false == WriteFileThread_start)
-				{
-					Toast.makeText(global_context, "Prepare to save data to file ...", Toast.LENGTH_SHORT).show();
-
-			        try {
-						fos_save = new FileOutputStream(ACCESS_FILE);
-						buf_save =  new BufferedOutputStream(fos_save);
-					} catch (FileNotFoundException e) {e.printStackTrace();}
-			       
-					WriteFileThread_start = true;
-					save_data_Thread = new save_data_thread(handler);
-					save_data_Thread.start();					
-				}
-				else
-				{
-					Toast.makeText(global_context, "Close file", Toast.LENGTH_SHORT).show();
-					WriteFileThread_start = false;					
-					try {
-						buf_save.flush();
-						buf_save.close();
-						fos_save.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}				
-			}
-		});
-
-		sendfileButton1.setOnClickListener(new View.OnClickListener()
-		{			
-			//@Override
-			public void onClick(View v) 
-			{
-/*
-                Toast.makeText(global_context, "Send 1 char", Toast.LENGTH_SHORT).show();
-                byte[] buffer = new byte[10];
-                buffer[0] = 'F';
-                uartInterface.SendData(1, buffer);
-*/
-                new Thread(new ServerThread()).start();
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception ex) {}
-                new Thread(new ClientThread()).start();
-
-
-
-//					Toast.makeText(global_context, "Start sending Saved_File...", Toast.LENGTH_SHORT).show();
+//        savefileButton.setOnClickListener(new View.OnClickListener()
+//        {
+//			//@Override
+//			public void onClick(View v) {
+//				if(false == WriteFileThread_start)
+//				{
+//					Toast.makeText(global_context, "Prepare to save data to file ...", Toast.LENGTH_SHORT).show();
 //
 //			        try {
-//						//fos_open = openFileInput("Saved_File");
-//						fos_open = new FileInputStream(ACCESS_FILE);
+//						fos_save = new FileOutputStream(ACCESS_FILE);
+//						buf_save =  new BufferedOutputStream(fos_save);
 //					} catch (FileNotFoundException e) {e.printStackTrace();}
 //
-//			        TimeText.setText("Sending...");
-//					//uartInterface.StartWriteFileThread();
-//			        send_file_Thread = new send_file_thread(handler, fos_open);
-//			        send_file_Thread.start();
-			}
-		});
+//					WriteFileThread_start = true;
+//					save_data_Thread = new save_data_thread(handler);
+//					save_data_Thread.start();
+//				}
+//				else
+//				{
+//					Toast.makeText(global_context, "Close file", Toast.LENGTH_SHORT).show();
+//					WriteFileThread_start = false;
+//					try {
+//						buf_save.flush();
+//						buf_save.close();
+//						fos_save.close();
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		});
+
+//		sendfileButton1.setOnClickListener(new View.OnClickListener()
+//		{
+//			//@Override
+//			public void onClick(View v)
+//			{
+///*
+//                Toast.makeText(global_context, "Send 1 char", Toast.LENGTH_SHORT).show();
+//                byte[] buffer = new byte[10];
+//                buffer[0] = 'F';
+//                uartInterface.SendData(1, buffer);
+//*/
+//                new Thread(new ServerThread()).start();
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (Exception ex) {}
+//                new Thread(new ClientThread()).start();
+//
+//
+//
+////					Toast.makeText(global_context, "Start sending Saved_File...", Toast.LENGTH_SHORT).show();
+////
+////			        try {
+////						//fos_open = openFileInput("Saved_File");
+////						fos_open = new FileInputStream(ACCESS_FILE);
+////					} catch (FileNotFoundException e) {e.printStackTrace();}
+////
+////			        TimeText.setText("Sending...");
+////					//uartInterface.StartWriteFileThread();
+////			        send_file_Thread = new send_file_thread(handler, fos_open);
+////			        send_file_Thread.start();
+//			}
+//		});
 
         /*set the adapter listeners for baud*/
         baudSpinner.setOnItemSelectedListener(new MyOnBaudSelectedListener());
@@ -437,167 +437,167 @@ public class UARTTestActivity extends Activity
     };		
 	
 	/*usb input data handler*/
-	private class save_data_thread extends Thread 
-	{
-		Handler mHandler;
-
-		save_data_thread(Handler h) {
-			mHandler = h;
-		}
-
-		@Override
-		public void run() 
-		{
-			Message msg;
-			start_time = System.currentTimeMillis();
-			cal_time_1 = System.currentTimeMillis();
-			totalDataCount = 0;
-
-			while (true == WriteFileThread_start)
-			{
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-				}
-
-				int actual = uartInterface.ReadData(4096, readBuffer);
-
-//				Log.e(">>@@", "actualNumBytes:" + actualNumBytes[0]);
-
-				if (actual > 0)
-				{
-					totalDataCount += actual;
-					try {
-						buf_save.write(readBuffer, 0, actualNumBytes[0]);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-
-				cal_time_2 = System.currentTimeMillis();
-				if((cal_time_2 - cal_time_1) > 200)
-				{
-					msg = mHandler.obtainMessage(UPDATE_READ_DATA);
-					mHandler.sendMessage(msg);
-					cal_time_1 = cal_time_2;
-				}
-			}
-
-			end_time = System.currentTimeMillis();
-			msg = mHandler.obtainMessage(UPDATE_READ_DATA_DONE);
-			mHandler.sendMessage(msg);
-		}
-	}
+//	private class save_data_thread extends Thread
+//	{
+//		Handler mHandler;
+//
+//		save_data_thread(Handler h) {
+//			mHandler = h;
+//		}
+//
+//		@Override
+//		public void run()
+//		{
+//			Message msg;
+//			start_time = System.currentTimeMillis();
+//			cal_time_1 = System.currentTimeMillis();
+//			totalDataCount = 0;
+//
+//			while (true == WriteFileThread_start)
+//			{
+//				try {
+//					Thread.sleep(100);
+//				} catch (InterruptedException e) {
+//				}
+//
+//				int actual = uartInterface.ReadData(4096, readBuffer);
+//
+////				Log.e(">>@@", "actualNumBytes:" + actualNumBytes[0]);
+//
+//				if (actual > 0)
+//				{
+//					totalDataCount += actual;
+//					try {
+//						buf_save.write(readBuffer, 0, actualNumBytes[0]);
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//
+//				cal_time_2 = System.currentTimeMillis();
+//				if((cal_time_2 - cal_time_1) > 200)
+//				{
+//					msg = mHandler.obtainMessage(UPDATE_READ_DATA);
+//					mHandler.sendMessage(msg);
+//					cal_time_1 = cal_time_2;
+//				}
+//			}
+//
+//			end_time = System.currentTimeMillis();
+//			msg = mHandler.obtainMessage(UPDATE_READ_DATA_DONE);
+//			mHandler.sendMessage(msg);
+//		}
+//	}
 		
 	// send file thread	
-	private class send_file_thread extends Thread 
-	{
-		Handler mHandler;
-		FileInputStream instream;
+//	private class send_file_thread extends Thread
+//	{
+//		Handler mHandler;
+//		FileInputStream instream;
+//
+//		send_file_thread(Handler h, FileInputStream stream)
+//		{
+//			mHandler = h;
+//			instream = stream;
+//			this.setPriority(Thread.MAX_PRIORITY);
+//		}
+//
+//		@Override
+//		public void run()
+//		{
+//
+//			byte [] usbdata = new byte[64];
+//			int readcount = 0;
+//			totalDataCount = 0;
+//
+//			Message msg;
+//			start_time = System.currentTimeMillis();
+//			cal_time_1 = System.currentTimeMillis();
+//			try{
+//				if(instream != null)
+//				{
+//					readcount = instream.read(usbdata,0,64);
+//					while(readcount > 0)
+//					{
+//						totalDataCount += readcount;
+//						uartInterface.SendData(readcount, usbdata);
+//						readcount = instream.read(usbdata,0,64);
+//
+//						cal_time_2 = System.currentTimeMillis();
+//						if((cal_time_2 - cal_time_1) > 200)
+//						{
+//							msg = mHandler.obtainMessage(UPDATE_SEND_DATA);
+//							mHandler.sendMessage(msg);
+//							cal_time_1 = cal_time_2;
+//						}
+//					}
+//				}
+//			}catch (IOException e){}
+//			end_time = System.currentTimeMillis();
+//			msg = mHandler.obtainMessage(UPDATE_SEND_DATA_DONE);
+//			mHandler.sendMessage(msg);
+//		}
+//	}
 
-		send_file_thread(Handler h, FileInputStream stream) 
-		{
-			mHandler = h;
-			instream = stream;
-			this.setPriority(Thread.MAX_PRIORITY);
-		}
-
-		@Override
-		public void run()
-		{
-
-			byte [] usbdata = new byte[64];
-			int readcount = 0;
-			totalDataCount = 0;
-
-			Message msg;
-			start_time = System.currentTimeMillis();
-			cal_time_1 = System.currentTimeMillis();
-			try{
-				if(instream != null)
-				{	
-					readcount = instream.read(usbdata,0,64);
-					while(readcount > 0)
-					{		
-						totalDataCount += readcount;
-						uartInterface.SendData(readcount, usbdata);
-						readcount = instream.read(usbdata,0,64);
-
-						cal_time_2 = System.currentTimeMillis();
-						if((cal_time_2 - cal_time_1) > 200)
-						{
-							msg = mHandler.obtainMessage(UPDATE_SEND_DATA);
-							mHandler.sendMessage(msg);
-							cal_time_1 = cal_time_2;
-						}
-					}
-				}
-			}catch (IOException e){}  
-			end_time = System.currentTimeMillis();
-			msg = mHandler.obtainMessage(UPDATE_SEND_DATA_DONE);
-			mHandler.sendMessage(msg);
-		}
-	}
-
-    class ClientThread implements Runnable {
-        @Override public void run() {
-            try {
-                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
-                socket = new Socket(serverAddr, SERVERPORT);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                Toast.makeText(global_context, "Failed to reach server.", Toast.LENGTH_LONG).show();
-            }
-            char[] buffer = new char[10];
-            try {
-                BufferedReader rdr = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                while (true) {
-                    rdr.read(buffer, 0, 1);
-
-//                    uartInterface.SendData(1, buffer);
-                    Toast.makeText(global_context, "char", Toast.LENGTH_SHORT).show();
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                Toast.makeText(global_context, "Data loop failed.", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    class ServerThread implements Runnable {
-        private ServerSocket listen = null;
-        @Override public void run() {
-            try {
-                listen = new ServerSocket(SERVERPORT);
-                while (!Thread.currentThread().isInterrupted()) {
-                    ServerCommThread commThread = new ServerCommThread();
-                    commThread.sock = listen.accept();
-                    new Thread(commThread).start();
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                Toast.makeText(global_context, "Failed to reach server.", Toast.LENGTH_LONG).show();
-            }
-
-        }
-    }
-
-    class ServerCommThread implements Runnable {
-        public Socket sock = null;
-        @Override public void run() {
-            try {
-                while (sock == null) {}
-                BufferedWriter wtr = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
-                while (true) {
-                    Thread.sleep(1000);
-                    wtr.write("G");
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                Toast.makeText(global_context, "Failed to reach server.", Toast.LENGTH_LONG).show();
-            }
-
-        }
-    }
+//    class ClientThread implements Runnable {
+//        @Override public void run() {
+//            try {
+//                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
+//                socket = new Socket(serverAddr, SERVERPORT);
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//                Toast.makeText(global_context, "Failed to reach server.", Toast.LENGTH_LONG).show();
+//            }
+//            char[] buffer = new char[10];
+//            try {
+//                BufferedReader rdr = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//                while (true) {
+//                    rdr.read(buffer, 0, 1);
+//
+////                    uartInterface.SendData(1, buffer);
+//                    Toast.makeText(global_context, "char", Toast.LENGTH_SHORT).show();
+//                }
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//                Toast.makeText(global_context, "Data loop failed.", Toast.LENGTH_LONG).show();
+//            }
+//        }
+//    }
+//
+//    class ServerThread implements Runnable {
+//        private ServerSocket listen = null;
+//        @Override public void run() {
+//            try {
+//                listen = new ServerSocket(SERVERPORT);
+//                while (!Thread.currentThread().isInterrupted()) {
+//                    ServerCommThread commThread = new ServerCommThread();
+//                    commThread.sock = listen.accept();
+//                    new Thread(commThread).start();
+//                }
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//                Toast.makeText(global_context, "Failed to reach server.", Toast.LENGTH_LONG).show();
+//            }
+//
+//        }
+//    }
+//
+//    class ServerCommThread implements Runnable {
+//        public Socket sock = null;
+//        @Override public void run() {
+//            try {
+//                while (sock == null) {}
+//                BufferedWriter wtr = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
+//                while (true) {
+//                    Thread.sleep(1000);
+//                    wtr.write("G");
+//                }
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//                Toast.makeText(global_context, "Failed to reach server.", Toast.LENGTH_LONG).show();
+//            }
+//
+//        }
+//    }
 
 }

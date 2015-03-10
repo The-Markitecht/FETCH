@@ -55,7 +55,8 @@ public class car_behavior extends behavior {
                 uart.SendData(s.length(), ascii.encode(s).array());
             }
         } else {
-            actual = uart.ReadData(RX_BUF_LEN, rxbytes);
+            //actual = uart.ReadData(RX_BUF_LEN, rxbytes);
+            actual = uart.inputstream.read(rxbytes, 0, RX_BUF_LEN);
             if (actual > 0) {
                 String s = new String(rxbytes, 0, actual, ascii);
                 rxtext.append(s);
