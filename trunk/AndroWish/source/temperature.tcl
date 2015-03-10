@@ -3,6 +3,8 @@
 # 600x976 deducting action bar, 
 # 1024x552 in landscape deducting action bar.
 
+# http://www.androwish.org/
+
 package require Tk
 package require Ttk
 
@@ -85,7 +87,23 @@ proc valuebar'set {vbname value} {
     
 }
 
-#console show  
+# other functions
+proc Server {channel clientaddr clientport} {
+    puts "Connection from $clientaddr registered"
+    set ::sock $channel
+    after cancel sendchar
+    after 1000 sendchar
+}
+
+proc sendchar {args} {
+    puts "sendchar [clock seconds]"
+    puts -nonewline $::sock F
+    after 1000 sendchar
+}
+
+socket -server Server 9900
+
+console show  
 wm withdraw .
 set w .ttkprogress
 toplevel $w
@@ -99,22 +117,26 @@ wm geometry $w ${window_width}x${window_height}+0+0
 ttk::button $w.quit -text "Quit" -command exit
 pack $w.quit
 
-ttk::progressbar $w.p1 -mode determinate -maximum 1000
-pack $w.p1
-$w.p1 configure -value [degf_to_thou 200]
+# ttk::progressbar $w.p1 -mode determinate -maximum 1000
+# pack $w.p1
+# $w.p1 configure -value [degf_to_thou 200]
 
-set diagram [image create photo -file [file join $app_path ../images/drivetrain1.gif]]
+# ttk::button $w.send -text "Send Char" -command sendchar
+# pack $w.send
 
-set cnv $w.cnv
-canvas $cnv
-$cnv create image 0 0 -anchor nw -image $diagram
-pack $cnv -expand true -fill both
 
-#ttk::progressbar $w.temp_fl -mode determinate -maximum 1000
-#scale $w.temp_fl
-#itk::feedback $w.temp_fl
-#$cnv create window 16 210 -window $w.temp_fl -anchor nw -height 150 -width 50
-valuebar'new temp_fl $cnv 16 210 50 150 {0xff 0 0}
-#valuebar'draw temp_fl
-#$w.temp_fl configure -value [degf_to_thou 200]
-#$w.temp_fl set [degf_to_thou 200]
+# set diagram [image create photo -file [file join $app_path ../images/drivetrain1.gif]]
+
+# set cnv $w.cnv
+# canvas $cnv
+# $cnv create image 0 0 -anchor nw -image $diagram
+# pack $cnv -expand true -fill both
+
+# #ttk::progressbar $w.temp_fl -mode determinate -maximum 1000
+# #scale $w.temp_fl
+# #itk::feedback $w.temp_fl
+# #$cnv create window 16 210 -window $w.temp_fl -anchor nw -height 150 -width 50
+# valuebar'new temp_fl $cnv 16 210 50 150 {0xff 0 0}
+# #valuebar'draw temp_fl
+# #$w.temp_fl configure -value [degf_to_thou 200]
+# #$w.temp_fl set [degf_to_thou 200]
