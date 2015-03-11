@@ -85,9 +85,9 @@ public class car_behavior extends behavior {
                 m.car_data_frame fr = new m.car_data_frame();
                 fr.timestamp = Integer.parseInt(mat.group(1).toString(), 16);
                 fr.brake_temp = new int[4];
-                fr.brake_temp[m.wheels.FL.ordinal()] = Integer.parseInt(mat.group(2).toString(), 16);
-                fr.brake_temp[m.wheels.FR.ordinal()] = Integer.parseInt(mat.group(3).toString(), 16);
-                fr.engine_block_temp = Integer.parseInt(mat.group(4).toString(), 16);
+                fr.brake_temp[m.wheels.FL.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(2).toString(), 16));
+                fr.brake_temp[m.wheels.FR.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(3).toString(), 16));
+                fr.engine_block_temp = adc_to_deg_f(Integer.parseInt(mat.group(4).toString(), 16));
                 txt.delete(0, mat.end());
                 return fr;
             }
@@ -97,4 +97,14 @@ public class car_behavior extends behavior {
         return null;
     }
 
+    protected int adc_to_deg_f(int adc) {
+        // simple linear function.  based on endpoints of S2 in oven bake test 2015/1/16.
+        // reads 20 deg F too low esp. at the low end.
+        //patch: upgrade to lookup table with linear interpolation.  OR get Excel etc. to fit a polynomial to it.
+        float m = 5.507157F;
+        float b = 221.9775F;
+        //return (int)(m * (float)adc + b);
+        // had to reverse the linear function because i accidentally swapped X and Y before solving the equations.
+        return (int)(((float)adc - b) / m);
+    }
 }
