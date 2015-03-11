@@ -217,7 +217,7 @@
 		 			android:background="@drawable/button_pattern"
 		 			android:layout_weight="1"
 		 			android:text="Start Getting Data"
-		 	/>		
+                android:visibility="invisible" />
 		</LinearLayout>
 
 		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
