@@ -20,7 +20,7 @@ public abstract class behavior {
         // called periodically to do any background operations.
     }
 
-    protected void send_to_gui(event_msg ev) throws Exception  {
+    public void send_to_gui(event_msg ev) throws Exception  {
         if (ev == null)
             return;
         android.os.Message m = android.os.Message.obtain();

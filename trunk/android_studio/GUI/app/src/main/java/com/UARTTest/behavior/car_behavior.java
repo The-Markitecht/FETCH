@@ -47,7 +47,7 @@ public class car_behavior extends behavior {
             long now = SystemClock.elapsedRealtime();
             if (now >= next_sim_packet_ms) {
                 next_sim_packet_ms = now + 1000;
-                int temp = (int)((now / 100) % 600);
+                int temp = (int)((now / 10) % 4096);
                 String s = String.format("%04x: s2=%04x s1=%04x ref=%04x\r\n", now % 0x10000, temp, temp, temp);
                 actual = s.length();
                 rxtext.append(s);
@@ -55,12 +55,13 @@ public class car_behavior extends behavior {
                 uart.SendData(s.length(), ascii.encode(s).array());
             }
         } else {
-            //actual = uart.ReadData(RX_BUF_LEN, rxbytes);
-            actual = uart.inputstream.read(rxbytes, 0, RX_BUF_LEN);
-            if (actual > 0) {
-                String s = new String(rxbytes, 0, actual, ascii);
-                rxtext.append(s);
-                send_to_gui((new m.text_rx_event()).set(s));
+            if (uart.inputstream != null) {
+                actual = uart.inputstream.read(rxbytes, 0, RX_BUF_LEN);
+                if (actual > 0) {
+                    String s = new String(rxbytes, 0, actual, ascii);
+                    rxtext.append(s);
+                    send_to_gui((new m.text_rx_event()).set(s));
+                }
             }
         }
 

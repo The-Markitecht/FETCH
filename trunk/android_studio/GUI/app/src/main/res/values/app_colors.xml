@@ -2,7 +2,7 @@
 <resources>
     <color name="window_background">#F000</color>
     <color name="window_text">#FFFF</color>
-    <color name="gauge_dial">#F888</color>
+    <color name="gauge_dial">#F444</color>
     <color name="gauge_pointer">#F000</color>
 
 </resources>

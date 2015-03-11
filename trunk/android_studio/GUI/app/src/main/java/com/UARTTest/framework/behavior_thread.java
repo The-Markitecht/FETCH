@@ -1,5 +1,7 @@
 package com.UARTTest.framework;
 
+import com.UARTTest.behavior.m;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -40,7 +42,11 @@ public class behavior_thread extends Thread {
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
-                //patch: send out an error event to the GUI!
+                try {
+                    behaviors[0].send_to_gui((new m.exception_event()).set(ex));
+                } catch (Exception ex2) {
+                    ex2.printStackTrace();
+                }
             }
 
             // loop throttle.

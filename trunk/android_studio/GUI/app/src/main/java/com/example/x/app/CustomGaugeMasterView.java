@@ -48,19 +48,26 @@ public class CustomGaugeMasterView extends View {
             mUnitAngle = ((double) Math.abs(mSweepAngle) / (mEndValue - mStartValue));
 
             // set up Paint brushes.
+            mPointerPaint = new Paint();
+            mPointerPaint.setStrokeWidth(a.getFloat(R.styleable.CustomGaugeMasterView_pointer_thickness, 20));
+            mPointerPaint.setAntiAlias(true);
+            mPointerPaint.setStrokeCap(Paint.Cap.BUTT);
+            mPointerPaint.setStyle(Paint.Style.STROKE);
+
             mDialPaint = new Paint();
             mDialPaint.setColor(a.getColor(R.styleable.CustomGaugeMasterView_dial_color, res.getColor(R.color.gauge_dial)));
-            mDialPaint.setStrokeWidth(a.getInt(R.styleable.CustomGaugeMasterView_dial_thickness, 20));
+            mDialPaint.setStrokeWidth(a.getFloat(R.styleable.CustomGaugeMasterView_dial_thickness, (int)mPointerPaint.getStrokeWidth() / 2));
             mDialPaint.setAntiAlias(true);
             mDialPaint.setStrokeCap(Paint.Cap.BUTT);
             mDialPaint.setStyle(Paint.Style.STROKE);
 
-            mPointerPaint = new Paint(mDialPaint);
-            mPointerPaint.setStrokeWidth(a.getInt(R.styleable.CustomGaugeMasterView_dial_thickness, (int)mDialPaint.getStrokeWidth() * 5 / 4));
-
-            mTextPaint = new Paint(mDialPaint);
+            mTextPaint = new Paint();
             mTextPaint.setTextAlign(Paint.Align.CENTER);
             mTextPaint.setColor(a.getColor(R.styleable.CustomGaugeMasterView_text_color, res.getColor(R.color.window_text)));
+            mTextPaint.setTextSize(a.getFloat(R.styleable.CustomGaugeMasterView_text_size, 20));
+            mTextPaint.setStrokeWidth(a.getFloat(R.styleable.CustomGaugeMasterView_text_thickness, 1.6F));
+            mTextPaint.setAntiAlias(true);
+            mTextPaint.setStrokeCap(Paint.Cap.BUTT);
 
             // allow for up to 3 solid color regions in the value indicator.
             // areas between those regions are filled in as a color gradient between their colors.
@@ -141,8 +148,6 @@ public class CustomGaugeMasterView extends View {
 //        }
 
         // value text
-        mTextPaint.setTextSize(getHeight() / 2);
-        mTextPaint.setStrokeWidth(mTextPaint.getTextSize() / 10);
         canvas.drawText(String.format("%d", mValue), mRect.centerX(), mRect.centerY(), mTextPaint);
     }
 
