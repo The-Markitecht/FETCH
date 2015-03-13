@@ -68,7 +68,7 @@
     // ////////////////////////////////////////////
     :main
     
-    // pass counter in x.
+    // pass counter in x.  anmux channel number in i.
     x = 0
     y = 1
     
@@ -77,37 +77,24 @@
     a = x
     call :put4x 
     putasc ":"
-    putasc " "
+    i = 8
+    j = -1
     
-    // unit 2 (better built sensor)
-    putasc "s"
-    putasc "2"
-    putasc "="
-    a = 0
-    call :anmux_read_chn
-    call :put4x
-    
-    // unit 1 (shoddy built sensor)
+    :next_anmux
+    i = i+j
     putasc " "
     putasc "s"
-    putasc "1"
+    b = i
+    asc a = "0"
+    putchar a+b
     putasc "="
-    a = 1
+    a = i
     call :anmux_read_chn
     call :put4x
-
-    // dead channel
-    putasc " "
-    putasc "r"
-    putasc "e"
-    putasc "f"
-    putasc "="
-    a = 2
-    call :anmux_read_chn
-    call :put4x
+    bn iz :next_anmux
     
     puteol
-    a = 1000
+    a = 900
     call :spinwait
     
     x = x+y

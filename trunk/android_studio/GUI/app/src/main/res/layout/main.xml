@@ -23,7 +23,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    android:layout_weight="1"
-	    >
+            android:visibility="invisible">
 
 	        <TextView
 	            android:id="@+id/baudRate"
@@ -52,7 +52,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    android:layout_weight="1"
-	    >
+            android:visibility="invisible">
 	        <TextView android:text="Stop(bit)"
 		    		  android:id="@+id/stopBit"
 		    		  android:layout_height="fill_parent"
@@ -81,7 +81,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    android:layout_weight="1"
-	    >
+            android:visibility="invisible">
 		     <TextView android:text="Data(bit)"
 		    		  android:id="@+id/dataBit"
 		    		  android:layout_height="fill_parent"
@@ -111,7 +111,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    android:layout_weight="1"
-	    >
+            android:visibility="invisible">
 		    <TextView android:text="Parity"
 		    		  android:id="@+id/parity"
 		    		  android:layout_height="fill_parent"
@@ -141,7 +141,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    android:layout_weight="1"
-	    >
+            android:visibility="invisible">
 		    <TextView android:text="Flow"
 		    		  android:id="@+id/flowControl"
 		    		  android:layout_height="fill_parent"
@@ -196,7 +196,7 @@
 	android:background="#505050"
     android:tag="Read block"
     android:layout_weight="1"
-    >
+        android:visibility="invisible">
 	    
 
 	 			

@@ -16,7 +16,7 @@ public class car_behavior extends behavior {
     protected byte[] rxbytes = new byte[RX_BUF_LEN];
     protected StringBuilder rxtext = new StringBuilder(RX_BUF_LEN);
     protected Charset ascii = Charset.forName("US-ASCII");
-    protected Pattern pat = Pattern.compile(" ^ ([0-9a-f]{4}) : \\s .. = ([0-9a-f]{4}) \\s .. = ([0-9a-f]{4}) \\s ... = ([0-9a-f]{4}) \\r\\n ", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
+    protected Pattern pat;
 
     // simulator
     protected boolean simulator_enabled = false;
@@ -26,6 +26,11 @@ public class car_behavior extends behavior {
         super();
         uart = u;
         gui = gui_hnd;
+        final String s = " ^ ([0-9a-f]{4}) : "
+         + "\\s s7=([0-9a-f]{4}) \\s s6=([0-9a-f]{4}) \\s s5=([0-9a-f]{4}) \\s s4=([0-9a-f]{4}) "
+         + "\\s s3=([0-9a-f]{4}) \\s s2=([0-9a-f]{4}) \\s s1=([0-9a-f]{4}) \\s s0=([0-9a-f]{4}) "
+         + "\\r\\n ";
+        pat = Pattern.compile(s, Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
     }
 
 
@@ -48,7 +53,8 @@ public class car_behavior extends behavior {
             if (now >= next_sim_packet_ms) {
                 next_sim_packet_ms = now + 1000;
                 int temp = (int)((now / 10) % 4096);
-                String s = String.format("%04x: s2=%04x s1=%04x ref=%04x\r\n", now % 0x10000, temp, temp, temp);
+                String s = String.format("%04x: s7=%04x s6=%04x s5=%04x s4=%04x s3=%04x s2=%04x s1=%04x s0=%04x\r\n",
+                        now % 0x10000, temp, temp, temp, temp, temp, temp, temp, temp);
                 actual = s.length();
                 rxtext.append(s);
                 // copy the simulator string to the real uart, to see on the scope.
@@ -85,10 +91,13 @@ public class car_behavior extends behavior {
             if (mat.find()) {
                 m.car_data_frame fr = new m.car_data_frame();
                 fr.timestamp = Integer.parseInt(mat.group(1).toString(), 16);
+                fr.transmission_temp = adc_to_deg_f(Integer.parseInt(mat.group(4).toString(), 16)); // s3
+                fr.engine_block_temp = adc_to_deg_f(Integer.parseInt(mat.group(5).toString(), 16)); // s4
                 fr.brake_temp = new int[4];
-                fr.brake_temp[m.wheels.FL.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(2).toString(), 16));
-                fr.brake_temp[m.wheels.FR.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(3).toString(), 16));
-                fr.engine_block_temp = adc_to_deg_f(Integer.parseInt(mat.group(4).toString(), 16));
+                fr.brake_temp[m.wheels.RR.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(6).toString(), 16)); // s3
+                fr.brake_temp[m.wheels.RL.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(7).toString(), 16)); // s2
+                fr.brake_temp[m.wheels.FR.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(8).toString(), 16)); // s1
+                fr.brake_temp[m.wheels.FL.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(9).toString(), 16)); // s0
                 txt.delete(0, mat.end());
                 return fr;
             }
@@ -107,5 +116,6 @@ public class car_behavior extends behavior {
         //return (int)(m * (float)adc + b);
         // had to reverse the linear function because i accidentally swapped X and Y before solving the equations.
         return (int)(((float)adc - b) / m);
+cubic polynomial here
     }
 }
