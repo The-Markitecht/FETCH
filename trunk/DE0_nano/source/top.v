@@ -35,8 +35,8 @@ module top (
     input wire 		          		ADC_SDAT,
 
     input wire                          reserved,
-    output wire                         async_tx_line,
-    input wire                          async_rx_line,
+    (* chip_pin = "F13" *) output wire  async_tx_line,
+    (* chip_pin = "T9" *) input wire   async_rx_line,
     output wire 		    [9:0]		GPIO_2
     //input wire 		     [2:0]		GPIO_2_IN
 
