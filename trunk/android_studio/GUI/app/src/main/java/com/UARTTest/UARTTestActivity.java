@@ -91,7 +91,7 @@ public class UARTTestActivity extends Activity
     private Socket socket;
 
     //patch: new nanoHTTPd stuff
-    HelloServer server = null;
+    //HelloServer server = null;
 
     /** Called when the activity is first created. */
     @Override
@@ -170,8 +170,9 @@ public class UARTTestActivity extends Activity
         
         uartInterface = new FT311UARTInterface(this, null);
 
-        server = new HelloServer();
-        server.uart = uartInterface;
+// this NanoHTTPd actually works, but i'm disabling it here.
+//        server = new HelloServer();
+//        server.uart = uartInterface;
 
 //        savefileButton.setOnClickListener(new View.OnClickListener()
 //        {
@@ -361,8 +362,9 @@ public class UARTTestActivity extends Activity
 //                        Toast.makeText(global_context, "sending " + i, Toast.LENGTH_SHORT).show();
 //                        uartInterface.SendData(1, buf);
 //                    }
-            server.start();
-            Toast.makeText(global_context, "http server started", Toast.LENGTH_LONG).show();
+
+//            server.start();
+//            Toast.makeText(global_context, "http server started", Toast.LENGTH_LONG).show();
 
             startActivity(new Intent(this, CarActivity.class));
 

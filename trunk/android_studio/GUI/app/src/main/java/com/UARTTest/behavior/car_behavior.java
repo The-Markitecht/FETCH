@@ -91,11 +91,15 @@ public class car_behavior extends behavior {
             if (mat.find()) {
                 m.car_data_frame fr = new m.car_data_frame();
                 fr.timestamp = Integer.parseInt(mat.group(1).toString(), 16);
-                fr.transmission_temp = adc_to_deg_f(Integer.parseInt(mat.group(4).toString(), 16)); // s3
-                fr.engine_block_temp = adc_to_deg_f(Integer.parseInt(mat.group(5).toString(), 16)); // s4
+//                fr.transmission_temp = adc_to_deg_f(Integer.parseInt(mat.group(4).toString(), 16)); // s5
+//                fr.engine_block_temp = adc_to_deg_f(Integer.parseInt(mat.group(5).toString(), 16)); // s4
+//                fr.brake_temp = new int[4];
+//                fr.brake_temp[m.wheels.RR.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(6).toString(), 16)); // s3
+//                fr.brake_temp[m.wheels.RL.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(7).toString(), 16)); // s2
+//                fr.brake_temp[m.wheels.FR.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(8).toString(), 16)); // s1
+//                fr.brake_temp[m.wheels.FL.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(9).toString(), 16)); // s0
+                fr.transmission_temp = adc_to_deg_f(Integer.parseInt(mat.group(6).toString(), 16)); // s3
                 fr.brake_temp = new int[4];
-                fr.brake_temp[m.wheels.RR.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(6).toString(), 16)); // s3
-                fr.brake_temp[m.wheels.RL.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(7).toString(), 16)); // s2
                 fr.brake_temp[m.wheels.FR.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(8).toString(), 16)); // s1
                 fr.brake_temp[m.wheels.FL.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(9).toString(), 16)); // s0
                 txt.delete(0, mat.end());
@@ -116,6 +120,6 @@ public class car_behavior extends behavior {
         //return (int)(m * (float)adc + b);
         // had to reverse the linear function because i accidentally swapped X and Y before solving the equations.
         return (int)(((float)adc - b) / m);
-cubic polynomial here
+//patch: cubic polynomial here
     }
 }

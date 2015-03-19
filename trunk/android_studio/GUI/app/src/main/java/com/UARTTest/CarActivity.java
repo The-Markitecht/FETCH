@@ -51,14 +51,17 @@ public class CarActivity extends Activity {
         @Override public void handleMessage(Message msg) {
             if (msg.obj == null)
                 return;
+
             if (msg.obj instanceof m.car_data_frame) {
                 m.car_data_frame fr = (m.car_data_frame)msg.obj;
                 timestamp_txt.setText(Integer.toString(fr.timestamp));
-                engine_temp_gage.setValue(fr.engine_block_temp);
+                engine_temp_gage.setValue(fr.transmission_temp);
                 for (int i = 0; i < 2; i++)
                     brake_temp_gage[i].setValue(fr.brake_temp[i]);
+
             } else if (msg.obj instanceof m.text_rx_event) {
                 cons(((m.text_rx_event) msg.obj).valu);
+
             } else if (msg.obj instanceof m.exception_event) {
                 StringWriter wtr = new StringWriter();
                 ((m.exception_event) msg.obj).valu.printStackTrace(new PrintWriter(wtr));
