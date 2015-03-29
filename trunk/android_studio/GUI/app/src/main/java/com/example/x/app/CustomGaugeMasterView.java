@@ -152,6 +152,10 @@ public class CustomGaugeMasterView extends View {
     }
 
     public void setValue(int value) {
+        if (value > mEndValue)
+            value = mEndValue;
+        if (value < mStartValue)
+            value = mStartValue;
         mValue = value;
         mPoint = (int) scale_to_deg(value);
         invalidate();

@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.UARTTest.behavior.*;
 import com.UARTTest.framework.*;
@@ -21,9 +22,14 @@ import java.io.StringWriter;
 
 public class CarActivity extends Activity {
 
+    // Acer A110 tablet screen physical 600x1024,
+    // 600x976 deducting action bar,
+    // 1024x552 in landscape deducting action bar.
+
     protected TextView timestamp_txt;
     protected TextView cons_txt;
     protected CustomGaugeMasterView engine_temp_gage;
+    protected CustomGaugeMasterView trans_temp_gage;
     protected CustomGaugeMasterView[] brake_temp_gage;
 
     @Override
@@ -31,20 +37,28 @@ public class CarActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car);
 
-        timestamp_txt = (TextView)findViewById(R.id.timestamp_txt);
-        cons_txt = (TextView)findViewById(R.id.cons);
-        engine_temp_gage = (CustomGaugeMasterView)findViewById(R.id.engine_temp_gage);
-        brake_temp_gage = new CustomGaugeMasterView[] {
-                (CustomGaugeMasterView)findViewById(R.id.brake_fl_gage),
-                (CustomGaugeMasterView)findViewById(R.id.brake_fr_gage),
-                null,
-                null
-        };
+        try {
+            timestamp_txt = (TextView)findViewById(R.id.timestamp_txt);
+            cons_txt = (TextView)findViewById(R.id.cons);
+            engine_temp_gage = (CustomGaugeMasterView)findViewById(R.id.engine_temp_gage);
+            trans_temp_gage = (CustomGaugeMasterView)findViewById(R.id.trans_temp_gage);
+            brake_temp_gage = new CustomGaugeMasterView[] {
+                    (CustomGaugeMasterView)findViewById(R.id.brake_fl_gage),
+                    (CustomGaugeMasterView)findViewById(R.id.brake_fr_gage),
+                    null,
+                    null
+            };
 
-        car_behavior car = new car_behavior(UARTTestActivity.uartInterface, hnd);
+            car_behavior car = new car_behavior(this, UARTTestActivity.uartInterface, hnd);
 
-        global.bthread = new behavior_thread(new behavior[] {car});
-        global.bthread.start();
+            global.bthread = new behavior_thread(new behavior[] {car});
+            global.bthread.start();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            cons(ex);
+            Toast.makeText(this, ex.toString(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     protected Handler hnd = new Handler(Looper.getMainLooper()) {
@@ -55,7 +69,8 @@ public class CarActivity extends Activity {
             if (msg.obj instanceof m.car_data_frame) {
                 m.car_data_frame fr = (m.car_data_frame)msg.obj;
                 timestamp_txt.setText(Integer.toString(fr.timestamp));
-                engine_temp_gage.setValue(fr.transmission_temp);
+                engine_temp_gage.setValue(fr.engine_block_temp);
+                trans_temp_gage.setValue(fr.transmission_temp);
                 for (int i = 0; i < 2; i++)
                     brake_temp_gage[i].setValue(fr.brake_temp[i]);
 
@@ -63,17 +78,21 @@ public class CarActivity extends Activity {
                 cons(((m.text_rx_event) msg.obj).valu);
 
             } else if (msg.obj instanceof m.exception_event) {
-                StringWriter wtr = new StringWriter();
-                ((m.exception_event) msg.obj).valu.printStackTrace(new PrintWriter(wtr));
-                cons(wtr.toString());
+                cons(((m.exception_event) msg.obj).valu);
             }
         }
     };
 
     protected void cons(CharSequence s) {
-        while (cons_txt.length() > 200)
-            cons_txt.setText(cons_txt.getText().subSequence(200, cons_txt.length()));
+        while (cons_txt.length() > 1000)
+            cons_txt.setText(cons_txt.getText().subSequence(1000, cons_txt.length()));
         cons_txt.append(s);
+    }
+
+    protected void cons(Exception ex) {
+        StringWriter wtr = new StringWriter();
+        ex.printStackTrace(new PrintWriter(wtr));
+        cons(wtr.toString());
     }
 
     public void sim_change(View vw) {

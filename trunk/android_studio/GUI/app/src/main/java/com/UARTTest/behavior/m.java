@@ -2,6 +2,8 @@ package com.UARTTest.behavior;
 
 import com.UARTTest.framework.*;
 
+import java.util.Date;
+
 public abstract class m {
     public enum wheels {
         FL,
@@ -18,12 +20,14 @@ public abstract class m {
 
     public static class car_data_frame extends event_msg {
         public int timestamp;
+        public Date android_time;
 
         // temperatures not related to fuel injection.
         public int engine_block_temp;
         public int engine_air_intake_temp; // can be used as ambient temp.
         public int transmission_temp;
         public int[] brake_temp;
+        public CharSequence temp_data_string;
 
         // fuel injection data.
         public int throttle_position;

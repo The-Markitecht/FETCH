@@ -1,36 +1,34 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     tools:context="com.UARTTest.CarActivity"
-    android:background="@drawable/drivetrain1_blk">
+    android:background="@drawable/drivetrain2_blk">
 
     <view class="com.example.x.app.CustomGaugeMasterView"
         android:layout_width="150dp"
         android:layout_height="100dp"
         android:id="@+id/brake_fl_gage"
         app:scale_min="0" app:scale_max="600"
-        app:color_1="#f0a0" app:color_1_max="250"
-        app:color_2="#fcc0" app:color_2_min="270" app:color_2_max="400"
+        app:color_1="#f0a0" app:color_1_max="200"
+        app:color_2="#fcc0" app:color_2_min="225" app:color_2_max="400"
         app:color_3="#fc00" app:color_3_min="420"
         app:text_size="35"
         app:text_thickness="3.2"
         app:dial_thickness="10"
         app:pointer_thickness="36"
-        android:layout_marginTop="220dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        />
+        android:layout_x="2dp"
+        android:layout_y="36dp" />
 
     <view
         class="com.example.x.app.CustomGaugeMasterView"
         app:scale_min="0"
         app:scale_max="600"
         app:color_1="#f0a0"
-        app:color_1_max="250"
+        app:color_1_max="200"
         app:color_2="#fcc0"
-        app:color_2_min="270"
+        app:color_2_min="225"
         app:color_2_max="400"
         app:color_3="#fc00"
         app:color_3_min="420"
@@ -41,30 +39,53 @@
         android:layout_width="150dp"
         android:layout_height="100dp"
         android:id="@+id/brake_fr_gage"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="false"
-        android:layout_alignTop="@+id/brake_fl_gage" />
+        android:layout_marginTop="51dp"
+        android:layout_x="871dp"
+        android:layout_y="45dp" />
 
     <view
         class="com.example.x.app.CustomGaugeMasterView"
         app:scale_min="0"
-        app:scale_max="600"
+        app:scale_max="400"
         app:color_1="#f0a0"
-        app:color_1_max="250"
+        app:color_1_max="150"
         app:color_2="#fcc0"
-        app:color_2_min="270"
-        app:color_2_max="400"
+        app:color_2_min="175"
+        app:color_2_max="200"
         app:color_3="#fc00"
-        app:color_3_min="420"
-        app:text_size="35"
+        app:color_3_min="250"
+        app:text_size="60"
+        app:text_thickness="3.2"
+        app:dial_thickness="15"
+        app:pointer_thickness="50"
+        android:layout_width="247dp"
+        android:layout_height="160dp"
+        android:id="@+id/trans_temp_gage"
+        android:layout_marginRight="102dp"
+        android:layout_x="229dp"
+        android:layout_y="199dp" />
+
+    <view
+        class="com.example.x.app.CustomGaugeMasterView"
+        app:scale_min="0"
+        app:scale_max="400"
+        app:color_1="#f0a0"
+        app:color_1_max="150"
+        app:color_2="#fcc0"
+        app:color_2_min="175"
+        app:color_2_max="200"
+        app:color_3="#fc00"
+        app:color_3_min="250"
+        app:text_size="45"
         app:text_thickness="3.2"
         app:dial_thickness="10"
         app:pointer_thickness="36"
-        android:layout_width="150dp"
-        android:layout_height="100dp"
+        android:layout_width="168dp"
+        android:layout_height="112dp"
         android:id="@+id/engine_temp_gage"
-        android:layout_above="@+id/cons"
-        android:layout_alignParentLeft="true" />
+        android:layout_marginRight="54dp"
+        android:layout_x="578dp"
+        android:layout_y="38dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -72,27 +93,28 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="TimeStamp"
         android:id="@+id/timestamp_txt"
-        android:layout_above="@+id/sim_chk"
-        android:layout_alignParentRight="true" />
+        android:layout_x="23dp"
+        android:layout_y="413dp" />
 
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Simulate"
         android:id="@+id/sim_chk"
-        android:layout_alignParentBottom="true"
         android:checked="false"
         android:onClick="sim_change"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="200dp" />
+        android:layout_marginBottom="200dp"
+        android:layout_x="16dp"
+        android:layout_y="440dp"
+        android:text="Simulate" />
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_width="440dp"
+        android:layout_height="230dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="console"
         android:id="@+id/cons"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true" />
+        android:layout_x="581dp"
+        android:layout_y="266dp"
+        android:visibility="visible"
+        android:text="console" />
 
-</RelativeLayout>
+</AbsoluteLayout>
