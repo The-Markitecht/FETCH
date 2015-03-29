@@ -1,7 +1,7 @@
 `include "header.v"
 
 module top (
-    input wire 		          		clk50m,
+    (* chip_pin = "R8" *) input wire clk50m,
 
     output wire		     [7:0]		LED, // active HIGH
     input wire 		     [1:0]		KEY, // active LOW
@@ -34,9 +34,15 @@ module top (
     output wire		          		ADC_SCLK,
     input wire 		          		ADC_SDAT,
 
-    input wire                          reserved,
+    (* chip_pin = "G15" *) input wire   reserved,
+    
     (* chip_pin = "F13" *) output wire  async_tx_line,
-    (* chip_pin = "T9" *) input wire   async_rx_line,
+    (* chip_pin = "T9" *)  input wire   async_rx_line,
+
+    (* chip_pin = "G16" *) output wire  dbg_async_tx_line,
+    (* chip_pin = "F14" *)  input wire  dbg_async_rx_line,
+    
+    
     output wire 		    [9:0]		GPIO_2
     //input wire 		     [2:0]		GPIO_2_IN
 
@@ -98,8 +104,8 @@ supervised_synapse316 supmcu(
     .r_read          (r_read),
     .r_load          (r_load),
     .r_load_data     (r_load_data),
-    .dbg_async_rx_line   (1'b1),
-    .dbg_async_tx_line   (GPIO_2[4])
+    .dbg_async_rx_line   (dbg_async_rx_line),
+    .dbg_async_tx_line   (dbg_async_tx_line)
 );    
 
 // ///////////////////////////   plumbing of target MCU I/O.
@@ -220,20 +226,20 @@ assign exp_r[`ESR_KEYS] = {14'h0, KEY};
 std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, exp_r[`EDR_ANMUX_CTRL], exp_r_load_data[3:0], exp_r_load[`EDR_ANMUX_CTRL]);
 assign anmux_ctrl = exp_r[`EDR_ANMUX_CTRL][3:0];
 
-event_controller #(.NUM_INPUTS(8)) events( 
-     .sysclk            (sysclk)
-    ,.sysreset          (sysreset)
-    ,.data_out          (exp_r[`EDR_EVENT_CTRL])
-    ,.data_in           (exp_r_load_data)
-    ,.data_load         (exp_r_load[`EDR_EVENT_CTRL])
-    ,.event_edge_sens   ({
-        // LEAST urgent events are listed FIRST.
-        ,KEY[1]
-        ,KEY[0]
-        ,! txbsy
-         ! rxbsy
-        ,1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
-    }));
+// event_controller #(.NUM_INPUTS(8)) events( 
+     // .sysclk            (sysclk)
+    // ,.sysreset          (sysreset)
+    // ,.data_out          (exp_r[`EDR_EVENT_CTRL])
+    // ,.data_in           (exp_r_load_data)
+    // ,.data_load         (exp_r_load[`EDR_EVENT_CTRL])
+    // ,.event_edge_sens   ({
+        // // LEAST urgent events are listed FIRST.
+        // ,KEY[1]
+        // ,KEY[0]
+        // ,! txbsy
+         // ! rxbsy
+        // ,1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
+    // }));
 // edge detectors on each input.  those each can set a RS capture flop.  
 // EDR_EVENT_CTRL reads from a priority encoder summarizing the capture flops.
 // writing a priority value back to EDR_EVENT_CTRL clears the indexed capture flop.

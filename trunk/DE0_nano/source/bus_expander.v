@@ -3,7 +3,10 @@
 // synthesize with SystemVerilog
 
 // old system: 3504 LE 85 MHz
-// same system using expander: 3506 LE 73.5 MHz !  WHAT HAPPENED??
+// same system using expander: 3505 LE 73 MHz !  WHAT HAPPENED??
+    // not much clues from timequest: none of the modified paths were in the critical list.
+    // could be the different assemble.tcl affected the timing...
+    // but i'm back to 86 MHz after more very slight changes.
 // note: at least 8 bits of the data bus width were optimized away, so area is probably optimistic.
         
 module bus_expander #(

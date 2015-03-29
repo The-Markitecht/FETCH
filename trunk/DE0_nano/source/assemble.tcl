@@ -135,7 +135,8 @@ proc parse_assignment {dest eq src} {
         set dest_num [dest $dest]
         if {[is_expander_reference $dest_num]} {
             # destination is addressed through a bus expander.  set the expander's address reg.
-            lappend opcodes [pack [expander_addr_reg $dest_num] [indirect_reg $dest_num]]
+            console "$dest_num is [indirect_reg $dest_num] on expander addr [expander_addr_reg $dest_num] data [expander_data_reg $dest_num]"
+            lappend opcodes [pack_small_constant [expander_addr_reg $dest_num] [indirect_reg $dest_num]]
             set dest_num [expander_data_reg $dest_num]
         }
         if {[dict exists $::asrc $src]} {
@@ -143,7 +144,7 @@ proc parse_assignment {dest eq src} {
             set src_num [src $src]
             if {[is_expander_reference $src_num]} {
                 # source is addressed through a bus expander.  set the expander's address reg.
-                lappend opcodes [pack [expander_addr_reg $src_num] [indirect_reg $src_num]]
+                lappend opcodes [pack_small_constant [expander_addr_reg $src_num] [indirect_reg $src_num]]
                 set src_num [expander_data_reg $src_num]
                 if {[is_expander_reference $dest_num] && ([expander_addr_reg $dest_num] == [expander_addr_reg $src_num])} {
                     error "source and destination use the same bus expander: $dest $eq $src"
@@ -173,7 +174,7 @@ proc parse_assignment {dest eq src} {
                 error "constant out of range: $dest $eq $src"
             } else {
                 # 8-bit immediate, stored in the same ROM word.
-                lappend opcodes [expr ($dest_num << $::dest_shift) | $::small_const_opcode | ($src << $::small_const_shift)]
+                lappend opcodes [pack_small_constant $dest_num $src]
             }
         } else {
             error "source is not recognized: $dest $eq $src"
@@ -334,6 +335,11 @@ proc pack {dest_addr src_addr} {
     # pack the given dest and src into a 16-bit assignment opcode (a Tcl integer).
     return [expr ($src_addr << $::src_shift) | ($dest_addr << $::dest_shift)]
 }
+
+proc pack_small_constant {dest_addr constant} {
+    return [pack $dest_addr [expr $::small_const_opcode | ($constant << $::small_const_shift)]]
+}
+
 
 proc parse_text {asm_lines pass_num} {
     set ::asm_pass $pass_num

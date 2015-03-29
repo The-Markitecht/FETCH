@@ -299,6 +299,8 @@ func dump_target
     i = 0
     :next_reg
     // fetch register name from table in target program.
+    // i = register number.  x = 2-byte word index within each name string.
+    // peek is skipped for any reg name starting with 2 slashes (good for read-sensitive regs). 
     x = 0
     y = 1
     :next_chars
@@ -309,6 +311,9 @@ func dump_target
     a = a+b
     b = x
     m9k_addr = a+b
+    a = m9k_data
+    b = 0x2f2f
+    br eq :no_peek
     putchar m9k_data
     a = m9k_data
     a = a>>4
@@ -324,6 +329,7 @@ func dump_target
     a = peek_data
     call :put4x
     putasc " "
+    :no_peek
     j = 1
     i = i+j
     // loop up to the number of registers in the target program's register name table.

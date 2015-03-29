@@ -54,7 +54,7 @@
     jmp :main
     
     // register names for use by debugger.
-    ([src rstk])
+    ($counter + 1)
     "\r\n     a"
     "       b"
     "       i"
@@ -63,8 +63,16 @@
     "       y"
     "      g6"
     "      g7"
-    "\r\n  keys"
-    "    leds"
+    "//  rstk"
+    "//adcctl"
+    "\r\navwrdt"
+    "//avrdda"
+    "av_ad_hi"
+    "av_ad_lo"
+    "atx_data"
+    "\r\natxctl"
+    "exp_data"
+    "exp_addr"
     
     // libraries
     include lib/string.asm
@@ -108,35 +116,35 @@
     x = x+y
     jmp :next_pass
     
-    // event loop prototype.
-    // first instruction of an event handler should be the 7th cycle after an event signal.
-    :poll_events
-    // initialize prior to polling loop, for minimum latency.
-    b = :event_table
-    // below is a 3-cycle polling loop.
-    :poll_events_again
-    a = event_ctrl
-    br 0z :poll_events_again
-    // acknowledge the event to clear its register.  do this right away, so another occurrence of the same event can be captured.
-    event_ctrl = a
-    // compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
-    rtna = ad0
-    // jump into the event_table.  each handler MUST end with a end_event.
-    // each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
-    // each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
-    swapra    
-    // just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
-    :events_error_halt
-    jmp :events_error_halt
+    // // event loop prototype.
+    // // first instruction of an event handler should be the 7th cycle after an event signal.
+    // :poll_events
+    // // initialize prior to polling loop, for minimum latency.
+    // b = :event_table
+    // // below is a 3-cycle polling loop.
+    // :poll_events_again
+    // a = event_ctrl
+    // br 0z :poll_events_again
+    // // acknowledge the event to clear its register.  do this right away, so another occurrence of the same event can be captured.
+    // event_ctrl = a
+    // // compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
+    // rtna = ad0
+    // // jump into the event_table.  each handler MUST end with a end_event.
+    // // each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
+    // // each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
+    // swapra    
+    // // just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
+    // :events_error_halt
+    // jmp :events_error_halt
     
-    // event table begins with a NOP because that's the event 0 position.
-    :event_table    
-    nop
-    jmp :uart_rx_char_handler
-    jmp :uart_tx_char_handler
-    jmp :key0_handler
-    jmp :key1_handler
+    // // event table begins with a NOP because that's the event 0 position.
+    // :event_table    
+    // nop
+    // jmp :uart_rx_char_handler
+    // jmp :uart_tx_char_handler
+    // jmp :key0_handler
+    // jmp :key1_handler
     
-event uart_rx_char_handler
-    // handle data here
-    end_event
+// event uart_rx_char_handler
+    // // handle data here
+    // end_event

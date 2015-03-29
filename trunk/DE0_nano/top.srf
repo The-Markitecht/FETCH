@@ -107,6 +107,14 @@
 { "" "" "" "Net \"r\[31..26\]\" at visor.v(42) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Verilog HDL or VHDL warning at visor.v(78): object \"poke_data\" assigned a value but never read" {  } {  } 0 10036 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "PLL \"async_pll:async_pll_inst\|altpll:altpll_component\|async_pll_altpll:auto_generated\|pll1\" output port clk\[2\] feeds output pin \"DRAM_CLK~output\" via non-dedicated routing -- jitter performance depends on switching rate of other design elements. Use PLL dedicated clock outputs to ensure jitter performance" {  } {  } 0 15064 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at visor_program_defines.v(37): overriding existing definition for macro \"SR_ATX_DATA\", which was defined in \"source/target_program_defines.v\", line 32" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at visor_program_defines.v(38): overriding existing definition for macro \"DR_ATX_DATA\", which was defined in \"source/target_program_defines.v\", line 33" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at visor_program_defines.v(39): overriding existing definition for macro \"SR_ATX_CTRL\", which was defined in \"source/target_program_defines.v\", line 34" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at visor_program_defines.v(40): overriding existing definition for macro \"DR_ATX_CTRL\", which was defined in \"source/target_program_defines.v\", line 35" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at target_program_defines.v(32): overriding existing definition for macro \"SR_ATX_DATA\", which was defined in \"source/target_program_defines.v\", line 32" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at target_program_defines.v(33): overriding existing definition for macro \"DR_ATX_DATA\", which was defined in \"source/target_program_defines.v\", line 33" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at target_program_defines.v(34): overriding existing definition for macro \"SR_ATX_CTRL\", which was defined in \"source/target_program_defines.v\", line 34" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at target_program_defines.v(35): overriding existing definition for macro \"DR_ATX_CTRL\", which was defined in \"source/target_program_defines.v\", line 35" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

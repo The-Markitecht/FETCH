@@ -18,6 +18,10 @@ proc assemble_with_macros {src_fn rom_fn} {
 }
 
 # main script; assemble individual files for each MCU core here.
-foreach asm_fn [glob -nocomplain *.asm] {
-  assemble_with_macros $asm_fn "[file rootname $asm_fn].v"
-}
+# foreach asm_fn [glob -nocomplain *.asm] {
+    # assemble_with_macros $asm_fn "[file rootname $asm_fn].v"
+# }
+
+# assemble each program explicitly:
+assemble_with_macros target_program.asm "target_program.v"
+assemble_with_macros visor_program.asm "visor_program.v"
