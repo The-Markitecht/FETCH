@@ -220,5 +220,28 @@ assign exp_r[`ESR_KEYS] = {14'h0, KEY};
 std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, exp_r[`EDR_ANMUX_CTRL], exp_r_load_data[3:0], exp_r_load[`EDR_ANMUX_CTRL]);
 assign anmux_ctrl = exp_r[`EDR_ANMUX_CTRL][3:0];
 
+event_controller #(.NUM_INPUTS(8)) events( 
+     .sysclk            (sysclk)
+    ,.sysreset          (sysreset)
+    ,.data_out          (exp_r[`EDR_EVENT_CTRL])
+    ,.data_in           (exp_r_load_data)
+    ,.data_load         (exp_r_load[`EDR_EVENT_CTRL])
+    ,.event_edge_sens   ({
+        // LEAST urgent events are listed FIRST.
+        ,KEY[1]
+        ,KEY[0]
+        ,! txbsy
+         ! rxbsy
+        ,1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
+    }));
+// edge detectors on each input.  those each can set a RS capture flop.  
+// EDR_EVENT_CTRL reads from a priority encoder summarizing the capture flops.
+// writing a priority value back to EDR_EVENT_CTRL clears the indexed capture flop.
+
+// note that EDR_EVENT_CTRL can change (to a more urgent priority) during an event handler.
+// so the MCU core MUST copy the EDR_EVENT_CTRL value to another register (or the stack) 
+// before using that value to clear the flop (ack the event).  even if it's done as soon as
+// the MCU detects the event.  otherwise the wrong event might get ack'd, resulting in a missed
+// high-priority event.
 
 endmodule

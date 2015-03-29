@@ -86,6 +86,18 @@ namespace eval ::asm {
         namespace eval ::asm [list set $varname $value]
     }
 
+    # event handling macros.
+    proc event {lin label} {
+        # this is declared similar to a func, but is not a func.
+        set label [string trim $label {: }]
+        dict set ::labels $label $::ipr
+        emit "// $lin // = 0x[format %04x $::ipr]"
+    }    
+    
+    proc end_event {lin} {
+        jmp $lin poll_events
+    }
+    
     # subroutine macros.
     proc call {lin label} {
         uses_reg rtna

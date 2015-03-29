@@ -6,8 +6,8 @@ module priority_encoder #(
      parameter NUM_INPUTS          = 65536       
     ,parameter TOP_INPUT           = NUM_INPUTS - 1       
 ) (
-      input wire[TOP_INPUT:0]         in    
-    ,output wire[15:0]                out        
+    output wire[15:0]                out        
+    ,input wire[TOP_INPUT:0]         in    
 );      
     // all inputs are usable in this encoder, even input no. 0.
     // asserting it causes a zero code output (as expected).  but since zero code is
