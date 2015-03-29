@@ -67,6 +67,31 @@ proc flag {flag_name} {
     return [dict get $::flagsrc $flag_name]
 }
 
+proc is_expander_reference {reference} {
+    return [expr [string first {@} $reference] >= 0]
+}
+
+proc expander_name {reference} {
+    return [string trim [string range $reference [string first {@} $reference]+1 end]]
+}
+
+proc expander_data_reg {reference} {
+    # return the register number (a Tcl integer) of the DATA register of the 
+    # bus expander required to access the given register name.  
+    return [dest [expander_name $reference]]
+}
+
+proc expander_addr_reg {reference} {
+    # return the register number (a Tcl integer) of the ADDRESS register of the 
+    # bus expander required to access the given register name.  
+    return [dest [expander_name $reference]_addr]
+}
+
+proc indirect_reg {reference} {
+    # return the register number (a Tcl integer) of the given reference, within the EXPANDED (the indirect) address space.
+    return [string trim [string range $reference 0 [string first {@} $reference]-1]]    
+}
+
 proc label {name} {
     # translate given label name into its address (a Tcl integer).
     if {$::asm_pass <= $::pass(label)} {
@@ -99,36 +124,56 @@ proc uses_reg {reg} {
 proc parse_assignment {dest eq src} {
     # parse and return list of opcodes from a phrase of 3 tokens of text.  this includes assignments and branches.
     # this list will be more than one ROM word if e.g. a 16-bit immediate constant or a branch target is found.
+    # bus expander access is fully supported in src or dest or both, even if the source
+    # is an operator which has latency.
     
     set dest [string tolower $dest]
     set src [string tolower $src]
     set opcodes [list]
     if {[string equal $eq {=}]} {
         # assignment.
+        set dest_num [dest $dest]
+        if {[is_expander_reference $dest_num]} {
+            # destination is addressed through a bus expander.  set the expander's address reg.
+            lappend opcodes [pack [expander_addr_reg $dest_num] [indirect_reg $dest_num]]
+            set dest_num [expander_data_reg $dest_num]
+        }
         if {[dict exists $::asrc $src]} {
             # source is named.
+            set src_num [src $src]
+            if {[is_expander_reference $src_num]} {
+                # source is addressed through a bus expander.  set the expander's address reg.
+                lappend opcodes [pack [expander_addr_reg $src_num] [indirect_reg $src_num]]
+                set src_num [expander_data_reg $src_num]
+                if {[is_expander_reference $dest_num] && ([expander_addr_reg $dest_num] == [expander_addr_reg $src_num])} {
+                    error "source and destination use the same bus expander: $dest $eq $src"
+                }
+            }
             if {[dict exists $::latency $src]} {        
-                # insert nop's to allow for operator latency.  to override this, program can use proper names of result registers instead of shorthand aliases.
-                for {set i 0} {$i < [dict get $::latency $src]} {incr i} {
+                # insert nop's to allow for operator result latency.  
+                # to override this, program can use proper names of result registers instead of shorthand aliases.
+                # also fewer nop's are needed if some opcodes are already packed e.g. expander accesses.
+                set num_nops [expr [dict get $::latency $src] - [llength $opcodes]]
+                for {set i 0} {$i < $num_nops} {incr i} {
                     lappend opcodes [pack [dest nop] [src nop]]
                 }
             }
-            lappend opcodes [pack [dest $dest] [src $src]]
+            lappend opcodes [pack $dest_num $src_num]
         } elseif {[string equal -length 1 $src {:}]} {
             # resolve label as 16-bit immediate, stored in the next ROM word.
-            lappend opcodes [pack [dest $dest] [src _imm16_]]
+            lappend opcodes [pack $dest_num [src _imm16_]]
             lappend opcodes [label $src]
         } elseif {[string is integer -strict $src]} {
             # source is immediate value in hex 0x, binary 0b, or decimal (no prefix)
             if {$src > $::small_const_max} {
                 # 16-bit immediate, stored in the next ROM word.
-                lappend opcodes [pack [dest $dest] [src _imm16_]]
+                lappend opcodes [pack $dest_num [src _imm16_]]
                 lappend opcodes $src
             } elseif {$src < 0} {
                 error "constant out of range: $dest $eq $src"
             } else {
                 # 8-bit immediate, stored in the same ROM word.
-                lappend opcodes [expr ([dest $dest] << $::dest_shift) | $::small_const_opcode | ($src << $::small_const_shift)]
+                lappend opcodes [expr ($dest_num << $::dest_shift) | $::small_const_opcode | ($src << $::small_const_shift)]
             }
         } else {
             error "source is not recognized: $dest $eq $src"

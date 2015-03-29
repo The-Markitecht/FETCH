@@ -12,14 +12,9 @@
     // application-specific register aliases.    
     alias_both g6                   6 
     alias_both g7                   7
-    setvar counter $TOP_GP
-    alias_src  keys                 [incr counter]
-    alias_both leds                 [incr counter] 
+    setvar counter $TOP_GP    
     alias_both rstk                 [incr counter] 
-    
-    alias_both anmux_ctrl           [incr counter] 
-        vdefine     anmux_enable_mask       0x0008
-            
+                
     alias_both de0nano_adc_ctrl     [incr counter] 
         vdefine     de0nano_adc_csn_mask         0x0004
         vdefine     de0nano_adc_sck_mask         0x0002
@@ -40,6 +35,19 @@
 
     alias_both atx_data             [incr counter] 
     alias_both atx_ctrl             [incr counter] 
+
+    // I/O expansion bus.
+    alias_both exp                  [incr counter]
+    alias_both exp_addr             [incr counter]
+    vdefine EXP_NUM_REGS 32
+    vdefine EXP_TOP_REG ($EXP_NUM_REGS - 1)
+    setvar exp_counter -1
+
+    alias_src  keys                 [incr exp_counter]@exp
+    alias_both leds                 [incr exp_counter]@exp
+    
+    alias_both anmux_ctrl           [incr exp_counter]@exp
+        vdefine     anmux_enable_mask       0x0008
         
     convention_gpx
     

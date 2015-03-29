@@ -31,7 +31,11 @@ namespace eval ::asm {
     # common register aliases.
     proc alias_src {lin name addr} {
         dict set ::asrc $name $addr
-        vdefine $lin "sr_$name" $addr
+        if {[is_expander_reference $addr]} {
+            vdefine $lin "esr_$name" [indirect_reg $addr]
+        } else {
+            vdefine $lin "sr_$name" $addr
+        }
     }
     proc alias_src_latency {lin name addr latency_cycles} {
         alias_src $lin $name $addr
@@ -39,7 +43,11 @@ namespace eval ::asm {
     }
     proc alias_dest {lin name addr} {
         dict set ::adest $name $addr
-        vdefine $lin "dr_$name" $addr
+        if {[is_expander_reference $addr]} {
+            vdefine $lin "edr_$name" [indirect_reg $addr]
+        } else {
+            vdefine $lin "dr_$name" $addr
+        }
     }
     proc alias_both {lin name addr} {
         alias_src  $lin $name $addr

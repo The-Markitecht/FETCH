@@ -102,18 +102,11 @@ supervised_synapse316 supmcu(
     .dbg_async_tx_line   (GPIO_2[4])
 );    
 
+// ///////////////////////////   plumbing of target MCU I/O.
+
+// GP register file and a stack.
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
-
 stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`DR_RSTK]);
-
-// plumbing of target MCU I/O.
-std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
-assign LED = r[`DR_LEDS][7:0];
-
-assign r[`SR_KEYS] = {14'h0, KEY}; 
-
-std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, r[`DR_ANMUX_CTRL], r_load_data[3:0], r_load[`DR_ANMUX_CTRL]);
-assign anmux_ctrl = r[`DR_ANMUX_CTRL][3:0];
 
 wire[15:0] de0nadc_ctrl;
 std_reg #(.WIDTH(3)) de0nano_adc_ctrl_reg(sysclk, sysreset, de0nadc_ctrl, r_load_data[2:0], r_load[`DR_DE0NANO_ADC_CTRL]);
@@ -198,5 +191,34 @@ qsys2 u0 (
     .sdramc_we_n                  (DRAM_WE_N)    
 );
 assign DRAM_CLK = clk_sdram;
+
+// ///////////////////////////   I/O expansion bus.
+wire[15:0]                exp_r[`EXP_TOP_REG:0];
+wire[`EXP_TOP_REG:0]      exp_r_read;  
+wire[`EXP_TOP_REG:0]      exp_r_load;
+wire[15:0]                exp_r_load_data;  
+bus_expander #(.NUM_REGS(`EXP_NUM_REGS)) expand(
+     .sysclk            (sysclk)
+    ,.sysreset          (sysreset)
+    ,.data_out          (r[`DR_EXP])
+    ,.data_in           (r_load_data)
+    ,.data_load         (r_load[`DR_EXP])
+    ,.data_read         (r_read[`DR_EXP])
+    ,.address_out       (r[`DR_EXP_ADDR])
+    ,.address_load      (r_load[`DR_EXP_ADDR])
+    ,.r                 (exp_r)
+    ,.r_read            (exp_r_read)
+    ,.r_load            (exp_r_load)
+    ,.r_load_data       (exp_r_load_data)    
+);
+
+std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, exp_r[`EDR_LEDS], exp_r_load_data[7:0], exp_r_load[`EDR_LEDS]);
+assign LED = exp_r[`EDR_LEDS][7:0];
+
+assign exp_r[`ESR_KEYS] = {14'h0, KEY}; 
+
+std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, exp_r[`EDR_ANMUX_CTRL], exp_r_load_data[3:0], exp_r_load[`EDR_ANMUX_CTRL]);
+assign anmux_ctrl = exp_r[`EDR_ANMUX_CTRL][3:0];
+
 
 endmodule
