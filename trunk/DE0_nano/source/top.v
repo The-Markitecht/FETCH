@@ -226,28 +226,35 @@ assign exp_r[`ESR_KEYS] = {14'h0, KEY};
 std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, exp_r[`EDR_ANMUX_CTRL], exp_r_load_data[3:0], exp_r_load[`EDR_ANMUX_CTRL]);
 assign anmux_ctrl = exp_r[`EDR_ANMUX_CTRL][3:0];
 
-// event_controller #(.NUM_INPUTS(8)) events( 
-     // .sysclk            (sysclk)
-    // ,.sysreset          (sysreset)
-    // ,.data_out          (exp_r[`EDR_EVENT_CTRL])
-    // ,.data_in           (exp_r_load_data)
-    // ,.data_load         (exp_r_load[`EDR_EVENT_CTRL])
-    // ,.event_edge_sens   ({
-        // // LEAST urgent events are listed FIRST.
-        // ,KEY[1]
-        // ,KEY[0]
-        // ,! txbsy
-         // ! rxbsy
-        // ,1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
-    // }));
-// edge detectors on each input.  those each can set a RS capture flop.  
-// EDR_EVENT_CTRL reads from a priority encoder summarizing the capture flops.
-// writing a priority value back to EDR_EVENT_CTRL clears the indexed capture flop.
+// timer0 counts down on sysclk cycles, with 16-bit prescaler.  so 1.31 ms per tick assuming 50 MHz sysclk.
+reg[31:0] timer0 = 0;
+wire timer0_done = timer0 == 32'd0;
+always_ff @(posedge sysclk, posedge sysreset)
+    if (sysreset)
+        timer0 <= 0;
+    else if (r_load[`DR_TIMER0])
+        timer0 <= {r_load_data, 16'd0};
+    else if ( ! timer0_done)
+        timer0 <= timer0 - 32'd1;
+assign r[`DR_TIMER0] = timer0[31:16];
 
-// note that EDR_EVENT_CTRL can change (to a more urgent priority) during an event handler.
-// so the MCU core MUST copy the EDR_EVENT_CTRL value to another register (or the stack) 
-// before using that value to clear the flop (ack the event).  even if it's done as soon as
-// the MCU detects the event.  otherwise the wrong event might get ack'd, resulting in a missed
-// high-priority event.
+// event controller is listed last to utilize wires from all other parts.
+event_controller #(.NUM_INPUTS(6)) events( 
+     .sysclk            (sysclk)
+    ,.sysreset          (sysreset)
+    ,.priority_out      (r[`DR_EVENT_PRIORITY])
+    ,.priority_load     (r_load[`DR_EVENT_PRIORITY])
+    ,.data_in           (r_load_data)
+    ,.event_signals     ({
+        // MOST urgent events are listed FIRST.
+        1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
+        , ! rxbsy
+        , ! txbsy
+        ,KEY[0]
+        ,KEY[1]
+        ,timer0_done
+    })
+);
+
 
 endmodule

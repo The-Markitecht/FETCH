@@ -875,7 +875,7 @@ addr == 16'h2a0 ? 16'h0014 :  // <0314> a = m9k_data
 addr == 16'h2a1 ? 16'h07a0 :  // <0315> b = 0x2f2f
 addr == 16'h2a2 ? 16'h2f2f :  // <0315> "
 addr == 16'h2a3 ? 16'he007 :  // <0316> br eq :no_peek
-addr == 16'h2a4 ? 16'h02c8 :  // <0316> "
+addr == 16'h2a4 ? 16'h02cd :  // <0316> "
 addr == 16'h2a5 ? 16'h0014 :  // <0317> a = m9k_data // putchar m9k_data
 addr == 16'h2a6 ? 16'hfba0 :  // <0317> putchar m9k_data
 addr == 16'h2a7 ? 16'h0032 :  // <0317> "
@@ -906,37 +906,32 @@ addr == 16'h2bf ? 16'h0017 :  // <0329> a = peek_data
 addr == 16'h2c0 ? 16'hfba0 :  // <0330> call :put4x
 addr == 16'h2c1 ? 16'h005d :  // <0330> "
 addr == 16'h2c2 ? 16'hfc00 :  // <0330> "
-addr == 16'h2c3 ? 16'h0220 :  // <0331> a = 32 // putasc " "
-addr == 16'h2c4 ? 16'h0000 :  // <0331> a = a // putasc " "
-addr == 16'h2c5 ? 16'hfba0 :  // <0331> putasc " "
+addr == 16'h2c3 ? 16'h020d :  // <0331> a = 13 // puteol
+addr == 16'h2c4 ? 16'h0000 :  // <0331> a = a // puteol
+addr == 16'h2c5 ? 16'hfba0 :  // <0331> puteol
 addr == 16'h2c6 ? 16'h0032 :  // <0331> "
 addr == 16'h2c7 ? 16'hfc00 :  // <0331> "
-// :no_peek // = 0x02c8
-addr == 16'h2c8 ? 16'h0e01 :  // <0333> j = 1
-addr == 16'h2c9 ? 16'hc800 :  // <0334> i = i+j
-addr == 16'h2ca ? 16'h0b10 :  // <0334> "
+addr == 16'h2c8 ? 16'h020a :  // <0331> a = 10 // puteol
+addr == 16'h2c9 ? 16'h0000 :  // <0331> a = a // puteol
+addr == 16'h2ca ? 16'hfba0 :  // <0331> puteol
+addr == 16'h2cb ? 16'h0032 :  // <0331> "
+addr == 16'h2cc ? 16'hfc00 :  // <0331> "
+// :no_peek // = 0x02cd
+addr == 16'h2cd ? 16'h0e01 :  // <0333> j = 1
+addr == 16'h2ce ? 16'hc800 :  // <0334> i = i+j
+addr == 16'h2cf ? 16'h0b10 :  // <0334> "
 // loop up to the number of registers in the target program's register name table.
-addr == 16'h2cb ? 16'h4e02 :  // <0336> m9k_addr = 2
-addr == 16'h2cc ? 16'h0414 :  // <0337> b = m9k_data
-addr == 16'h2cd ? 16'h0002 :  // <0338> a = i
-addr == 16'h2ce ? 16'he407 :  // <0339> bn eq :next_reg
-addr == 16'h2cf ? 16'h0295 :  // <0339> "
-addr == 16'h2d0 ? 16'h020d :  // <0340> a = 13 // puteol
-addr == 16'h2d1 ? 16'h0000 :  // <0340> a = a // puteol
-addr == 16'h2d2 ? 16'hfba0 :  // <0340> puteol
-addr == 16'h2d3 ? 16'h0032 :  // <0340> "
-addr == 16'h2d4 ? 16'hfc00 :  // <0340> "
-addr == 16'h2d5 ? 16'h020a :  // <0340> a = 10 // puteol
-addr == 16'h2d6 ? 16'h0000 :  // <0340> a = a // puteol
-addr == 16'h2d7 ? 16'hfba0 :  // <0340> puteol
-addr == 16'h2d8 ? 16'h0032 :  // <0340> "
-addr == 16'h2d9 ? 16'hfc00 :  // <0340> "
-addr == 16'h2da ? 16'hf808 :  // <0341> pop rtna // rtn
-addr == 16'h2db ? 16'h1408 :  // <0341> pop y // "
-addr == 16'h2dc ? 16'h1008 :  // <0341> pop x // "
-addr == 16'h2dd ? 16'h0c08 :  // <0341> pop j // "
-addr == 16'h2de ? 16'h0808 :  // <0341> pop i // "
-addr == 16'h2df ? 16'hfc00 :  // <0341> rtn
+addr == 16'h2d0 ? 16'h4e02 :  // <0336> m9k_addr = 2
+addr == 16'h2d1 ? 16'h0414 :  // <0337> b = m9k_data
+addr == 16'h2d2 ? 16'h0002 :  // <0338> a = i
+addr == 16'h2d3 ? 16'he407 :  // <0339> bn eq :next_reg
+addr == 16'h2d4 ? 16'h0295 :  // <0339> "
+addr == 16'h2d5 ? 16'hf808 :  // <0340> pop rtna // rtn
+addr == 16'h2d6 ? 16'h1408 :  // <0340> pop y // "
+addr == 16'h2d7 ? 16'h1008 :  // <0340> pop x // "
+addr == 16'h2d8 ? 16'h0c08 :  // <0340> pop j // "
+addr == 16'h2d9 ? 16'h0808 :  // <0340> pop i // "
+addr == 16'h2da ? 16'hfc00 :  // <0340> rtn
         
                 16'hxxxx;
         endmodule

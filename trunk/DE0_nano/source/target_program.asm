@@ -14,7 +14,9 @@
     alias_both g7                   7
     setvar counter $TOP_GP    
     alias_both rstk                 [incr counter] 
-                
+    alias_both event_priority       [incr counter]
+    alias_both timer0               [incr counter]
+    
     alias_both de0nano_adc_ctrl     [incr counter] 
         vdefine     de0nano_adc_csn_mask         0x0004
         vdefine     de0nano_adc_sck_mask         0x0002
@@ -55,22 +57,24 @@
     
     // register names for use by debugger.
     ($counter + 1)
-    "\r\n     a"
+    "       a"
     "       b"
     "       i"
     "       j"
-    "\r\n     x"
+    "       x"
     "       y"
     "      g6"
     "      g7"
     "//  rstk"
     "//adcctl"
-    "\r\navwrdt"
-    "//avrdda"
+    "  ev_pri"
+    " timer_0"
+    "av_wr_dt"
+    "//avrddt"
     "av_ad_hi"
     "av_ad_lo"
     "atx_data"
-    "\r\natxctl"
+    "atx_ctrl"
     "exp_data"
     "exp_addr"
     
@@ -84,67 +88,100 @@
     // ////////////////////////////////////////////
     :main
     
-    // pass counter in x.  anmux channel number in i.
-    x = 0
-    y = 1
+    // // pass counter in x.  anmux channel number in i.
+    // x = 0
+    // y = 1
     
-    :next_pass
-    leds = x
-    a = x
-    call :put4x 
-    putasc ":"
-    i = 8
-    j = -1
+    // :next_pass
+    // leds = x
+    // a = x
+    // call :put4x 
+    // putasc ":"
+    // i = 8
+    // j = -1
     
-    :next_anmux
-    i = i+j
-    putasc " "
-    putasc "s"
-    b = i
-    asc a = "0"
-    putchar a+b
-    putasc "="
-    a = i
-    call :anmux_read_chn
-    call :put4x
-    bn iz :next_anmux
+    // :next_anmux
+    // i = i+j
+    // putasc " "
+    // putasc "s"
+    // b = i
+    // asc a = "0"
+    // putchar a+b
+    // putasc "="
+    // a = i
+    // call :anmux_read_chn
+    // call :put4x
+    // bn iz :next_anmux
     
-    puteol
-    a = 900
-    call :spinwait
+    // puteol
+    // a = 900
+    // call :spinwait
     
-    x = x+y
-    jmp :next_pass
+    // x = x+y
+    // jmp :next_pass
     
-    // // event loop prototype.
-    // // first instruction of an event handler should be the 7th cycle after an event signal.
-    // :poll_events
-    // // initialize prior to polling loop, for minimum latency.
-    // b = :event_table
-    // // below is a 3-cycle polling loop.
-    // :poll_events_again
-    // a = event_ctrl
-    // br 0z :poll_events_again
-    // // acknowledge the event to clear its register.  do this right away, so another occurrence of the same event can be captured.
-    // event_ctrl = a
-    // // compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
-    // rtna = ad0
-    // // jump into the event_table.  each handler MUST end with a end_event.
-    // // each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
-    // // each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
-    // swapra    
-    // // just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
-    // :events_error_halt
-    // jmp :events_error_halt
+    // //////////////////////////////////////////////////////////
     
-    // // event table begins with a NOP because that's the event 0 position.
-    // :event_table    
-    // nop
-    // jmp :uart_rx_char_handler
-    // jmp :uart_tx_char_handler
-    // jmp :key0_handler
-    // jmp :key1_handler
+    setvar TICKS_PER_SEC 763
+    timer0 = $TICKS_PER_SEC
     
-// event uart_rx_char_handler
-    // // handle data here
-    // end_event
+    // event loop prototype.
+    // first instruction of an event handler should be the 7th cycle after reading its priority from the event controller.
+    :poll_events
+    // initialize prior to polling loop, for minimum latency.
+    b = :event_table
+    // 3-cycle polling loop.
+    :poll_events_again
+    a = event_priority
+    br 0z :poll_events_again
+    // acknowledge the event to clear its register.  do this right away, 
+    // so another occurrence of the same event can be captured right away in the controller.
+    event_priority = a
+    // compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
+    rtna = ad0
+    // jump into the event_table.  each handler MUST end with a end_event.
+    // each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
+    // each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
+    swapra = nop
+    // just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
+    :events_error_halt
+    jmp :events_error_halt
+    
+    // event table;  begins with a null handler because that's the event 0 position.  
+    // event 0 not used in this app anyway.
+    :event_table    
+    jmp :poll_events
+    jmp :uart_rx_char_handler
+    jmp :uart_tx_char_handler
+    jmp :key0_handler
+    jmp :key1_handler
+    jmp :timer0_handler
+    
+// patch: call event loop as if it were a func, but don't declare it func.
+// instead let it jmp to a handler, which does an unmatched rtn?
+// no, don't allow handlers to call back to event loop.
+    
+event uart_rx_char_handler
+    // handle data here
+end_event
+    
+event uart_tx_char_handler
+    // handle data here
+end_event
+    
+event key0_handler
+    // handle data here
+end_event
+    
+event key1_handler
+    // handle data here
+end_event
+    
+event timer0_handler
+    timer0 = $TICKS_PER_SEC
+    a = leds
+    b = 1
+    leds = a+b
+end_event
+    
+    

@@ -95,7 +95,7 @@ namespace eval ::asm {
     }    
     
     proc end_event {lin} {
-        jmp $lin poll_events
+        jmp $lin :poll_events
     }
     
     # subroutine macros.

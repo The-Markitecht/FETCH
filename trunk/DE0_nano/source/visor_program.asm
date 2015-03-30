@@ -328,7 +328,7 @@ func dump_target
     call :peek
     a = peek_data
     call :put4x
-    putasc " "
+    puteol
     :no_peek
     j = 1
     i = i+j
@@ -337,5 +337,4 @@ func dump_target
     b = m9k_data
     a = i
     bn eq :next_reg
-    puteol
     rtn
