@@ -121,20 +121,16 @@ public class car_behavior extends behavior {
         if (txt.charAt(lfpos - 1) == '\r') {
             Matcher mat = pat.matcher(frame_string);
             if (mat.find()) {
-                int adc;
                 m.car_data_frame fr = new m.car_data_frame();
                 fr.timestamp = Integer.parseInt(mat.group(1).toString(), 16);
                 fr.android_time = new Date();
                 fr.temp_data_string = frame_string.trim();
-                adc = Integer.parseInt(mat.group(6).toString(), 16);  // s3
-                fr.transmission_temp = adc < 4090 ? adc_to_deg_f(adc) : 0;
-                adc = Integer.parseInt(mat.group(7).toString(), 16);  // s2
-                fr.engine_block_temp = adc < 4090 ? adc_to_deg_f(adc) : 0;
                 fr.brake_temp = new int[4];
-                adc = Integer.parseInt(mat.group(8).toString(), 16);  // s1
-                fr.brake_temp[m.wheels.FR.ordinal()] = adc < 4090 ? adc_to_deg_f(adc) : 0;
-                adc = Integer.parseInt(mat.group(9).toString(), 16);  // s0
-                fr.brake_temp[m.wheels.FL.ordinal()] = adc < 4090 ? adc_to_deg_f(adc) : 0;
+                fr.ecm_heatsink_temp = adc_to_deg_f(Integer.parseInt(mat.group(2).toString(), 16)); // s7
+                fr.transmission_temp = adc_to_deg_f(Integer.parseInt(mat.group( 6).toString(), 16)); // s3
+                fr.engine_block_temp = adc_to_deg_f(Integer.parseInt(mat.group( 7).toString(), 16)); // s2
+                fr.brake_temp[m.wheels.FR.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group( 8).toString(), 16)); // s1
+                fr.brake_temp[m.wheels.FL.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group( 9).toString(), 16)); // s0
 
                 txt.delete(0, mat.end());
                 return fr;
@@ -181,6 +177,9 @@ public class car_behavior extends behavior {
         //return (int)(m * (float)adc + b);
         // had to reverse the linear function because i accidentally swapped X and Y before solving the equations.
         //return (int)(((float)adc - b) / m);
+
+        if (adc > 4090)
+            return 0; // invalid reading; probably sensor is disconnected.
 
         //patch: temporary cubic polynomial; fitted while i had a temp-sensitive diode in series in the signal path.
         return (int)( 0.00000002183561 * Math.pow(adc, 3) - 0.0001432459 * Math.pow(adc, 2) + 0.4509008 * (double)adc - 158.6781 );

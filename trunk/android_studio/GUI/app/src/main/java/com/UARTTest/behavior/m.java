@@ -27,6 +27,7 @@ public abstract class m {
         public int engine_air_intake_temp; // can be used as ambient temp.
         public int transmission_temp;
         public int[] brake_temp;
+        public int ecm_heatsink_temp;
         public CharSequence temp_data_string;
 
         // fuel injection data.

@@ -43,6 +43,7 @@ public class behavior_thread extends Thread {
             } catch (Exception ex) {
                 ex.printStackTrace();
                 try {
+                    Thread.sleep(500, 0); // heavy throttle in case of exceptions; avoid crashing the program or the system!
                     behaviors[0].send_to_gui((new m.exception_event()).set(ex));
                 } catch (Exception ex2) {
                     ex2.printStackTrace();
