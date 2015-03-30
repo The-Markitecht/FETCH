@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="572" Width="725" Loaded="Window_Loaded">
     <DockPanel LastChildFill="True">
-        <TextBox Name="journal" DockPanel.Dock="Left" Width="500" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" FontFamily="Fixedsys Excelsior 3.01" FontSize="16" />
+        <TextBox Name="journal" DockPanel.Dock="Left" Width="500" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" FontFamily="Fixedsys Excelsior 3.01" FontSize="16" Cursor="Arrow" />
 
         <StackPanel Orientation="Vertical" DockPanel.Dock="Left">
 
@@ -29,7 +29,7 @@
             <Button Name="load_btn" Margin="4" Content="Load" Click="load_btn_Click"></Button>
         </StackPanel>
 
-        <RichTextBox Name="src_txt"  AcceptsReturn="True" VerticalScrollBarVisibility="Visible" FontFamily="Fixedsys Excelsior 3.01" FontSize="16" >
+        <RichTextBox Name="src_txt"  AcceptsReturn="True" VerticalScrollBarVisibility="Visible" FontFamily="Fixedsys Excelsior 3.01" FontSize="16" Cursor="Arrow">
             <RichTextBox.Resources>
                 <Style TargetType="{x:Type Paragraph}">
                     <Setter Property="Margin" Value="0"/>

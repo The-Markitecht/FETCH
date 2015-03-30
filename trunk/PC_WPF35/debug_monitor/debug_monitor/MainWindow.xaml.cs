@@ -79,7 +79,7 @@ namespace CVtool
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            port = new SerialPort("COM9", 115200, Parity.None, 8, StopBits.One);
+            port = new SerialPort("COM21", 115200, Parity.None, 8, StopBits.One);
             port.WriteTimeout = 500;
             port.ReadTimeout = 1;
             port.ReadBufferSize = 128;
