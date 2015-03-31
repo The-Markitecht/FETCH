@@ -209,7 +209,8 @@ public class car_behavior extends behavior {
         if (adc > 4090)
             return 0; // invalid reading; probably sensor is disconnected.
 
-        //patch: temporary cubic polynomial; fitted while i had a temp-sensitive diode in series in the signal path.
-        return (int)( 0.00000002183561 * Math.pow(adc, 3) - 0.0001432459 * Math.pow(adc, 2) + 0.4509008 * (double)adc - 158.6781 );
+        // cubic polynomial from test run 2015/3/31.
+        return (int)( 0.0000000444479841857163 * Math.pow(adc, 3) - 0.000279422708012579 * Math.pow(adc, 2)
+                + 0.725069076601004 * (double)adc - 438.375588101827);
     }
 }
