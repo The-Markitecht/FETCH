@@ -5,7 +5,8 @@
     tools:context="com.UARTTest.CarActivity"
     android:id="@+id/flipper"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:keepScreenOn="true">
 
     <AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
@@ -99,7 +100,8 @@
             android:layout_height="wrap_content"
             android:id="@+id/ecm_layout"
             android:layout_x="929dp"
-            android:layout_y="325dp">
+            android:layout_y="325dp"
+            >
 
             <view
                 class="com.example.x.app.CustomGaugeMasterView"
@@ -140,6 +142,46 @@
                 android:layout_x="813dp"
                 android:layout_y="407dp"
                 android:gravity="center" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="362dp"
+            android:layout_height="80dp"
+            android:layout_x="3dp"
+            android:layout_y="480dp"
+            android:id="@+id/comment_layout">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:id="@+id/comment_lbl"
+                android:text="Data Comment" />
+
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/comment_txt"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:editable="true"
+                android:enabled="true"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:inputType="text"
+                android:imeOptions="actionDone|flagForceAscii"
+                />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:id="@+id/focus_dummy">
+                <requestFocus/>
+                </FrameLayout>
         </LinearLayout>
 
     </AbsoluteLayout>

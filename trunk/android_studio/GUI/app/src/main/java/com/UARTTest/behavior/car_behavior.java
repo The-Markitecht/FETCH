@@ -14,7 +14,9 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Queue;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +37,7 @@ public class car_behavior extends behavior {
     protected int logged_frame_count = 0;
     BufferedWriter daq_wtr;
     SimpleDateFormat daq_date_fmt;
+    protected LinkedList<String> comment_q = new LinkedList<String>();
 
     // simulator
     protected boolean simulator_enabled = false;
@@ -57,12 +60,15 @@ public class car_behavior extends behavior {
         daq_date_fmt.setTimeZone(TimeZone.getDefault());
     }
 
-
     @Override public boolean process(command_msg cmd) throws Exception  {
         super.process(cmd);
         if (cmd instanceof m.enable_sim_cmd) {
             simulator_enabled = ((m.enable_sim_cmd) cmd).valu;
             return true;
+        } else if (cmd instanceof m.data_comment_cmd) {
+            String s = ((m.data_comment_cmd) cmd).valu.trim();
+            if (s.length() > 0)
+                comment_q.add(s);
         }
         return false;
     }
@@ -129,7 +135,7 @@ public class car_behavior extends behavior {
                 fr.ecm_heatsink_temp = adc_to_deg_f(Integer.parseInt(mat.group(2).toString(), 16)); // s7
                 fr.transmission_temp = adc_to_deg_f(Integer.parseInt(mat.group( 6).toString(), 16)); // s3
                 fr.engine_block_temp = adc_to_deg_f(Integer.parseInt(mat.group( 7).toString(), 16)); // s2
-                fr.brake_temp[m.wheels.FR.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group( 8).toString(), 16)); // s1
+                fr.brake_temp[m.wheels.FR.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group(8).toString(), 16)); // s1
                 fr.brake_temp[m.wheels.FL.ordinal()] = adc_to_deg_f(Integer.parseInt(mat.group( 9).toString(), 16)); // s0
 
                 txt.delete(0, mat.end());
@@ -149,20 +155,42 @@ public class car_behavior extends behavior {
 
     protected void save_data() throws Exception  {
         if (history.size() == HISTORY_LEN) {
+            // check for comments to be saved with the data.
+            StringBuilder comment = new StringBuilder();
+            if (comment_q.peek() != null) {
+                comment.append(comment_q.poll());
+                // eliminate delimiters.
+                int pos = comment.indexOf(",");
+                while (pos >= 0) {
+                    comment.replace(pos, pos, ";");
+                    pos = comment.indexOf(",", pos);
+                }
+                pos = comment.indexOf("\"");
+                while (pos >= 0) {
+                    comment.replace(pos, pos, "");
+                    pos = comment.indexOf("'", pos);
+                }
+            }
+
 //            m.car_data_frame avg = new m.car_data_frame();
 //            for (m.car_data_frame fr : history)
 //                avg += fr;
 //            avg /= HISTORY_LEN;
+            // no averaging; for now just decimate frames & save the latest one.
 
-            // for now just decimate frames & save the latest one.
+            // format data row.
             m.car_data_frame last_frame = history.get(HISTORY_LEN - 1);
-            daq_wtr.append(String.format("%s,fmt,1,trn,%d,tds,%s\n", daq_date_fmt.format(last_frame.android_time), last_frame.transmission_temp, last_frame.temp_data_string));
+            daq_wtr.append(String.format("%s,fmt,2,ebk,%d,trn,%d,flb,%d,frb,%d,tds,%s,not,%s\n",
+                    daq_date_fmt.format(last_frame.android_time),
+                    last_frame.engine_block_temp, last_frame.transmission_temp,
+                    last_frame.brake_temp[m.wheels.FL.ordinal()], last_frame.brake_temp[m.wheels.FR.ordinal()],
+                    last_frame.temp_data_string, comment));
             logged_frame_count++;
 
             history.clear();
 
             // flush file buffer periodically.  this prevents automatic flushing in the middle of a data line.
-            if (logged_frame_count >= next_flush_frame) {
+            if (logged_frame_count >= next_flush_frame || comment.length() > 0) {
                 daq_wtr.flush();
                 next_flush_frame = logged_frame_count + FLUSH_INTERVAL_FRAMES;
             }

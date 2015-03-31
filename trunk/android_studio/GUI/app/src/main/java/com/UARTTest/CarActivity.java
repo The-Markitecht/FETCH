@@ -6,11 +6,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,10 +38,18 @@ public class CarActivity extends Activity {
     protected ViewFlipper flipper;
     protected TextView timestamp_txt;
     protected TextView cons_txt;
+    protected EditText comment_txt;
     protected CustomGaugeMasterView engine_temp_gage;
     protected CustomGaugeMasterView trans_temp_gage;
     protected CustomGaugeMasterView ecm_temp_gage;
     protected CustomGaugeMasterView[] brake_temp_gage;
+
+    protected float origin_x = 500;
+    protected int flip_child = 0;
+
+    // these API constants are somehow inaccessible.
+    //public static final int ANIM_SLIDE_IN_LEFT = 0x010a0002;
+    //public static final int ANIM_SLIDE_OUT_RIGHT = 0x010a0003;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +77,7 @@ public class CarActivity extends Activity {
             flipper = (ViewFlipper)findViewById(R.id.flipper);
             timestamp_txt = (TextView)findViewById(R.id.timestamp_txt);
             cons_txt = (TextView)findViewById(R.id.cons);
+            comment_txt = (EditText)findViewById(R.id.comment_txt);
             engine_temp_gage = (CustomGaugeMasterView)findViewById(R.id.engine_temp_gage);
             trans_temp_gage = (CustomGaugeMasterView)findViewById(R.id.trans_temp_gage);
             ecm_temp_gage = (CustomGaugeMasterView)findViewById(R.id.ecm_temp_gage);
@@ -74,6 +87,19 @@ public class CarActivity extends Activity {
                     null,
                     null
             };
+
+            comment_txt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        save_comment();
+                        hide_soft_keyboard(v);
+                        clear_focus();
+                        return true;
+                    }
+                    return false;
+                }
+            });
 
             car_behavior car = new car_behavior(this, UARTTestActivity.uartInterface, hnd);
 
@@ -110,13 +136,6 @@ public class CarActivity extends Activity {
         }
     };
 
-    protected float origin_x = 500;
-    protected int flip_child = 0;
-
-    // these API constants are somehow inaccessible.
-    //public static final int ANIM_SLIDE_IN_LEFT = 0x010a0002;
-    //public static final int ANIM_SLIDE_OUT_RIGHT = 0x010a0003;
-
     @Override
     public boolean onTouchEvent(MotionEvent touchevent) {
         if (touchevent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -125,17 +144,20 @@ public class CarActivity extends Activity {
             float x = touchevent.getX();
             if (x < (origin_x - 200F)) {
                 // swiped to left.  increase child index.
+                hide_soft_keyboard(comment_txt);
                 flip_child = (flip_child + 1) % flipper.getChildCount();
                 flipper.setOutAnimation(this, R.anim.slide_out_left);
                 flipper.setInAnimation(this, R.anim.slide_in_right);
                 flipper.setDisplayedChild(flip_child);
-            }
-            if (x > (origin_x + 200F)) {
+            } else if (x > (origin_x + 200F)) {
                 // swiped to right.  reduce child index.
+                hide_soft_keyboard(comment_txt);
                 flip_child = (flip_child - 1) % flipper.getChildCount();
                 flipper.setOutAnimation(this, R.anim.slide_out_right);
                 flipper.setInAnimation(this, R.anim.slide_in_left);
                 flipper.setDisplayedChild(flip_child);
+            } else {
+                hide_soft_keyboard(comment_txt);
             }
         }
         return false;
@@ -163,7 +185,21 @@ public class CarActivity extends Activity {
     }
 
     public void sim_change(View vw) {
-        global.bthread.send((new m.enable_sim_cmd()).set(((Switch)vw).isChecked()));
+        global.bthread.send((new m.enable_sim_cmd()).set(((Switch) vw).isChecked()));
+    }
+
+    protected void save_comment() {
+        global.bthread.send((new m.data_comment_cmd()).set(comment_txt.getText().toString()));
+        Toast.makeText(this, "Saved comment.", Toast.LENGTH_SHORT).show();
+    }
+
+    protected void clear_focus() {
+        ((View)findViewById(R.id.focus_dummy)).requestFocus();
+    }
+
+    protected void hide_soft_keyboard(TextView v){
+        InputMethodManager imm = (InputMethodManager)getSystemService(this.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
 //

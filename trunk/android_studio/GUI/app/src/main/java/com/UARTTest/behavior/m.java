@@ -14,6 +14,8 @@ public abstract class m {
 
     public static class enable_sim_cmd extends simple_cmd<Boolean> {}
 
+    public static class data_comment_cmd extends simple_cmd<String> {}
+
     public static class exception_event extends simple_event<Exception> {}
 
     public static class text_rx_event extends simple_event<String> {}
