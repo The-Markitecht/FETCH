@@ -74,10 +74,16 @@ func anmux_read_chn
     b = $anmux_enable_mask
     anmux_ctrl = or
     // wait for muxer & current driver to settle down.  some delay here is absolutely required (per testing).
-    a = 10
+    a = 5
     call :spinwait
 
     // read ADC channel 7.  12 bits resolution.
+    // must do this 3 times to get the ADC's input path to settle down, probably because
+    // i'm driving it with high impedance & no buffer.
+    a = 7
+    call :de0nano_adc_read
+    a = 7
+    call :de0nano_adc_read
     a = 7
     call :de0nano_adc_read
     rtn    
