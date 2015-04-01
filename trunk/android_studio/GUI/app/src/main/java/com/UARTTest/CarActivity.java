@@ -7,19 +7,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
-import android.widget.ViewSwitcher;
 
 import com.UARTTest.behavior.*;
 import com.UARTTest.framework.*;
@@ -47,7 +43,7 @@ public class CarActivity extends Activity {
     protected float origin_x = 500;
     protected int flip_child = 0;
 
-    // these API constants are somehow inaccessible.
+    // these API constants are somehow inaccessible.  copied them from the SDK to res/anim instead.
     //public static final int ANIM_SLIDE_IN_LEFT = 0x010a0002;
     //public static final int ANIM_SLIDE_OUT_RIGHT = 0x010a0003;
 
@@ -58,21 +54,7 @@ public class CarActivity extends Activity {
 
         try {
             hide_android_gui();
-
-            View decorView = getWindow().getDecorView();
-            decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
-                @Override
-                public void onSystemUiVisibilityChange(int visibility) {
-                    // Note that system bars will only be "visible" if none of the
-                    // LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
-                    if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-                        // The system bars are visible.
-                        hide_android_gui();
-                    } else {
-                        // The system bars are NOT visible.
-                    }
-                }
-            });
+            getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(onSystemUiVisibilityChange);
 
             flipper = (ViewFlipper)findViewById(R.id.flipper);
             timestamp_txt = (TextView)findViewById(R.id.timestamp_txt);
@@ -88,18 +70,7 @@ public class CarActivity extends Activity {
                     null
             };
 
-            comment_txt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        save_comment();
-                        hide_soft_keyboard(v);
-                        clear_focus();
-                        return true;
-                    }
-                    return false;
-                }
-            });
+            comment_txt.setOnEditorActionListener(comment_txt_onEditorAction);
 
             car_behavior car = new car_behavior(this, UARTTestActivity.uartInterface, hnd);
 
@@ -201,6 +172,33 @@ public class CarActivity extends Activity {
         InputMethodManager imm = (InputMethodManager)getSystemService(this.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
+
+    protected final TextView.OnEditorActionListener comment_txt_onEditorAction = new TextView.OnEditorActionListener() {
+        @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                save_comment();
+                comment_txt.setText("");
+                hide_soft_keyboard(v);
+                clear_focus();
+                return true;
+            }
+            return false;
+        }
+    };
+
+    protected final View.OnSystemUiVisibilityChangeListener onSystemUiVisibilityChange = new View.OnSystemUiVisibilityChangeListener() {
+        @Override public void onSystemUiVisibilityChange(int visibility) {
+            // Note that system bars will only be "visible" if none of the
+            // LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
+            if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                // The system bars are visible.
+                hide_android_gui();
+            } else {
+                // The system bars are NOT visible.
+            }
+        }
+    };
+
 
 //
 //    @Override
