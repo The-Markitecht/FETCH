@@ -210,7 +210,7 @@ public class car_behavior extends behavior {
             return 0; // invalid reading; probably sensor is disconnected.
 
         // cubic polynomial from test run 2015/3/31.
-        return (int)( 0.0000000444479841857163 * Math.pow(adc, 3) - 0.000279422708012579 * Math.pow(adc, 2)
-                + 0.725069076601004 * (double)adc - 438.375588101827);
+        return (int)( 0.0000000179780888794392 * Math.pow(adc, 3) - 0.000143319023091959 * Math.pow(adc, 2)
+                + 0.499930154162973 * (double)adc -307.47204516067);
     }
 }
