@@ -9,6 +9,7 @@ module priority_encoder #(
     output wire[15:0]                out        
     ,input wire[TOP_INPUT:0]         in    
 );      
+    // the most urgent input signal should be listed LAST.
     // all inputs are usable in this encoder, even input no. 0.
     // asserting it causes a zero code output (as expected).  but since zero code is
     // also the default output when all inputs are idle, that means input no. 0 effectively

@@ -239,7 +239,7 @@ always_ff @(posedge sysclk, posedge sysreset)
 assign r[`DR_TIMER0] = timer0[31:16];
 
 // event controller is listed last to utilize wires from all other parts.
-event_controller #(.NUM_INPUTS(6)) events( 
+event_controller #(.NUM_INPUTS(7)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset)
     ,.priority_out      (r[`DR_EVENT_PRIORITY])
@@ -253,6 +253,7 @@ event_controller #(.NUM_INPUTS(6)) events(
         ,KEY[0]
         ,KEY[1]
         ,timer0_done
+        ,1'b0 // extra input in case the zero-priority signal is down here (reversed priority).
     })
 );
 
