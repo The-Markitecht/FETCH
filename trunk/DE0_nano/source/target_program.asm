@@ -37,6 +37,8 @@
 
     alias_both atx_data             [incr counter] 
     alias_both atx_ctrl             [incr counter] 
+    
+    alias_both soft_event           [incr counter] 
 
     // I/O expansion bus.
     alias_both exp                  [incr counter]
@@ -124,6 +126,8 @@
     
     setvar TICKS_PER_SEC 763
     timer0 = $TICKS_PER_SEC
+
+    soft_event = 0x2000
     
     // event loop prototype.
     // first instruction of an event handler should be the 7th cycle after reading its priority from the event controller.
@@ -150,6 +154,22 @@
     // event table;  begins with a null handler because that's the event 0 position.  
     // event 0 not used in this app anyway.
     :event_table    
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
+    jmp :test_handler
     jmp :poll_events
     jmp :uart_rx_char_handler
     jmp :uart_tx_char_handler
@@ -161,6 +181,13 @@
 // instead let it jmp to a handler, which does an unmatched rtn?
 // no, don't allow handlers to call back to event loop.
     
+event test_handler
+    b = a>>1
+    soft_event = or
+    call :put4x
+    puteol
+end_event
+        
 event uart_rx_char_handler
     // handle data here
 end_event

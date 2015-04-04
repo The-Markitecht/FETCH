@@ -238,23 +238,26 @@ always_ff @(posedge sysclk, posedge sysreset)
         timer0 <= timer0 - 32'd1;
 assign r[`DR_TIMER0] = timer0[31:16];
 
+std_reg soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
+
 // event controller is listed last to utilize wires from all other parts.
-event_controller #(.NUM_INPUTS(7)) events( 
+event_controller #(.NUM_INPUTS(16)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset)
     ,.priority_out      (r[`DR_EVENT_PRIORITY])
     ,.priority_load     (r_load[`DR_EVENT_PRIORITY])
     ,.data_in           (r_load_data)
-    ,.event_signals     ({
-        // MOST urgent events are listed FIRST.
-        1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
-        , ! rxbsy
-        , ! txbsy
-        ,KEY[0]
-        ,KEY[1]
-        ,timer0_done
-        ,1'b0 // extra input in case the zero-priority signal is down here (reversed priority).
-    })
+    ,.event_signals     (r[`DR_SOFT_EVENT])
+    // ,.event_signals     ({
+        // // MOST urgent events are listed FIRST.
+        // 1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
+        // , ! rxbsy
+        // , ! txbsy
+        // ,KEY[0]
+        // ,KEY[1]
+        // ,timer0_done
+        // ,1'b0 // extra input in case the zero-priority signal is down here (reversed priority).
+    // })
 );
 
 
