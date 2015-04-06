@@ -36,7 +36,8 @@
         // will be forced to the word boundary instead, overwriting data there.
 
     alias_both atx_data             [incr counter] 
-    alias_both atx_ctrl             [incr counter] 
+    alias_both arx_data             [incr counter] 
+    alias_both async_status         [incr counter] 
     
     alias_both soft_event           [incr counter] 
 

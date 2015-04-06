@@ -20,9 +20,6 @@ module synapse316_uart #(
     
     ,output wire[15:0]                arx_reg_out        
     , input wire                      arx_reg_read
-    ,output wire                      arx_fifo_empty
-    ,output wire                      arx_fifo_full
-    ,output wire                      arx_busy
 );  
     // full duplex UART and its FIFO's and status register.  the FIFO's cross from sysclk domain to clk_async domain.
     // FIFO also provides a bit of RAM for storing up sequences until they can be transmitted.
@@ -85,11 +82,11 @@ module synapse316_uart #(
     wire[3:0] status_comb = {atx_fifo_empty, atx_fifo_full, atx_busy, arx_fifo_full, arx_busy};
     syncer3 #(width=4) status_syncer(clk_async, sysclk, status_comb, status_sync);
     assign status_out[15:6] = 0;
-    assign status_out[`] = status_sync[`];
-    assign status_out[`] = status_sync[`];
-    assign status_out[`] = status_sync[`];
-    assign status_out[`] = status_sync[`];
-    assign status_out[`] = arx_fifo_empty; // no need to sync; this is already in sysclk domain.
-    assign status_out[`] = atx_fifo_full;  // no need to sync; this is already in sysclk domain.
+    assign status_out[`ATX_FIFO_EMPTY_BIT] = status_sync[`ATX_FIFO_EMPTY_BIT];
+    assign status_out[`ATX_FIFO_FULL_BIT] = atx_fifo_full;  // no need to sync; this is already in sysclk domain.
+    assign status_out[`ATX_BUSY_BIT] = status_sync[`ATX_BUSY_BIT];
+    assign status_out[`ARX_FIFO_EMPTY_BIT] = arx_fifo_empty; // no need to sync; this is already in sysclk domain.
+    assign status_out[`ARX_FIFO_FULL_BIT] = status_sync[`ARX_FIFO_FULL_BIT];
+    assign status_out[`ARX_BUSY_BIT] = status_sync[`ARX_BUSY_BIT];
     
 endmodule
