@@ -125,28 +125,19 @@ assign GPIO_2[8] = ADC_CS_N;
 assign GPIO_2[7] = ADC_SADDR;
 assign GPIO_2[6] = ADC_SDAT;
 
-// UART
-wire[15:0] atxd;
-std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, atxd, r_load_data[7:0], r_load[`DR_ATX_DATA]);
-wire[15:0] atxc;
-wire txbsy;
-wire rxbsy;
-assign r[`DR_ATX_CTRL] = {atxc[15:3], rxbsy, txbsy, atxc[0]};
-std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, atxc, r_load_data[0], r_load[`DR_ATX_CTRL]);
-uart_v2_tx utx (
-     .uart_sample_clk(clk_async) // clocked at 4x bit rate.
-    ,.parallel_in    (atxd[7:0])
-    ,.load_data      (r[`DR_ATX_CTRL][0])
-    ,.tx_line        (async_tx_line)
-    ,.tx_busy        (txbsy)
-);    
-uart_v2_rx urx (
-     .uart_sample_clk(clk_async) // clocked at 4x bit rate.
-    ,.rx_line        (async_rx_line)
-    ,.rx_busy        (rxbsy)
-    ,.parallel_out   (r[`DR_ATX_DATA])
-);
-assign r[`DR_ATX_DATA][15:8] = 8'd0;
+// full-duplex UART with FIFO's.
+fduart uart (
+     .sysclk        ( sysclk )    
+    ,.sysreset      ( sysreset )
+    ,.clk_async     ( clk_async )   // clocked at 4x bit rate.     
+    ,.async_rx_line ( async_rx_line )  
+    ,.async_tx_line ( async_tx_line )
+    ,.status_out    ( r[`DR_FDUART_STATUS] )    
+    ,.data_in       ( r_load_data )
+    ,.atx_reg_load  ( r_load[`DR_FDUART_DATA] )
+    ,.arx_reg_out   ( r[`DR_FDUART_DATA] )     
+    ,.arx_reg_read  ( r_read[`DR_FDUART_DATA] )
+);  
 
 // Avalon MM master.
 // program should always write (or read) the "write data" register last, because accessing it triggers the Avalon transaction.

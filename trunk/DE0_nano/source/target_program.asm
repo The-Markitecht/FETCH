@@ -35,9 +35,8 @@
         // system only supports 16-bit word accesses.  writes to an odd-numbered address
         // will be forced to the word boundary instead, overwriting data there.
 
-    alias_both atx_data             [incr counter] 
-    alias_both arx_data             [incr counter] 
-    alias_both async_status         [incr counter] 
+    alias_both fduart_data          [incr counter] 
+    alias_both fduart_status        [incr counter] 
     
     alias_both soft_event           [incr counter] 
 
@@ -76,14 +75,15 @@
     "//avrddt"
     "av_ad_hi"
     "av_ad_lo"
-    "atx_data"
-    "atx_ctrl"
+    "//uartdt"
+    "uartstat"
+    "softevnt"
     "exp_data"
     "exp_addr"
     
     // libraries
     include lib/string.asm
-    include lib/my_uart_v2.asm
+    include lib/fduart.asm
     include lib/console.asm
     include lib/time.asm
     include lib/de0nano_adc.asm
