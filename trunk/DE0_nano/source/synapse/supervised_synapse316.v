@@ -1,4 +1,5 @@
 `include "header.v"
+`include "target_program_defines.v"
 
 ////////////////////////////////////////////////////////////////////////////
 // Synapse316 with attached debugging supervisor.

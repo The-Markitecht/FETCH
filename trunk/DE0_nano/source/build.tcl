@@ -14,8 +14,10 @@ proc assemble_with_macros {src_fn rom_fn} {
     console "closing $vdfn"
     close $::vdefines
     
-    file rename -force "[file rootname $src_fn].mif" ../
+    #file rename -force "[file rootname $src_fn].mif" ../
 }
+
+cd synapse/program
 
 # main script; assemble individual files for each MCU core here.
 # foreach asm_fn [glob -nocomplain *.asm] {

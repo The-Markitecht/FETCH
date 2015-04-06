@@ -27,5 +27,3 @@
 `undef NUM_GP
 `undef TOP_GP
 `undef IO 
-
-`include "target_program_defines.v"

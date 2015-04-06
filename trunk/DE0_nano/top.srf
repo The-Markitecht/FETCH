@@ -123,6 +123,12 @@
 { "" "" "" "Verilog HDL macro warning at target_program_defines.v(37): overriding existing definition for macro \"DR_ATX_DATA\", which was defined in \"source/target_program_defines.v\", line 37" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Verilog HDL macro warning at target_program_defines.v(38): overriding existing definition for macro \"SR_ATX_CTRL\", which was defined in \"source/target_program_defines.v\", line 38" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Verilog HDL macro warning at target_program_defines.v(39): overriding existing definition for macro \"DR_ATX_CTRL\", which was defined in \"source/target_program_defines.v\", line 39" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at target_program_defines.v(62): overriding existing definition for macro \"ATX_BUSY_MASK\", which was defined in \"source/synapse/program/visor_program_defines.v\", line 51" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at target_program_defines.v(65): overriding existing definition for macro \"ARX_BUSY_MASK\", which was defined in \"source/synapse/program/visor_program_defines.v\", line 52" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at visor_program_defines.v(51): overriding existing definition for macro \"ATX_BUSY_MASK\", which was defined in \"target_program_defines.v\", line 62" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at visor_program_defines.v(52): overriding existing definition for macro \"ARX_BUSY_MASK\", which was defined in \"target_program_defines.v\", line 65" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at target_program_defines.v(62): overriding existing definition for macro \"ATX_BUSY_MASK\", which was defined in \"target_program_defines.v\", line 62" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at target_program_defines.v(65): overriding existing definition for macro \"ARX_BUSY_MASK\", which was defined in \"target_program_defines.v\", line 65" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

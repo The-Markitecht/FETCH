@@ -141,70 +141,6 @@
 
 -- libraries
 
--- pick a byte from an array of packed words in program space.  fetch & return it in a.
--- pass array base address in x, byte offset in a.
-    0057 : 0601 ; -- <0005> b = 1
-    0058 : e003 ; -- <0006> br and0z :pick_byte_even
-    0059 : 0062 ; -- <0006> "
-    005a : 0350 ; -- <0007> a = a>>1
-    005b : 0404 ; -- <0008> b = x
-    005c : c800 ; -- <0009> fetch a from a+b
-    005d : d300 ; -- <0009> "
-    005e : 03b0 ; -- <0009> "
-    005f : 0353 ; -- <0010> a = a>>4
-    0060 : 0353 ; -- <0011> a = a>>4
-    0061 : fc00 ; -- <0012> rtn
--- :pick_byte_even -- = 0x0062
-    0062 : 0350 ; -- <0014> a = a>>1
-    0063 : 0404 ; -- <0015> b = x
-    0064 : c800 ; -- <0016> fetch a from a+b
-    0065 : d300 ; -- <0016> "
-    0066 : 03b0 ; -- <0016> "
-    0067 : 06ff ; -- <0017> b = 0xff
-    0068 : c800 ; -- <0018> a = and
-    0069 : 0330 ; -- <0018> "
-    006a : fc00 ; -- <0019> rtn
-
--- find a byte in an array of packed words in program space.
--- pass data byte in a.
--- pass array base address in x.
--- array length in i.
--- returns found index in a (or -1 if not found).
--- if the data byte occurs more than once, the final one's position is returned.
-    006b : 2002 ; -- <0027> push i -- func find_in_fetch
-    006c : 2003 ; -- <0027> push j -- "
-    006d : 2005 ; -- <0027> push y -- "
-    006e : 203e ; -- <0027> push rtna -- "
-    006f : 1400 ; -- <0028> y = a
-    0070 : 0f60 ; -- <0029> j = -1
--- :again -- = 0x0071
-    0071 : e001 ; -- <0031> br iz :fail
-    0072 : 0081 ; -- <0031> "
-    0073 : 0b10 ; -- <0032> i = ad1
-    0074 : 0002 ; -- <0033> a = i
-    0075 : fba0 ; -- <0034> call :fetch_byte
-    0076 : 0057 ; -- <0034> "
-    0077 : fc00 ; -- <0034> "
-    0078 : 0405 ; -- <0035> b = y
-    0079 : e407 ; -- <0036> bn eq :again
-    007a : 0071 ; -- <0036> "
--- :found -- = 0x007b
-    007b : 0002 ; -- <0038> a = i
-    007c : f808 ; -- <0039> pop rtna -- rtn
-    007d : 1408 ; -- <0039> pop y -- "
-    007e : 0c08 ; -- <0039> pop j -- "
-    007f : 0808 ; -- <0039> pop i -- "
-    0080 : fc00 ; -- <0039> rtn
--- :fail -- = 0x0081
-    0081 : 0360 ; -- <0041> a = -1
-    0082 : f808 ; -- <0042> pop rtna -- rtn
-    0083 : 1408 ; -- <0042> pop y -- "
-    0084 : 0c08 ; -- <0042> pop j -- "
-    0085 : 0808 ; -- <0042> pop i -- "
-    0086 : fc00 ; -- <0042> rtn
-
-
-
 -- driver library for synapse316_uart simple async transceiver.
 
 
@@ -213,44 +149,231 @@
 
 
 -- routine sends out the low byte from a to the UART.  blocks until the FIFO accepts the byte.
-    0087 : 2004 ; -- <0044> push x -- func putchar_fduart
+    0057 : 2004 ; -- <0044> push x -- func putchar_fduart
 
-    0088 : 1000 ; -- <0046> x = a
+    0058 : 1000 ; -- <0046> x = a
 
 -- wait for FIFO to be available.
-    0089 : 0202 ; -- <0049> a = $atx_fifo_full_mask
--- :pcfduart_wait_for_idle -- = 0x008a
-    008a : 0411 ; -- <0051> b = fduart_status
-    008b : e403 ; -- <0052> bn and0z :pcfduart_wait_for_idle
-    008c : 008a ; -- <0052> "
+    0059 : 0202 ; -- <0049> a = $atx_fifo_full_mask
+-- :pcfduart_wait_for_idle -- = 0x005a
+    005a : 0411 ; -- <0051> b = fduart_status
+    005b : e403 ; -- <0052> bn and0z :pcfduart_wait_for_idle
+    005c : 005a ; -- <0052> "
 
 -- push word to the UART.  its low byte is a character.
-    008d : 4004 ; -- <0055> fduart_data = x
-    008e : 1008 ; -- <0056> pop x -- rtn
-    008f : fc00 ; -- <0056> rtn
+    005d : 4004 ; -- <0055> fduart_data = x
+    005e : 1008 ; -- <0056> pop x -- rtn
+    005f : fc00 ; -- <0056> rtn
 
 -- routine receives a byte from the UART.  blocks until the UART receives the byte.
 -- returns it in the low byte of a.
 -- wait until FIFO is populated.
-    0090 : 0208 ; -- <0062> a = $arx_fifo_empty_mask
--- :wait_for_busy -- = 0x0091
-    0091 : 0411 ; -- <0064> b = fduart_status
-    0092 : e403 ; -- <0065> bn and0z :wait_for_busy
-    0093 : 0091 ; -- <0065> "
-    0094 : 0010 ; -- <0066> a = fduart_data
-    0095 : fc00 ; -- <0067> rtn
+    0060 : 0208 ; -- <0062> a = $arx_fifo_empty_mask
+-- :wait_for_busy -- = 0x0061
+    0061 : 0411 ; -- <0064> b = fduart_status
+    0062 : e403 ; -- <0065> bn and0z :wait_for_busy
+    0063 : 0061 ; -- <0065> "
+    0064 : 0010 ; -- <0066> a = fduart_data
+    0065 : fc00 ; -- <0067> rtn
 
 -- returns a character in a, or -1 if none.
 -- check for FIFO is populated.
-    0096 : 0208 ; -- <0072> a = $arx_fifo_empty_mask
-    0097 : 0411 ; -- <0073> b = fduart_status
-    0098 : e403 ; -- <0074> bn and0z :none
-    0099 : 009c ; -- <0074> "
-    009a : 0010 ; -- <0075> a = fduart_data
-    009b : fc00 ; -- <0076> rtn
--- :none -- = 0x009c
-    009c : 0360 ; -- <0078> a = -1
-    009d : fc00 ; -- <0079> rtn
+    0066 : 0208 ; -- <0072> a = $arx_fifo_empty_mask
+    0067 : 0411 ; -- <0073> b = fduart_status
+    0068 : e403 ; -- <0074> bn and0z :none
+    0069 : 006c ; -- <0074> "
+    006a : 0010 ; -- <0075> a = fduart_data
+    006b : fc00 ; -- <0076> rtn
+-- :none -- = 0x006c
+    006c : 0360 ; -- <0078> a = -1
+    006d : fc00 ; -- <0079> rtn
+
+
+
+-- bit-bang a complete SPI transaction.
+-- pass mo data in a, transaction width (# of bits) in b.
+-- returns mi data in a
+    006e : 2002 ; -- <0005> push i -- func spi_exchange
+    006f : 2003 ; -- <0005> push j -- "
+    0070 : 2004 ; -- <0005> push x -- "
+    0071 : 2005 ; -- <0005> push y -- "
+    0072 : 2006 ; -- <0005> push g6 -- "
+    0073 : 2007 ; -- <0005> push g7 -- "
+-- keeping mo data in g6, mi data in g7.
+    0074 : 1800 ; -- <0007> g6 = a
+    0075 : 1e00 ; -- <0008> g7 = 0
+-- keeping bit counter in i.
+    0076 : 0801 ; -- <0010> i = b
+    0077 : 0f60 ; -- <0011> j = -1
+    0078 : 1760 ; -- <0012> y = -1
+-- :next_bit -- = 0x0079
+-- output the msb of mo, along with a low clock phase and low csn.
+    0079 : 0006 ; -- <0015> a = g6
+    007a : 0350 ; -- <0016> a = a>>1
+    007b : 0350 ; -- <0017> a = a>>1
+    007c : 0350 ; -- <0018> a = a>>1
+    007d : 0353 ; -- <0019> a = a>>4
+    007e : 0353 ; -- <0020> a = a>>4
+    007f : 0353 ; -- <0021> a = a>>4
+    0080 : 2c00 ; -- <0022> de0nano_adc_ctrl = a
+-- wait about 500 ns (for about 1 Mhz sck) assuming 50 MHz sysclk.
+    0081 : 1206 ; -- <0024> x = 6
+-- :wait1 -- = 0x0082
+    0082 : c800 ; -- <0026> x = x+y
+    0083 : 1320 ; -- <0026> "
+    0084 : e402 ; -- <0027> bn xz :wait1
+    0085 : 0082 ; -- <0027> "
+-- output a high clock phase.
+    0086 : 0602 ; -- <0029> b = $de0nano_adc_sck_mask
+    0087 : c800 ; -- <0030> de0nano_adc_ctrl = or
+    0088 : 2f34 ; -- <0030> "
+-- sample mi.
+    0089 : 0007 ; -- <0032> a = g7
+    008a : 0351 ; -- <0033> a = a<<1
+    008b : 040b ; -- <0034> b = de0nano_adc_ctrl
+    008c : c800 ; -- <0035> g7 = or
+    008d : 1f34 ; -- <0035> "
+-- wait about 500 ns (for about 1 Mhz sck) assuming 50 MHz sysclk.
+    008e : 1206 ; -- <0037> x = 6
+-- :wait2 -- = 0x008f
+    008f : c800 ; -- <0039> x = x+y
+    0090 : 1320 ; -- <0039> "
+    0091 : e402 ; -- <0040> bn xz :wait2
+    0092 : 008f ; -- <0040> "
+-- shift mo bits.
+    0093 : 0006 ; -- <0042> a = g6
+    0094 : 0351 ; -- <0043> a = a<<1
+    0095 : 1800 ; -- <0044> g6 = a
+-- count bits
+    0096 : c800 ; -- <0046> i = i+j
+    0097 : 0b10 ; -- <0046> "
+    0098 : e401 ; -- <0047> bn iz :next_bit
+    0099 : 0079 ; -- <0047> "
+-- idle the SPI bus with a high clock phase and high csn.
+    009a : 2e06 ; -- <0049> de0nano_adc_ctrl = ($de0nano_adc_csn_mask | $de0nano_adc_sck_mask)
+-- wait about 500 ns (for about 1 Mhz sck) assuming 50 MHz sysclk.
+    009b : 1206 ; -- <0051> x = 6
+-- :wait3 -- = 0x009c
+    009c : c800 ; -- <0053> x = x+y
+    009d : 1320 ; -- <0053> "
+    009e : e402 ; -- <0054> bn xz :wait3
+    009f : 009c ; -- <0054> "
+    00a0 : 0007 ; -- <0055> a = g7
+    00a1 : 1c08 ; -- <0056> pop g7 -- rtn
+    00a2 : 1808 ; -- <0056> pop g6 -- "
+    00a3 : 1408 ; -- <0056> pop y -- "
+    00a4 : 1008 ; -- <0056> pop x -- "
+    00a5 : 0c08 ; -- <0056> pop j -- "
+    00a6 : 0808 ; -- <0056> pop i -- "
+    00a7 : fc00 ; -- <0056> rtn
+
+-- pass desired ADC channel in a.
+-- returns ADC reading in a.
+    00a8 : 203e ; -- <0060> push rtna -- func de0nano_adc_read
+    00a9 : 0352 ; -- <0061> a = a<<4
+    00aa : 0352 ; -- <0062> a = a<<4
+    00ab : 0351 ; -- <0063> a = a<<1
+    00ac : 0351 ; -- <0064> a = a<<1
+    00ad : 0351 ; -- <0065> a = a<<1
+    00ae : 0610 ; -- <0066> b = 16
+    00af : fba0 ; -- <0067> call :spi_exchange
+    00b0 : 006e ; -- <0067> "
+    00b1 : fc00 ; -- <0067> "
+    00b2 : f808 ; -- <0068> pop rtna -- rtn
+    00b3 : fc00 ; -- <0068> rtn
+
+-- pass desired anmux channel in a.
+-- return ADC reading in a.
+    00b4 : 203e ; -- <0072> push rtna -- func anmux_read_chn
+-- set & enable analog muxer
+    00b5 : 0608 ; -- <0074> b = $anmux_enable_mask
+    00b6 : 5202 ; -- <0075> anmux_ctrl = or
+    00b7 : 4f34 ; -- <0075> "
+-- wait for muxer & current driver to settle down.  some delay here is absolutely required (per testing).
+    00b8 : 0205 ; -- <0077> a = 5
+    00b9 : fba0 ; -- <0078> call :spinwait
+    00ba : 0171 ; -- <0078> "
+    00bb : fc00 ; -- <0078> "
+
+-- read ADC channel 7.  12 bits resolution.
+-- must do this 3 times to get the ADC's input path to settle down, probably because
+-- i'm driving it with high impedance & no buffer.
+    00bc : 0207 ; -- <0083> a = 7
+    00bd : fba0 ; -- <0084> call :de0nano_adc_read
+    00be : 00a8 ; -- <0084> "
+    00bf : fc00 ; -- <0084> "
+    00c0 : 0207 ; -- <0085> a = 7
+    00c1 : fba0 ; -- <0086> call :de0nano_adc_read
+    00c2 : 00a8 ; -- <0086> "
+    00c3 : fc00 ; -- <0086> "
+    00c4 : 0207 ; -- <0087> a = 7
+    00c5 : fba0 ; -- <0088> call :de0nano_adc_read
+    00c6 : 00a8 ; -- <0088> "
+    00c7 : fc00 ; -- <0088> "
+    00c8 : f808 ; -- <0089> pop rtna -- rtn
+    00c9 : fc00 ; -- <0089> rtn
+
+-- pick a byte from an array of packed words in program space.  fetch & return it in a.
+-- pass array base address in x, byte offset in a.
+    00ca : 0601 ; -- <0005> b = 1
+    00cb : e003 ; -- <0006> br and0z :pick_byte_even
+    00cc : 00d5 ; -- <0006> "
+    00cd : 0350 ; -- <0007> a = a>>1
+    00ce : 0404 ; -- <0008> b = x
+    00cf : c800 ; -- <0009> fetch a from a+b
+    00d0 : d300 ; -- <0009> "
+    00d1 : 03b0 ; -- <0009> "
+    00d2 : 0353 ; -- <0010> a = a>>4
+    00d3 : 0353 ; -- <0011> a = a>>4
+    00d4 : fc00 ; -- <0012> rtn
+-- :pick_byte_even -- = 0x00d5
+    00d5 : 0350 ; -- <0014> a = a>>1
+    00d6 : 0404 ; -- <0015> b = x
+    00d7 : c800 ; -- <0016> fetch a from a+b
+    00d8 : d300 ; -- <0016> "
+    00d9 : 03b0 ; -- <0016> "
+    00da : 06ff ; -- <0017> b = 0xff
+    00db : c800 ; -- <0018> a = and
+    00dc : 0330 ; -- <0018> "
+    00dd : fc00 ; -- <0019> rtn
+
+-- find a byte in an array of packed words in program space.
+-- pass data byte in a.
+-- pass array base address in x.
+-- array length in i.
+-- returns found index in a (or -1 if not found).
+-- if the data byte occurs more than once, the final one's position is returned.
+    00de : 2002 ; -- <0027> push i -- func find_in_fetch
+    00df : 2003 ; -- <0027> push j -- "
+    00e0 : 2005 ; -- <0027> push y -- "
+    00e1 : 203e ; -- <0027> push rtna -- "
+    00e2 : 1400 ; -- <0028> y = a
+    00e3 : 0f60 ; -- <0029> j = -1
+-- :again -- = 0x00e4
+    00e4 : e001 ; -- <0031> br iz :fail
+    00e5 : 00f4 ; -- <0031> "
+    00e6 : 0b10 ; -- <0032> i = ad1
+    00e7 : 0002 ; -- <0033> a = i
+    00e8 : fba0 ; -- <0034> call :fetch_byte
+    00e9 : 00ca ; -- <0034> "
+    00ea : fc00 ; -- <0034> "
+    00eb : 0405 ; -- <0035> b = y
+    00ec : e407 ; -- <0036> bn eq :again
+    00ed : 00e4 ; -- <0036> "
+-- :found -- = 0x00ee
+    00ee : 0002 ; -- <0038> a = i
+    00ef : f808 ; -- <0039> pop rtna -- rtn
+    00f0 : 1408 ; -- <0039> pop y -- "
+    00f1 : 0c08 ; -- <0039> pop j -- "
+    00f2 : 0808 ; -- <0039> pop i -- "
+    00f3 : fc00 ; -- <0039> rtn
+-- :fail -- = 0x00f4
+    00f4 : 0360 ; -- <0041> a = -1
+    00f5 : f808 ; -- <0042> pop rtna -- rtn
+    00f6 : 1408 ; -- <0042> pop y -- "
+    00f7 : 0c08 ; -- <0042> pop j -- "
+    00f8 : 0808 ; -- <0042> pop i -- "
+    00f9 : fc00 ; -- <0042> rtn
 
 
 
@@ -258,291 +381,168 @@
 -- requires a console driver library to be included prior to including this.
 
 
--- :hexdigits -- = 0x009e
+-- :hexdigits -- = 0x00fa
 -- "0123456789abcdef"
-    009e : 3130 ; -- <0054> 10
-    009f : 3332 ; -- <0054> 32
-    00a0 : 3534 ; -- <0054> 54
-    00a1 : 3736 ; -- <0054> 76
-    00a2 : 3938 ; -- <0054> 98
-    00a3 : 6261 ; -- <0054> ba
-    00a4 : 6463 ; -- <0054> dc
-    00a5 : 6665 ; -- <0054> fe
+    00fa : 3130 ; -- <0054> 10
+    00fb : 3332 ; -- <0054> 32
+    00fc : 3534 ; -- <0054> 54
+    00fd : 3736 ; -- <0054> 76
+    00fe : 3938 ; -- <0054> 98
+    00ff : 6261 ; -- <0054> ba
+    0100 : 6463 ; -- <0054> dc
+    0101 : 6665 ; -- <0054> fe
 
 -- function to print a 16-bit number formatted as 4 hex digits.
 -- pass number in a.
-    00a6 : 2004 ; -- <0058> push x -- func put4x
-    00a7 : 2006 ; -- <0058> push g6 -- "
-    00a8 : 203e ; -- <0058> push rtna -- "
-    00a9 : 13a0 ; -- <0059> x = :hexdigits
-    00aa : 009e ; -- <0059> "
+    0102 : 2004 ; -- <0058> push x -- func put4x
+    0103 : 2006 ; -- <0058> push g6 -- "
+    0104 : 203e ; -- <0058> push rtna -- "
+    0105 : 13a0 ; -- <0059> x = :hexdigits
+    0106 : 00fa ; -- <0059> "
 
-    00ab : 1800 ; -- <0061> g6 = a
-    00ac : 07a0 ; -- <0062> b = 0xF000
-    00ad : f000 ; -- <0062> "
-    00ae : c800 ; -- <0063> a = and
-    00af : 0330 ; -- <0063> "
-    00b0 : 0353 ; -- <0064> a = a>>4
-    00b1 : 0353 ; -- <0065> a = a>>4
-    00b2 : 0353 ; -- <0066> a = a>>4
-    00b3 : fba0 ; -- <0067> call fetch_byte
-    00b4 : 0057 ; -- <0067> "
-    00b5 : fc00 ; -- <0067> "
-    00b6 : 0000 ; -- <0068> a = a -- putchar a
-    00b7 : fba0 ; -- <0068> putchar a
-    00b8 : 0087 ; -- <0068> "
-    00b9 : fc00 ; -- <0068> "
+    0107 : 1800 ; -- <0061> g6 = a
+    0108 : 07a0 ; -- <0062> b = 0xF000
+    0109 : f000 ; -- <0062> "
+    010a : c800 ; -- <0063> a = and
+    010b : 0330 ; -- <0063> "
+    010c : 0353 ; -- <0064> a = a>>4
+    010d : 0353 ; -- <0065> a = a>>4
+    010e : 0353 ; -- <0066> a = a>>4
+    010f : fba0 ; -- <0067> call fetch_byte
+    0110 : 00ca ; -- <0067> "
+    0111 : fc00 ; -- <0067> "
+    0112 : 0000 ; -- <0068> a = a -- putchar a
+    0113 : fba0 ; -- <0068> putchar a
+    0114 : 0057 ; -- <0068> "
+    0115 : fc00 ; -- <0068> "
 
-    00ba : 0006 ; -- <0070> a = g6
-    00bb : 07a0 ; -- <0071> b = 0x0F00
-    00bc : 0f00 ; -- <0071> "
-    00bd : c800 ; -- <0072> a = and
-    00be : 0330 ; -- <0072> "
-    00bf : 0353 ; -- <0073> a = a>>4
-    00c0 : 0353 ; -- <0074> a = a>>4
-    00c1 : fba0 ; -- <0075> call fetch_byte
-    00c2 : 0057 ; -- <0075> "
-    00c3 : fc00 ; -- <0075> "
-    00c4 : 0000 ; -- <0076> a = a -- putchar a
-    00c5 : fba0 ; -- <0076> putchar a
-    00c6 : 0087 ; -- <0076> "
-    00c7 : fc00 ; -- <0076> "
+    0116 : 0006 ; -- <0070> a = g6
+    0117 : 07a0 ; -- <0071> b = 0x0F00
+    0118 : 0f00 ; -- <0071> "
+    0119 : c800 ; -- <0072> a = and
+    011a : 0330 ; -- <0072> "
+    011b : 0353 ; -- <0073> a = a>>4
+    011c : 0353 ; -- <0074> a = a>>4
+    011d : fba0 ; -- <0075> call fetch_byte
+    011e : 00ca ; -- <0075> "
+    011f : fc00 ; -- <0075> "
+    0120 : 0000 ; -- <0076> a = a -- putchar a
+    0121 : fba0 ; -- <0076> putchar a
+    0122 : 0057 ; -- <0076> "
+    0123 : fc00 ; -- <0076> "
 
-    00c8 : 0006 ; -- <0078> a = g6
-    00c9 : 06f0 ; -- <0079> b = 0x00F0
-    00ca : c800 ; -- <0080> a = and
-    00cb : 0330 ; -- <0080> "
-    00cc : 0353 ; -- <0081> a = a>>4
-    00cd : fba0 ; -- <0082> call fetch_byte
-    00ce : 0057 ; -- <0082> "
-    00cf : fc00 ; -- <0082> "
-    00d0 : 0000 ; -- <0083> a = a -- putchar a
-    00d1 : fba0 ; -- <0083> putchar a
-    00d2 : 0087 ; -- <0083> "
-    00d3 : fc00 ; -- <0083> "
+    0124 : 0006 ; -- <0078> a = g6
+    0125 : 06f0 ; -- <0079> b = 0x00F0
+    0126 : c800 ; -- <0080> a = and
+    0127 : 0330 ; -- <0080> "
+    0128 : 0353 ; -- <0081> a = a>>4
+    0129 : fba0 ; -- <0082> call fetch_byte
+    012a : 00ca ; -- <0082> "
+    012b : fc00 ; -- <0082> "
+    012c : 0000 ; -- <0083> a = a -- putchar a
+    012d : fba0 ; -- <0083> putchar a
+    012e : 0057 ; -- <0083> "
+    012f : fc00 ; -- <0083> "
 
-    00d4 : 0006 ; -- <0085> a = g6
-    00d5 : 060f ; -- <0086> b = 0x000F
-    00d6 : c800 ; -- <0087> a = and
-    00d7 : 0330 ; -- <0087> "
-    00d8 : fba0 ; -- <0088> call fetch_byte
-    00d9 : 0057 ; -- <0088> "
-    00da : fc00 ; -- <0088> "
-    00db : 0000 ; -- <0089> a = a -- putchar a
-    00dc : fba0 ; -- <0089> putchar a
-    00dd : 0087 ; -- <0089> "
-    00de : fc00 ; -- <0089> "
+    0130 : 0006 ; -- <0085> a = g6
+    0131 : 060f ; -- <0086> b = 0x000F
+    0132 : c800 ; -- <0087> a = and
+    0133 : 0330 ; -- <0087> "
+    0134 : fba0 ; -- <0088> call fetch_byte
+    0135 : 00ca ; -- <0088> "
+    0136 : fc00 ; -- <0088> "
+    0137 : 0000 ; -- <0089> a = a -- putchar a
+    0138 : fba0 ; -- <0089> putchar a
+    0139 : 0057 ; -- <0089> "
+    013a : fc00 ; -- <0089> "
 
-    00df : f808 ; -- <0091> pop rtna -- rtn
-    00e0 : 1808 ; -- <0091> pop g6 -- "
-    00e1 : 1008 ; -- <0091> pop x -- "
-    00e2 : fc00 ; -- <0091> rtn
+    013b : f808 ; -- <0091> pop rtna -- rtn
+    013c : 1808 ; -- <0091> pop g6 -- "
+    013d : 1008 ; -- <0091> pop x -- "
+    013e : fc00 ; -- <0091> rtn
 
 -- function to scan a 16-bit number formatted as 4 hex digits.
 -- return number in a.  return 0 for success in b.
-    00e3 : 2002 ; -- <0095> push i -- func get4x
-    00e4 : 2003 ; -- <0095> push j -- "
-    00e5 : 2004 ; -- <0095> push x -- "
-    00e6 : 2005 ; -- <0095> push y -- "
-    00e7 : 203e ; -- <0095> push rtna -- "
+    013f : 2002 ; -- <0095> push i -- func get4x
+    0140 : 2003 ; -- <0095> push j -- "
+    0141 : 2004 ; -- <0095> push x -- "
+    0142 : 2005 ; -- <0095> push y -- "
+    0143 : 203e ; -- <0095> push rtna -- "
 -- y = digit counter
 -- j = sum
-    00e8 : 1604 ; -- <0098> y = 4
--- :again -- = 0x00e9
-    00e9 : fba0 ; -- <0100> getchar
-    00ea : 0090 ; -- <0100> "
-    00eb : fc00 ; -- <0100> "
-    00ec : 2000 ; -- <0100> push a -- "
-    00ed : 0000 ; -- <0100> a = a -- "
-    00ee : fba0 ; -- <0100> "
-    00ef : 0087 ; -- <0100> "
-    00f0 : fc00 ; -- <0100> "
-    00f1 : 0008 ; -- <0100> pop a -- "
-    00f2 : 13a0 ; -- <0101> x = :hexdigits
-    00f3 : 009e ; -- <0101> "
-    00f4 : 0a10 ; -- <0102> i = 16
-    00f5 : fba0 ; -- <0103> call :find_in_fetch
-    00f6 : 006b ; -- <0103> "
-    00f7 : fc00 ; -- <0103> "
-    00f8 : 0760 ; -- <0104> b = -1
-    00f9 : e007 ; -- <0105> br eq :fail
-    00fa : 010e ; -- <0105> "
-    00fb : 0400 ; -- <0106> b = a
-    00fc : 0003 ; -- <0107> a = j
-    00fd : 0352 ; -- <0108> a = a<<4
-    00fe : c800 ; -- <0109> j = or
-    00ff : 0f34 ; -- <0109> "
-    0100 : 1360 ; -- <0110> x = -1
-    0101 : c800 ; -- <0111> y = x+y
-    0102 : 1720 ; -- <0111> "
-    0103 : 0005 ; -- <0112> a = y
-    0104 : e400 ; -- <0113> bn az :again
-    0105 : 00e9 ; -- <0113> "
-    0106 : 0003 ; -- <0114> a = j
-    0107 : 0600 ; -- <0115> b = 0
-    0108 : f808 ; -- <0116> pop rtna -- rtn
-    0109 : 1408 ; -- <0116> pop y -- "
-    010a : 1008 ; -- <0116> pop x -- "
-    010b : 0c08 ; -- <0116> pop j -- "
-    010c : 0808 ; -- <0116> pop i -- "
-    010d : fc00 ; -- <0116> rtn
--- :fail -- = 0x010e
-    010e : 0760 ; -- <0118> b = -1
-    010f : f808 ; -- <0119> pop rtna -- rtn
-    0110 : 1408 ; -- <0119> pop y -- "
-    0111 : 1008 ; -- <0119> pop x -- "
-    0112 : 0c08 ; -- <0119> pop j -- "
-    0113 : 0808 ; -- <0119> pop i -- "
-    0114 : fc00 ; -- <0119> rtn
+    0144 : 1604 ; -- <0098> y = 4
+-- :again -- = 0x0145
+    0145 : fba0 ; -- <0100> getchar
+    0146 : 0060 ; -- <0100> "
+    0147 : fc00 ; -- <0100> "
+    0148 : 2000 ; -- <0100> push a -- "
+    0149 : 0000 ; -- <0100> a = a -- "
+    014a : fba0 ; -- <0100> "
+    014b : 0057 ; -- <0100> "
+    014c : fc00 ; -- <0100> "
+    014d : 0008 ; -- <0100> pop a -- "
+    014e : 13a0 ; -- <0101> x = :hexdigits
+    014f : 00fa ; -- <0101> "
+    0150 : 0a10 ; -- <0102> i = 16
+    0151 : fba0 ; -- <0103> call :find_in_fetch
+    0152 : 00de ; -- <0103> "
+    0153 : fc00 ; -- <0103> "
+    0154 : 0760 ; -- <0104> b = -1
+    0155 : e007 ; -- <0105> br eq :fail
+    0156 : 016a ; -- <0105> "
+    0157 : 0400 ; -- <0106> b = a
+    0158 : 0003 ; -- <0107> a = j
+    0159 : 0352 ; -- <0108> a = a<<4
+    015a : c800 ; -- <0109> j = or
+    015b : 0f34 ; -- <0109> "
+    015c : 1360 ; -- <0110> x = -1
+    015d : c800 ; -- <0111> y = x+y
+    015e : 1720 ; -- <0111> "
+    015f : 0005 ; -- <0112> a = y
+    0160 : e400 ; -- <0113> bn az :again
+    0161 : 0145 ; -- <0113> "
+    0162 : 0003 ; -- <0114> a = j
+    0163 : 0600 ; -- <0115> b = 0
+    0164 : f808 ; -- <0116> pop rtna -- rtn
+    0165 : 1408 ; -- <0116> pop y -- "
+    0166 : 1008 ; -- <0116> pop x -- "
+    0167 : 0c08 ; -- <0116> pop j -- "
+    0168 : 0808 ; -- <0116> pop i -- "
+    0169 : fc00 ; -- <0116> rtn
+-- :fail -- = 0x016a
+    016a : 0760 ; -- <0118> b = -1
+    016b : f808 ; -- <0119> pop rtna -- rtn
+    016c : 1408 ; -- <0119> pop y -- "
+    016d : 1008 ; -- <0119> pop x -- "
+    016e : 0c08 ; -- <0119> pop j -- "
+    016f : 0808 ; -- <0119> pop i -- "
+    0170 : fc00 ; -- <0119> rtn
 
 -- routine waits a number of milliseconds given in a.
-    0115 : 2004 ; -- <0002> push x -- func spinwait
-    0116 : 2005 ; -- <0002> push y -- "
+    0171 : 2004 ; -- <0002> push x -- func spinwait
+    0172 : 2005 ; -- <0002> push y -- "
 --patch
 --rtn
-    0117 : 0760 ; -- <0005> b = -1
--- :spinwait_outer -- = 0x0118
-    0118 : 13a0 ; -- <0007> x = 16666
-    0119 : 411a ; -- <0007> "
-    011a : 1760 ; -- <0008> y = -1
-    011b : c800 ; -- <0009> nop
--- :spinwait_inner -- = 0x011c
+    0173 : 0760 ; -- <0005> b = -1
+-- :spinwait_outer -- = 0x0174
+    0174 : 13a0 ; -- <0007> x = 16666
+    0175 : 411a ; -- <0007> "
+    0176 : 1760 ; -- <0008> y = -1
+    0177 : c800 ; -- <0009> nop
+-- :spinwait_inner -- = 0x0178
 -- use of the ad2 name overrides auto-nop here.
-    011c : 1320 ; -- <0012> x = ad2
-    011d : e402 ; -- <0013> bn xz :spinwait_inner
-    011e : 011c ; -- <0013> "
-    011f : c800 ; -- <0014> a = a+b
-    0120 : 0300 ; -- <0014> "
-    0121 : e400 ; -- <0015> bn az :spinwait_outer
-    0122 : 0118 ; -- <0015> "
-    0123 : 1408 ; -- <0016> pop y -- rtn
-    0124 : 1008 ; -- <0016> pop x -- "
-    0125 : fc00 ; -- <0016> rtn
+    0178 : 1320 ; -- <0012> x = ad2
+    0179 : e402 ; -- <0013> bn xz :spinwait_inner
+    017a : 0178 ; -- <0013> "
+    017b : c800 ; -- <0014> a = a+b
+    017c : 0300 ; -- <0014> "
+    017d : e400 ; -- <0015> bn az :spinwait_outer
+    017e : 0174 ; -- <0015> "
+    017f : 1408 ; -- <0016> pop y -- rtn
+    0180 : 1008 ; -- <0016> pop x -- "
+    0181 : fc00 ; -- <0016> rtn
 
 
-
--- bit-bang a complete SPI transaction.
--- pass mo data in a, transaction width (# of bits) in b.
--- returns mi data in a
-    0126 : 2002 ; -- <0005> push i -- func spi_exchange
-    0127 : 2003 ; -- <0005> push j -- "
-    0128 : 2004 ; -- <0005> push x -- "
-    0129 : 2005 ; -- <0005> push y -- "
-    012a : 2006 ; -- <0005> push g6 -- "
-    012b : 2007 ; -- <0005> push g7 -- "
--- keeping mo data in g6, mi data in g7.
-    012c : 1800 ; -- <0007> g6 = a
-    012d : 1e00 ; -- <0008> g7 = 0
--- keeping bit counter in i.
-    012e : 0801 ; -- <0010> i = b
-    012f : 0f60 ; -- <0011> j = -1
-    0130 : 1760 ; -- <0012> y = -1
--- :next_bit -- = 0x0131
--- output the msb of mo, along with a low clock phase and low csn.
-    0131 : 0006 ; -- <0015> a = g6
-    0132 : 0350 ; -- <0016> a = a>>1
-    0133 : 0350 ; -- <0017> a = a>>1
-    0134 : 0350 ; -- <0018> a = a>>1
-    0135 : 0353 ; -- <0019> a = a>>4
-    0136 : 0353 ; -- <0020> a = a>>4
-    0137 : 0353 ; -- <0021> a = a>>4
-    0138 : 2c00 ; -- <0022> de0nano_adc_ctrl = a
--- wait about 500 ns (for about 1 Mhz sck) assuming 50 MHz sysclk.
-    0139 : 1206 ; -- <0024> x = 6
--- :wait1 -- = 0x013a
-    013a : c800 ; -- <0026> x = x+y
-    013b : 1320 ; -- <0026> "
-    013c : e402 ; -- <0027> bn xz :wait1
-    013d : 013a ; -- <0027> "
--- output a high clock phase.
-    013e : 0602 ; -- <0029> b = $de0nano_adc_sck_mask
-    013f : c800 ; -- <0030> de0nano_adc_ctrl = or
-    0140 : 2f34 ; -- <0030> "
--- sample mi.
-    0141 : 0007 ; -- <0032> a = g7
-    0142 : 0351 ; -- <0033> a = a<<1
-    0143 : 040b ; -- <0034> b = de0nano_adc_ctrl
-    0144 : c800 ; -- <0035> g7 = or
-    0145 : 1f34 ; -- <0035> "
--- wait about 500 ns (for about 1 Mhz sck) assuming 50 MHz sysclk.
-    0146 : 1206 ; -- <0037> x = 6
--- :wait2 -- = 0x0147
-    0147 : c800 ; -- <0039> x = x+y
-    0148 : 1320 ; -- <0039> "
-    0149 : e402 ; -- <0040> bn xz :wait2
-    014a : 0147 ; -- <0040> "
--- shift mo bits.
-    014b : 0006 ; -- <0042> a = g6
-    014c : 0351 ; -- <0043> a = a<<1
-    014d : 1800 ; -- <0044> g6 = a
--- count bits
-    014e : c800 ; -- <0046> i = i+j
-    014f : 0b10 ; -- <0046> "
-    0150 : e401 ; -- <0047> bn iz :next_bit
-    0151 : 0131 ; -- <0047> "
--- idle the SPI bus with a high clock phase and high csn.
-    0152 : 2e06 ; -- <0049> de0nano_adc_ctrl = ($de0nano_adc_csn_mask | $de0nano_adc_sck_mask)
--- wait about 500 ns (for about 1 Mhz sck) assuming 50 MHz sysclk.
-    0153 : 1206 ; -- <0051> x = 6
--- :wait3 -- = 0x0154
-    0154 : c800 ; -- <0053> x = x+y
-    0155 : 1320 ; -- <0053> "
-    0156 : e402 ; -- <0054> bn xz :wait3
-    0157 : 0154 ; -- <0054> "
-    0158 : 0007 ; -- <0055> a = g7
-    0159 : 1c08 ; -- <0056> pop g7 -- rtn
-    015a : 1808 ; -- <0056> pop g6 -- "
-    015b : 1408 ; -- <0056> pop y -- "
-    015c : 1008 ; -- <0056> pop x -- "
-    015d : 0c08 ; -- <0056> pop j -- "
-    015e : 0808 ; -- <0056> pop i -- "
-    015f : fc00 ; -- <0056> rtn
-
--- pass desired ADC channel in a.
--- returns ADC reading in a.
-    0160 : 203e ; -- <0060> push rtna -- func de0nano_adc_read
-    0161 : 0352 ; -- <0061> a = a<<4
-    0162 : 0352 ; -- <0062> a = a<<4
-    0163 : 0351 ; -- <0063> a = a<<1
-    0164 : 0351 ; -- <0064> a = a<<1
-    0165 : 0351 ; -- <0065> a = a<<1
-    0166 : 0610 ; -- <0066> b = 16
-    0167 : fba0 ; -- <0067> call :spi_exchange
-    0168 : 0126 ; -- <0067> "
-    0169 : fc00 ; -- <0067> "
-    016a : f808 ; -- <0068> pop rtna -- rtn
-    016b : fc00 ; -- <0068> rtn
-
--- pass desired anmux channel in a.
--- return ADC reading in a.
-    016c : 203e ; -- <0072> push rtna -- func anmux_read_chn
--- set & enable analog muxer
-    016d : 0608 ; -- <0074> b = $anmux_enable_mask
-    016e : 5202 ; -- <0075> anmux_ctrl = or
-    016f : 4f34 ; -- <0075> "
--- wait for muxer & current driver to settle down.  some delay here is absolutely required (per testing).
-    0170 : 0205 ; -- <0077> a = 5
-    0171 : fba0 ; -- <0078> call :spinwait
-    0172 : 0115 ; -- <0078> "
-    0173 : fc00 ; -- <0078> "
-
--- read ADC channel 7.  12 bits resolution.
--- must do this 3 times to get the ADC's input path to settle down, probably because
--- i'm driving it with high impedance & no buffer.
-    0174 : 0207 ; -- <0083> a = 7
-    0175 : fba0 ; -- <0084> call :de0nano_adc_read
-    0176 : 0160 ; -- <0084> "
-    0177 : fc00 ; -- <0084> "
-    0178 : 0207 ; -- <0085> a = 7
-    0179 : fba0 ; -- <0086> call :de0nano_adc_read
-    017a : 0160 ; -- <0086> "
-    017b : fc00 ; -- <0086> "
-    017c : 0207 ; -- <0087> a = 7
-    017d : fba0 ; -- <0088> call :de0nano_adc_read
-    017e : 0160 ; -- <0088> "
-    017f : fc00 ; -- <0088> "
-    0180 : f808 ; -- <0089> pop rtna -- rtn
-    0181 : fc00 ; -- <0089> rtn
 
 -- --------------------------------------------
 -- :main -- = 0x0182
@@ -668,17 +668,17 @@
     01bd : c800 ; -- <0187> soft_event = or
     01be : 4b34 ; -- <0187> "
     01bf : fba0 ; -- <0188> call :put4x
-    01c0 : 00a6 ; -- <0188> "
+    01c0 : 0102 ; -- <0188> "
     01c1 : fc00 ; -- <0188> "
     01c2 : 020d ; -- <0189> a = 13 -- puteol
     01c3 : 0000 ; -- <0189> a = a -- puteol
     01c4 : fba0 ; -- <0189> puteol
-    01c5 : 0087 ; -- <0189> "
+    01c5 : 0057 ; -- <0189> "
     01c6 : fc00 ; -- <0189> "
     01c7 : 020a ; -- <0189> a = 10 -- puteol
     01c8 : 0000 ; -- <0189> a = a -- puteol
     01c9 : fba0 ; -- <0189> puteol
-    01ca : 0087 ; -- <0189> "
+    01ca : 0057 ; -- <0189> "
     01cb : fc00 ; -- <0189> "
     01cc : e00f ; -- <0190> end_event
     01cd : 0186 ; -- <0190> "

@@ -82,11 +82,11 @@
     "exp_addr"
     
     // libraries
+    include ../peripheral/driver/fduart.asm
+    include ../peripheral/driver/de0nano_adc.asm
     include lib/string.asm
-    include lib/fduart.asm
     include lib/console.asm
     include lib/time.asm
-    include lib/de0nano_adc.asm
     
     // ////////////////////////////////////////////
     :main

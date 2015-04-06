@@ -51,8 +51,8 @@
     
     jmp :main
     
+    include ../peripheral/driver/my_uart_v2.asm
     include lib/string.asm
-    include lib/my_uart_v2.asm
     include lib/console.asm
     include lib/time.asm
 

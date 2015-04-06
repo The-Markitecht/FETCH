@@ -1,4 +1,5 @@
 `include "header.v"
+`include "target_program_defines.v"
 
 module top (
     (* chip_pin = "R8" *) input wire clk50m,
