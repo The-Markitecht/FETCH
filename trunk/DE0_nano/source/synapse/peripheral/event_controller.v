@@ -68,23 +68,31 @@ module event_controller #(
     ,output wire[15:0]                priority_out        
     , input wire                      priority_load
     , input wire[15:0]                data_in        
-    , input wire[0:TOP_INPUT]         event_signals   
-        // ^^^ ORDER IS REVERSED so MOST URGENT signal comes FIRST!
-        // this is done to make the signal order in Verilog match the handler table in assembler.
+    , input wire[TOP_INPUT:0]         event_signals   
 );      
 
     integer i;
+    genvar g;
 
+    // REVERSE the event_signals in the design, so MOST URGENT signal comes FIRST in the instantiation!
+    // this makes the signal order in the event_controller instantiation match the handler table in assembler.
+    wire[TOP_INPUT:0] reversed;
+    generate
+        for (g = 0; g < NUM_INPUTS; g=g+1) begin : body
+            assign reversed[g] = event_signals[TOP_INPUT - g];
+        end
+    endgenerate
+        
     // edge detectors
     reg[TOP_INPUT:0] last;
     always_ff @(posedge sysclk)
-        last <= event_signals;
-    wire[TOP_INPUT:0] edge_detect = event_signals & ~ last;
+        last <= reversed;
+    wire[TOP_INPUT:0] edge_detect = reversed & ~ last;
 
     // capture registers
     reg[TOP_INPUT:0] capture = 0;
     always_ff @(posedge sysclk, posedge sysreset)
-        for (i = 0; i < TOP_INPUT; i=i+1)
+        for (i = 0; i < NUM_INPUTS; i=i+1)
             if (sysreset)
                 capture[i] <= 1'b0; // system-wide reset.
             else if (edge_detect[i]) 
