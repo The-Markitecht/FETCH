@@ -21,7 +21,7 @@ module priority_encoder #(
     always_comb begin
         // note the absence of a "generate" keyword here.
         outcode = 0;
-        for (i=TOP_INPUT; i >= 0; i=i-1) begin: middle
+        for (i=TOP_INPUT; i >= 0; i=i-1) begin: body
             if (in[i]) 
                 outcode = i;
         end
