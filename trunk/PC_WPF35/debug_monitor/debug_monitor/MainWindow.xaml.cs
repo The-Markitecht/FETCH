@@ -90,7 +90,7 @@ namespace CVtool
             rx_tmr.Tick += rx_tmr_tick;
 
             // parse source file.  memorize line number of each address.
-            source_fn = System.IO.Path.Combine(app_path, @"..\..\..\..\..\DE0_nano\target_program.mif");
+            source_fn = System.IO.Path.Combine(app_path, @"..\..\..\..\..\DE0_nano\source\synapse\program\target_program.mif");
             load_source(source_fn);
             rx_tmr.Start();
 
