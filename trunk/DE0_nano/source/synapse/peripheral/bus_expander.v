@@ -60,7 +60,7 @@ module bus_expander #(
 
     genvar i;
     generate  
-        for (i=0; i < NUM_REGS; i=i+1) begin: middle
+        for (i=0; i < NUM_REGS; i=i+1) begin: body
             assign r_load[i] = (address_out == i ? data_load : 1'b0);
             assign r_read[i] = (address_out == i ? data_read : 1'b0);
         end
