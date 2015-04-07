@@ -582,224 +582,121 @@
 
 -- ----------------------------------------------------------
 
--- a = 0xf1
--- b = 0xf2
--- i = 0xf3
--- j = 0xf4
--- x = 0xf5
--- y = 0xf6
--- g6 = 0xf7
--- g7 = 0xf8
--- rtna = :test1
--- swapra = nop
--- g6 = g6
--- g6 = g6
--- g6 = g6
--- :test1
--- g6 = g6
--- g6 = g6
--- g6 = g6
--- jmp :test2
--- g6 = g6
--- g6 = g6
--- g6 = g6
--- :test2
--- g6 = g6
--- g6 = g6
--- g6 = g6
 
--- a = 0xf1
--- b = 0xf2
--- i = 0xf3
--- j = 0xf4
--- x = 0xf5
--- y = 0xf6
--- g6 = 0xf7
--- g7 = 0xf8
--- rtna = :test3
--- swapra = nop
--- g6 = g6
--- g6 = g6
--- g6 = g6
--- :test3
--- jmp :test4
--- g6 = g6
--- g6 = g6
--- g6 = g6
--- :test4
--- g6 = g6
--- g6 = g6
--- g6 = g6
+    0182 : 2fa0 ; -- <0133> timer0 = $TICKS_PER_SEC
+    0183 : 02fb ; -- <0133> "
 
--- a = 0xf1
--- b = 0xf2
--- i = 0xf3
--- j = 0xf4
--- x = 0xf5
--- y = 0xf6
--- g6 = 0xf7
--- g7 = 0xf8
--- rtna = :test5
--- swapra = b
--- g6 = g6
--- g6 = g6
--- g6 = g6
--- :test5
--- jmp :test6
--- g6 = g6
--- g6 = g6
--- g6 = g6
--- :test6
--- g6 = g6
--- g6 = g6
--- g6 = g6
+    0184 : 2a00 ; -- <0135> soft_event = 0
+    0185 : 2600 ; -- <0136> event_priority = 0
+    0186 : 2601 ; -- <0137> event_priority = 1
+    0187 : 2602 ; -- <0138> event_priority = 2
+    0188 : 2603 ; -- <0139> event_priority = 3
+    0189 : 2604 ; -- <0140> event_priority = 4
+    018a : 2605 ; -- <0141> event_priority = 5
+    018b : 2606 ; -- <0142> event_priority = 6
+    018c : 2607 ; -- <0143> event_priority = 7
+    018d : 2608 ; -- <0144> event_priority = 8
+    018e : 2609 ; -- <0145> event_priority = 9
+    018f : 260a ; -- <0146> event_priority = 10
+    0190 : 260b ; -- <0147> event_priority = 11
+    0191 : 260c ; -- <0148> event_priority = 12
+    0192 : 260d ; -- <0149> event_priority = 13
+    0193 : 260e ; -- <0150> event_priority = 14
+    0194 : 260f ; -- <0151> event_priority = 15
 
-
-    0182 : 2fa0 ; -- <0203> timer0 = $TICKS_PER_SEC
-    0183 : 02fb ; -- <0203> "
-
-    0184 : 2600 ; -- <0205> event_priority = 0
-    0185 : 2601 ; -- <0206> event_priority = 1
-    0186 : 2602 ; -- <0207> event_priority = 2
-    0187 : 2603 ; -- <0208> event_priority = 3
-    0188 : 2604 ; -- <0209> event_priority = 4
-    0189 : 2605 ; -- <0210> event_priority = 5
-    018a : 2606 ; -- <0211> event_priority = 6
-    018b : 2607 ; -- <0212> event_priority = 7
-    018c : 2608 ; -- <0213> event_priority = 8
-    018d : 2609 ; -- <0214> event_priority = 9
-    018e : 260a ; -- <0215> event_priority = 10
-    018f : 260b ; -- <0216> event_priority = 11
-    0190 : 260c ; -- <0217> event_priority = 12
-    0191 : 260d ; -- <0218> event_priority = 13
-    0192 : 260e ; -- <0219> event_priority = 14
-    0193 : 260f ; -- <0220> event_priority = 15
-    0194 : 2a00 ; -- <0221> soft_event = 0
-    0195 : 2a01 ; -- <0222> soft_event = 0x0001
-
--- event loop prototype.
+-- event loop.
 -- first instruction of an event handler should be the 7th cycle after reading its priority from the event controller.
--- :poll_events -- = 0x0196
+-- :poll_events -- = 0x0195
 -- initialize prior to polling loop, for minimum latency.
-    0196 : 07a0 ; -- <0228> b = :event_table
-    0197 : 01a1 ; -- <0228> "
+    0195 : 07a0 ; -- <0157> b = :event_table
+    0196 : 01a0 ; -- <0157> "
 -- 3-cycle polling loop.
--- :poll_events_again -- = 0x0198
-    0198 : 0009 ; -- <0231> a = event_priority
-    0199 : e000 ; -- <0232> br 0z :poll_events_again
-    019a : 0198 ; -- <0232> "
--- acknowledge the event to clear its register.  do this right away,
+-- :poll_events_again -- = 0x0197
+    0197 : 0009 ; -- <0160> a = event_priority
+    0198 : e000 ; -- <0161> br 0z :poll_events_again
+    0199 : 0197 ; -- <0161> "
+-- acknowledge the event to clear its capture register.  do this right away,
 -- so another occurrence of the same event can be captured right away in the controller.
-    019b : 2400 ; -- <0235> event_priority = a
+    019a : 2400 ; -- <0164> event_priority = a
 -- compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
-    019c : d300 ; -- <0237> fetch rtna from ad0
-    019d : fbb0 ; -- <0237> "
+    019b : d300 ; -- <0166> fetch rtna from ad0
+    019c : fbb0 ; -- <0166> "
 -- jump to the address given in the event_table.  each handler MUST end with a end_event.
 -- each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
 -- each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
-    019e : fc00 ; -- <0241> swapra = nop
+    019d : fc00 ; -- <0170> swapra = nop
 -- just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
--- :events_error_halt -- = 0x019f
-    019f : e00f ; -- <0244> jmp :events_error_halt
-    01a0 : 019f ; -- <0244> "
+-- :error_halt -- = 0x019e
+    019e : e00f ; -- <0173> jmp :error_halt
+    019f : 019e ; -- <0173> "
 
 -- event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.
 -- event 0 not used in this app anyway.
--- :event_table -- = 0x01a1
+-- :event_table -- = 0x01a0
 
-    01a1 : 01bd ; -- <0250> ([label :test_handler])
-    01a2 : 01bd ; -- <0251> ([label :test_handler])
-    01a3 : 01bd ; -- <0252> ([label :test_handler])
-    01a4 : 01bd ; -- <0253> ([label :test_handler])
-
-    01a5 : 01bd ; -- <0255> ([label :test_handler])
-    01a6 : 01bd ; -- <0256> ([label :test_handler])
-    01a7 : 01bd ; -- <0257> ([label :test_handler])
-    01a8 : 01bd ; -- <0258> ([label :test_handler])
-
-    01a9 : 01bd ; -- <0260> ([label :test_handler])
-    01aa : 01bd ; -- <0261> ([label :test_handler])
-    01ab : 01bd ; -- <0262> ([label :test_handler])
-    01ac : 01bd ; -- <0263> ([label :test_handler])
-
-    01ad : 01bd ; -- <0265> ([label :test_handler])
-    01ae : 01bd ; -- <0266> ([label :test_handler])
-    01af : 01bd ; -- <0267> ([label :test_handler])
-    01b0 : 01bd ; -- <0268> ([label :test_handler])
-
--- this is now the OBSOLETE format.
-    01b1 : e00f ; -- <0271> jmp :poll_events
-    01b2 : 0196 ; -- <0271> "
-    01b3 : e00f ; -- <0272> jmp :uart_rx_char_handler
-    01b4 : 01d9 ; -- <0272> "
-    01b5 : e00f ; -- <0273> jmp :uart_tx_char_handler
-    01b6 : 01db ; -- <0273> "
-    01b7 : e00f ; -- <0274> jmp :key0_handler
-    01b8 : 01dd ; -- <0274> "
-    01b9 : e00f ; -- <0275> jmp :key1_handler
-    01ba : 01df ; -- <0275> "
-    01bb : e00f ; -- <0276> jmp :timer0_handler
-    01bc : 01e1 ; -- <0276> "
-
--- patch: call event loop as if it were a func, but don't declare it func.
--- instead let it jmp to a handler, which does an unmatched rtn?
--- no, don't allow handlers to call back to event loop.
-
--- output is the event priority found, then the soft_event value that caused it.
-    01bd : fba0 ; -- <0284> call :put4x
-    01be : 0102 ; -- <0284> "
-    01bf : fc00 ; -- <0284> "
-    01c0 : 0220 ; -- <0285> a = 32 -- putasc " "
-    01c1 : 0000 ; -- <0285> a = a -- putasc " "
-    01c2 : fba0 ; -- <0285> putasc " "
-    01c3 : 0057 ; -- <0285> "
-    01c4 : fc00 ; -- <0285> "
-    01c5 : 000a ; -- <0286> a = soft_event
-    01c6 : 0751 ; -- <0287> b = a<<1
-    01c7 : 2a00 ; -- <0288> soft_event = 0
-    01c8 : c800 ; -- <0289> soft_event = or
-    01c9 : 2b34 ; -- <0289> "
-    01ca : fba0 ; -- <0290> call :put4x
-    01cb : 0102 ; -- <0290> "
-    01cc : fc00 ; -- <0290> "
-    01cd : 020d ; -- <0291> a = 13 -- puteol
-    01ce : 0000 ; -- <0291> a = a -- puteol
-    01cf : fba0 ; -- <0291> puteol
-    01d0 : 0057 ; -- <0291> "
-    01d1 : fc00 ; -- <0291> "
-    01d2 : 020a ; -- <0291> a = 10 -- puteol
-    01d3 : 0000 ; -- <0291> a = a -- puteol
-    01d4 : fba0 ; -- <0291> puteol
-    01d5 : 0057 ; -- <0291> "
-    01d6 : fc00 ; -- <0291> "
-    01d7 : e00f ; -- <0292> end_event
-    01d8 : 0196 ; -- <0292> "
+    01a0 : 0195 ; -- <0179> ([label :poll_events])
+    01a1 : 01a7 ; -- <0180> ([label :uart_rx_handler])
+    01a2 : 01a9 ; -- <0181> ([label :uart_rx_overflow_handler])
+    01a3 : 01b0 ; -- <0182> ([label :uart_tx_overflow_handler])
+    01a4 : 01b7 ; -- <0183> ([label :key0_handler])
+    01a5 : 01c3 ; -- <0184> ([label :key1_handler])
+    01a6 : 01cf ; -- <0185> ([label :timer0_handler])
 
 -- handle data here
-    01d9 : e00f ; -- <0296> end_event
-    01da : 0196 ; -- <0296> "
+    01a7 : e00f ; -- <0189> end_event
+    01a8 : 0195 ; -- <0189> "
 
--- handle data here
-    01db : e00f ; -- <0300> end_event
-    01dc : 0196 ; -- <0300> "
+    01a9 : 5201 ; -- <0192> leds = $ERR_RX_OVERFLOW
+    01aa : 4fa0 ; -- <0192> "
+    01ab : fffe ; -- <0192> "
+    01ac : e00f ; -- <0193> jmp :error_halt
+    01ad : 019e ; -- <0193> "
+    01ae : e00f ; -- <0194> end_event
+    01af : 0195 ; -- <0194> "
 
--- handle data here
-    01dd : e00f ; -- <0304> end_event
-    01de : 0196 ; -- <0304> "
+    01b0 : 5201 ; -- <0197> leds = $ERR_TX_OVERFLOW
+    01b1 : 4fa0 ; -- <0197> "
+    01b2 : fffd ; -- <0197> "
+    01b3 : e00f ; -- <0198> jmp :error_halt
+    01b4 : 019e ; -- <0198> "
+    01b5 : e00f ; -- <0199> end_event
+    01b6 : 0195 ; -- <0199> "
 
--- handle data here
-    01df : e00f ; -- <0308> end_event
-    01e0 : 0196 ; -- <0308> "
+    01b7 : 026b ; -- <0202> a = 107 -- putasc "k"
+    01b8 : 0000 ; -- <0202> a = a -- putasc "k"
+    01b9 : fba0 ; -- <0202> putasc "k"
+    01ba : 0057 ; -- <0202> "
+    01bb : fc00 ; -- <0202> "
+    01bc : 0230 ; -- <0203> a = 48 -- putasc "0"
+    01bd : 0000 ; -- <0203> a = a -- putasc "0"
+    01be : fba0 ; -- <0203> putasc "0"
+    01bf : 0057 ; -- <0203> "
+    01c0 : fc00 ; -- <0203> "
+    01c1 : e00f ; -- <0204> end_event
+    01c2 : 0195 ; -- <0204> "
 
-    01e1 : 2fa0 ; -- <0311> timer0 = $TICKS_PER_SEC
-    01e2 : 02fb ; -- <0311> "
-    01e3 : 5201 ; -- <0312> a = leds
-    01e4 : 0013 ; -- <0312> "
-    01e5 : 0601 ; -- <0313> b = 1
-    01e6 : 5201 ; -- <0314> leds = a+b
-    01e7 : 4f00 ; -- <0314> "
-    01e8 : e00f ; -- <0315> end_event
-    01e9 : 0196 ; -- <0315> "
+    01c3 : 026b ; -- <0207> a = 107 -- putasc "k"
+    01c4 : 0000 ; -- <0207> a = a -- putasc "k"
+    01c5 : fba0 ; -- <0207> putasc "k"
+    01c6 : 0057 ; -- <0207> "
+    01c7 : fc00 ; -- <0207> "
+    01c8 : 0231 ; -- <0208> a = 49 -- putasc "1"
+    01c9 : 0000 ; -- <0208> a = a -- putasc "1"
+    01ca : fba0 ; -- <0208> putasc "1"
+    01cb : 0057 ; -- <0208> "
+    01cc : fc00 ; -- <0208> "
+    01cd : e00f ; -- <0209> end_event
+    01ce : 0195 ; -- <0209> "
+
+    01cf : 2fa0 ; -- <0212> timer0 = $TICKS_PER_SEC
+    01d0 : 02fb ; -- <0212> "
+    01d1 : 5201 ; -- <0213> a = leds
+    01d2 : 0013 ; -- <0213> "
+    01d3 : 0601 ; -- <0214> b = 1
+    01d4 : 5201 ; -- <0215> leds = a+b
+    01d5 : 4f00 ; -- <0215> "
+    01d6 : e00f ; -- <0216> end_event
+    01d7 : 0195 ; -- <0216> "
 
 
         

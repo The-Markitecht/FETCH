@@ -126,13 +126,82 @@
     
     // //////////////////////////////////////////////////////////
     
-    setvar ERR_RX_OVERFLOW 0xfffe
-    setvar ERR_TX_OVERFLOW 0xfffd
+    // a = 0xf1
+    // b = 0xf2
+    // i = 0xf3
+    // j = 0xf4
+    // x = 0xf5
+    // y = 0xf6
+    // g6 = 0xf7
+    // g7 = 0xf8
+    // rtna = :test1
+    // swapra = nop
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // :test1
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // jmp :test2
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // :test2
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
 
+    // a = 0xf1
+    // b = 0xf2
+    // i = 0xf3
+    // j = 0xf4
+    // x = 0xf5
+    // y = 0xf6
+    // g6 = 0xf7
+    // g7 = 0xf8
+    // rtna = :test3
+    // swapra = nop
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // :test3
+    // jmp :test4
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // :test4
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+
+    // a = 0xf1
+    // b = 0xf2
+    // i = 0xf3
+    // j = 0xf4
+    // x = 0xf5
+    // y = 0xf6
+    // g6 = 0xf7
+    // g7 = 0xf8
+    // rtna = :test5
+    // swapra = b
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // :test5
+    // jmp :test6
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // :test6
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+
+    
     setvar TICKS_PER_SEC 763
     timer0 = $TICKS_PER_SEC
 
-    soft_event = 0
     event_priority = 0
     event_priority = 1
     event_priority = 2
@@ -149,8 +218,10 @@
     event_priority = 13
     event_priority = 14
     event_priority = 15
+    soft_event = 0
+    soft_event = 0x0001
     
-    // event loop.
+    // event loop prototype.
     // first instruction of an event handler should be the 7th cycle after reading its priority from the event controller.
     :poll_events
     // initialize prior to polling loop, for minimum latency.
@@ -159,7 +230,7 @@
     :poll_events_again
     a = event_priority
     br 0z :poll_events_again
-    // acknowledge the event to clear its capture register.  do this right away, 
+    // acknowledge the event to clear its register.  do this right away, 
     // so another occurrence of the same event can be captured right away in the controller.
     event_priority = a
     // compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
@@ -169,43 +240,71 @@
     // each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
     swapra = nop    
     // just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
-    :error_halt
-    jmp :error_halt
+    :events_error_halt
+    jmp :events_error_halt
     
     // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.  
     // event 0 not used in this app anyway.
     :event_table    
 
-    ([label :poll_events])
-    ([label :uart_rx_handler])
-    ([label :uart_rx_overflow_handler])
-    ([label :uart_tx_overflow_handler])
-    ([label :key0_handler])
-    ([label :key1_handler])
-    ([label :timer0_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+
+    // this is now the OBSOLETE format.
+    jmp :poll_events
+    jmp :uart_rx_char_handler
+    jmp :uart_tx_char_handler
+    jmp :key0_handler
+    jmp :key1_handler
+    jmp :timer0_handler
     
-event uart_rx_handler
+// patch: call event loop as if it were a func, but don't declare it func.
+// instead let it jmp to a handler, which does an unmatched rtn?
+// no, don't allow handlers to call back to event loop.
+    
+event test_handler
+    // output is the event priority found, then the soft_event value that caused it.
+    call :put4x
+    putasc " "
+    a = soft_event
+    b = a<<1
+    soft_event = 0
+    soft_event = or
+    call :put4x
+    puteol
+end_event
+        
+event uart_rx_char_handler
     // handle data here
 end_event
     
-event uart_rx_overflow_handler
-    leds = $ERR_RX_OVERFLOW
-    jmp :error_halt
-end_event
-    
-event uart_tx_overflow_handler
-    leds = $ERR_TX_OVERFLOW
-    jmp :error_halt
+event uart_tx_char_handler
+    // handle data here
 end_event
     
 event key0_handler
-    putasc "k"
-    putasc "0"
+    // handle data here
 end_event
     
 event key1_handler
-    putasc "k"
-    putasc "1"
+    // handle data here
 end_event
     
 event timer0_handler

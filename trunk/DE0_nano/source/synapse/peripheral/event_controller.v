@@ -4,7 +4,8 @@
 
 // this module receives and prioritizes events from other peripherals, to be handled by the MCU.
 
-/* //patch:
+/* design notes:
+
 edge detectors on each input.  those each can set a RS capture flop.  
 EDR_EVENT_PRIORITY reads from a priority encoder summarizing the capture flops.
 writing a priority value back to EDR_EVENT_PRIORITY clears the indexed capture flop.
@@ -54,8 +55,6 @@ times in exactly one of the following places:  free q, producer routine, laden q
 various subsystems can share a free q if their buffers are of a usable size.
 but never share a laden q, since that indicates the payload data type.
 
-also need to wrap this encoder into an "event controller" with capture regs.
-and maybe a built-in mask on those if re-entrance protection is somehow required.
 
 */
 
@@ -69,6 +68,9 @@ module event_controller #(
     , input wire                      priority_load
     , input wire[15:0]                data_in        
     , input wire[TOP_INPUT:0]         event_signals   
+        // MOST URGENT signal comes FIRST in the instantiation.
+        // this module CONTAINS NO SYNCHRONIZERS on the event signals.  external
+        // SYNCHRONIZERS ARE REQUIRED on any event signals not on sysclk domain.    
 );      
 
     integer i;

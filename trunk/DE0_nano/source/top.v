@@ -230,26 +230,26 @@ always_ff @(posedge sysclk, posedge sysreset)
         timer0 <= timer0 - 32'd1;
 assign r[`DR_TIMER0] = timer0[31:16];
 
-std_reg soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
+std_reg #(.WIDTH(4)) soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data[3:0], r_load[`DR_SOFT_EVENT]);
 
 // event controller is listed last to utilize wires from all other parts.
-event_controller #(.NUM_INPUTS(16)) events( 
+event_controller #(.NUM_INPUTS(11)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset)
     ,.priority_out      (r[`DR_EVENT_PRIORITY])
     ,.priority_load     (r_load[`DR_EVENT_PRIORITY])
     ,.data_in           (r_load_data)
-    ,.event_signals     (r[`DR_SOFT_EVENT])
-    // ,.event_signals     ({
-        // // MOST urgent events are listed FIRST.
-        // 1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
-        // , ! rxbsy
-        // , ! txbsy
-        // ,KEY[0]
-        // ,KEY[1]
-        // ,timer0_done
-        // ,1'b0 // extra input in case the zero-priority signal is down here (reversed priority).
-    // })
+    ,.event_signals     ({
+        // MOST urgent events are listed FIRST.
+        1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
+        , ! r[`DR_FDUART_STATUS][`ARX_FIFO_EMPTY_BIT]
+        , r[`DR_FDUART_STATUS][`ARX_FIFO_FULL_BIT]
+        , r[`DR_FDUART_STATUS][`ATX_FIFO_FULL_BIT]
+        ,KEY[0]
+        ,KEY[1]
+        ,timer0_done
+        ,r[`DR_SOFT_EVENT][3:0]
+    })
 );
 
 

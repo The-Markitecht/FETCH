@@ -594,230 +594,127 @@ addr == 16'h181 ? 16'hfc00 :  // <0016> rtn
 
 // //////////////////////////////////////////////////////////
 
-// a = 0xf1
-// b = 0xf2
-// i = 0xf3
-// j = 0xf4
-// x = 0xf5
-// y = 0xf6
-// g6 = 0xf7
-// g7 = 0xf8
-// rtna = :test1
-// swapra = nop
-// g6 = g6
-// g6 = g6
-// g6 = g6
-// :test1
-// g6 = g6
-// g6 = g6
-// g6 = g6
-// jmp :test2
-// g6 = g6
-// g6 = g6
-// g6 = g6
-// :test2
-// g6 = g6
-// g6 = g6
-// g6 = g6
 
-// a = 0xf1
-// b = 0xf2
-// i = 0xf3
-// j = 0xf4
-// x = 0xf5
-// y = 0xf6
-// g6 = 0xf7
-// g7 = 0xf8
-// rtna = :test3
-// swapra = nop
-// g6 = g6
-// g6 = g6
-// g6 = g6
-// :test3
-// jmp :test4
-// g6 = g6
-// g6 = g6
-// g6 = g6
-// :test4
-// g6 = g6
-// g6 = g6
-// g6 = g6
+addr == 16'h182 ? 16'h2fa0 :  // <0133> timer0 = $TICKS_PER_SEC
+addr == 16'h183 ? 16'h02fb :  // <0133> "
 
-// a = 0xf1
-// b = 0xf2
-// i = 0xf3
-// j = 0xf4
-// x = 0xf5
-// y = 0xf6
-// g6 = 0xf7
-// g7 = 0xf8
-// rtna = :test5
-// swapra = b
-// g6 = g6
-// g6 = g6
-// g6 = g6
-// :test5
-// jmp :test6
-// g6 = g6
-// g6 = g6
-// g6 = g6
-// :test6
-// g6 = g6
-// g6 = g6
-// g6 = g6
+addr == 16'h184 ? 16'h2a00 :  // <0135> soft_event = 0
+addr == 16'h185 ? 16'h2600 :  // <0136> event_priority = 0
+addr == 16'h186 ? 16'h2601 :  // <0137> event_priority = 1
+addr == 16'h187 ? 16'h2602 :  // <0138> event_priority = 2
+addr == 16'h188 ? 16'h2603 :  // <0139> event_priority = 3
+addr == 16'h189 ? 16'h2604 :  // <0140> event_priority = 4
+addr == 16'h18a ? 16'h2605 :  // <0141> event_priority = 5
+addr == 16'h18b ? 16'h2606 :  // <0142> event_priority = 6
+addr == 16'h18c ? 16'h2607 :  // <0143> event_priority = 7
+addr == 16'h18d ? 16'h2608 :  // <0144> event_priority = 8
+addr == 16'h18e ? 16'h2609 :  // <0145> event_priority = 9
+addr == 16'h18f ? 16'h260a :  // <0146> event_priority = 10
+addr == 16'h190 ? 16'h260b :  // <0147> event_priority = 11
+addr == 16'h191 ? 16'h260c :  // <0148> event_priority = 12
+addr == 16'h192 ? 16'h260d :  // <0149> event_priority = 13
+addr == 16'h193 ? 16'h260e :  // <0150> event_priority = 14
+addr == 16'h194 ? 16'h260f :  // <0151> event_priority = 15
 
-
-addr == 16'h182 ? 16'h2fa0 :  // <0203> timer0 = $TICKS_PER_SEC
-addr == 16'h183 ? 16'h02fb :  // <0203> "
-
-addr == 16'h184 ? 16'h2600 :  // <0205> event_priority = 0
-addr == 16'h185 ? 16'h2601 :  // <0206> event_priority = 1
-addr == 16'h186 ? 16'h2602 :  // <0207> event_priority = 2
-addr == 16'h187 ? 16'h2603 :  // <0208> event_priority = 3
-addr == 16'h188 ? 16'h2604 :  // <0209> event_priority = 4
-addr == 16'h189 ? 16'h2605 :  // <0210> event_priority = 5
-addr == 16'h18a ? 16'h2606 :  // <0211> event_priority = 6
-addr == 16'h18b ? 16'h2607 :  // <0212> event_priority = 7
-addr == 16'h18c ? 16'h2608 :  // <0213> event_priority = 8
-addr == 16'h18d ? 16'h2609 :  // <0214> event_priority = 9
-addr == 16'h18e ? 16'h260a :  // <0215> event_priority = 10
-addr == 16'h18f ? 16'h260b :  // <0216> event_priority = 11
-addr == 16'h190 ? 16'h260c :  // <0217> event_priority = 12
-addr == 16'h191 ? 16'h260d :  // <0218> event_priority = 13
-addr == 16'h192 ? 16'h260e :  // <0219> event_priority = 14
-addr == 16'h193 ? 16'h260f :  // <0220> event_priority = 15
-addr == 16'h194 ? 16'h2a00 :  // <0221> soft_event = 0
-addr == 16'h195 ? 16'h2a01 :  // <0222> soft_event = 0x0001
-
-// event loop prototype.
+// event loop.
 // first instruction of an event handler should be the 7th cycle after reading its priority from the event controller.
-// :poll_events // = 0x0196
+// :poll_events // = 0x0195
 // initialize prior to polling loop, for minimum latency.
-addr == 16'h196 ? 16'h07a0 :  // <0228> b = :event_table
-addr == 16'h197 ? 16'h01a1 :  // <0228> "
+addr == 16'h195 ? 16'h07a0 :  // <0157> b = :event_table
+addr == 16'h196 ? 16'h01a0 :  // <0157> "
 // 3-cycle polling loop.
-// :poll_events_again // = 0x0198
-addr == 16'h198 ? 16'h0009 :  // <0231> a = event_priority
-addr == 16'h199 ? 16'he000 :  // <0232> br 0z :poll_events_again
-addr == 16'h19a ? 16'h0198 :  // <0232> "
-// acknowledge the event to clear its register.  do this right away,
+// :poll_events_again // = 0x0197
+addr == 16'h197 ? 16'h0009 :  // <0160> a = event_priority
+addr == 16'h198 ? 16'he000 :  // <0161> br 0z :poll_events_again
+addr == 16'h199 ? 16'h0197 :  // <0161> "
+// acknowledge the event to clear its capture register.  do this right away,
 // so another occurrence of the same event can be captured right away in the controller.
-addr == 16'h19b ? 16'h2400 :  // <0235> event_priority = a
+addr == 16'h19a ? 16'h2400 :  // <0164> event_priority = a
 // compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
-addr == 16'h19c ? 16'hd300 :  // <0237> fetch rtna from ad0
-addr == 16'h19d ? 16'hfbb0 :  // <0237> "
+addr == 16'h19b ? 16'hd300 :  // <0166> fetch rtna from ad0
+addr == 16'h19c ? 16'hfbb0 :  // <0166> "
 // jump to the address given in the event_table.  each handler MUST end with a end_event.
 // each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
 // each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
-addr == 16'h19e ? 16'hfc00 :  // <0241> swapra = nop
+addr == 16'h19d ? 16'hfc00 :  // <0170> swapra = nop
 // just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
-// :events_error_halt // = 0x019f
-addr == 16'h19f ? 16'he00f :  // <0244> jmp :events_error_halt
-addr == 16'h1a0 ? 16'h019f :  // <0244> "
+// :error_halt // = 0x019e
+addr == 16'h19e ? 16'he00f :  // <0173> jmp :error_halt
+addr == 16'h19f ? 16'h019e :  // <0173> "
 
 // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.
 // event 0 not used in this app anyway.
-// :event_table // = 0x01a1
+// :event_table // = 0x01a0
 
-addr == 16'h1a1 ? 16'h01bd :  // <0250> ([label :test_handler])
-addr == 16'h1a2 ? 16'h01bd :  // <0251> ([label :test_handler])
-addr == 16'h1a3 ? 16'h01bd :  // <0252> ([label :test_handler])
-addr == 16'h1a4 ? 16'h01bd :  // <0253> ([label :test_handler])
+addr == 16'h1a0 ? 16'h0195 :  // <0179> ([label :poll_events])
+addr == 16'h1a1 ? 16'h01a7 :  // <0180> ([label :uart_rx_handler])
+addr == 16'h1a2 ? 16'h01a9 :  // <0181> ([label :uart_rx_overflow_handler])
+addr == 16'h1a3 ? 16'h01b0 :  // <0182> ([label :uart_tx_overflow_handler])
+addr == 16'h1a4 ? 16'h01b7 :  // <0183> ([label :key0_handler])
+addr == 16'h1a5 ? 16'h01c3 :  // <0184> ([label :key1_handler])
+addr == 16'h1a6 ? 16'h01cf :  // <0185> ([label :timer0_handler])
 
-addr == 16'h1a5 ? 16'h01bd :  // <0255> ([label :test_handler])
-addr == 16'h1a6 ? 16'h01bd :  // <0256> ([label :test_handler])
-addr == 16'h1a7 ? 16'h01bd :  // <0257> ([label :test_handler])
-addr == 16'h1a8 ? 16'h01bd :  // <0258> ([label :test_handler])
-
-addr == 16'h1a9 ? 16'h01bd :  // <0260> ([label :test_handler])
-addr == 16'h1aa ? 16'h01bd :  // <0261> ([label :test_handler])
-addr == 16'h1ab ? 16'h01bd :  // <0262> ([label :test_handler])
-addr == 16'h1ac ? 16'h01bd :  // <0263> ([label :test_handler])
-
-addr == 16'h1ad ? 16'h01bd :  // <0265> ([label :test_handler])
-addr == 16'h1ae ? 16'h01bd :  // <0266> ([label :test_handler])
-addr == 16'h1af ? 16'h01bd :  // <0267> ([label :test_handler])
-addr == 16'h1b0 ? 16'h01bd :  // <0268> ([label :test_handler])
-
-// this is now the OBSOLETE format.
-addr == 16'h1b1 ? 16'he00f :  // <0271> jmp :poll_events
-addr == 16'h1b2 ? 16'h0196 :  // <0271> "
-addr == 16'h1b3 ? 16'he00f :  // <0272> jmp :uart_rx_char_handler
-addr == 16'h1b4 ? 16'h01d9 :  // <0272> "
-addr == 16'h1b5 ? 16'he00f :  // <0273> jmp :uart_tx_char_handler
-addr == 16'h1b6 ? 16'h01db :  // <0273> "
-addr == 16'h1b7 ? 16'he00f :  // <0274> jmp :key0_handler
-addr == 16'h1b8 ? 16'h01dd :  // <0274> "
-addr == 16'h1b9 ? 16'he00f :  // <0275> jmp :key1_handler
-addr == 16'h1ba ? 16'h01df :  // <0275> "
-addr == 16'h1bb ? 16'he00f :  // <0276> jmp :timer0_handler
-addr == 16'h1bc ? 16'h01e1 :  // <0276> "
-
-// patch: call event loop as if it were a func, but don't declare it func.
-// instead let it jmp to a handler, which does an unmatched rtn?
-// no, don't allow handlers to call back to event loop.
-
-// event test_handler // = 0x01bd
-// output is the event priority found, then the soft_event value that caused it.
-addr == 16'h1bd ? 16'hfba0 :  // <0284> call :put4x
-addr == 16'h1be ? 16'h0102 :  // <0284> "
-addr == 16'h1bf ? 16'hfc00 :  // <0284> "
-addr == 16'h1c0 ? 16'h0220 :  // <0285> a = 32 // putasc " "
-addr == 16'h1c1 ? 16'h0000 :  // <0285> a = a // putasc " "
-addr == 16'h1c2 ? 16'hfba0 :  // <0285> putasc " "
-addr == 16'h1c3 ? 16'h0057 :  // <0285> "
-addr == 16'h1c4 ? 16'hfc00 :  // <0285> "
-addr == 16'h1c5 ? 16'h000a :  // <0286> a = soft_event
-addr == 16'h1c6 ? 16'h0751 :  // <0287> b = a<<1
-addr == 16'h1c7 ? 16'h2a00 :  // <0288> soft_event = 0
-addr == 16'h1c8 ? 16'hc800 :  // <0289> soft_event = or
-addr == 16'h1c9 ? 16'h2b34 :  // <0289> "
-addr == 16'h1ca ? 16'hfba0 :  // <0290> call :put4x
-addr == 16'h1cb ? 16'h0102 :  // <0290> "
-addr == 16'h1cc ? 16'hfc00 :  // <0290> "
-addr == 16'h1cd ? 16'h020d :  // <0291> a = 13 // puteol
-addr == 16'h1ce ? 16'h0000 :  // <0291> a = a // puteol
-addr == 16'h1cf ? 16'hfba0 :  // <0291> puteol
-addr == 16'h1d0 ? 16'h0057 :  // <0291> "
-addr == 16'h1d1 ? 16'hfc00 :  // <0291> "
-addr == 16'h1d2 ? 16'h020a :  // <0291> a = 10 // puteol
-addr == 16'h1d3 ? 16'h0000 :  // <0291> a = a // puteol
-addr == 16'h1d4 ? 16'hfba0 :  // <0291> puteol
-addr == 16'h1d5 ? 16'h0057 :  // <0291> "
-addr == 16'h1d6 ? 16'hfc00 :  // <0291> "
-addr == 16'h1d7 ? 16'he00f :  // <0292> end_event
-addr == 16'h1d8 ? 16'h0196 :  // <0292> "
-
-// event uart_rx_char_handler // = 0x01d9
+// event uart_rx_handler // = 0x01a7
 // handle data here
-addr == 16'h1d9 ? 16'he00f :  // <0296> end_event
-addr == 16'h1da ? 16'h0196 :  // <0296> "
+addr == 16'h1a7 ? 16'he00f :  // <0189> end_event
+addr == 16'h1a8 ? 16'h0195 :  // <0189> "
 
-// event uart_tx_char_handler // = 0x01db
-// handle data here
-addr == 16'h1db ? 16'he00f :  // <0300> end_event
-addr == 16'h1dc ? 16'h0196 :  // <0300> "
+// event uart_rx_overflow_handler // = 0x01a9
+addr == 16'h1a9 ? 16'h5201 :  // <0192> leds = $ERR_RX_OVERFLOW
+addr == 16'h1aa ? 16'h4fa0 :  // <0192> "
+addr == 16'h1ab ? 16'hfffe :  // <0192> "
+addr == 16'h1ac ? 16'he00f :  // <0193> jmp :error_halt
+addr == 16'h1ad ? 16'h019e :  // <0193> "
+addr == 16'h1ae ? 16'he00f :  // <0194> end_event
+addr == 16'h1af ? 16'h0195 :  // <0194> "
 
-// event key0_handler // = 0x01dd
-// handle data here
-addr == 16'h1dd ? 16'he00f :  // <0304> end_event
-addr == 16'h1de ? 16'h0196 :  // <0304> "
+// event uart_tx_overflow_handler // = 0x01b0
+addr == 16'h1b0 ? 16'h5201 :  // <0197> leds = $ERR_TX_OVERFLOW
+addr == 16'h1b1 ? 16'h4fa0 :  // <0197> "
+addr == 16'h1b2 ? 16'hfffd :  // <0197> "
+addr == 16'h1b3 ? 16'he00f :  // <0198> jmp :error_halt
+addr == 16'h1b4 ? 16'h019e :  // <0198> "
+addr == 16'h1b5 ? 16'he00f :  // <0199> end_event
+addr == 16'h1b6 ? 16'h0195 :  // <0199> "
 
-// event key1_handler // = 0x01df
-// handle data here
-addr == 16'h1df ? 16'he00f :  // <0308> end_event
-addr == 16'h1e0 ? 16'h0196 :  // <0308> "
+// event key0_handler // = 0x01b7
+addr == 16'h1b7 ? 16'h026b :  // <0202> a = 107 // putasc "k"
+addr == 16'h1b8 ? 16'h0000 :  // <0202> a = a // putasc "k"
+addr == 16'h1b9 ? 16'hfba0 :  // <0202> putasc "k"
+addr == 16'h1ba ? 16'h0057 :  // <0202> "
+addr == 16'h1bb ? 16'hfc00 :  // <0202> "
+addr == 16'h1bc ? 16'h0230 :  // <0203> a = 48 // putasc "0"
+addr == 16'h1bd ? 16'h0000 :  // <0203> a = a // putasc "0"
+addr == 16'h1be ? 16'hfba0 :  // <0203> putasc "0"
+addr == 16'h1bf ? 16'h0057 :  // <0203> "
+addr == 16'h1c0 ? 16'hfc00 :  // <0203> "
+addr == 16'h1c1 ? 16'he00f :  // <0204> end_event
+addr == 16'h1c2 ? 16'h0195 :  // <0204> "
 
-// event timer0_handler // = 0x01e1
-addr == 16'h1e1 ? 16'h2fa0 :  // <0311> timer0 = $TICKS_PER_SEC
-addr == 16'h1e2 ? 16'h02fb :  // <0311> "
-addr == 16'h1e3 ? 16'h5201 :  // <0312> a = leds
-addr == 16'h1e4 ? 16'h0013 :  // <0312> "
-addr == 16'h1e5 ? 16'h0601 :  // <0313> b = 1
-addr == 16'h1e6 ? 16'h5201 :  // <0314> leds = a+b
-addr == 16'h1e7 ? 16'h4f00 :  // <0314> "
-addr == 16'h1e8 ? 16'he00f :  // <0315> end_event
-addr == 16'h1e9 ? 16'h0196 :  // <0315> "
+// event key1_handler // = 0x01c3
+addr == 16'h1c3 ? 16'h026b :  // <0207> a = 107 // putasc "k"
+addr == 16'h1c4 ? 16'h0000 :  // <0207> a = a // putasc "k"
+addr == 16'h1c5 ? 16'hfba0 :  // <0207> putasc "k"
+addr == 16'h1c6 ? 16'h0057 :  // <0207> "
+addr == 16'h1c7 ? 16'hfc00 :  // <0207> "
+addr == 16'h1c8 ? 16'h0231 :  // <0208> a = 49 // putasc "1"
+addr == 16'h1c9 ? 16'h0000 :  // <0208> a = a // putasc "1"
+addr == 16'h1ca ? 16'hfba0 :  // <0208> putasc "1"
+addr == 16'h1cb ? 16'h0057 :  // <0208> "
+addr == 16'h1cc ? 16'hfc00 :  // <0208> "
+addr == 16'h1cd ? 16'he00f :  // <0209> end_event
+addr == 16'h1ce ? 16'h0195 :  // <0209> "
+
+// event timer0_handler // = 0x01cf
+addr == 16'h1cf ? 16'h2fa0 :  // <0212> timer0 = $TICKS_PER_SEC
+addr == 16'h1d0 ? 16'h02fb :  // <0212> "
+addr == 16'h1d1 ? 16'h5201 :  // <0213> a = leds
+addr == 16'h1d2 ? 16'h0013 :  // <0213> "
+addr == 16'h1d3 ? 16'h0601 :  // <0214> b = 1
+addr == 16'h1d4 ? 16'h5201 :  // <0215> leds = a+b
+addr == 16'h1d5 ? 16'h4f00 :  // <0215> "
+addr == 16'h1d6 ? 16'he00f :  // <0216> end_event
+addr == 16'h1d7 ? 16'h0195 :  // <0216> "
 
 
         
