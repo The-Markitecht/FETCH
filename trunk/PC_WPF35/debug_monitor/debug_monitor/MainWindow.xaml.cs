@@ -202,7 +202,7 @@ namespace CVtool
 
         private void load_btn_Click(object sender, RoutedEventArgs e)
         {
-            string src_fn = System.IO.Path.Combine(app_path, @"..\..\..\..\..\DE0_nano\source\target_program.bin");
+            string src_fn = System.IO.Path.Combine(app_path, @"..\..\..\..\..\DE0_nano\source\synapse\program\target_program.bin");
             log(src_fn);
             send("l");
             byte[] b;
