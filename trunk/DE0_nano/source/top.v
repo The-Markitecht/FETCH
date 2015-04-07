@@ -43,6 +43,10 @@ module top (
     (* chip_pin = "G16" *) output wire  dbg_async_tx_line,
     (* chip_pin = "F14" *)  input wire  dbg_async_rx_line,
     
+    (* chip_pin = "M15, B9, T8, M1" *)  input wire[3:0]  dip_switch,
+    
+    
+    
     
     output wire 		    [9:0]		GPIO_2
     //input wire 		     [2:0]		GPIO_2_IN
@@ -100,7 +104,7 @@ supervised_synapse316 supmcu(
     .clk_progmem     (clk_progmem),
     .clk_async       (clk_async),
     .mcu_wait        (mcu_wait),
-    .boot_break      (KEY[0]), // KEY is active LOW.  so press KEY 0 (low) to avoid breaking & directly run the target program.
+    .boot_break      ( ! dip_switch[3]), 
     .r               (r),
     .r_read          (r_read),
     .r_load          (r_load),

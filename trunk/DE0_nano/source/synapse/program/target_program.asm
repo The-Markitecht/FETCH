@@ -54,6 +54,11 @@
     alias_both anmux_ctrl           [incr exp_counter]@exp
         vdefine     anmux_enable_mask       0x0008
         
+    setvar ERR_RX_OVERFLOW 0xfffe
+    setvar ERR_TX_OVERFLOW 0xfffd
+
+    setvar TICKS_PER_SEC 763
+    
     convention_gpx
     
     jmp :main
@@ -92,44 +97,6 @@
     // ////////////////////////////////////////////
     :main
     
-    // // pass counter in x.  anmux channel number in i.
-    // x = 0
-    // y = 1
-    
-    // :next_pass
-    // leds = x
-    // a = x
-    // call :put4x 
-    // putasc ":"
-    // i = 8
-    // j = -1
-    
-    // :next_anmux
-    // i = i+j
-    // putasc " "
-    // putasc "s"
-    // b = i
-    // asc a = "0"
-    // putchar a+b
-    // putasc "="
-    // a = i
-    // call :anmux_read_chn
-    // call :put4x
-    // bn iz :next_anmux
-    
-    // puteol
-    // a = 900
-    // call :spinwait
-    
-    // x = x+y
-    // jmp :next_pass
-    
-    // //////////////////////////////////////////////////////////
-    
-    setvar ERR_RX_OVERFLOW 0xfffe
-    setvar ERR_TX_OVERFLOW 0xfffd
-
-    setvar TICKS_PER_SEC 763
     timer0 = $TICKS_PER_SEC
 
     soft_event = 0
@@ -175,7 +142,6 @@
     // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.  
     // event 0 not used in this app anyway.
     :event_table    
-
     ([label :poll_events])
     ([label :uart_rx_handler])
     ([label :uart_rx_overflow_handler])
@@ -209,10 +175,35 @@ event key1_handler
 end_event
     
 event timer0_handler
+    // start timer again.
     timer0 = $TICKS_PER_SEC
+    
+    // pass counter in leds.  
     a = leds
     b = 1
-    leds = a+b
+    a = a+b
+    leds = a
+    call :put4x 
+    putasc ":"
+    
+    // acquire & report all anmux channels.
+    // anmux channel number in i.
+    i = 8
+    j = -1
+    
+    :next_anmux
+    i = i+j
+    putasc " "
+    putasc "s"
+    b = i
+    asc a = "0"
+    putchar a+b
+    putasc "="
+    a = i
+    call :anmux_read_chn
+    call :put4x
+    bn iz :next_anmux    
+    puteol    
 end_event
     
     
