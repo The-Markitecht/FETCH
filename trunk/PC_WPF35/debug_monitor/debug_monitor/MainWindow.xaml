@@ -7,26 +7,28 @@
 
         <StackPanel Orientation="Vertical" DockPanel.Dock="Left">
 
-            <TextBlock Margin="4,4,4,0">BP0:</TextBlock>
+            <Button Name="load_btn" Margin="8" Content="Load" Click="load_btn_Click"></Button>
+            <Button Name="run_btn" Margin="8" Content="Run" Click="run_btn_Click"></Button>
+            <TextBlock Margin="8,8,8,0">BP0:</TextBlock>
             <DockPanel LastChildFill="True">
-                <Button Name="set_bp0_btn" DockPanel.Dock="Right"  Margin="0,0,4,4" Click="set_bp0_btn_Click">Set</Button>
-                <TextBox Name="bp0_txt" Margin="4,0,0,4" TabIndex="0" MinWidth="50" KeyUp="bp0_txt_KeyUp"></TextBox>
+                <Button Name="set_bp0_btn" DockPanel.Dock="Right"  Margin="0,0,8,8" Click="set_bp0_btn_Click">Set</Button>
+                <TextBox Name="bp0_txt" Margin="8,0,0,8" TabIndex="0" MinWidth="50" KeyUp="bp0_txt_KeyUp"></TextBox>
             </DockPanel>
             <DockPanel LastChildFill="True">
-                <Button Name="set_bp1_btn" DockPanel.Dock="Right"  Margin="0,0,4,4" Click="set_bp1_btn_Click">Set</Button>
-                <TextBox Name="bp1_txt" Margin="4,0,0,4" TabIndex="0" MinWidth="50" KeyUp="bp1_txt_KeyUp"></TextBox>
+                <Button Name="set_bp1_btn" DockPanel.Dock="Right"  Margin="0,0,8,8" Click="set_bp1_btn_Click">Set</Button>
+                <TextBox Name="bp1_txt" Margin="8,0,0,8" TabIndex="0" MinWidth="50" KeyUp="bp1_txt_KeyUp"></TextBox>
             </DockPanel>
             <DockPanel LastChildFill="True">
-                <Button Name="set_bp2_btn" DockPanel.Dock="Right"  Margin="0,0,4,4" Click="set_bp2_btn_Click">Set</Button>
-                <TextBox Name="bp2_txt" Margin="4,0,0,4" TabIndex="0" MinWidth="50" KeyUp="bp2_txt_KeyUp"></TextBox>
+                <Button Name="set_bp2_btn" DockPanel.Dock="Right"  Margin="0,0,8,8" Click="set_bp2_btn_Click">Set</Button>
+                <TextBox Name="bp2_txt" Margin="8,0,0,8" TabIndex="0" MinWidth="50" KeyUp="bp2_txt_KeyUp"></TextBox>
             </DockPanel>
             <DockPanel LastChildFill="True">
-                <Button Name="set_bp3_btn" DockPanel.Dock="Right"  Margin="0,0,4,4" Click="set_bp3_btn_Click">Set</Button>
-                <TextBox Name="bp3_txt" Margin="4,0,0,4" TabIndex="0" MinWidth="50" KeyUp="bp3_txt_KeyUp"></TextBox>
+                <Button Name="set_bp3_btn" DockPanel.Dock="Right"  Margin="0,0,8,8" Click="set_bp3_btn_Click">Set</Button>
+                <TextBox Name="bp3_txt" Margin="8,0,0,8" TabIndex="0" MinWidth="50" KeyUp="bp3_txt_KeyUp"></TextBox>
             </DockPanel>
-            <Button Name="run_btn" Margin="4" Content="Run" Click="run_btn_Click"></Button>
-            <Button Name="step_btn" Margin="4" Content="Step" Click="step_btn_Click"></Button>
-            <Button Name="load_btn" Margin="4" Content="Load" Click="load_btn_Click"></Button>
+            <Button Name="step_btn" Margin="8" Content="Step" Click="step_btn_Click"></Button>
+            <RadioButton Content="Highlight IPR" Height="16" Name="ipr_chk" Margin="8,8,8,4" Checked="ipr_chk_Checked" />
+            <RadioButton Content="Highlight EXR" Height="16" Name="exr_chk" Margin="8,4,8,8" IsChecked="True" Checked="exr_chk_Checked" />
         </StackPanel>
 
         <RichTextBox Name="src_txt"  AcceptsReturn="True" VerticalScrollBarVisibility="Visible" FontFamily="Fixedsys Excelsior 3.01" FontSize="16" Cursor="Arrow">

@@ -36,7 +36,9 @@ namespace CVtool
         protected Regex ipr_re = new Regex("\n([0-9a-f]{4}),([0-9a-f]{4}) >$", RegexOptions.Compiled);
         protected List<Paragraph> lines = new List<Paragraph>();
         protected string source_fn = null;
-        protected UInt16 last_ipr = 0;
+        protected UInt16 last_known_hilite = 0;
+        protected UInt16 last_known_ipr = 0;
+        protected UInt16 lagged_ipr = 0;
 
         public MainWindow()
         {
@@ -72,7 +74,7 @@ namespace CVtool
                     lnum++;
                 }
             }            
-            show_ipr(last_ipr);
+            show_ipr();
             if (timer_on)
                 rx_tmr.Start();
         }
@@ -97,7 +99,7 @@ namespace CVtool
             this.WindowState = System.Windows.WindowState.Maximized;
         }
 
-        protected void show_ipr(UInt16 addr)
+        protected void show_hilite(UInt16 addr)
         {
             if (line_nums.ContainsKey(addr))
             {
@@ -108,8 +110,16 @@ namespace CVtool
                 src_txt.Focus();
                 lin.BringIntoView();
                 src_txt.Selection.Select(lin.ContentStart, lin.ContentEnd);
-                last_ipr = addr;
+                last_known_hilite = addr;
             }            
+        }
+
+        protected void show_ipr()
+        {
+            if ((bool)ipr_chk.IsChecked) 
+                show_hilite(last_known_ipr);
+            else
+                show_hilite(lagged_ipr); // guesses which instruction is in the EXR right now, based on where the IPR was pointed in the previous step.
         }
 
         public void rx_tmr_tick(object sender, EventArgs args)
@@ -132,7 +142,9 @@ namespace CVtool
                     Match m = ipr_re.Match(s);
                     if (m.Success)
                     {
-                        show_ipr(UInt16.Parse(m.Groups[1].Value, System.Globalization.NumberStyles.HexNumber));
+                        lagged_ipr = last_known_ipr;
+                        last_known_ipr = UInt16.Parse(m.Groups[1].Value, System.Globalization.NumberStyles.HexNumber);
+                        show_ipr();
                     }
                 }
             }
@@ -271,6 +283,16 @@ namespace CVtool
         {
             if (e.Key == Key.Enter)
                 set_bp0_btn_Click(null, null);
+        }
+
+        private void exr_chk_Checked(object sender, RoutedEventArgs e)
+        {
+            show_ipr();
+        }
+
+        private void ipr_chk_Checked(object sender, RoutedEventArgs e)
+        {
+            show_ipr();
         }
 
 
