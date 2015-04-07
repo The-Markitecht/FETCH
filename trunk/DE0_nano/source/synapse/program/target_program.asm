@@ -15,6 +15,9 @@
     setvar counter $TOP_GP    
     alias_both rstk                 [incr counter] 
     alias_both event_priority       [incr counter]
+
+    alias_both soft_event           [incr counter] 
+
     alias_both timer0               [incr counter]
     
     alias_both de0nano_adc_ctrl     [incr counter] 
@@ -38,8 +41,6 @@
     alias_both fduart_data          [incr counter] 
     alias_both fduart_status        [incr counter] 
     
-    alias_both soft_event           [incr counter] 
-
     // I/O expansion bus.
     alias_both exp                  [incr counter]
     alias_both exp_addr             [incr counter]
@@ -68,16 +69,16 @@
     "      g6"
     "      g7"
     "//  rstk"
-    "//adcctl"
     "  ev_pri"
+    "softevnt"
     " timer_0"
+    "//adcctl"
     "av_wr_dt"
     "//avrddt"
     "av_ad_hi"
     "av_ad_lo"
     "//uartdt"
     "uartstat"
-    "softevnt"
     "exp_data"
     "exp_addr"
     
@@ -125,10 +126,100 @@
     
     // //////////////////////////////////////////////////////////
     
+    // a = 0xf1
+    // b = 0xf2
+    // i = 0xf3
+    // j = 0xf4
+    // x = 0xf5
+    // y = 0xf6
+    // g6 = 0xf7
+    // g7 = 0xf8
+    // rtna = :test1
+    // swapra = nop
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // :test1
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // jmp :test2
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // :test2
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+
+    // a = 0xf1
+    // b = 0xf2
+    // i = 0xf3
+    // j = 0xf4
+    // x = 0xf5
+    // y = 0xf6
+    // g6 = 0xf7
+    // g7 = 0xf8
+    // rtna = :test3
+    // swapra = nop
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // :test3
+    // jmp :test4
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // :test4
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+
+    // a = 0xf1
+    // b = 0xf2
+    // i = 0xf3
+    // j = 0xf4
+    // x = 0xf5
+    // y = 0xf6
+    // g6 = 0xf7
+    // g7 = 0xf8
+    // rtna = :test5
+    // swapra = b
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // :test5
+    // jmp :test6
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+    // :test6
+    // g6 = g6
+    // g6 = g6
+    // g6 = g6
+
+    
     setvar TICKS_PER_SEC 763
     timer0 = $TICKS_PER_SEC
 
-    soft_event = 0x2000
+    event_priority = 0
+    event_priority = 1
+    event_priority = 2
+    event_priority = 3
+    event_priority = 4
+    event_priority = 5
+    event_priority = 6
+    event_priority = 7
+    event_priority = 8
+    event_priority = 9
+    event_priority = 10
+    event_priority = 11
+    event_priority = 12
+    event_priority = 13
+    event_priority = 14
+    event_priority = 15
+    soft_event = 0
+    soft_event = 0x0001
     
     // event loop prototype.
     // first instruction of an event handler should be the 7th cycle after reading its priority from the event controller.
@@ -143,34 +234,40 @@
     // so another occurrence of the same event can be captured right away in the controller.
     event_priority = a
     // compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
-    rtna = ad0
-    // jump into the event_table.  each handler MUST end with a end_event.
+    fetch rtna from ad0
+    // jump to the address given in the event_table.  each handler MUST end with a end_event.
     // each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
     // each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
-    swapra = nop
+    swapra = nop    
     // just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
     :events_error_halt
     jmp :events_error_halt
     
-    // event table;  begins with a null handler because that's the event 0 position.  
+    // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.  
     // event 0 not used in this app anyway.
     :event_table    
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
-    jmp :test_handler
+
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+    ([label :test_handler])
+
+    // this is now the OBSOLETE format.
     jmp :poll_events
     jmp :uart_rx_char_handler
     jmp :uart_tx_char_handler
@@ -183,7 +280,12 @@
 // no, don't allow handlers to call back to event loop.
     
 event test_handler
-    b = a>>1
+    // output is the event priority found, then the soft_event value that caused it.
+    call :put4x
+    putasc " "
+    a = soft_event
+    b = a<<1
+    soft_event = 0
     soft_event = or
     call :put4x
     puteol
