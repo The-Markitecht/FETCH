@@ -80,6 +80,14 @@ always_ff @(posedge sysclk) begin
     rst2 <= rst1;
 end
 wire sysreset = rst2;
+reg[5:0] counter1m = 0;
+always_ff @(posedge sysclk) 
+    counter1m <= (counter1m == 6'd50 ? 6'd0 : counter1m + 6'd1);
+wire pulse1m = (counter1m == 6'd0);
+reg[9:0] counter1k = 0;
+always_ff @(posedge sysclk) 
+    counter1k <= (counter1k == 10'd1000 ? 10'd0 : counter1k + 10'd1);
+wire pulse1k = (counter1k == 10'd0);
 
 // dg408 -  JP3 -   schem -     fpga -  verilog -   nios bit
 // en =2    8       gpio_23     c16     gpio_2[3]   3
@@ -222,22 +230,34 @@ assign exp_r[`ESR_KEYS] = {14'h0, KEY};
 std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, exp_r[`EDR_ANMUX_CTRL], exp_r_load_data[3:0], exp_r_load[`EDR_ANMUX_CTRL]);
 assign anmux_ctrl = exp_r[`EDR_ANMUX_CTRL][3:0];
 
-// timer0 counts down on sysclk cycles, with 16-bit prescaler.  so 1.31 ms per tick assuming 50 MHz sysclk.
-reg[31:0] timer0 = 0;
-wire timer0_done = timer0 == 32'd0;
-always_ff @(posedge sysclk, posedge sysreset)
-    if (sysreset)
-        timer0 <= 0;
-    else if (r_load[`DR_TIMER0])
-        timer0 <= {r_load_data, 16'd0};
-    else if ( ! timer0_done)
-        timer0 <= timer0 - 32'd1;
-assign r[`DR_TIMER0] = timer0[31:16];
+// ustimer0 counts down on microseconds.
+wire ustimer0_expired;
+cdtimer16 ustimer0 (
+     .sysclk          ( sysclk )  
+    ,.sysreset        ( sysreset )  
+    ,.data_out        ( r[`DR_USTIMER0] )
+    ,.data_in         ( r_load_data )  
+    ,.load            ( r_load[`DR_USTIMER0] )
+    ,.counter_event   ( pulse1m )
+    ,.expired         ( ustimer0_expired )
+);
+
+// mstimer0 counts down on milliseconds.
+wire mstimer0_expired;
+cdtimer16 timer1 (
+     .sysclk          ( sysclk )  
+    ,.sysreset        ( sysreset )  
+    ,.data_out        ( r[`DR_MSTIMER0] )
+    ,.data_in         ( r_load_data )  
+    ,.load            ( r_load[`DR_MSTIMER0] )
+    ,.counter_event   ( pulse1k )
+    ,.expired         ( mstimer0_expired )
+);
 
 std_reg #(.WIDTH(4)) soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data[3:0], r_load[`DR_SOFT_EVENT]);
 
 // event controller is listed last to utilize wires from all other parts.
-event_controller #(.NUM_INPUTS(11)) events( 
+event_controller #(.NUM_INPUTS(12)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset)
     ,.priority_out      (r[`DR_EVENT_PRIORITY])
@@ -249,9 +269,10 @@ event_controller #(.NUM_INPUTS(11)) events(
         , ! r[`DR_FDUART_STATUS][`ARX_FIFO_EMPTY_BIT]
         , r[`DR_FDUART_STATUS][`ARX_FIFO_FULL_BIT]
         , r[`DR_FDUART_STATUS][`ATX_FIFO_FULL_BIT]
+        ,ustimer0_expired
+        ,mstimer0_expired
         ,KEY[0]
         ,KEY[1]
-        ,timer0_done
         ,r[`DR_SOFT_EVENT][3:0]
     })
 );

@@ -1,6 +1,5 @@
 // #########################################################################
 // assembly source code.    
-// to write some data on the UART.    
 
     // register file configuration
     vdefine NUM_REGS 32
@@ -18,7 +17,8 @@
 
     alias_both soft_event           [incr counter] 
 
-    alias_both timer0               [incr counter]
+    alias_both ustimer0             [incr counter]
+    alias_both mstimer0             [incr counter]
     
     alias_both de0nano_adc_ctrl     [incr counter] 
         vdefine     de0nano_adc_csn_mask         0x0004
@@ -57,8 +57,6 @@
     setvar ERR_RX_OVERFLOW 0xfffe
     setvar ERR_TX_OVERFLOW 0xfffd
 
-    setvar TICKS_PER_SEC 763
-    
     convention_gpx
     
     jmp :main
@@ -76,7 +74,8 @@
     "//  rstk"
     "  ev_pri"
     "softevnt"
-    " timer_0"
+    "ustimer0"
+    "mstimer0"
     "//adcctl"
     "av_wr_dt"
     "//avrddt"
@@ -94,10 +93,10 @@
     include lib/console.asm
     include lib/time.asm
     
-    // ////////////////////////////////////////////
+    // #########################################################################
     :main
     
-    timer0 = $TICKS_PER_SEC
+    mstimer0 = 1000
 
     soft_event = 0
     event_priority = 0
@@ -146,10 +145,17 @@
     ([label :uart_rx_handler])
     ([label :uart_rx_overflow_handler])
     ([label :uart_tx_overflow_handler])
+    ([label :ustimer0_handler])
+    ([label :mstimer0_handler])
     ([label :key0_handler])
     ([label :key1_handler])
-    ([label :timer0_handler])
+    ([label :softevent3_handler])
+    ([label :softevent2_handler])
+    ([label :softevent1_handler])
+    ([label :softevent0_handler])
     
+// #########################################################################
+
 event uart_rx_handler
     // handle data here
 end_event
@@ -164,19 +170,12 @@ event uart_tx_overflow_handler
     jmp :error_halt
 end_event
     
-event key0_handler
-    putasc "k"
-    putasc "0"
+event ustimer0_handler
 end_event
-    
-event key1_handler
-    putasc "k"
-    putasc "1"
-end_event
-    
-event timer0_handler
+
+event mstimer0_handler
     // start timer again.
-    timer0 = $TICKS_PER_SEC
+    mstimer0 = 1000
     
     // pass counter in leds.  
     a = leds
@@ -204,6 +203,28 @@ event timer0_handler
     call :put4x
     bn iz :next_anmux    
     puteol    
+end_event
+    
+event key0_handler
+    putasc "k"
+    putasc "0"
+end_event
+    
+event key1_handler
+    putasc "k"
+    putasc "1"
+end_event
+    
+event softevent3_handler
+end_event
+    
+event softevent2_handler
+end_event
+    
+event softevent1_handler
+end_event
+    
+event softevent0_handler
 end_event
     
     

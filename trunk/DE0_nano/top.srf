@@ -132,6 +132,10 @@
 { "" "" "" "No output dependent on input pin \"dip_switch\[0\]\"" {  } {  } 0 15610 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "No output dependent on input pin \"dip_switch\[1\]\"" {  } {  } 0 15610 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "No output dependent on input pin \"dip_switch\[2\]\"" {  } {  } 0 15610 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at visor_program_defines.v(51): overriding existing definition for macro \"ATX_BUSY_MASK\", which was defined in \"target_program_defines.v\", line 64" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at visor_program_defines.v(52): overriding existing definition for macro \"ARX_BUSY_MASK\", which was defined in \"target_program_defines.v\", line 67" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at target_program_defines.v(64): overriding existing definition for macro \"ATX_BUSY_MASK\", which was defined in \"target_program_defines.v\", line 64" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL macro warning at target_program_defines.v(67): overriding existing definition for macro \"ARX_BUSY_MASK\", which was defined in \"target_program_defines.v\", line 67" {  } {  } 0 10274 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}
