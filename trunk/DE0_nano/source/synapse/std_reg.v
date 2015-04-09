@@ -16,7 +16,7 @@ module std_reg #(
     // standard register implementation, with a parameterized number of actual data bits stored.
     reg[WIDTH-1:0] r = 0;
     assign data_out = { {16-WIDTH{1'b0}}, r};
-    always_ff @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset , posedge sysclk) begin
         if (sysreset)
             r <= 0;
         else if (load)

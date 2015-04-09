@@ -75,7 +75,7 @@ module synapse316 #(
     wire hold_ipr = random_fetch_cycle1 || ! code_ready;
     assign code_addr = random_fetch_cycle1 ? random_fetch_addr : ipr;
     wire[IPR_TOP:0] next_code_addr = ipr + {{IPR_TOP{1'b0}}, 1'd1};   
-    always_ff @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset , posedge sysclk) begin
         if (sysreset) begin
             ipr <= 0;
             exr <= 0;
@@ -147,7 +147,7 @@ module synapse316 #(
     reg ad0_cin_flag = 0;
     assign ad0_comb = {1'd0, r_full[0]} + {1'd0, r_full[1]} + {15'd0, ad0_cin_flag};
     wire ad0_cout_comb = ad0_comb[16];
-    always_ff @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset , posedge sysclk) begin
         if (sysreset) begin
             ad0 <= 0;
             ad0_cin_flag <= 0;
@@ -165,7 +165,7 @@ module synapse316 #(
     // adder #1 with NO carry support.
     reg[15:0] ad1; // result register
     wire[15:0] ad1_comb = r_full[2] + r_full[3];
-    always_ff @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset , posedge sysclk) begin
         if (sysreset) begin
             ad1 <= 0;
         end else if (sysclk) begin
@@ -176,7 +176,7 @@ module synapse316 #(
     // adder #2 with NO carry support.
     reg[15:0] ad2; // result register
     wire[15:0] ad2_comb = r_full[4] + r_full[5];
-    always_ff @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset , posedge sysclk) begin
         if (sysreset) begin
             ad2 <= 0;
         end else if (sysclk) begin
@@ -202,7 +202,7 @@ module synapse316 #(
     wire[15:0] or0_comb = r_full[0] | r_full[1];
     reg[15:0] xor0 = 0; // result register
     wire[15:0] xor0_comb = r_full[0] ^ r_full[1];
-    always_ff @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset , posedge sysclk) begin
         if (sysreset) begin
             and0 <= 0;
             or0 <= 0;

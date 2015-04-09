@@ -41,7 +41,7 @@ module spi_master #(
     assign busy = ( | cnt );
     always_ff @(posedge sysclk)
         spi_cs_reg <= ! busy;
-    always_ff @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset , posedge sysclk) begin
         if (sysreset) begin
             cnt <= 0;
             r <= 0;

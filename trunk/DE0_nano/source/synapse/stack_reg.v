@@ -20,7 +20,7 @@ module stack_reg #(
     genvar i;
     generate  
         for (i=1; i < TOP; i=i+1) begin: middle
-            always_ff @(posedge sysreset or posedge sysclk) begin
+            always_ff @(posedge sysreset , posedge sysclk) begin
                 if (sysreset)
                     content[i] <= 0;
                 else if (load)
@@ -30,7 +30,7 @@ module stack_reg #(
             end  
         end
     endgenerate     
-    always_ff @(posedge sysreset or posedge sysclk) begin
+    always_ff @(posedge sysreset , posedge sysclk) begin
         if (sysreset)
             content[0] <= 0;
         else if (load)

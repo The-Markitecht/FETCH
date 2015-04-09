@@ -116,7 +116,7 @@ wire bp_load_comb =    r_load[`DR_BP0_ADDR]
                     || r_load[`DR_BP1_ADDR] 
                     || r_load[`DR_BP2_ADDR] 
                     || r_load[`DR_BP3_ADDR];
-always_ff @(posedge sysreset or posedge sysclk) begin
+always_ff @(posedge sysreset, posedge sysclk) begin
     if (sysreset) begin
         exr_shadow <= 0;
         bp_hit <= 0;
@@ -179,7 +179,7 @@ std_reg #(.WIDTH(10)) m9k_addr_reg(sysclk, sysreset, r[`DR_M9K_ADDR], r_load_dat
 wire[15:0] m9k_data;
 std_reg m9k_data_reg(sysclk, sysreset, m9k_data, r_load_data, r_load[`DR_M9K_DATA]);
 reg m9k_wren = 0;
-always_ff @(posedge sysreset or posedge sysclk) begin
+always_ff @(posedge sysreset, posedge sysclk) begin
     if (sysreset)
         m9k_wren <= 0;
     else

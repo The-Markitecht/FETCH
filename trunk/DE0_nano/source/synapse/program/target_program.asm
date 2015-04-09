@@ -9,27 +9,28 @@
     vdefine IO $NUM_GP
 
     // application-specific register aliases.    
-    alias_both g6                   6 
-    alias_both g7                   7
+    alias_both g6                   6               "g6"
+    alias_both g7                   7               "g7"
     setvar counter $TOP_GP    
-    alias_both rstk                 [incr counter] 
-    alias_both event_priority       [incr counter]
-    alias_both soft_event           [incr counter] 
+    alias_both rstk                 [incr counter]  "//rstk"
+    alias_both event_priority       [incr counter]  "ev_pri"
+    alias_both soft_event           [incr counter]  "softevnt"
         vdefine     event_controller_reset_bit   15
         vdefine     event_controller_reset_mask  (1 << $event_controller_reset_bit)
+    alias_both usage_count          [incr counter]  "usage"
 
-    alias_both ustimer0             [incr counter]
-    alias_both mstimer0             [incr counter]
+    alias_both ustimer0             [incr counter]  "ustimer0"
+    alias_both mstimer0             [incr counter]  "mstimer0"
         // throttle for each pass of data acquisition.
-    alias_both mstimer1             [incr counter]
+    alias_both mstimer1             [incr counter]  "mstimer1"
         // delay for anmux settling.
                 
-    alias_both spi_data             [incr counter]
+    alias_both spi_data             [incr counter]  "spi_data"
     
-    alias_both av_write_data        [incr counter]
-    alias_src  av_read_data	        [incr counter]
-    alias_both av_ad_hi             [incr counter]
-    alias_both av_ad_lo             [incr counter]
+    alias_both av_write_data        [incr counter]  "//avwrdt"
+    alias_src  av_read_data	        [incr counter]  "av_rd_dt"
+    alias_both av_ad_hi             [incr counter]  "av_ad_hi"
+    alias_both av_ad_lo             [incr counter]  "av_ad_lo"
         // all Avalon addresses are BYTE addresses.  all Avalon sizes are in BYTES.
         vdefine32 sdram_base                 0x00000000
         vdefine32 sdram_size                 0x02000000
@@ -48,8 +49,8 @@
         // - apparently Altera's claims of SDRAM controller approaching 1 word per clock cycle must be
         // using e.g. Avalon burst transfers or Avalon-ST.  don't think my Avalon-MM master can go that fast.
 
-    alias_both fduart_data          [incr counter] 
-    alias_both fduart_status        [incr counter] 
+    alias_both fduart_data          [incr counter]  "//uartdt"
+    alias_both fduart_status        [incr counter]  "uartstat"
     
     // // I/O expansion bus.
     // alias_both exp                  [incr counter]
@@ -65,10 +66,10 @@
         // vdefine     anmux_enable_mask       0x0008
         // vdefine     anmux_channel_mask      0x0007
 
-    alias_src  keys                 [incr counter]
-    alias_both leds                 [incr counter]
+    alias_src  keys                 [incr counter]  "keys"
+    alias_both leds                 [incr counter]  "leds"
     
-    alias_both anmux_ctrl           [incr counter]
+    alias_both anmux_ctrl           [incr counter]  "anmux"
         vdefine     anmux_enable_mask       0x0008
         vdefine     anmux_channel_mask      0x0007
         setvar      anmux_adc_channel       7
@@ -76,6 +77,7 @@
         setvar      anmux_num_discards      2
 
     setvar ram_counter $sdram_base
+    ram_define ram_mcu_usage_cnt    2
     ram_define ram_daq_pass_cnt     2
     ram_define ram_daq_discard_cnt  2
         
@@ -84,31 +86,7 @@
     
     jmp :main
     
-    // register names for use by debugger.
-    ($counter + 1)
-    "       a"
-    "       b"
-    "       i"
-    "       j"
-    "       x"
-    "       y"
-    "      g6"
-    "      g7"
-    "//  rstk"
-    "  ev_pri"
-    "softevnt"
-    "ustimer0"
-    "mstimer0"
-    "mstimer1"
-    "spi_data"
-    "//avwrdt"
-    "av_rd_dt"
-    "av_ad_hi"
-    "av_ad_lo"
-    "//uartdt"
-    "uartstat"
-    "exp_data"
-    "exp_addr"
+    emit_debugger_register_table  counter
     
     // libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
     convention_gpx
@@ -216,10 +194,15 @@ event mstimer0_handler
     call :put4x 
     putasc ":"
     
-    // acquire & report all anmux channels.
+    // start to acquire & report all anmux channels.
     a = 7
     call :anmux_set_chn
     mstimer1 = $anmux_settle_ms
+    
+    // // observe MCU utilization.
+    // a = usage_count
+    // call :put4x
+    // usage_count = 0
 end_event
 
 event mstimer1_handler    

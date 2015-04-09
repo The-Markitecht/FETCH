@@ -11,41 +11,41 @@
     setvar NUM_GP $VISOR_NUM_GP
     
     // application-specific register aliases.  
-    alias_both g6                   6 
-    alias_both g7                   7
+    alias_both g6               6               "g6"
+    alias_both g7               7               "g7"
     setvar counter $VISOR_TOP_GP
     
-    alias_both rstk                 [incr counter] 
+    alias_both rstk             [incr counter]  "//rstk"
     
-    alias_both bp0_addr	        [incr counter]
-    alias_both bp1_addr	        [incr counter]
-    alias_both bp2_addr	        [incr counter]
-    alias_both bp3_addr	        [incr counter]
+    alias_both bp0_addr	        [incr counter]  {}
+    alias_both bp1_addr	        [incr counter]  {}
+    alias_both bp2_addr	        [incr counter]  {}
+    alias_both bp3_addr	        [incr counter]  {}
         vdefine bp_disable                 0xffff
-    alias_both force_opcode	    [incr counter]
-    alias_both poke_data        [incr counter]
-    alias_both bus_ctrl	        [incr counter]
+    alias_both force_opcode	    [incr counter]  {}
+    alias_both poke_data        [incr counter]  {}
+    alias_both bus_ctrl	        [incr counter]  {}
         vdefine bp_step_mask 	                0x0008
         vdefine divert_code_bus_mask 	        0x0004
         vdefine tg_reset_mask 		            0x0002
         vdefine tg_code_ready_mask	            0x0001
-    alias_both tg_force	        [incr counter]
+    alias_both tg_force	        [incr counter]  {}
         vdefine force_exec_mask        0x0004
         vdefine force_load_exr_mask    0x0002
         vdefine hold_state_mask        0x0001   
         
-    alias_both atx_data             [incr counter] 
-    alias_both atx_ctrl             [incr counter] 
+    alias_both atx_data         [incr counter]  "atx_data"
+    alias_both atx_ctrl         [incr counter]  "atx_ctrl"
 
-    alias_both m9k_addr         [incr counter] 
-    alias_both m9k_data         [incr counter] 
+    alias_both m9k_addr         [incr counter]  "m9k_addr"
+    alias_both m9k_data         [incr counter]  "m9k_data"
     
-    alias_src  exr_shadow	    [incr counter]
-    alias_src  tg_code_addr     [incr counter]
-    alias_src  peek_data        [incr counter]
-    //alias_src  tg_debug_out	    [incr counter]
-    alias_src  bp_status	    [incr counter]
-    alias_src  boot_break       [incr counter]
+    alias_src  exr_shadow	    [incr counter]  {}
+    alias_src  tg_code_addr     [incr counter]  {}
+    alias_src  peek_data        [incr counter]  {}
+    //alias_src  tg_debug_out	    [incr counter]  {}
+    alias_src  bp_status	    [incr counter]  {}
+    alias_src  boot_break       [incr counter]  {}
 
     convention_gpx
     

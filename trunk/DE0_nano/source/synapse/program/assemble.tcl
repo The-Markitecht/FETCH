@@ -52,6 +52,8 @@ set ::flagsrc_shift 0
 
 set ::labels [dict create]
 
+set ::debugger_names [dict create]
+
 # #########################################################################
 # assembler functions.
 

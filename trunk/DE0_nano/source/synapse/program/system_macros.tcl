@@ -29,57 +29,65 @@ namespace eval ::asm {
     # }
 
     # common register aliases.
-    proc alias_src {lin name addr} {
+    proc alias_src {lin name addr debugger_name} {
         dict set ::asrc $name $addr
         if {[is_expander_reference $addr]} {
             vdefine $lin "esr_$name" [indirect_reg $addr]
         } else {
             vdefine $lin "sr_$name" $addr
         }
+        set debugger_name [string trim $debugger_name]
+        if {[string length $debugger_name] > 0} {
+            dict set ::debugger_names $addr $debugger_name
+        }
     }
-    proc alias_src_latency {lin name addr latency_cycles} {
-        alias_src $lin $name $addr
+    proc alias_src_latency {lin name addr debugger_name latency_cycles} {
+        alias_src $lin $name $addr $debugger_name
         dict set ::latency $name $latency_cycles
     }
-    proc alias_dest {lin name addr} {
+    proc alias_dest {lin name addr debugger_name} {
         dict set ::adest $name $addr
         if {[is_expander_reference $addr]} {
             vdefine $lin "edr_$name" [indirect_reg $addr]
         } else {
             vdefine $lin "dr_$name" $addr
         }
+        set debugger_name [string trim $debugger_name]
+        if {[string length $debugger_name] > 0} {
+            dict set ::debugger_names $addr $debugger_name
+        }
     }
-    proc alias_both {lin name addr} {
-        alias_src  $lin $name $addr
-        alias_dest $lin $name $addr
+    proc alias_both {lin name addr debugger_name} {
+        alias_src  $lin $name $addr $debugger_name
+        alias_dest $lin $name $addr $debugger_name
     }
     proc alias_flag {lin name addr} {
         dict set ::flagsrc $name $addr
     }
-    alias_both         {} a 0
-    alias_both         {} b 1
-    alias_both         {} i 2
-    alias_both         {} j 3
-    alias_both         {} x 4
-    alias_both         {} y 5
-    alias_src_latency  {} a+b [src ad0] 1
-    alias_src_latency  {} i+j [src ad1] 1
-    alias_src_latency  {} x+y [src ad2] 1
-    alias_src_latency  {} and [src and0] 1
-    alias_src_latency  {} or  [src or0] 1
-    alias_src_latency  {} xor [src xor0] 1
-    alias_src          {} a>>1 [src sh1r0]
-    alias_src          {} a<<1 [src sh1l0]
-    alias_src          {} a<<4 [src sh4l0]
-    alias_src          {} a>>4 [src sh4r0]
-    alias_src          {} 0xffff [src -1]
-    alias_flag         {} c [flag ad0c]
-    alias_flag         {} az [flag 0z]
-    alias_flag         {} iz [flag 2z]
-    alias_flag         {} xz [flag 4z]
-    alias_flag         {} eq [flag eq0]
-    alias_flag         {} gt [flag gt0]
-    alias_flag         {} lt [flag lt0]
+    alias_both         {} a         0               {a}
+    alias_both         {} b         1               {b}
+    alias_both         {} i         2               {i}
+    alias_both         {} j         3               {j}
+    alias_both         {} x         4               {x}
+    alias_both         {} y         5               {y}
+    alias_src_latency  {} a+b       [src ad0]       {}      1
+    alias_src_latency  {} i+j       [src ad1]       {}      1
+    alias_src_latency  {} x+y       [src ad2]       {}      1
+    alias_src_latency  {} and       [src and0]      {}      1
+    alias_src_latency  {} or        [src or0]       {}      1
+    alias_src_latency  {} xor       [src xor0]      {}      1
+    alias_src          {} a>>1      [src sh1r0]     {}
+    alias_src          {} a<<1      [src sh1l0]     {}
+    alias_src          {} a<<4      [src sh4l0]     {}
+    alias_src          {} a>>4      [src sh4r0]     {}
+    alias_src          {} 0xffff    [src -1]        {}
+    alias_flag         {} c         [flag ad0c]
+    alias_flag         {} az        [flag 0z]  
+    alias_flag         {} iz        [flag 2z]  
+    alias_flag         {} xz        [flag 4z]  
+    alias_flag         {} eq        [flag eq0] 
+    alias_flag         {} gt        [flag gt0] 
+    alias_flag         {} lt        [flag lt0] 
 
     # Tcl integration macros.
     proc setvar {lin varname value} {
@@ -270,4 +278,25 @@ namespace eval ::asm {
         verify_func_closure
     }
     
+    proc emit_debugger_register_table {lin counter_var_name} {
+        # emit a table of register names for use by the debugger.
+        set expected [expr {[set "::asm::$counter_var_name"] + 1}]
+        emit_word $expected $lin
+        set found 0
+        for {set i 0} {$i < $::asm::NUM_REGS} {incr i} {
+            if [dict exists $::debugger_names $i] {
+                incr found
+                # truncate & pad.  right-justify, unless it's marked unreadable, then left-justify to preserve the mark.
+                set name [string range [dict get $::debugger_names $i] 0 7]
+                if { ! [string equal -length 2 $name // ]} {
+                    parse_line " \"[format "%8s" $name]\" "
+                } else {
+                    parse_line " \"[format "%-8s" $name]\" "
+                }
+            }
+        }
+        if {[string length $counter_var_name] > 0 && $found != $expected} {
+            error "mismatch in debugger register table: expected $expected found $found names"            
+        }
+    }
 }

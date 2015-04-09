@@ -145,7 +145,7 @@ supervised_synapse316 supmcu(
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
 stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`DR_RSTK]);
 
-// ADC SPI
+// ADC SPI.  SPI_CLOCK_DIVISOR(50) = 1mhz spi_sck = 16us/read.
 wire spi_busy;
 spi_master #(.WIDTH(16), .SPI_CLOCK_DIVISOR(50)) spi (
      .sysclk                (sysclk)
@@ -177,6 +177,8 @@ fduart uart (
 // Avalon MM master.
 // program should always write (or read) the "write data" register last, because accessing it triggers the Avalon transaction.
 // that way, the program can read from the "read data" register after it's copied data from Avalon, without triggering another read transaction.
+// 2015/04: suspect strange program bugs in the cycles immediately following a SDRAM write.
+// i was unable to read from usage_counter in some of those cycles.  read 0 instead.  need testing.
 wire av_waitrequest;
 reg av_write = 0;
 reg av_read = 0;
@@ -262,7 +264,7 @@ assign r[`SR_KEYS] = {14'h0, KEY};
 std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, r[`DR_ANMUX_CTRL], r_load_data[3:0], r_load[`DR_ANMUX_CTRL]);
 assign anmux_ctrl = r[`DR_ANMUX_CTRL][3:0];
 
-// ustimer0 counts down on microseconds.
+// ustimer's count down on microseconds.
 wire ustimer0_expired;
 cdtimer16 ustimer0 (
      .sysclk          ( sysclk )  
@@ -274,7 +276,7 @@ cdtimer16 ustimer0 (
     ,.expired         ( ustimer0_expired )
 );
 
-// mstimer0 counts down on milliseconds.
+// mstimer's count down on milliseconds.
 wire mstimer0_expired;
 cdtimer16 mstimer0 (
      .sysclk          ( sysclk )  
@@ -295,6 +297,15 @@ cdtimer16 mstimer1 (
     ,.counter_event   ( pulse1k )
     ,.expired         ( mstimer1_expired )
 );
+
+usage_counter usage (
+     .sysclk               ( sysclk )
+    ,.sysreset             ( sysreset )
+    ,.counter_out          ( r[`DR_USAGE_COUNT] )
+    ,.counter_reset        ( r_load[`DR_USAGE_COUNT] )
+    ,.observable_pulse     ( r_read[`DR_EVENT_PRIORITY] )
+    ,.sample_enable        ( pulse1k )
+);      
 
 std_reg soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
 assign scope = r[`DR_SOFT_EVENT][14:13]; // copy soft_event_reg to o'scope pins for analysis.

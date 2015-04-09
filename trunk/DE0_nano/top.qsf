@@ -260,6 +260,7 @@ set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME testbench -section_id tes
 set_global_assignment -name EDA_TEST_BENCH_FILE source/testbench.v -section_id testbench
 set_global_assignment -name SEARCH_PATH "j:\\personal\\2014\\camaro_ecm\\trunk\\de0_nano\\source\\synapse\\program"
 set_global_assignment -name SEARCH_PATH "j:\\personal\\2014\\camaro_ecm\\trunk\\de0_nano\\source"
+set_global_assignment -name VERILOG_FILE source/synapse/peripheral/usage_counter.v
 set_global_assignment -name VERILOG_FILE source/synapse/std_reg.v
 set_global_assignment -name VERILOG_FILE source/synapse/stack_reg.v
 set_global_assignment -name VERILOG_FILE source/synapse/peripheral/spi_master.v

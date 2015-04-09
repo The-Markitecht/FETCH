@@ -18,7 +18,7 @@
 
 
 
---alias_src  tg_debug_out	    [incr counter]
+--alias_src  tg_debug_out	    [incr counter]  {}
 
 
     0000 : e00f ; -- <0052> jmp :main

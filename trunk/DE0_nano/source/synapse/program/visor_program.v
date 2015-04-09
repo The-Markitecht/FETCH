@@ -19,7 +19,7 @@
 
 
 
-//alias_src  tg_debug_out	    [incr counter]
+//alias_src  tg_debug_out	    [incr counter]  {}
 
 
 addr == 16'h00 ? 16'he00f :  // <0052> jmp :main
