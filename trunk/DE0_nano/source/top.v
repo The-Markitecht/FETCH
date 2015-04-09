@@ -82,6 +82,7 @@ wire sysreset = rst2;
 
 /* use flop's "clear" input to eliminate data muxers.  
 but somehow this doesn't increment counter1k at all.
+see if it's because of the comma in the always clause.  that should be "or".
 reg[5:0] counter1m = 0;
 wire pulse1m = (counter1m == 6'd50);
 always_ff @(posedge sysclk, posedge pulse1m) 
@@ -144,16 +145,20 @@ supervised_synapse316 supmcu(
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
 stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`DR_RSTK]);
 
-wire[15:0] de0nadc_ctrl;
-std_reg #(.WIDTH(3)) de0nano_adc_ctrl_reg(sysclk, sysreset, de0nadc_ctrl, r_load_data[2:0], r_load[`DR_DE0NANO_ADC_CTRL]);
-assign r[`DR_DE0NANO_ADC_CTRL] = {15'b0, ADC_SDAT};         
-assign ADC_CS_N =  de0nadc_ctrl[2];
-assign ADC_SCLK =  de0nadc_ctrl[1];
-assign ADC_SADDR = de0nadc_ctrl[0];
-assign GPIO_2[9] = ADC_SCLK;
-assign GPIO_2[8] = ADC_CS_N;
-assign GPIO_2[7] = ADC_SADDR;
-assign GPIO_2[6] = ADC_SDAT;
+// ADC SPI
+wire spi_busy;
+spi_master #(.WIDTH(16), .SPI_CLOCK_DIVISOR(50)) spi (
+     .sysclk                (sysclk)
+    ,.sysreset              (sysreset)
+    ,.mi_data               (r[`DR_SPI_DATA])
+    ,.mo_data               (r_load_data)
+    ,.mo_load               (r_load[`DR_SPI_DATA])
+    ,.busy                  (spi_busy)
+    ,.spi_mo                (ADC_SADDR)
+    ,.spi_cs                (ADC_CS_N)
+    ,.spi_sck               (ADC_SCLK)
+    ,.spi_mi                (ADC_SDAT)
+);
 
 // full-duplex UART with FIFO's.
 fduart uart (
@@ -296,7 +301,7 @@ assign scope = r[`DR_SOFT_EVENT][14:13]; // copy soft_event_reg to o'scope pins 
 
 // event controller is listed last to utilize wires from all other parts.
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
-event_controller #(.NUM_INPUTS(13)) events( 
+event_controller #(.NUM_INPUTS(14)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset || r[`DR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])
     ,.priority_out      (r[`DR_EVENT_PRIORITY])
@@ -305,12 +310,13 @@ event_controller #(.NUM_INPUTS(13)) events(
     ,.event_signals     ({
         // MOST urgent events are listed FIRST.
         1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
+        ,ustimer0_expired
+        , ! spi_busy
+        ,mstimer0_expired
+        ,mstimer1_expired
         , ! r[`DR_FDUART_STATUS][`ARX_FIFO_EMPTY_BIT]
         , r[`DR_FDUART_STATUS][`ARX_FIFO_FULL_BIT]
         , r[`DR_FDUART_STATUS][`ATX_FIFO_FULL_BIT]
-        ,ustimer0_expired
-        ,mstimer0_expired
-        ,mstimer1_expired
         ,KEY[0]
         ,KEY[1]
         ,r[`DR_SOFT_EVENT][3:0]

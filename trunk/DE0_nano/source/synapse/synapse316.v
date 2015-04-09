@@ -3,67 +3,6 @@
 
 // synthesize with SystemVerilog
 
-module std_reg #(
-    parameter WIDTH = 16
-) (
-     input wire                  sysclk            
-    ,input wire                  sysreset          
-
-    ,output wire[15:0]           data_out
-    ,input wire[WIDTH-1:0]       data_in           
-    ,input wire                  load
-);      
-    reg[WIDTH-1:0] r = 0;
-    assign data_out = { {16-WIDTH{1'b0}}, r};
-    always_ff @(posedge sysreset or posedge sysclk) begin
-        if (sysreset)
-            r <= 0;
-        else if (load)
-            r <= data_in;
-    end
-endmodule
-
-module stack_reg #(
-    parameter DEPTH = 8
-) (
-     input wire                  sysclk            
-    ,input wire                  sysreset          
-
-    ,output wire[15:0]           data_out
-    ,input wire[15:0]            data_in           
-    ,input wire                  load
-    ,input wire                  read
-);      
-    localparam TOP=DEPTH-1;
-    reg[15:0] content[TOP:0];
-    assign data_out = content[0];
-    genvar i;
-    generate  
-        for (i=1; i < TOP; i=i+1) begin: middle
-            always_ff @(posedge sysreset or posedge sysclk) begin
-                if (sysreset)
-                    content[i] <= 0;
-                else if (load)
-                    content[i] <= content[i-1];
-                else if (read)
-                    content[i] <= content[i+1];
-            end  
-        end
-    endgenerate     
-    always_ff @(posedge sysreset or posedge sysclk) begin
-        if (sysreset)
-            content[0] <= 0;
-        else if (load)
-            content[0] <= data_in;
-        else if (read)
-            content[0] <= content[1];
-        if (sysreset)
-            content[TOP] <= 0;
-        else if (load)
-            content[TOP] <= content[TOP-1];
-    end
-endmodule
-
 module synapse316 #(
     // this module alone offers parameters instead of using the system-wide define's directly.
     // that allows for different dimensions of different instances.

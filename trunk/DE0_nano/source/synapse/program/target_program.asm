@@ -23,13 +23,9 @@
         // throttle for each pass of data acquisition.
     alias_both mstimer1             [incr counter]
         // delay for anmux settling.
+                
+    alias_both spi_data             [incr counter]
     
-    alias_both de0nano_adc_ctrl     [incr counter] 
-        vdefine     de0nano_adc_csn_mask         0x0004
-        vdefine     de0nano_adc_sck_mask         0x0002
-        vdefine     de0nano_adc_mo_mask          0x0001
-        vdefine     de0nano_adc_mi_mask          0x0001
-            
     alias_both av_write_data        [incr counter]
     alias_src  av_read_data	        [incr counter]
     alias_both av_ad_hi             [incr counter]
@@ -75,9 +71,13 @@
     alias_both anmux_ctrl           [incr counter]
         vdefine     anmux_enable_mask       0x0008
         vdefine     anmux_channel_mask      0x0007
+        setvar      anmux_adc_channel       7
+        setvar      anmux_settle_ms         5
+        setvar      anmux_num_discards      2
 
     setvar ram_counter $sdram_base
     ram_define ram_daq_pass_cnt     2
+    ram_define ram_daq_discard_cnt  2
         
     setvar err_rx_overflow 0xfffe
     setvar err_tx_overflow 0xfffd
@@ -100,7 +100,7 @@
     "ustimer0"
     "mstimer0"
     "mstimer1"
-    "//adcctl"
+    "spi_data"
     "//avwrdt"
     "av_rd_dt"
     "av_ad_hi"
@@ -112,9 +112,9 @@
     
     // libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
     convention_gpx
-    include ../peripheral/driver/fduart.asm
-    include ../peripheral/driver/de0nano_adc.asm
     include ../peripheral/driver/event_controller.asm
+    include ../peripheral/driver/fduart.asm
+    include ../peripheral/driver/anmux.asm
     include lib/string.asm
     include lib/console.asm
     include lib/time.asm
@@ -152,12 +152,13 @@
     // event 0 not used in this app anyway.
     :event_table    
     ([label :poll_events])
+    ([label :ustimer0_handler])
+    ([label :spi_done_handler])
+    ([label :mstimer0_handler])
+    ([label :mstimer1_handler])
     ([label :uart_rx_handler])
     ([label :uart_rx_overflow_handler])
     ([label :uart_tx_overflow_handler])
-    ([label :ustimer0_handler])
-    ([label :mstimer0_handler])
-    ([label :mstimer1_handler])
     ([label :key0_handler])
     ([label :key1_handler])
     ([label :softevent3_handler])
@@ -167,19 +168,38 @@
     
     // #########################################################################
 
-event uart_rx_handler
-    // handle data here
-end_event
-    
-event uart_rx_overflow_handler
-    error_halt_code $err_rx_overflow
-end_event
-    
-event uart_tx_overflow_handler
-    error_halt_code $err_tx_overflow
-end_event
-    
 event ustimer0_handler
+end_event
+
+event spi_done_handler
+    // discard-counter in RAM.  
+    av_ad_hi = 0
+    ram_read_lo a = $ram_daq_discard_cnt
+    br az :report
+    b = -1
+    a = a+b
+    ram_write_lo $ram_daq_discard_cnt = a
+    a = $anmux_adc_channel
+    call :begin_adc_conversion
+    event_return
+
+    // report ADC reading.
+    :report
+    a = spi_data
+    call :put4x 
+
+    // decrement anmux channel & start waiting again.
+    call :anmux_get_chn
+    br az :all_done
+    b = -1
+    a = a+b
+    call :anmux_set_chn
+    mstimer1 = $anmux_settle_ms
+    event_return
+    
+    // end of daq pass.
+    :all_done
+    puteol    
 end_event
 
 event mstimer0_handler
@@ -199,32 +219,33 @@ event mstimer0_handler
     // acquire & report all anmux channels.
     a = 7
     call :anmux_set_chn
-    mstimer1 = 5
+    mstimer1 = $anmux_settle_ms
 end_event
 
 event mstimer1_handler    
-    // report a reading from the current anmux channel.
+    // start a reading from the current anmux channel.
+    av_ad_hi = 0
+    ram_write_lo $ram_daq_discard_cnt = $anmux_num_discards
     putasc " "
     putasc "s"
     call :anmux_get_chn
     asc b = "0"
     putchar a+b
-    putasc "="
-    call :anmux_convert
-    call :put4x
+    putasc "="    
+    a = $anmux_adc_channel
+    call :begin_adc_conversion
+end_event
     
-    // decrement anmux channel & start waiting again.
-    call :anmux_get_chn
-    br az :all_done
-    b = -1
-    a = a+b
-    call :anmux_set_chn
-    mstimer1 = 5
-    event_return
+event uart_rx_handler
+    // handle data here
+end_event
     
-    // end of daq pass.
-    :all_done
-    puteol    
+event uart_rx_overflow_handler
+    error_halt_code $err_rx_overflow
+end_event
+    
+event uart_tx_overflow_handler
+    error_halt_code $err_tx_overflow
 end_event
     
 event key0_handler
@@ -249,4 +270,14 @@ end_event
 event softevent0_handler
 end_event
     
+func begin_adc_conversion
+    // begin SPI transaction, specifying Nano ADC channel to take effect NEXT 
+    // conversion after this one.  pass that in a.
     
+    a = a<<4
+    a = a<<4
+    a = a<<1
+    a = a<<1
+    a = a<<1    
+    spi_data = a
+end_func    

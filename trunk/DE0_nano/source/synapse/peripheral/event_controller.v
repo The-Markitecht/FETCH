@@ -6,7 +6,7 @@
 
 /* design notes:
 
-edge detectors on each input.  those each can set a RS capture flop.  
+edge detectors on each input.  those each can set a capture flop.  
 EDR_EVENT_PRIORITY reads from a priority encoder summarizing the capture flops.
 writing a priority value back to EDR_EVENT_PRIORITY clears the indexed capture flop.
 
@@ -55,6 +55,10 @@ times in exactly one of the following places:  free q, producer routine, laden q
 various subsystems can share a free q if their buffers are of a usable size.
 but never share a laden q, since that indicates the payload data type.
 
+utilization measurement:  start counting down from 5 cycles on each poll.
+when an external timing pulse is received (say 1khz) sample that timer.
+if it's zero, increment the busy counter.  then once per second let the program
+read & reset the busy counter.  counter = utilization scaled 0-999.
 
 */
 

@@ -1,4 +1,23 @@
 
+    // alias_both de0nano_adc_ctrl     [incr counter] 
+        // vdefine     de0nano_adc_csn_mask         0x0004
+        // vdefine     de0nano_adc_sck_mask         0x0002
+        // vdefine     de0nano_adc_mo_mask          0x0001
+        // vdefine     de0nano_adc_mi_mask          0x0001
+
+// wire[15:0] de0nadc_ctrl;
+// std_reg #(.WIDTH(3)) de0nano_adc_ctrl_reg(sysclk, sysreset, de0nadc_ctrl, r_load_data[2:0], r_load[`DR_DE0NANO_ADC_CTRL]);
+// assign r[`DR_DE0NANO_ADC_CTRL] = {15'b0, ADC_SDAT};         
+// assign ADC_CS_N =  de0nadc_ctrl[2];
+// assign ADC_SCLK =  de0nadc_ctrl[1];
+// assign ADC_SADDR = de0nadc_ctrl[0];
+// assign GPIO_2[9] = ADC_SCLK;
+// assign GPIO_2[8] = ADC_CS_N;
+// assign GPIO_2[7] = ADC_SADDR;
+// assign GPIO_2[6] = ADC_SDAT;
+// bit bang above worked OK.  now using hardware spi_master instead.
+
+
 // bit-bang a complete SPI transaction.
 // pass mo data in a, transaction width (# of bits) in b.
 // returns mi data in a
@@ -88,6 +107,7 @@ func anmux_convert
     // read ADC channel 7.  12 bits resolution.
     // must do this 3 times to get the ADC's input path to settle down, especially if
     // i'm driving it with high impedance & no buffer.
+    // also remember the channel number passed to the ADC takes effect on the NEXT conversion.
     a = 7
     call :de0nano_adc_read
     a = 7

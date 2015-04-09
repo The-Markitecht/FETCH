@@ -21,12 +21,8 @@
 `define DR_MSTIMER0  12
 `define SR_MSTIMER1  13
 `define DR_MSTIMER1  13
-`define SR_DE0NANO_ADC_CTRL  14
-`define DR_DE0NANO_ADC_CTRL  14
-`define DE0NANO_ADC_CSN_MASK  4
-`define DE0NANO_ADC_SCK_MASK  2
-`define DE0NANO_ADC_MO_MASK  1
-`define DE0NANO_ADC_MI_MASK  1
+`define SR_SPI_DATA  14
+`define DR_SPI_DATA  14
 `define SR_AV_WRITE_DATA  15
 `define DR_AV_WRITE_DATA  15
 `define SR_AV_READ_DATA  16
@@ -54,6 +50,9 @@
 `define RAM_DAQ_PASS_CNT  0
 `define RAM_DAQ_PASS_CNT_HI  0
 `define RAM_DAQ_PASS_CNT_LO  0
+`define RAM_DAQ_DISCARD_CNT  2
+`define RAM_DAQ_DISCARD_CNT_HI  0
+`define RAM_DAQ_DISCARD_CNT_LO  2
 `define ATX_FIFO_EMPTY_BIT  0
 `define ATX_FIFO_FULL_BIT  1
 `define ATX_BUSY_BIT  2
