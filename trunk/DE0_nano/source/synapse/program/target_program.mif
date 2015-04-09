@@ -360,30 +360,58 @@
     00d2 : f808 ; -- <0097> pop rtna -- end_func
     00d3 : fc00 ; -- <0097> end_func
 
+-- event loop.  this infrastructure is assembled directly into the main program, not a func.
+-- first instruction of an event handler should be the 7th cycle after reading its priority from the event controller here.
+-- :poll_events -- = 0x00d4
+-- initialize prior to polling loop, for minimum latency.
+    00d4 : 07a0 ; -- <0006> b = :event_table
+    00d5 : 01a8 ; -- <0006> "
+-- 3-cycle polling loop.
+-- :poll_events_again -- = 0x00d6
+    00d6 : 0009 ; -- <0009> a = event_priority
+    00d7 : e000 ; -- <0010> br 0z :poll_events_again
+    00d8 : 00d6 ; -- <0010> "
+-- acknowledge the event to clear its capture register.  do this right away,
+-- so another occurrence of the same event can be captured right away in the controller.
+    00d9 : 2400 ; -- <0013> event_priority = a
+-- compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
+    00da : d300 ; -- <0015> fetch rtna from ad0
+    00db : fbb0 ; -- <0015> "
+-- jump to the address given in the event_table.  each handler MUST end with a end_event.
+-- each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
+-- each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
+    00dc : fc00 ; -- <0019> swapra = nop
+-- just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
+    00dd : 5ba0 ; -- <0021> error_halt_code 0xffc0 -- leds = 0xffc0
+    00de : ffc0 ; -- <0021> "
+    00df : e00f ; -- <0021> error_halt_code 0xffc0
+    00e0 : 00df ; -- <0021> "
+
+
 -- pick a byte from an array of packed words in program space.  fetch & return it in a.
 -- pass array base address in x, byte offset in a.
--- ######## func fetch_byte -- = 0x00d4
-    00d4 : 0601 ; -- <0005> b = 1
-    00d5 : e003 ; -- <0006> br and0z :pick_byte_even
-    00d6 : 00df ; -- <0006> "
-    00d7 : 0350 ; -- <0007> a = a>>1
-    00d8 : 0404 ; -- <0008> b = x
-    00d9 : c800 ; -- <0009> fetch a from a+b
-    00da : d300 ; -- <0009> "
-    00db : 03b0 ; -- <0009> "
-    00dc : 0353 ; -- <0010> a = a>>4
-    00dd : 0353 ; -- <0011> a = a>>4
-    00de : fc00 ; -- <0012> rtn
--- :pick_byte_even -- = 0x00df
-    00df : 0350 ; -- <0014> a = a>>1
-    00e0 : 0404 ; -- <0015> b = x
-    00e1 : c800 ; -- <0016> fetch a from a+b
-    00e2 : d300 ; -- <0016> "
-    00e3 : 03b0 ; -- <0016> "
-    00e4 : 06ff ; -- <0017> b = 0xff
-    00e5 : c800 ; -- <0018> a = and
-    00e6 : 0330 ; -- <0018> "
-    00e7 : fc00 ; -- <0019> end_func
+-- ######## func fetch_byte -- = 0x00e1
+    00e1 : 0601 ; -- <0005> b = 1
+    00e2 : e003 ; -- <0006> br and0z :pick_byte_even
+    00e3 : 00ec ; -- <0006> "
+    00e4 : 0350 ; -- <0007> a = a>>1
+    00e5 : 0404 ; -- <0008> b = x
+    00e6 : c800 ; -- <0009> fetch a from a+b
+    00e7 : d300 ; -- <0009> "
+    00e8 : 03b0 ; -- <0009> "
+    00e9 : 0353 ; -- <0010> a = a>>4
+    00ea : 0353 ; -- <0011> a = a>>4
+    00eb : fc00 ; -- <0012> rtn
+-- :pick_byte_even -- = 0x00ec
+    00ec : 0350 ; -- <0014> a = a>>1
+    00ed : 0404 ; -- <0015> b = x
+    00ee : c800 ; -- <0016> fetch a from a+b
+    00ef : d300 ; -- <0016> "
+    00f0 : 03b0 ; -- <0016> "
+    00f1 : 06ff ; -- <0017> b = 0xff
+    00f2 : c800 ; -- <0018> a = and
+    00f3 : 0330 ; -- <0018> "
+    00f4 : fc00 ; -- <0019> end_func
 
 -- find a byte in an array of packed words in program space.
 -- pass data byte in a.
@@ -391,38 +419,38 @@
 -- array length in i.
 -- returns found index in a (or -1 if not found).
 -- if the data byte occurs more than once, the final one's position is returned.
--- ######## func find_in_fetch -- = 0x00e8
-    00e8 : 2002 ; -- <0027> push i -- func find_in_fetch
-    00e9 : 2003 ; -- <0027> push j -- "
-    00ea : 2005 ; -- <0027> push y -- "
-    00eb : 203e ; -- <0027> push rtna -- "
-    00ec : 1400 ; -- <0028> y = a
-    00ed : 0f60 ; -- <0029> j = -1
--- :again -- = 0x00ee
-    00ee : e001 ; -- <0031> br iz :fail
-    00ef : 00fe ; -- <0031> "
-    00f0 : 0b10 ; -- <0032> i = ad1
-    00f1 : 0002 ; -- <0033> a = i
-    00f2 : fba0 ; -- <0034> call :fetch_byte
-    00f3 : 00d4 ; -- <0034> "
-    00f4 : fc00 ; -- <0034> "
-    00f5 : 0405 ; -- <0035> b = y
-    00f6 : e407 ; -- <0036> bn eq :again
-    00f7 : 00ee ; -- <0036> "
--- :found -- = 0x00f8
-    00f8 : 0002 ; -- <0038> a = i
-    00f9 : f808 ; -- <0039> pop rtna -- rtn
-    00fa : 1408 ; -- <0039> pop y -- "
-    00fb : 0c08 ; -- <0039> pop j -- "
-    00fc : 0808 ; -- <0039> pop i -- "
-    00fd : fc00 ; -- <0039> rtn
--- :fail -- = 0x00fe
-    00fe : 0360 ; -- <0041> a = -1
-    00ff : f808 ; -- <0042> pop rtna -- end_func
-    0100 : 1408 ; -- <0042> pop y -- "
-    0101 : 0c08 ; -- <0042> pop j -- "
-    0102 : 0808 ; -- <0042> pop i -- "
-    0103 : fc00 ; -- <0042> end_func
+-- ######## func find_in_fetch -- = 0x00f5
+    00f5 : 2002 ; -- <0027> push i -- func find_in_fetch
+    00f6 : 2003 ; -- <0027> push j -- "
+    00f7 : 2005 ; -- <0027> push y -- "
+    00f8 : 203e ; -- <0027> push rtna -- "
+    00f9 : 1400 ; -- <0028> y = a
+    00fa : 0f60 ; -- <0029> j = -1
+-- :again -- = 0x00fb
+    00fb : e001 ; -- <0031> br iz :fail
+    00fc : 010b ; -- <0031> "
+    00fd : 0b10 ; -- <0032> i = ad1
+    00fe : 0002 ; -- <0033> a = i
+    00ff : fba0 ; -- <0034> call :fetch_byte
+    0100 : 00e1 ; -- <0034> "
+    0101 : fc00 ; -- <0034> "
+    0102 : 0405 ; -- <0035> b = y
+    0103 : e407 ; -- <0036> bn eq :again
+    0104 : 00fb ; -- <0036> "
+-- :found -- = 0x0105
+    0105 : 0002 ; -- <0038> a = i
+    0106 : f808 ; -- <0039> pop rtna -- rtn
+    0107 : 1408 ; -- <0039> pop y -- "
+    0108 : 0c08 ; -- <0039> pop j -- "
+    0109 : 0808 ; -- <0039> pop i -- "
+    010a : fc00 ; -- <0039> rtn
+-- :fail -- = 0x010b
+    010b : 0360 ; -- <0041> a = -1
+    010c : f808 ; -- <0042> pop rtna -- end_func
+    010d : 1408 ; -- <0042> pop y -- "
+    010e : 0c08 ; -- <0042> pop j -- "
+    010f : 0808 ; -- <0042> pop i -- "
+    0110 : fc00 ; -- <0042> end_func
 
 
 
@@ -430,198 +458,170 @@
 -- requires a console driver library to be included prior to including this.
 
 
--- :hexdigits -- = 0x0104
+-- :hexdigits -- = 0x0111
 -- "0123456789abcdef"
-    0104 : 3130 ; -- <0054> 10
-    0105 : 3332 ; -- <0054> 32
-    0106 : 3534 ; -- <0054> 54
-    0107 : 3736 ; -- <0054> 76
-    0108 : 3938 ; -- <0054> 98
-    0109 : 6261 ; -- <0054> ba
-    010a : 6463 ; -- <0054> dc
-    010b : 6665 ; -- <0054> fe
+    0111 : 3130 ; -- <0054> 10
+    0112 : 3332 ; -- <0054> 32
+    0113 : 3534 ; -- <0054> 54
+    0114 : 3736 ; -- <0054> 76
+    0115 : 3938 ; -- <0054> 98
+    0116 : 6261 ; -- <0054> ba
+    0117 : 6463 ; -- <0054> dc
+    0118 : 6665 ; -- <0054> fe
 
 -- function to print a 16-bit number formatted as 4 hex digits.
 -- pass number in a.
--- ######## func put4x -- = 0x010c
-    010c : 2004 ; -- <0058> push x -- func put4x
-    010d : 2006 ; -- <0058> push g6 -- "
-    010e : 203e ; -- <0058> push rtna -- "
-    010f : 13a0 ; -- <0059> x = :hexdigits
-    0110 : 0104 ; -- <0059> "
+-- ######## func put4x -- = 0x0119
+    0119 : 2004 ; -- <0058> push x -- func put4x
+    011a : 2006 ; -- <0058> push g6 -- "
+    011b : 203e ; -- <0058> push rtna -- "
+    011c : 13a0 ; -- <0059> x = :hexdigits
+    011d : 0111 ; -- <0059> "
 
-    0111 : 1800 ; -- <0061> g6 = a
-    0112 : 07a0 ; -- <0062> b = 0xF000
-    0113 : f000 ; -- <0062> "
-    0114 : c800 ; -- <0063> a = and
-    0115 : 0330 ; -- <0063> "
-    0116 : 0353 ; -- <0064> a = a>>4
-    0117 : 0353 ; -- <0065> a = a>>4
-    0118 : 0353 ; -- <0066> a = a>>4
-    0119 : fba0 ; -- <0067> call fetch_byte
-    011a : 00d4 ; -- <0067> "
-    011b : fc00 ; -- <0067> "
-    011c : 0000 ; -- <0068> a = a -- putchar a
-    011d : fba0 ; -- <0068> putchar a
-    011e : 005f ; -- <0068> "
-    011f : fc00 ; -- <0068> "
+    011e : 1800 ; -- <0061> g6 = a
+    011f : 07a0 ; -- <0062> b = 0xF000
+    0120 : f000 ; -- <0062> "
+    0121 : c800 ; -- <0063> a = and
+    0122 : 0330 ; -- <0063> "
+    0123 : 0353 ; -- <0064> a = a>>4
+    0124 : 0353 ; -- <0065> a = a>>4
+    0125 : 0353 ; -- <0066> a = a>>4
+    0126 : fba0 ; -- <0067> call fetch_byte
+    0127 : 00e1 ; -- <0067> "
+    0128 : fc00 ; -- <0067> "
+    0129 : 0000 ; -- <0068> a = a -- putchar a
+    012a : fba0 ; -- <0068> putchar a
+    012b : 005f ; -- <0068> "
+    012c : fc00 ; -- <0068> "
 
-    0120 : 0006 ; -- <0070> a = g6
-    0121 : 07a0 ; -- <0071> b = 0x0F00
-    0122 : 0f00 ; -- <0071> "
-    0123 : c800 ; -- <0072> a = and
-    0124 : 0330 ; -- <0072> "
-    0125 : 0353 ; -- <0073> a = a>>4
-    0126 : 0353 ; -- <0074> a = a>>4
-    0127 : fba0 ; -- <0075> call fetch_byte
-    0128 : 00d4 ; -- <0075> "
-    0129 : fc00 ; -- <0075> "
-    012a : 0000 ; -- <0076> a = a -- putchar a
-    012b : fba0 ; -- <0076> putchar a
-    012c : 005f ; -- <0076> "
-    012d : fc00 ; -- <0076> "
+    012d : 0006 ; -- <0070> a = g6
+    012e : 07a0 ; -- <0071> b = 0x0F00
+    012f : 0f00 ; -- <0071> "
+    0130 : c800 ; -- <0072> a = and
+    0131 : 0330 ; -- <0072> "
+    0132 : 0353 ; -- <0073> a = a>>4
+    0133 : 0353 ; -- <0074> a = a>>4
+    0134 : fba0 ; -- <0075> call fetch_byte
+    0135 : 00e1 ; -- <0075> "
+    0136 : fc00 ; -- <0075> "
+    0137 : 0000 ; -- <0076> a = a -- putchar a
+    0138 : fba0 ; -- <0076> putchar a
+    0139 : 005f ; -- <0076> "
+    013a : fc00 ; -- <0076> "
 
-    012e : 0006 ; -- <0078> a = g6
-    012f : 06f0 ; -- <0079> b = 0x00F0
-    0130 : c800 ; -- <0080> a = and
-    0131 : 0330 ; -- <0080> "
-    0132 : 0353 ; -- <0081> a = a>>4
-    0133 : fba0 ; -- <0082> call fetch_byte
-    0134 : 00d4 ; -- <0082> "
-    0135 : fc00 ; -- <0082> "
-    0136 : 0000 ; -- <0083> a = a -- putchar a
-    0137 : fba0 ; -- <0083> putchar a
-    0138 : 005f ; -- <0083> "
-    0139 : fc00 ; -- <0083> "
+    013b : 0006 ; -- <0078> a = g6
+    013c : 06f0 ; -- <0079> b = 0x00F0
+    013d : c800 ; -- <0080> a = and
+    013e : 0330 ; -- <0080> "
+    013f : 0353 ; -- <0081> a = a>>4
+    0140 : fba0 ; -- <0082> call fetch_byte
+    0141 : 00e1 ; -- <0082> "
+    0142 : fc00 ; -- <0082> "
+    0143 : 0000 ; -- <0083> a = a -- putchar a
+    0144 : fba0 ; -- <0083> putchar a
+    0145 : 005f ; -- <0083> "
+    0146 : fc00 ; -- <0083> "
 
-    013a : 0006 ; -- <0085> a = g6
-    013b : 060f ; -- <0086> b = 0x000F
-    013c : c800 ; -- <0087> a = and
-    013d : 0330 ; -- <0087> "
-    013e : fba0 ; -- <0088> call fetch_byte
-    013f : 00d4 ; -- <0088> "
-    0140 : fc00 ; -- <0088> "
-    0141 : 0000 ; -- <0089> a = a -- putchar a
-    0142 : fba0 ; -- <0089> putchar a
-    0143 : 005f ; -- <0089> "
-    0144 : fc00 ; -- <0089> "
+    0147 : 0006 ; -- <0085> a = g6
+    0148 : 060f ; -- <0086> b = 0x000F
+    0149 : c800 ; -- <0087> a = and
+    014a : 0330 ; -- <0087> "
+    014b : fba0 ; -- <0088> call fetch_byte
+    014c : 00e1 ; -- <0088> "
+    014d : fc00 ; -- <0088> "
+    014e : 0000 ; -- <0089> a = a -- putchar a
+    014f : fba0 ; -- <0089> putchar a
+    0150 : 005f ; -- <0089> "
+    0151 : fc00 ; -- <0089> "
 
-    0145 : f808 ; -- <0091> pop rtna -- end_func
-    0146 : 1808 ; -- <0091> pop g6 -- "
-    0147 : 1008 ; -- <0091> pop x -- "
-    0148 : fc00 ; -- <0091> end_func
+    0152 : f808 ; -- <0091> pop rtna -- end_func
+    0153 : 1808 ; -- <0091> pop g6 -- "
+    0154 : 1008 ; -- <0091> pop x -- "
+    0155 : fc00 ; -- <0091> end_func
 
 -- function to scan a 16-bit number formatted as 4 hex digits.
 -- return number in a.  return 0 for success in b.
--- ######## func get4x -- = 0x0149
-    0149 : 2002 ; -- <0095> push i -- func get4x
-    014a : 2003 ; -- <0095> push j -- "
-    014b : 2004 ; -- <0095> push x -- "
-    014c : 2005 ; -- <0095> push y -- "
-    014d : 203e ; -- <0095> push rtna -- "
+-- ######## func get4x -- = 0x0156
+    0156 : 2002 ; -- <0095> push i -- func get4x
+    0157 : 2003 ; -- <0095> push j -- "
+    0158 : 2004 ; -- <0095> push x -- "
+    0159 : 2005 ; -- <0095> push y -- "
+    015a : 203e ; -- <0095> push rtna -- "
 -- y = digit counter
 -- j = sum
-    014e : 1604 ; -- <0098> y = 4
--- :again -- = 0x014f
-    014f : fba0 ; -- <0100> getchar
-    0150 : 0068 ; -- <0100> "
-    0151 : fc00 ; -- <0100> "
-    0152 : 2000 ; -- <0100> push a -- "
-    0153 : 0000 ; -- <0100> a = a -- "
-    0154 : fba0 ; -- <0100> "
-    0155 : 005f ; -- <0100> "
-    0156 : fc00 ; -- <0100> "
-    0157 : 0008 ; -- <0100> pop a -- "
-    0158 : 13a0 ; -- <0101> x = :hexdigits
-    0159 : 0104 ; -- <0101> "
-    015a : 0a10 ; -- <0102> i = 16
-    015b : fba0 ; -- <0103> call :find_in_fetch
-    015c : 00e8 ; -- <0103> "
-    015d : fc00 ; -- <0103> "
-    015e : 0760 ; -- <0104> b = -1
-    015f : e007 ; -- <0105> br eq :fail
-    0160 : 0174 ; -- <0105> "
-    0161 : 0400 ; -- <0106> b = a
-    0162 : 0003 ; -- <0107> a = j
-    0163 : 0352 ; -- <0108> a = a<<4
-    0164 : c800 ; -- <0109> j = or
-    0165 : 0f34 ; -- <0109> "
-    0166 : 1360 ; -- <0110> x = -1
-    0167 : c800 ; -- <0111> y = x+y
-    0168 : 1720 ; -- <0111> "
-    0169 : 0005 ; -- <0112> a = y
-    016a : e400 ; -- <0113> bn az :again
-    016b : 014f ; -- <0113> "
-    016c : 0003 ; -- <0114> a = j
-    016d : 0600 ; -- <0115> b = 0
-    016e : f808 ; -- <0116> pop rtna -- rtn
-    016f : 1408 ; -- <0116> pop y -- "
-    0170 : 1008 ; -- <0116> pop x -- "
-    0171 : 0c08 ; -- <0116> pop j -- "
-    0172 : 0808 ; -- <0116> pop i -- "
-    0173 : fc00 ; -- <0116> rtn
--- :fail -- = 0x0174
-    0174 : 0760 ; -- <0118> b = -1
-    0175 : f808 ; -- <0119> pop rtna -- end_func
-    0176 : 1408 ; -- <0119> pop y -- "
-    0177 : 1008 ; -- <0119> pop x -- "
-    0178 : 0c08 ; -- <0119> pop j -- "
-    0179 : 0808 ; -- <0119> pop i -- "
-    017a : fc00 ; -- <0119> end_func
+    015b : 1604 ; -- <0098> y = 4
+-- :again -- = 0x015c
+    015c : fba0 ; -- <0100> getchar
+    015d : 0068 ; -- <0100> "
+    015e : fc00 ; -- <0100> "
+    015f : 2000 ; -- <0100> push a -- "
+    0160 : 0000 ; -- <0100> a = a -- "
+    0161 : fba0 ; -- <0100> "
+    0162 : 005f ; -- <0100> "
+    0163 : fc00 ; -- <0100> "
+    0164 : 0008 ; -- <0100> pop a -- "
+    0165 : 13a0 ; -- <0101> x = :hexdigits
+    0166 : 0111 ; -- <0101> "
+    0167 : 0a10 ; -- <0102> i = 16
+    0168 : fba0 ; -- <0103> call :find_in_fetch
+    0169 : 00f5 ; -- <0103> "
+    016a : fc00 ; -- <0103> "
+    016b : 0760 ; -- <0104> b = -1
+    016c : e007 ; -- <0105> br eq :fail
+    016d : 0181 ; -- <0105> "
+    016e : 0400 ; -- <0106> b = a
+    016f : 0003 ; -- <0107> a = j
+    0170 : 0352 ; -- <0108> a = a<<4
+    0171 : c800 ; -- <0109> j = or
+    0172 : 0f34 ; -- <0109> "
+    0173 : 1360 ; -- <0110> x = -1
+    0174 : c800 ; -- <0111> y = x+y
+    0175 : 1720 ; -- <0111> "
+    0176 : 0005 ; -- <0112> a = y
+    0177 : e400 ; -- <0113> bn az :again
+    0178 : 015c ; -- <0113> "
+    0179 : 0003 ; -- <0114> a = j
+    017a : 0600 ; -- <0115> b = 0
+    017b : f808 ; -- <0116> pop rtna -- rtn
+    017c : 1408 ; -- <0116> pop y -- "
+    017d : 1008 ; -- <0116> pop x -- "
+    017e : 0c08 ; -- <0116> pop j -- "
+    017f : 0808 ; -- <0116> pop i -- "
+    0180 : fc00 ; -- <0116> rtn
+-- :fail -- = 0x0181
+    0181 : 0760 ; -- <0118> b = -1
+    0182 : f808 ; -- <0119> pop rtna -- end_func
+    0183 : 1408 ; -- <0119> pop y -- "
+    0184 : 1008 ; -- <0119> pop x -- "
+    0185 : 0c08 ; -- <0119> pop j -- "
+    0186 : 0808 ; -- <0119> pop i -- "
+    0187 : fc00 ; -- <0119> end_func
 
 -- routine waits a number of milliseconds given in a.
--- ######## func spinwait -- = 0x017b
-    017b : 2004 ; -- <0002> push x -- func spinwait
-    017c : 2005 ; -- <0002> push y -- "
+-- ######## func spinwait -- = 0x0188
+    0188 : 2004 ; -- <0002> push x -- func spinwait
+    0189 : 2005 ; -- <0002> push y -- "
 --patch
 --rtn
-    017d : 0760 ; -- <0005> b = -1
--- :spinwait_outer -- = 0x017e
-    017e : 13a0 ; -- <0007> x = 16666
-    017f : 411a ; -- <0007> "
-    0180 : 1760 ; -- <0008> y = -1
-    0181 : c800 ; -- <0009> nop
--- :spinwait_inner -- = 0x0182
+    018a : 0760 ; -- <0005> b = -1
+-- :spinwait_outer -- = 0x018b
+    018b : 13a0 ; -- <0007> x = 16666
+    018c : 411a ; -- <0007> "
+    018d : 1760 ; -- <0008> y = -1
+    018e : c800 ; -- <0009> nop
+-- :spinwait_inner -- = 0x018f
 -- use of the ad2 name overrides auto-nop here.
-    0182 : 1320 ; -- <0012> x = ad2
-    0183 : e402 ; -- <0013> bn xz :spinwait_inner
-    0184 : 0182 ; -- <0013> "
-    0185 : c800 ; -- <0014> a = a+b
-    0186 : 0300 ; -- <0014> "
-    0187 : e400 ; -- <0015> bn az :spinwait_outer
-    0188 : 017e ; -- <0015> "
-    0189 : 1408 ; -- <0016> pop y -- end_func
-    018a : 1008 ; -- <0016> pop x -- "
-    018b : fc00 ; -- <0016> end_func
+    018f : 1320 ; -- <0012> x = ad2
+    0190 : e402 ; -- <0013> bn xz :spinwait_inner
+    0191 : 018f ; -- <0013> "
+    0192 : c800 ; -- <0014> a = a+b
+    0193 : 0300 ; -- <0014> "
+    0194 : e400 ; -- <0015> bn az :spinwait_outer
+    0195 : 018b ; -- <0015> "
+    0196 : 1408 ; -- <0016> pop y -- end_func
+    0197 : 1008 ; -- <0016> pop x -- "
+    0198 : fc00 ; -- <0016> end_func
 
-
-
--- event loop.  this infrastructure is assembled directly into the main program, not a func.
--- first instruction of an event handler should be the 7th cycle after reading its priority from the event controller here.
--- :poll_events -- = 0x018c
--- initialize prior to polling loop, for minimum latency.
-    018c : 07a0 ; -- <0006> b = :event_table
-    018d : 01a8 ; -- <0006> "
--- 3-cycle polling loop.
--- :poll_events_again -- = 0x018e
-    018e : 0009 ; -- <0009> a = event_priority
-    018f : e000 ; -- <0010> br 0z :poll_events_again
-    0190 : 018e ; -- <0010> "
--- acknowledge the event to clear its capture register.  do this right away,
--- so another occurrence of the same event can be captured right away in the controller.
-    0191 : 2400 ; -- <0013> event_priority = a
--- compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
-    0192 : d300 ; -- <0015> fetch rtna from ad0
-    0193 : fbb0 ; -- <0015> "
--- jump to the address given in the event_table.  each handler MUST end with a end_event.
--- each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
--- each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
-    0194 : fc00 ; -- <0019> swapra = nop
--- just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
-    0195 : 5ba0 ; -- <0021> error_halt_code 0xffc0 -- leds = 0xffc0
-    0196 : ffc0 ; -- <0021> "
-    0197 : e00f ; -- <0021> error_halt_code 0xffc0
-    0198 : 0197 ; -- <0021> "
 
 
 -- #########################################################################
@@ -655,12 +655,12 @@
     01a4 : 33a0 ; -- <0148> mstimer0 = 1000
     01a5 : 03e8 ; -- <0148> "
     01a6 : e00f ; -- <0149> jmp :poll_events
-    01a7 : 018c ; -- <0149> "
+    01a7 : 00d4 ; -- <0149> "
 
 -- event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.
 -- event 0 not used in this app anyway.
 -- :event_table -- = 0x01a8
-    01a8 : 018c ; -- <0154> ([label :poll_events])
+    01a8 : 00d4 ; -- <0154> ([label :poll_events])
     01a9 : 01b5 ; -- <0155> ([label :uart_rx_handler])
     01aa : 01b7 ; -- <0156> ([label :uart_rx_overflow_handler])
     01ab : 01bd ; -- <0157> ([label :uart_tx_overflow_handler])
@@ -679,7 +679,7 @@
 -- ######## event uart_rx_handler -- = 0x01b5
 -- handle data here
     01b5 : e00f ; -- <0172> end_event
-    01b6 : 018c ; -- <0172> "
+    01b6 : 00d4 ; -- <0172> "
 
 -- ######## event uart_rx_overflow_handler -- = 0x01b7
     01b7 : 5ba0 ; -- <0175> error_halt_code $err_rx_overflow -- leds = 0xfffe
@@ -687,7 +687,7 @@
     01b9 : e00f ; -- <0175> error_halt_code $err_rx_overflow
     01ba : 01b9 ; -- <0175> "
     01bb : e00f ; -- <0176> end_event
-    01bc : 018c ; -- <0176> "
+    01bc : 00d4 ; -- <0176> "
 
 -- ######## event uart_tx_overflow_handler -- = 0x01bd
     01bd : 5ba0 ; -- <0179> error_halt_code $err_tx_overflow -- leds = 0xfffd
@@ -695,11 +695,11 @@
     01bf : e00f ; -- <0179> error_halt_code $err_tx_overflow
     01c0 : 01bf ; -- <0179> "
     01c1 : e00f ; -- <0180> end_event
-    01c2 : 018c ; -- <0180> "
+    01c2 : 00d4 ; -- <0180> "
 
 -- ######## event ustimer0_handler -- = 0x01c3
     01c3 : e00f ; -- <0183> end_event
-    01c4 : 018c ; -- <0183> "
+    01c4 : 00d4 ; -- <0183> "
 
 -- ######## event mstimer0_handler -- = 0x01c5
 -- start timer again.
@@ -718,7 +718,7 @@
     01cf : 4a00 ; -- <0195> ram_write_lo $ram_daq_pass_cnt = a -- av_ad_lo = 0x00000000
     01d0 : 3c00 ; -- <0195> ram_write_lo $ram_daq_pass_cnt = a -- av_write_data = a
     01d1 : fba0 ; -- <0196> call :put4x
-    01d2 : 010c ; -- <0196> "
+    01d2 : 0119 ; -- <0196> "
     01d3 : fc00 ; -- <0196> "
     01d4 : 023a ; -- <0197> a = 58 -- putasc ":"
     01d5 : 0000 ; -- <0197> a = a -- putasc ":"
@@ -733,7 +733,7 @@
     01dc : fc00 ; -- <0201> "
     01dd : 3605 ; -- <0202> mstimer1 = 5
     01de : e00f ; -- <0203> end_event
-    01df : 018c ; -- <0203> "
+    01df : 00d4 ; -- <0203> "
 
 -- ######## event mstimer1_handler -- = 0x01e0
 -- report a reading from the current anmux channel.
@@ -765,7 +765,7 @@
     01f9 : 00c5 ; -- <0213> "
     01fa : fc00 ; -- <0213> "
     01fb : fba0 ; -- <0214> call :put4x
-    01fc : 010c ; -- <0214> "
+    01fc : 0119 ; -- <0214> "
     01fd : fc00 ; -- <0214> "
 
 -- decrement anmux channel & start waiting again.
@@ -782,7 +782,7 @@
     0208 : fc00 ; -- <0221> "
     0209 : 3605 ; -- <0222> mstimer1 = 5
     020a : e00f ; -- <0223> event_return
-    020b : 018c ; -- <0223> "
+    020b : 00d4 ; -- <0223> "
 
 -- end of daq pass.
 -- :all_done -- = 0x020c
@@ -797,7 +797,7 @@
     0214 : 005f ; -- <0227> "
     0215 : fc00 ; -- <0227> "
     0216 : e00f ; -- <0228> end_event
-    0217 : 018c ; -- <0228> "
+    0217 : 00d4 ; -- <0228> "
 
 -- ######## event key0_handler -- = 0x0218
     0218 : 026b ; -- <0231> a = 107 -- putasc "k"
@@ -811,7 +811,7 @@
     0220 : 005f ; -- <0232> "
     0221 : fc00 ; -- <0232> "
     0222 : e00f ; -- <0233> end_event
-    0223 : 018c ; -- <0233> "
+    0223 : 00d4 ; -- <0233> "
 
 -- ######## event key1_handler -- = 0x0224
     0224 : 026b ; -- <0236> a = 107 -- putasc "k"
@@ -825,23 +825,23 @@
     022c : 005f ; -- <0237> "
     022d : fc00 ; -- <0237> "
     022e : e00f ; -- <0238> end_event
-    022f : 018c ; -- <0238> "
+    022f : 00d4 ; -- <0238> "
 
 -- ######## event softevent3_handler -- = 0x0230
     0230 : e00f ; -- <0241> end_event
-    0231 : 018c ; -- <0241> "
+    0231 : 00d4 ; -- <0241> "
 
 -- ######## event softevent2_handler -- = 0x0232
     0232 : e00f ; -- <0244> end_event
-    0233 : 018c ; -- <0244> "
+    0233 : 00d4 ; -- <0244> "
 
 -- ######## event softevent1_handler -- = 0x0234
     0234 : e00f ; -- <0247> end_event
-    0235 : 018c ; -- <0247> "
+    0235 : 00d4 ; -- <0247> "
 
 -- ######## event softevent0_handler -- = 0x0236
     0236 : e00f ; -- <0250> end_event
-    0237 : 018c ; -- <0250> "
+    0237 : 00d4 ; -- <0250> "
 
 
         

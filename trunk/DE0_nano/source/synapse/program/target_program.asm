@@ -114,10 +114,10 @@
     convention_gpx
     include ../peripheral/driver/fduart.asm
     include ../peripheral/driver/de0nano_adc.asm
+    include ../peripheral/driver/event_controller.asm
     include lib/string.asm
     include lib/console.asm
     include lib/time.asm
-    include lib/events.asm
 
     // #########################################################################
     :main

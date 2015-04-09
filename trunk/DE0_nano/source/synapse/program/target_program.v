@@ -361,30 +361,58 @@ addr == 16'hd1 ? 16'hfc00 :  // <0096> "
 addr == 16'hd2 ? 16'hf808 :  // <0097> pop rtna // end_func
 addr == 16'hd3 ? 16'hfc00 :  // <0097> end_func
 
+// event loop.  this infrastructure is assembled directly into the main program, not a func.
+// first instruction of an event handler should be the 7th cycle after reading its priority from the event controller here.
+// :poll_events // = 0x00d4
+// initialize prior to polling loop, for minimum latency.
+addr == 16'hd4 ? 16'h07a0 :  // <0006> b = :event_table
+addr == 16'hd5 ? 16'h01a8 :  // <0006> "
+// 3-cycle polling loop.
+// :poll_events_again // = 0x00d6
+addr == 16'hd6 ? 16'h0009 :  // <0009> a = event_priority
+addr == 16'hd7 ? 16'he000 :  // <0010> br 0z :poll_events_again
+addr == 16'hd8 ? 16'h00d6 :  // <0010> "
+// acknowledge the event to clear its capture register.  do this right away,
+// so another occurrence of the same event can be captured right away in the controller.
+addr == 16'hd9 ? 16'h2400 :  // <0013> event_priority = a
+// compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
+addr == 16'hda ? 16'hd300 :  // <0015> fetch rtna from ad0
+addr == 16'hdb ? 16'hfbb0 :  // <0015> "
+// jump to the address given in the event_table.  each handler MUST end with a end_event.
+// each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
+// each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
+addr == 16'hdc ? 16'hfc00 :  // <0019> swapra = nop
+// just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
+addr == 16'hdd ? 16'h5ba0 :  // <0021> error_halt_code 0xffc0 // leds = 0xffc0
+addr == 16'hde ? 16'hffc0 :  // <0021> "
+addr == 16'hdf ? 16'he00f :  // <0021> error_halt_code 0xffc0
+addr == 16'he0 ? 16'h00df :  // <0021> "
+
+
 // pick a byte from an array of packed words in program space.  fetch & return it in a.
 // pass array base address in x, byte offset in a.
-// ######## func fetch_byte // = 0x00d4
-addr == 16'hd4 ? 16'h0601 :  // <0005> b = 1
-addr == 16'hd5 ? 16'he003 :  // <0006> br and0z :pick_byte_even
-addr == 16'hd6 ? 16'h00df :  // <0006> "
-addr == 16'hd7 ? 16'h0350 :  // <0007> a = a>>1
-addr == 16'hd8 ? 16'h0404 :  // <0008> b = x
-addr == 16'hd9 ? 16'hc800 :  // <0009> fetch a from a+b
-addr == 16'hda ? 16'hd300 :  // <0009> "
-addr == 16'hdb ? 16'h03b0 :  // <0009> "
-addr == 16'hdc ? 16'h0353 :  // <0010> a = a>>4
-addr == 16'hdd ? 16'h0353 :  // <0011> a = a>>4
-addr == 16'hde ? 16'hfc00 :  // <0012> rtn
-// :pick_byte_even // = 0x00df
-addr == 16'hdf ? 16'h0350 :  // <0014> a = a>>1
-addr == 16'he0 ? 16'h0404 :  // <0015> b = x
-addr == 16'he1 ? 16'hc800 :  // <0016> fetch a from a+b
-addr == 16'he2 ? 16'hd300 :  // <0016> "
-addr == 16'he3 ? 16'h03b0 :  // <0016> "
-addr == 16'he4 ? 16'h06ff :  // <0017> b = 0xff
-addr == 16'he5 ? 16'hc800 :  // <0018> a = and
-addr == 16'he6 ? 16'h0330 :  // <0018> "
-addr == 16'he7 ? 16'hfc00 :  // <0019> end_func
+// ######## func fetch_byte // = 0x00e1
+addr == 16'he1 ? 16'h0601 :  // <0005> b = 1
+addr == 16'he2 ? 16'he003 :  // <0006> br and0z :pick_byte_even
+addr == 16'he3 ? 16'h00ec :  // <0006> "
+addr == 16'he4 ? 16'h0350 :  // <0007> a = a>>1
+addr == 16'he5 ? 16'h0404 :  // <0008> b = x
+addr == 16'he6 ? 16'hc800 :  // <0009> fetch a from a+b
+addr == 16'he7 ? 16'hd300 :  // <0009> "
+addr == 16'he8 ? 16'h03b0 :  // <0009> "
+addr == 16'he9 ? 16'h0353 :  // <0010> a = a>>4
+addr == 16'hea ? 16'h0353 :  // <0011> a = a>>4
+addr == 16'heb ? 16'hfc00 :  // <0012> rtn
+// :pick_byte_even // = 0x00ec
+addr == 16'hec ? 16'h0350 :  // <0014> a = a>>1
+addr == 16'hed ? 16'h0404 :  // <0015> b = x
+addr == 16'hee ? 16'hc800 :  // <0016> fetch a from a+b
+addr == 16'hef ? 16'hd300 :  // <0016> "
+addr == 16'hf0 ? 16'h03b0 :  // <0016> "
+addr == 16'hf1 ? 16'h06ff :  // <0017> b = 0xff
+addr == 16'hf2 ? 16'hc800 :  // <0018> a = and
+addr == 16'hf3 ? 16'h0330 :  // <0018> "
+addr == 16'hf4 ? 16'hfc00 :  // <0019> end_func
 
 // find a byte in an array of packed words in program space.
 // pass data byte in a.
@@ -392,38 +420,38 @@ addr == 16'he7 ? 16'hfc00 :  // <0019> end_func
 // array length in i.
 // returns found index in a (or -1 if not found).
 // if the data byte occurs more than once, the final one's position is returned.
-// ######## func find_in_fetch // = 0x00e8
-addr == 16'he8 ? 16'h2002 :  // <0027> push i // func find_in_fetch
-addr == 16'he9 ? 16'h2003 :  // <0027> push j // "
-addr == 16'hea ? 16'h2005 :  // <0027> push y // "
-addr == 16'heb ? 16'h203e :  // <0027> push rtna // "
-addr == 16'hec ? 16'h1400 :  // <0028> y = a
-addr == 16'hed ? 16'h0f60 :  // <0029> j = -1
-// :again // = 0x00ee
-addr == 16'hee ? 16'he001 :  // <0031> br iz :fail
-addr == 16'hef ? 16'h00fe :  // <0031> "
-addr == 16'hf0 ? 16'h0b10 :  // <0032> i = ad1
-addr == 16'hf1 ? 16'h0002 :  // <0033> a = i
-addr == 16'hf2 ? 16'hfba0 :  // <0034> call :fetch_byte
-addr == 16'hf3 ? 16'h00d4 :  // <0034> "
-addr == 16'hf4 ? 16'hfc00 :  // <0034> "
-addr == 16'hf5 ? 16'h0405 :  // <0035> b = y
-addr == 16'hf6 ? 16'he407 :  // <0036> bn eq :again
-addr == 16'hf7 ? 16'h00ee :  // <0036> "
-// :found // = 0x00f8
-addr == 16'hf8 ? 16'h0002 :  // <0038> a = i
-addr == 16'hf9 ? 16'hf808 :  // <0039> pop rtna // rtn
-addr == 16'hfa ? 16'h1408 :  // <0039> pop y // "
-addr == 16'hfb ? 16'h0c08 :  // <0039> pop j // "
-addr == 16'hfc ? 16'h0808 :  // <0039> pop i // "
-addr == 16'hfd ? 16'hfc00 :  // <0039> rtn
-// :fail // = 0x00fe
-addr == 16'hfe ? 16'h0360 :  // <0041> a = -1
-addr == 16'hff ? 16'hf808 :  // <0042> pop rtna // end_func
-addr == 16'h100 ? 16'h1408 :  // <0042> pop y // "
-addr == 16'h101 ? 16'h0c08 :  // <0042> pop j // "
-addr == 16'h102 ? 16'h0808 :  // <0042> pop i // "
-addr == 16'h103 ? 16'hfc00 :  // <0042> end_func
+// ######## func find_in_fetch // = 0x00f5
+addr == 16'hf5 ? 16'h2002 :  // <0027> push i // func find_in_fetch
+addr == 16'hf6 ? 16'h2003 :  // <0027> push j // "
+addr == 16'hf7 ? 16'h2005 :  // <0027> push y // "
+addr == 16'hf8 ? 16'h203e :  // <0027> push rtna // "
+addr == 16'hf9 ? 16'h1400 :  // <0028> y = a
+addr == 16'hfa ? 16'h0f60 :  // <0029> j = -1
+// :again // = 0x00fb
+addr == 16'hfb ? 16'he001 :  // <0031> br iz :fail
+addr == 16'hfc ? 16'h010b :  // <0031> "
+addr == 16'hfd ? 16'h0b10 :  // <0032> i = ad1
+addr == 16'hfe ? 16'h0002 :  // <0033> a = i
+addr == 16'hff ? 16'hfba0 :  // <0034> call :fetch_byte
+addr == 16'h100 ? 16'h00e1 :  // <0034> "
+addr == 16'h101 ? 16'hfc00 :  // <0034> "
+addr == 16'h102 ? 16'h0405 :  // <0035> b = y
+addr == 16'h103 ? 16'he407 :  // <0036> bn eq :again
+addr == 16'h104 ? 16'h00fb :  // <0036> "
+// :found // = 0x0105
+addr == 16'h105 ? 16'h0002 :  // <0038> a = i
+addr == 16'h106 ? 16'hf808 :  // <0039> pop rtna // rtn
+addr == 16'h107 ? 16'h1408 :  // <0039> pop y // "
+addr == 16'h108 ? 16'h0c08 :  // <0039> pop j // "
+addr == 16'h109 ? 16'h0808 :  // <0039> pop i // "
+addr == 16'h10a ? 16'hfc00 :  // <0039> rtn
+// :fail // = 0x010b
+addr == 16'h10b ? 16'h0360 :  // <0041> a = -1
+addr == 16'h10c ? 16'hf808 :  // <0042> pop rtna // end_func
+addr == 16'h10d ? 16'h1408 :  // <0042> pop y // "
+addr == 16'h10e ? 16'h0c08 :  // <0042> pop j // "
+addr == 16'h10f ? 16'h0808 :  // <0042> pop i // "
+addr == 16'h110 ? 16'hfc00 :  // <0042> end_func
 
 
 
@@ -431,198 +459,170 @@ addr == 16'h103 ? 16'hfc00 :  // <0042> end_func
 // requires a console driver library to be included prior to including this.
 
 
-// :hexdigits // = 0x0104
+// :hexdigits // = 0x0111
 // "0123456789abcdef"
-addr == 16'h104 ? 16'h3130 :  // <0054> 10
-addr == 16'h105 ? 16'h3332 :  // <0054> 32
-addr == 16'h106 ? 16'h3534 :  // <0054> 54
-addr == 16'h107 ? 16'h3736 :  // <0054> 76
-addr == 16'h108 ? 16'h3938 :  // <0054> 98
-addr == 16'h109 ? 16'h6261 :  // <0054> ba
-addr == 16'h10a ? 16'h6463 :  // <0054> dc
-addr == 16'h10b ? 16'h6665 :  // <0054> fe
+addr == 16'h111 ? 16'h3130 :  // <0054> 10
+addr == 16'h112 ? 16'h3332 :  // <0054> 32
+addr == 16'h113 ? 16'h3534 :  // <0054> 54
+addr == 16'h114 ? 16'h3736 :  // <0054> 76
+addr == 16'h115 ? 16'h3938 :  // <0054> 98
+addr == 16'h116 ? 16'h6261 :  // <0054> ba
+addr == 16'h117 ? 16'h6463 :  // <0054> dc
+addr == 16'h118 ? 16'h6665 :  // <0054> fe
 
 // function to print a 16-bit number formatted as 4 hex digits.
 // pass number in a.
-// ######## func put4x // = 0x010c
-addr == 16'h10c ? 16'h2004 :  // <0058> push x // func put4x
-addr == 16'h10d ? 16'h2006 :  // <0058> push g6 // "
-addr == 16'h10e ? 16'h203e :  // <0058> push rtna // "
-addr == 16'h10f ? 16'h13a0 :  // <0059> x = :hexdigits
-addr == 16'h110 ? 16'h0104 :  // <0059> "
+// ######## func put4x // = 0x0119
+addr == 16'h119 ? 16'h2004 :  // <0058> push x // func put4x
+addr == 16'h11a ? 16'h2006 :  // <0058> push g6 // "
+addr == 16'h11b ? 16'h203e :  // <0058> push rtna // "
+addr == 16'h11c ? 16'h13a0 :  // <0059> x = :hexdigits
+addr == 16'h11d ? 16'h0111 :  // <0059> "
 
-addr == 16'h111 ? 16'h1800 :  // <0061> g6 = a
-addr == 16'h112 ? 16'h07a0 :  // <0062> b = 0xF000
-addr == 16'h113 ? 16'hf000 :  // <0062> "
-addr == 16'h114 ? 16'hc800 :  // <0063> a = and
-addr == 16'h115 ? 16'h0330 :  // <0063> "
-addr == 16'h116 ? 16'h0353 :  // <0064> a = a>>4
-addr == 16'h117 ? 16'h0353 :  // <0065> a = a>>4
-addr == 16'h118 ? 16'h0353 :  // <0066> a = a>>4
-addr == 16'h119 ? 16'hfba0 :  // <0067> call fetch_byte
-addr == 16'h11a ? 16'h00d4 :  // <0067> "
-addr == 16'h11b ? 16'hfc00 :  // <0067> "
-addr == 16'h11c ? 16'h0000 :  // <0068> a = a // putchar a
-addr == 16'h11d ? 16'hfba0 :  // <0068> putchar a
-addr == 16'h11e ? 16'h005f :  // <0068> "
-addr == 16'h11f ? 16'hfc00 :  // <0068> "
+addr == 16'h11e ? 16'h1800 :  // <0061> g6 = a
+addr == 16'h11f ? 16'h07a0 :  // <0062> b = 0xF000
+addr == 16'h120 ? 16'hf000 :  // <0062> "
+addr == 16'h121 ? 16'hc800 :  // <0063> a = and
+addr == 16'h122 ? 16'h0330 :  // <0063> "
+addr == 16'h123 ? 16'h0353 :  // <0064> a = a>>4
+addr == 16'h124 ? 16'h0353 :  // <0065> a = a>>4
+addr == 16'h125 ? 16'h0353 :  // <0066> a = a>>4
+addr == 16'h126 ? 16'hfba0 :  // <0067> call fetch_byte
+addr == 16'h127 ? 16'h00e1 :  // <0067> "
+addr == 16'h128 ? 16'hfc00 :  // <0067> "
+addr == 16'h129 ? 16'h0000 :  // <0068> a = a // putchar a
+addr == 16'h12a ? 16'hfba0 :  // <0068> putchar a
+addr == 16'h12b ? 16'h005f :  // <0068> "
+addr == 16'h12c ? 16'hfc00 :  // <0068> "
 
-addr == 16'h120 ? 16'h0006 :  // <0070> a = g6
-addr == 16'h121 ? 16'h07a0 :  // <0071> b = 0x0F00
-addr == 16'h122 ? 16'h0f00 :  // <0071> "
-addr == 16'h123 ? 16'hc800 :  // <0072> a = and
-addr == 16'h124 ? 16'h0330 :  // <0072> "
-addr == 16'h125 ? 16'h0353 :  // <0073> a = a>>4
-addr == 16'h126 ? 16'h0353 :  // <0074> a = a>>4
-addr == 16'h127 ? 16'hfba0 :  // <0075> call fetch_byte
-addr == 16'h128 ? 16'h00d4 :  // <0075> "
-addr == 16'h129 ? 16'hfc00 :  // <0075> "
-addr == 16'h12a ? 16'h0000 :  // <0076> a = a // putchar a
-addr == 16'h12b ? 16'hfba0 :  // <0076> putchar a
-addr == 16'h12c ? 16'h005f :  // <0076> "
-addr == 16'h12d ? 16'hfc00 :  // <0076> "
+addr == 16'h12d ? 16'h0006 :  // <0070> a = g6
+addr == 16'h12e ? 16'h07a0 :  // <0071> b = 0x0F00
+addr == 16'h12f ? 16'h0f00 :  // <0071> "
+addr == 16'h130 ? 16'hc800 :  // <0072> a = and
+addr == 16'h131 ? 16'h0330 :  // <0072> "
+addr == 16'h132 ? 16'h0353 :  // <0073> a = a>>4
+addr == 16'h133 ? 16'h0353 :  // <0074> a = a>>4
+addr == 16'h134 ? 16'hfba0 :  // <0075> call fetch_byte
+addr == 16'h135 ? 16'h00e1 :  // <0075> "
+addr == 16'h136 ? 16'hfc00 :  // <0075> "
+addr == 16'h137 ? 16'h0000 :  // <0076> a = a // putchar a
+addr == 16'h138 ? 16'hfba0 :  // <0076> putchar a
+addr == 16'h139 ? 16'h005f :  // <0076> "
+addr == 16'h13a ? 16'hfc00 :  // <0076> "
 
-addr == 16'h12e ? 16'h0006 :  // <0078> a = g6
-addr == 16'h12f ? 16'h06f0 :  // <0079> b = 0x00F0
-addr == 16'h130 ? 16'hc800 :  // <0080> a = and
-addr == 16'h131 ? 16'h0330 :  // <0080> "
-addr == 16'h132 ? 16'h0353 :  // <0081> a = a>>4
-addr == 16'h133 ? 16'hfba0 :  // <0082> call fetch_byte
-addr == 16'h134 ? 16'h00d4 :  // <0082> "
-addr == 16'h135 ? 16'hfc00 :  // <0082> "
-addr == 16'h136 ? 16'h0000 :  // <0083> a = a // putchar a
-addr == 16'h137 ? 16'hfba0 :  // <0083> putchar a
-addr == 16'h138 ? 16'h005f :  // <0083> "
-addr == 16'h139 ? 16'hfc00 :  // <0083> "
+addr == 16'h13b ? 16'h0006 :  // <0078> a = g6
+addr == 16'h13c ? 16'h06f0 :  // <0079> b = 0x00F0
+addr == 16'h13d ? 16'hc800 :  // <0080> a = and
+addr == 16'h13e ? 16'h0330 :  // <0080> "
+addr == 16'h13f ? 16'h0353 :  // <0081> a = a>>4
+addr == 16'h140 ? 16'hfba0 :  // <0082> call fetch_byte
+addr == 16'h141 ? 16'h00e1 :  // <0082> "
+addr == 16'h142 ? 16'hfc00 :  // <0082> "
+addr == 16'h143 ? 16'h0000 :  // <0083> a = a // putchar a
+addr == 16'h144 ? 16'hfba0 :  // <0083> putchar a
+addr == 16'h145 ? 16'h005f :  // <0083> "
+addr == 16'h146 ? 16'hfc00 :  // <0083> "
 
-addr == 16'h13a ? 16'h0006 :  // <0085> a = g6
-addr == 16'h13b ? 16'h060f :  // <0086> b = 0x000F
-addr == 16'h13c ? 16'hc800 :  // <0087> a = and
-addr == 16'h13d ? 16'h0330 :  // <0087> "
-addr == 16'h13e ? 16'hfba0 :  // <0088> call fetch_byte
-addr == 16'h13f ? 16'h00d4 :  // <0088> "
-addr == 16'h140 ? 16'hfc00 :  // <0088> "
-addr == 16'h141 ? 16'h0000 :  // <0089> a = a // putchar a
-addr == 16'h142 ? 16'hfba0 :  // <0089> putchar a
-addr == 16'h143 ? 16'h005f :  // <0089> "
-addr == 16'h144 ? 16'hfc00 :  // <0089> "
+addr == 16'h147 ? 16'h0006 :  // <0085> a = g6
+addr == 16'h148 ? 16'h060f :  // <0086> b = 0x000F
+addr == 16'h149 ? 16'hc800 :  // <0087> a = and
+addr == 16'h14a ? 16'h0330 :  // <0087> "
+addr == 16'h14b ? 16'hfba0 :  // <0088> call fetch_byte
+addr == 16'h14c ? 16'h00e1 :  // <0088> "
+addr == 16'h14d ? 16'hfc00 :  // <0088> "
+addr == 16'h14e ? 16'h0000 :  // <0089> a = a // putchar a
+addr == 16'h14f ? 16'hfba0 :  // <0089> putchar a
+addr == 16'h150 ? 16'h005f :  // <0089> "
+addr == 16'h151 ? 16'hfc00 :  // <0089> "
 
-addr == 16'h145 ? 16'hf808 :  // <0091> pop rtna // end_func
-addr == 16'h146 ? 16'h1808 :  // <0091> pop g6 // "
-addr == 16'h147 ? 16'h1008 :  // <0091> pop x // "
-addr == 16'h148 ? 16'hfc00 :  // <0091> end_func
+addr == 16'h152 ? 16'hf808 :  // <0091> pop rtna // end_func
+addr == 16'h153 ? 16'h1808 :  // <0091> pop g6 // "
+addr == 16'h154 ? 16'h1008 :  // <0091> pop x // "
+addr == 16'h155 ? 16'hfc00 :  // <0091> end_func
 
 // function to scan a 16-bit number formatted as 4 hex digits.
 // return number in a.  return 0 for success in b.
-// ######## func get4x // = 0x0149
-addr == 16'h149 ? 16'h2002 :  // <0095> push i // func get4x
-addr == 16'h14a ? 16'h2003 :  // <0095> push j // "
-addr == 16'h14b ? 16'h2004 :  // <0095> push x // "
-addr == 16'h14c ? 16'h2005 :  // <0095> push y // "
-addr == 16'h14d ? 16'h203e :  // <0095> push rtna // "
+// ######## func get4x // = 0x0156
+addr == 16'h156 ? 16'h2002 :  // <0095> push i // func get4x
+addr == 16'h157 ? 16'h2003 :  // <0095> push j // "
+addr == 16'h158 ? 16'h2004 :  // <0095> push x // "
+addr == 16'h159 ? 16'h2005 :  // <0095> push y // "
+addr == 16'h15a ? 16'h203e :  // <0095> push rtna // "
 // y = digit counter
 // j = sum
-addr == 16'h14e ? 16'h1604 :  // <0098> y = 4
-// :again // = 0x014f
-addr == 16'h14f ? 16'hfba0 :  // <0100> getchar
-addr == 16'h150 ? 16'h0068 :  // <0100> "
-addr == 16'h151 ? 16'hfc00 :  // <0100> "
-addr == 16'h152 ? 16'h2000 :  // <0100> push a // "
-addr == 16'h153 ? 16'h0000 :  // <0100> a = a // "
-addr == 16'h154 ? 16'hfba0 :  // <0100> "
-addr == 16'h155 ? 16'h005f :  // <0100> "
-addr == 16'h156 ? 16'hfc00 :  // <0100> "
-addr == 16'h157 ? 16'h0008 :  // <0100> pop a // "
-addr == 16'h158 ? 16'h13a0 :  // <0101> x = :hexdigits
-addr == 16'h159 ? 16'h0104 :  // <0101> "
-addr == 16'h15a ? 16'h0a10 :  // <0102> i = 16
-addr == 16'h15b ? 16'hfba0 :  // <0103> call :find_in_fetch
-addr == 16'h15c ? 16'h00e8 :  // <0103> "
-addr == 16'h15d ? 16'hfc00 :  // <0103> "
-addr == 16'h15e ? 16'h0760 :  // <0104> b = -1
-addr == 16'h15f ? 16'he007 :  // <0105> br eq :fail
-addr == 16'h160 ? 16'h0174 :  // <0105> "
-addr == 16'h161 ? 16'h0400 :  // <0106> b = a
-addr == 16'h162 ? 16'h0003 :  // <0107> a = j
-addr == 16'h163 ? 16'h0352 :  // <0108> a = a<<4
-addr == 16'h164 ? 16'hc800 :  // <0109> j = or
-addr == 16'h165 ? 16'h0f34 :  // <0109> "
-addr == 16'h166 ? 16'h1360 :  // <0110> x = -1
-addr == 16'h167 ? 16'hc800 :  // <0111> y = x+y
-addr == 16'h168 ? 16'h1720 :  // <0111> "
-addr == 16'h169 ? 16'h0005 :  // <0112> a = y
-addr == 16'h16a ? 16'he400 :  // <0113> bn az :again
-addr == 16'h16b ? 16'h014f :  // <0113> "
-addr == 16'h16c ? 16'h0003 :  // <0114> a = j
-addr == 16'h16d ? 16'h0600 :  // <0115> b = 0
-addr == 16'h16e ? 16'hf808 :  // <0116> pop rtna // rtn
-addr == 16'h16f ? 16'h1408 :  // <0116> pop y // "
-addr == 16'h170 ? 16'h1008 :  // <0116> pop x // "
-addr == 16'h171 ? 16'h0c08 :  // <0116> pop j // "
-addr == 16'h172 ? 16'h0808 :  // <0116> pop i // "
-addr == 16'h173 ? 16'hfc00 :  // <0116> rtn
-// :fail // = 0x0174
-addr == 16'h174 ? 16'h0760 :  // <0118> b = -1
-addr == 16'h175 ? 16'hf808 :  // <0119> pop rtna // end_func
-addr == 16'h176 ? 16'h1408 :  // <0119> pop y // "
-addr == 16'h177 ? 16'h1008 :  // <0119> pop x // "
-addr == 16'h178 ? 16'h0c08 :  // <0119> pop j // "
-addr == 16'h179 ? 16'h0808 :  // <0119> pop i // "
-addr == 16'h17a ? 16'hfc00 :  // <0119> end_func
+addr == 16'h15b ? 16'h1604 :  // <0098> y = 4
+// :again // = 0x015c
+addr == 16'h15c ? 16'hfba0 :  // <0100> getchar
+addr == 16'h15d ? 16'h0068 :  // <0100> "
+addr == 16'h15e ? 16'hfc00 :  // <0100> "
+addr == 16'h15f ? 16'h2000 :  // <0100> push a // "
+addr == 16'h160 ? 16'h0000 :  // <0100> a = a // "
+addr == 16'h161 ? 16'hfba0 :  // <0100> "
+addr == 16'h162 ? 16'h005f :  // <0100> "
+addr == 16'h163 ? 16'hfc00 :  // <0100> "
+addr == 16'h164 ? 16'h0008 :  // <0100> pop a // "
+addr == 16'h165 ? 16'h13a0 :  // <0101> x = :hexdigits
+addr == 16'h166 ? 16'h0111 :  // <0101> "
+addr == 16'h167 ? 16'h0a10 :  // <0102> i = 16
+addr == 16'h168 ? 16'hfba0 :  // <0103> call :find_in_fetch
+addr == 16'h169 ? 16'h00f5 :  // <0103> "
+addr == 16'h16a ? 16'hfc00 :  // <0103> "
+addr == 16'h16b ? 16'h0760 :  // <0104> b = -1
+addr == 16'h16c ? 16'he007 :  // <0105> br eq :fail
+addr == 16'h16d ? 16'h0181 :  // <0105> "
+addr == 16'h16e ? 16'h0400 :  // <0106> b = a
+addr == 16'h16f ? 16'h0003 :  // <0107> a = j
+addr == 16'h170 ? 16'h0352 :  // <0108> a = a<<4
+addr == 16'h171 ? 16'hc800 :  // <0109> j = or
+addr == 16'h172 ? 16'h0f34 :  // <0109> "
+addr == 16'h173 ? 16'h1360 :  // <0110> x = -1
+addr == 16'h174 ? 16'hc800 :  // <0111> y = x+y
+addr == 16'h175 ? 16'h1720 :  // <0111> "
+addr == 16'h176 ? 16'h0005 :  // <0112> a = y
+addr == 16'h177 ? 16'he400 :  // <0113> bn az :again
+addr == 16'h178 ? 16'h015c :  // <0113> "
+addr == 16'h179 ? 16'h0003 :  // <0114> a = j
+addr == 16'h17a ? 16'h0600 :  // <0115> b = 0
+addr == 16'h17b ? 16'hf808 :  // <0116> pop rtna // rtn
+addr == 16'h17c ? 16'h1408 :  // <0116> pop y // "
+addr == 16'h17d ? 16'h1008 :  // <0116> pop x // "
+addr == 16'h17e ? 16'h0c08 :  // <0116> pop j // "
+addr == 16'h17f ? 16'h0808 :  // <0116> pop i // "
+addr == 16'h180 ? 16'hfc00 :  // <0116> rtn
+// :fail // = 0x0181
+addr == 16'h181 ? 16'h0760 :  // <0118> b = -1
+addr == 16'h182 ? 16'hf808 :  // <0119> pop rtna // end_func
+addr == 16'h183 ? 16'h1408 :  // <0119> pop y // "
+addr == 16'h184 ? 16'h1008 :  // <0119> pop x // "
+addr == 16'h185 ? 16'h0c08 :  // <0119> pop j // "
+addr == 16'h186 ? 16'h0808 :  // <0119> pop i // "
+addr == 16'h187 ? 16'hfc00 :  // <0119> end_func
 
 // routine waits a number of milliseconds given in a.
-// ######## func spinwait // = 0x017b
-addr == 16'h17b ? 16'h2004 :  // <0002> push x // func spinwait
-addr == 16'h17c ? 16'h2005 :  // <0002> push y // "
+// ######## func spinwait // = 0x0188
+addr == 16'h188 ? 16'h2004 :  // <0002> push x // func spinwait
+addr == 16'h189 ? 16'h2005 :  // <0002> push y // "
 //patch
 //rtn
-addr == 16'h17d ? 16'h0760 :  // <0005> b = -1
-// :spinwait_outer // = 0x017e
-addr == 16'h17e ? 16'h13a0 :  // <0007> x = 16666
-addr == 16'h17f ? 16'h411a :  // <0007> "
-addr == 16'h180 ? 16'h1760 :  // <0008> y = -1
-addr == 16'h181 ? 16'hc800 :  // <0009> nop
-// :spinwait_inner // = 0x0182
+addr == 16'h18a ? 16'h0760 :  // <0005> b = -1
+// :spinwait_outer // = 0x018b
+addr == 16'h18b ? 16'h13a0 :  // <0007> x = 16666
+addr == 16'h18c ? 16'h411a :  // <0007> "
+addr == 16'h18d ? 16'h1760 :  // <0008> y = -1
+addr == 16'h18e ? 16'hc800 :  // <0009> nop
+// :spinwait_inner // = 0x018f
 // use of the ad2 name overrides auto-nop here.
-addr == 16'h182 ? 16'h1320 :  // <0012> x = ad2
-addr == 16'h183 ? 16'he402 :  // <0013> bn xz :spinwait_inner
-addr == 16'h184 ? 16'h0182 :  // <0013> "
-addr == 16'h185 ? 16'hc800 :  // <0014> a = a+b
-addr == 16'h186 ? 16'h0300 :  // <0014> "
-addr == 16'h187 ? 16'he400 :  // <0015> bn az :spinwait_outer
-addr == 16'h188 ? 16'h017e :  // <0015> "
-addr == 16'h189 ? 16'h1408 :  // <0016> pop y // end_func
-addr == 16'h18a ? 16'h1008 :  // <0016> pop x // "
-addr == 16'h18b ? 16'hfc00 :  // <0016> end_func
+addr == 16'h18f ? 16'h1320 :  // <0012> x = ad2
+addr == 16'h190 ? 16'he402 :  // <0013> bn xz :spinwait_inner
+addr == 16'h191 ? 16'h018f :  // <0013> "
+addr == 16'h192 ? 16'hc800 :  // <0014> a = a+b
+addr == 16'h193 ? 16'h0300 :  // <0014> "
+addr == 16'h194 ? 16'he400 :  // <0015> bn az :spinwait_outer
+addr == 16'h195 ? 16'h018b :  // <0015> "
+addr == 16'h196 ? 16'h1408 :  // <0016> pop y // end_func
+addr == 16'h197 ? 16'h1008 :  // <0016> pop x // "
+addr == 16'h198 ? 16'hfc00 :  // <0016> end_func
 
-
-
-// event loop.  this infrastructure is assembled directly into the main program, not a func.
-// first instruction of an event handler should be the 7th cycle after reading its priority from the event controller here.
-// :poll_events // = 0x018c
-// initialize prior to polling loop, for minimum latency.
-addr == 16'h18c ? 16'h07a0 :  // <0006> b = :event_table
-addr == 16'h18d ? 16'h01a8 :  // <0006> "
-// 3-cycle polling loop.
-// :poll_events_again // = 0x018e
-addr == 16'h18e ? 16'h0009 :  // <0009> a = event_priority
-addr == 16'h18f ? 16'he000 :  // <0010> br 0z :poll_events_again
-addr == 16'h190 ? 16'h018e :  // <0010> "
-// acknowledge the event to clear its capture register.  do this right away,
-// so another occurrence of the same event can be captured right away in the controller.
-addr == 16'h191 ? 16'h2400 :  // <0013> event_priority = a
-// compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
-addr == 16'h192 ? 16'hd300 :  // <0015> fetch rtna from ad0
-addr == 16'h193 ? 16'hfbb0 :  // <0015> "
-// jump to the address given in the event_table.  each handler MUST end with a end_event.
-// each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
-// each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
-addr == 16'h194 ? 16'hfc00 :  // <0019> swapra = nop
-// just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
-addr == 16'h195 ? 16'h5ba0 :  // <0021> error_halt_code 0xffc0 // leds = 0xffc0
-addr == 16'h196 ? 16'hffc0 :  // <0021> "
-addr == 16'h197 ? 16'he00f :  // <0021> error_halt_code 0xffc0
-addr == 16'h198 ? 16'h0197 :  // <0021> "
 
 
 // #########################################################################
@@ -656,12 +656,12 @@ addr == 16'h1a3 ? 16'h2a00 :  // <0147> soft_event = 0
 addr == 16'h1a4 ? 16'h33a0 :  // <0148> mstimer0 = 1000
 addr == 16'h1a5 ? 16'h03e8 :  // <0148> "
 addr == 16'h1a6 ? 16'he00f :  // <0149> jmp :poll_events
-addr == 16'h1a7 ? 16'h018c :  // <0149> "
+addr == 16'h1a7 ? 16'h00d4 :  // <0149> "
 
 // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.
 // event 0 not used in this app anyway.
 // :event_table // = 0x01a8
-addr == 16'h1a8 ? 16'h018c :  // <0154> ([label :poll_events])
+addr == 16'h1a8 ? 16'h00d4 :  // <0154> ([label :poll_events])
 addr == 16'h1a9 ? 16'h01b5 :  // <0155> ([label :uart_rx_handler])
 addr == 16'h1aa ? 16'h01b7 :  // <0156> ([label :uart_rx_overflow_handler])
 addr == 16'h1ab ? 16'h01bd :  // <0157> ([label :uart_tx_overflow_handler])
@@ -680,7 +680,7 @@ addr == 16'h1b4 ? 16'h0236 :  // <0166> ([label :softevent0_handler])
 // ######## event uart_rx_handler // = 0x01b5
 // handle data here
 addr == 16'h1b5 ? 16'he00f :  // <0172> end_event
-addr == 16'h1b6 ? 16'h018c :  // <0172> "
+addr == 16'h1b6 ? 16'h00d4 :  // <0172> "
 
 // ######## event uart_rx_overflow_handler // = 0x01b7
 addr == 16'h1b7 ? 16'h5ba0 :  // <0175> error_halt_code $err_rx_overflow // leds = 0xfffe
@@ -688,7 +688,7 @@ addr == 16'h1b8 ? 16'hfffe :  // <0175> "
 addr == 16'h1b9 ? 16'he00f :  // <0175> error_halt_code $err_rx_overflow
 addr == 16'h1ba ? 16'h01b9 :  // <0175> "
 addr == 16'h1bb ? 16'he00f :  // <0176> end_event
-addr == 16'h1bc ? 16'h018c :  // <0176> "
+addr == 16'h1bc ? 16'h00d4 :  // <0176> "
 
 // ######## event uart_tx_overflow_handler // = 0x01bd
 addr == 16'h1bd ? 16'h5ba0 :  // <0179> error_halt_code $err_tx_overflow // leds = 0xfffd
@@ -696,11 +696,11 @@ addr == 16'h1be ? 16'hfffd :  // <0179> "
 addr == 16'h1bf ? 16'he00f :  // <0179> error_halt_code $err_tx_overflow
 addr == 16'h1c0 ? 16'h01bf :  // <0179> "
 addr == 16'h1c1 ? 16'he00f :  // <0180> end_event
-addr == 16'h1c2 ? 16'h018c :  // <0180> "
+addr == 16'h1c2 ? 16'h00d4 :  // <0180> "
 
 // ######## event ustimer0_handler // = 0x01c3
 addr == 16'h1c3 ? 16'he00f :  // <0183> end_event
-addr == 16'h1c4 ? 16'h018c :  // <0183> "
+addr == 16'h1c4 ? 16'h00d4 :  // <0183> "
 
 // ######## event mstimer0_handler // = 0x01c5
 // start timer again.
@@ -719,7 +719,7 @@ addr == 16'h1ce ? 16'h5800 :  // <0194> leds = a
 addr == 16'h1cf ? 16'h4a00 :  // <0195> ram_write_lo $ram_daq_pass_cnt = a // av_ad_lo = 0x00000000
 addr == 16'h1d0 ? 16'h3c00 :  // <0195> ram_write_lo $ram_daq_pass_cnt = a // av_write_data = a
 addr == 16'h1d1 ? 16'hfba0 :  // <0196> call :put4x
-addr == 16'h1d2 ? 16'h010c :  // <0196> "
+addr == 16'h1d2 ? 16'h0119 :  // <0196> "
 addr == 16'h1d3 ? 16'hfc00 :  // <0196> "
 addr == 16'h1d4 ? 16'h023a :  // <0197> a = 58 // putasc ":"
 addr == 16'h1d5 ? 16'h0000 :  // <0197> a = a // putasc ":"
@@ -734,7 +734,7 @@ addr == 16'h1db ? 16'h00bc :  // <0201> "
 addr == 16'h1dc ? 16'hfc00 :  // <0201> "
 addr == 16'h1dd ? 16'h3605 :  // <0202> mstimer1 = 5
 addr == 16'h1de ? 16'he00f :  // <0203> end_event
-addr == 16'h1df ? 16'h018c :  // <0203> "
+addr == 16'h1df ? 16'h00d4 :  // <0203> "
 
 // ######## event mstimer1_handler // = 0x01e0
 // report a reading from the current anmux channel.
@@ -766,7 +766,7 @@ addr == 16'h1f8 ? 16'hfba0 :  // <0213> call :anmux_convert
 addr == 16'h1f9 ? 16'h00c5 :  // <0213> "
 addr == 16'h1fa ? 16'hfc00 :  // <0213> "
 addr == 16'h1fb ? 16'hfba0 :  // <0214> call :put4x
-addr == 16'h1fc ? 16'h010c :  // <0214> "
+addr == 16'h1fc ? 16'h0119 :  // <0214> "
 addr == 16'h1fd ? 16'hfc00 :  // <0214> "
 
 // decrement anmux channel & start waiting again.
@@ -783,7 +783,7 @@ addr == 16'h207 ? 16'h00bc :  // <0221> "
 addr == 16'h208 ? 16'hfc00 :  // <0221> "
 addr == 16'h209 ? 16'h3605 :  // <0222> mstimer1 = 5
 addr == 16'h20a ? 16'he00f :  // <0223> event_return
-addr == 16'h20b ? 16'h018c :  // <0223> "
+addr == 16'h20b ? 16'h00d4 :  // <0223> "
 
 // end of daq pass.
 // :all_done // = 0x020c
@@ -798,7 +798,7 @@ addr == 16'h213 ? 16'hfba0 :  // <0227> puteol
 addr == 16'h214 ? 16'h005f :  // <0227> "
 addr == 16'h215 ? 16'hfc00 :  // <0227> "
 addr == 16'h216 ? 16'he00f :  // <0228> end_event
-addr == 16'h217 ? 16'h018c :  // <0228> "
+addr == 16'h217 ? 16'h00d4 :  // <0228> "
 
 // ######## event key0_handler // = 0x0218
 addr == 16'h218 ? 16'h026b :  // <0231> a = 107 // putasc "k"
@@ -812,7 +812,7 @@ addr == 16'h21f ? 16'hfba0 :  // <0232> putasc "0"
 addr == 16'h220 ? 16'h005f :  // <0232> "
 addr == 16'h221 ? 16'hfc00 :  // <0232> "
 addr == 16'h222 ? 16'he00f :  // <0233> end_event
-addr == 16'h223 ? 16'h018c :  // <0233> "
+addr == 16'h223 ? 16'h00d4 :  // <0233> "
 
 // ######## event key1_handler // = 0x0224
 addr == 16'h224 ? 16'h026b :  // <0236> a = 107 // putasc "k"
@@ -826,23 +826,23 @@ addr == 16'h22b ? 16'hfba0 :  // <0237> putasc "1"
 addr == 16'h22c ? 16'h005f :  // <0237> "
 addr == 16'h22d ? 16'hfc00 :  // <0237> "
 addr == 16'h22e ? 16'he00f :  // <0238> end_event
-addr == 16'h22f ? 16'h018c :  // <0238> "
+addr == 16'h22f ? 16'h00d4 :  // <0238> "
 
 // ######## event softevent3_handler // = 0x0230
 addr == 16'h230 ? 16'he00f :  // <0241> end_event
-addr == 16'h231 ? 16'h018c :  // <0241> "
+addr == 16'h231 ? 16'h00d4 :  // <0241> "
 
 // ######## event softevent2_handler // = 0x0232
 addr == 16'h232 ? 16'he00f :  // <0244> end_event
-addr == 16'h233 ? 16'h018c :  // <0244> "
+addr == 16'h233 ? 16'h00d4 :  // <0244> "
 
 // ######## event softevent1_handler // = 0x0234
 addr == 16'h234 ? 16'he00f :  // <0247> end_event
-addr == 16'h235 ? 16'h018c :  // <0247> "
+addr == 16'h235 ? 16'h00d4 :  // <0247> "
 
 // ######## event softevent0_handler // = 0x0236
 addr == 16'h236 ? 16'he00f :  // <0250> end_event
-addr == 16'h237 ? 16'h018c :  // <0250> "
+addr == 16'h237 ? 16'h00d4 :  // <0250> "
 
 
         
