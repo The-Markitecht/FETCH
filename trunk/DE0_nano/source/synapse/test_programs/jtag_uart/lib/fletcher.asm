@@ -4,7 +4,7 @@
 func fletcher16_init
     $fletcher_sum1_reg = 0
     $fletcher_sum2_reg = 0
-    rtn
+end_func
     
 // compute the modulus(255) of a number given in a.  return remainder in a.
 func mod255
@@ -17,7 +17,7 @@ func mod255
     b = 0xff01
     a = a+b
     jmp :mod255_again
-    rtn
+end_func
 
 // accumulate a Fletcher16 checksum, given the next byte of data in a.    
 func fletcher16_input8
@@ -30,7 +30,7 @@ func fletcher16_input8
     a = a+b
     call :mod255
     $fletcher_sum2_reg = a
-    rtn
+end_func
 
 // accumulate a Fletcher16 checksum, given the next word of data in a.    
 func fletcher16_input16
@@ -41,7 +41,7 @@ func fletcher16_input16
     a = i
     a = a>>4
     call :fletcher16_input8
-    rtn
+end_func
 
 // return the combined 16-bit result of Fletcher16 checksum in a.    
 func fletcher16_result
@@ -50,6 +50,6 @@ func fletcher16_result
     a = a<<4
     b = $fletcher_sum1_reg
     a = or
-    rtn
+end_func
     
     stackable  $fletcher_sum1_reg  $fletcher_sum2_reg

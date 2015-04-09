@@ -53,7 +53,7 @@ func spi_exchange
     x = x+y
     bn xz :wait3
     a = g7
-    rtn
+end_func
 
 // pass desired ADC channel in a.
 // returns ADC reading in a.
@@ -65,7 +65,7 @@ func de0nano_adc_read
     a = a<<1
     b = 16
     call :spi_exchange
-    rtn
+end_func
     
 // pass desired anmux channel in a.
 // return ADC reading in a.
@@ -80,4 +80,4 @@ func anmux_read_chn
     // read ADC channel 7.  12 bits resolution.
     a = 7
     call :de0nano_adc_read
-    rtn    
+end_func

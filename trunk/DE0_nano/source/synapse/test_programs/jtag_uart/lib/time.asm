@@ -13,5 +13,5 @@ func spinwait
     bn xz :spinwait_inner
     a = a+b
     bn az :spinwait_outer    
-    rtn
+end_func
         

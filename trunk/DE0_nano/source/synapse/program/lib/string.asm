@@ -16,7 +16,7 @@ func fetch_byte
     fetch a from a+b
     b = 0xff
     a = and
-    rtn
+end_func
 
 // find a byte in an array of packed words in program space. 
 // pass data byte in a.
@@ -39,5 +39,5 @@ func find_in_fetch
     rtn
     :fail
     a = -1
-    rtn
+end_func
     

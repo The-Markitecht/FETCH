@@ -14,11 +14,15 @@
     setvar counter $TOP_GP    
     alias_both rstk                 [incr counter] 
     alias_both event_priority       [incr counter]
-
     alias_both soft_event           [incr counter] 
+        vdefine     event_controller_reset_bit   15
+        vdefine     event_controller_reset_mask  (1 << $event_controller_reset_bit)
 
     alias_both ustimer0             [incr counter]
     alias_both mstimer0             [incr counter]
+        // throttle for each pass of data acquisition.
+    alias_both mstimer1             [incr counter]
+        // delay for anmux settling.
     
     alias_both de0nano_adc_ctrl     [incr counter] 
         vdefine     de0nano_adc_csn_mask         0x0004
@@ -37,27 +41,46 @@
         // - all addresses are BYTE addresses.  all must be divisible by 2, because this
         // system only supports 16-bit word accesses.  writes to an odd-numbered address
         // will be forced to the word boundary instead, overwriting data there.
+        // - any read involves about 7 wait states, occasionally up to 12.  (those are
+        // code_ready stalled cycles induced by Altera SDRAM controller through my Avalon-MM master.
+        // plus time to e.g. set Avalon addres regs.  measured by scope with 50 MHz synapse sysclk on DE0 Nano).  
+        // - evidently no time difference between same-row and other-row reads (SDRAM row=512 words).  
+        // - evidently no time difference between first read and sequential burst-read.
+        // - any write seems to take about 1 wait state, but is likely to be completing in the 
+        // background while the MCU moves on.  accessing again within 5 cycles or so may
+        // cause wait states there until SDRAM controller is ready for it.
+        // - apparently Altera's claims of SDRAM controller approaching 1 word per clock cycle must be
+        // using e.g. Avalon burst transfers or Avalon-ST.  don't think my Avalon-MM master can go that fast.
 
     alias_both fduart_data          [incr counter] 
     alias_both fduart_status        [incr counter] 
     
-    // I/O expansion bus.
-    alias_both exp                  [incr counter]
-    alias_both exp_addr             [incr counter]
-    vdefine EXP_NUM_REGS 32
-    vdefine EXP_TOP_REG ($EXP_NUM_REGS - 1)
-    setvar exp_counter -1
+    // // I/O expansion bus.
+    // alias_both exp                  [incr counter]
+    // alias_both exp_addr             [incr counter]
+    // vdefine exp_num_regs 32
+    // vdefine exp_top_reg ($exp_num_regs - 1)
+    // setvar exp_counter -1
 
-    alias_src  keys                 [incr exp_counter]@exp
-    alias_both leds                 [incr exp_counter]@exp
+    // alias_src  keys                 [incr exp_counter]@exp
+    // alias_both leds                 [incr exp_counter]@exp
     
-    alias_both anmux_ctrl           [incr exp_counter]@exp
-        vdefine     anmux_enable_mask       0x0008
-        
-    setvar ERR_RX_OVERFLOW 0xfffe
-    setvar ERR_TX_OVERFLOW 0xfffd
+    // alias_both anmux_ctrl           [incr exp_counter]@exp
+        // vdefine     anmux_enable_mask       0x0008
+        // vdefine     anmux_channel_mask      0x0007
 
-    convention_gpx
+    alias_src  keys                 [incr counter]
+    alias_both leds                 [incr counter]
+    
+    alias_both anmux_ctrl           [incr counter]
+        vdefine     anmux_enable_mask       0x0008
+        vdefine     anmux_channel_mask      0x0007
+
+    setvar ram_counter $sdram_base
+    ram_define ram_daq_pass_cnt     2
+        
+    setvar err_rx_overflow 0xfffe
+    setvar err_tx_overflow 0xfffd
     
     jmp :main
     
@@ -76,9 +99,10 @@
     "softevnt"
     "ustimer0"
     "mstimer0"
+    "mstimer1"
     "//adcctl"
-    "av_wr_dt"
-    "//avrddt"
+    "//avwrdt"
+    "av_rd_dt"
     "av_ad_hi"
     "av_ad_lo"
     "//uartdt"
@@ -86,58 +110,44 @@
     "exp_data"
     "exp_addr"
     
-    // libraries
+    // libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
+    convention_gpx
     include ../peripheral/driver/fduart.asm
     include ../peripheral/driver/de0nano_adc.asm
     include lib/string.asm
     include lib/console.asm
     include lib/time.asm
-    
+    include lib/events.asm
+
     // #########################################################################
     :main
     
-    mstimer0 = 1000
-
+// soft_event = $event_controller_reset_mask
+// soft_event = 0
+// mstimer0 = 1000
+// :waiting
+// a = event_priority
+// br az :waiting
+// event_priority = a
+// putasc "."    
+// jmp :main
+    
+    // clear the first 64k of RAM.
+    av_ad_hi = 0
+    a = 0
+    b = 2
+    :clear_next_word
+    av_ad_lo = a
+    av_write_data = 0
+    a = ad0
+    bn az :clear_next_word
+    
+    // start handling events.
+    soft_event = $event_controller_reset_mask
     soft_event = 0
-    event_priority = 0
-    event_priority = 1
-    event_priority = 2
-    event_priority = 3
-    event_priority = 4
-    event_priority = 5
-    event_priority = 6
-    event_priority = 7
-    event_priority = 8
-    event_priority = 9
-    event_priority = 10
-    event_priority = 11
-    event_priority = 12
-    event_priority = 13
-    event_priority = 14
-    event_priority = 15
-    
-    // event loop.
-    // first instruction of an event handler should be the 7th cycle after reading its priority from the event controller.
-    :poll_events
-    // initialize prior to polling loop, for minimum latency.
-    b = :event_table
-    // 3-cycle polling loop.
-    :poll_events_again
-    a = event_priority
-    br 0z :poll_events_again
-    // acknowledge the event to clear its capture register.  do this right away, 
-    // so another occurrence of the same event can be captured right away in the controller.
-    event_priority = a
-    // compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
-    fetch rtna from ad0
-    // jump to the address given in the event_table.  each handler MUST end with a end_event.
-    // each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
-    // each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
-    swapra = nop    
-    // just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
-    :error_halt
-    jmp :error_halt
-    
+    mstimer0 = 1000
+    jmp :poll_events
+        
     // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.  
     // event 0 not used in this app anyway.
     :event_table    
@@ -147,6 +157,7 @@
     ([label :uart_tx_overflow_handler])
     ([label :ustimer0_handler])
     ([label :mstimer0_handler])
+    ([label :mstimer1_handler])
     ([label :key0_handler])
     ([label :key1_handler])
     ([label :softevent3_handler])
@@ -154,20 +165,18 @@
     ([label :softevent1_handler])
     ([label :softevent0_handler])
     
-// #########################################################################
+    // #########################################################################
 
 event uart_rx_handler
     // handle data here
 end_event
     
 event uart_rx_overflow_handler
-    leds = $ERR_RX_OVERFLOW
-    jmp :error_halt
+    error_halt_code $err_rx_overflow
 end_event
     
 event uart_tx_overflow_handler
-    leds = $ERR_TX_OVERFLOW
-    jmp :error_halt
+    error_halt_code $err_tx_overflow
 end_event
     
 event ustimer0_handler
@@ -177,31 +186,44 @@ event mstimer0_handler
     // start timer again.
     mstimer0 = 1000
     
-    // pass counter in leds.  
-    a = leds
+    // daq pass counter in RAM.  
+    av_ad_hi = 0
+    ram_read_lo a = $ram_daq_pass_cnt
     b = 1
     a = a+b
     leds = a
+    ram_write_lo $ram_daq_pass_cnt = a
     call :put4x 
     putasc ":"
     
     // acquire & report all anmux channels.
-    // anmux channel number in i.
-    i = 8
-    j = -1
-    
-    :next_anmux
-    i = i+j
+    a = 7
+    call :anmux_set_chn
+    mstimer1 = 5
+end_event
+
+event mstimer1_handler    
+    // report a reading from the current anmux channel.
     putasc " "
     putasc "s"
-    b = i
-    asc a = "0"
+    call :anmux_get_chn
+    asc b = "0"
     putchar a+b
     putasc "="
-    a = i
-    call :anmux_read_chn
+    call :anmux_convert
     call :put4x
-    bn iz :next_anmux    
+    
+    // decrement anmux channel & start waiting again.
+    call :anmux_get_chn
+    br az :all_done
+    b = -1
+    a = a+b
+    call :anmux_set_chn
+    mstimer1 = 5
+    event_return
+    
+    // end of daq pass.
+    :all_done
     puteol    
 end_event
     

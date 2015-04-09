@@ -86,18 +86,6 @@ namespace eval ::asm {
         namespace eval ::asm [list set $varname $value]
     }
 
-    # event handling macros.
-    proc event {lin label} {
-        # this is declared similar to a func, but is not a func.
-        set label [string trim $label {: }]
-        dict set ::labels $label $::ipr
-        emit "// $lin // = 0x[format %04x $::ipr]"
-    }    
-    
-    proc end_event {lin} {
-        jmp $lin :poll_events
-    }
-    
     # subroutine macros.
     proc call {lin label} {
         uses_reg rtna
@@ -112,12 +100,13 @@ namespace eval ::asm {
     }
 
     proc func {lin label} {
+        verify_func_closure
         set label [string trim $label {: }]
     #    if {[dict exists $::labels $label]} {
     #        error "redefined label: $label"
     #    }
         dict set ::labels $label $::ipr
-        emit "// $lin // = 0x[format %04x $::ipr]"
+        emit_comment "// ######## $lin // = 0x[format %04x $::ipr]"
         set ::func $label
         if { $::asm_pass == $::pass(func) } {
             dict set ::func_regs $label [list]
@@ -125,6 +114,17 @@ namespace eval ::asm {
         auto_push $lin
     }
 
+    proc end_func {lin} {
+        rtn $lin
+        set ::func {}
+    }
+    
+    proc verify_func_closure {} {
+        if {[string length $::func] > 0} {
+            error "expected end_func"
+        }
+    }
+    
     proc push {lin reg} {
         parse3 rstk = $reg "push $reg // $lin"
     }
@@ -250,10 +250,12 @@ namespace eval ::asm {
         set ::func {}
         set parent_lnum $::lnum
         set ::lnum 0
+        start_file_handler
         foreach lin $asm_lines {
             incr ::lnum
             parse_line $lin
         }
+        end_file_handler
         cd $parent_dir
         set ::ml_state {}
         set ::multi_line {}
@@ -261,4 +263,11 @@ namespace eval ::asm {
         set ::lnum $parent_lnum
     }
 
+    proc start_file_handler {} {
+    }
+
+    proc end_file_handler {} {
+        verify_func_closure
+    }
+    
 }

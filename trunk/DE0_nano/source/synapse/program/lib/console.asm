@@ -88,7 +88,7 @@ func put4x
     call fetch_byte
     putchar a
     
-    rtn
+end_func
     
 // function to scan a 16-bit number formatted as 4 hex digits.
 // return number in a.  return 0 for success in b.
@@ -116,4 +116,4 @@ func get4x
     rtn
     :fail
     b = -1
-    rtn
+end_func

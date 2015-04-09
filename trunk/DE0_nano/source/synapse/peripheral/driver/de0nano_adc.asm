@@ -53,7 +53,7 @@ func spi_exchange
     x = x+y
     bn xz :wait3
     a = g7
-    rtn
+end_func
 
 // pass desired ADC channel in a.
 // returns ADC reading in a.
@@ -65,20 +65,28 @@ func de0nano_adc_read
     a = a<<1
     b = 16
     call :spi_exchange
-    rtn
+end_func
     
 // pass desired anmux channel in a.
-// return ADC reading in a.
-func anmux_read_chn
+// after this returns, CALLER MUST WAIT for muxer & current driver to 
+// settle down.  some delay for that is absolutely required (per testing).
+// 5 ms wait works well 2015/04.
+func anmux_set_chn
     // set & enable analog muxer
     b = $anmux_enable_mask
     anmux_ctrl = or
-    // wait for muxer & current driver to settle down.  some delay here is absolutely required (per testing).
-    a = 5
-    call :spinwait
+end_func
 
+func anmux_get_chn
+    a = anmux_ctrl
+    b = $anmux_channel_mask
+    a = and
+end_func
+    
+// return ADC reading in a.  this assumes anmux_set_chn was called some time ago.
+func anmux_convert
     // read ADC channel 7.  12 bits resolution.
-    // must do this 3 times to get the ADC's input path to settle down, probably because
+    // must do this 3 times to get the ADC's input path to settle down, especially if
     // i'm driving it with high impedance & no buffer.
     a = 7
     call :de0nano_adc_read
@@ -86,4 +94,4 @@ func anmux_read_chn
     call :de0nano_adc_read
     a = 7
     call :de0nano_adc_read
-    rtn    
+end_func

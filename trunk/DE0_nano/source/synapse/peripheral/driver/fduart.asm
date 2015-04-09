@@ -53,7 +53,7 @@ func putchar_fduart
     
     // push word to the UART.  its low byte is a character.
     fduart_data = x
-    rtn
+end_func
     
 // routine receives a byte from the UART.  blocks until the UART receives the byte.  
 // returns it in the low byte of a.
@@ -64,7 +64,7 @@ func getchar_fduart
     b = fduart_status
     bn and0z :wait_for_busy
     a = fduart_data
-    rtn
+end_func
 
 // returns a character in a, or -1 if none.
 func pollchar_fduart
@@ -76,6 +76,6 @@ func pollchar_fduart
     rtn
     :none
     a = -1
-    rtn
+end_func
 
     

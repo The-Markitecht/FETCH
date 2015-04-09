@@ -56,7 +56,7 @@ func putchar_atx
     b = atx_ctrl
     br and0z :pcatx_wait_for_busy
     atx_ctrl = 0 
-    rtn
+end_func
     
 // routine receives a byte from the UART.  blocks until the UART receives the byte.  
 // returns it in the low byte of a.
@@ -70,7 +70,7 @@ func getchar_atx
     b = atx_ctrl
     bn and0z :wait_for_idle
     a = atx_data
-    rtn
+end_func
 
 // returns a character in a, or -1 if none.
 // this version can miss characters if not polled while the character is arriving.
@@ -86,6 +86,6 @@ func pollchar_atx
     rtn
     :none
     a = -1
-    rtn
+end_func
 
     

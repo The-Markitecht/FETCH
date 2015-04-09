@@ -35,6 +35,8 @@ module top (
     output wire		          		ADC_SCLK,
     input wire 		          		ADC_SDAT,
 
+    (* chip_pin = "M15, B9, T8, M1" *)  input wire[3:0]  dip_switch,
+    
     (* chip_pin = "G15" *) input wire   reserved,
     
     (* chip_pin = "F13" *) output wire  async_tx_line,
@@ -43,10 +45,7 @@ module top (
     (* chip_pin = "G16" *) output wire  dbg_async_tx_line,
     (* chip_pin = "F14" *)  input wire  dbg_async_rx_line,
     
-    (* chip_pin = "M15, B9, T8, M1" *)  input wire[3:0]  dip_switch,
-    
-    
-    
+    (* chip_pin = "T13, T15" *) output wire[1:0]  scope,
     
     output wire 		    [9:0]		GPIO_2
     //input wire 		     [2:0]		GPIO_2_IN
@@ -80,14 +79,32 @@ always_ff @(posedge sysclk) begin
     rst2 <= rst1;
 end
 wire sysreset = rst2;
+
+/* use flop's "clear" input to eliminate data muxers.  
+but somehow this doesn't increment counter1k at all.
 reg[5:0] counter1m = 0;
-always_ff @(posedge sysclk) 
-    counter1m <= (counter1m == 6'd50 ? 6'd0 : counter1m + 6'd1);
-wire pulse1m = (counter1m == 6'd0);
+wire pulse1m = (counter1m == 6'd50);
+always_ff @(posedge sysclk, posedge pulse1m) 
+    counter1m <= (pulse1m ? 6'd0 : counter1m + 6'd1);
 reg[9:0] counter1k = 0;
+wire pulse1k = (counter1k == 10'd1000);
+always_ff @(posedge sysclk, posedge pulse1k) 
+    if (pulse1k)
+        counter1k <= 0;
+    else if (pulse1m)
+        counter1k <= counter1k + 10'd1;        
+*/        
+reg[5:0] counter1m = 0;
+wire pulse1m = (counter1m == 6'd50);
 always_ff @(posedge sysclk) 
-    counter1k <= (counter1k == 10'd1000 ? 10'd0 : counter1k + 10'd1);
-wire pulse1k = (counter1k == 10'd0);
+    counter1m <= (pulse1m ? 6'd0 : counter1m + 6'd1);
+reg[9:0] counter1k = 0;
+wire pulse1k = (counter1k == 10'd1000);
+always_ff @(posedge sysclk) 
+    if (pulse1k)
+        counter1k <= 0;
+    else if (pulse1m)
+        counter1k <= counter1k + 10'd1;        
 
 // dg408 -  JP3 -   schem -     fpga -  verilog -   nios bit
 // en =2    8       gpio_23     c16     gpio_2[3]   3
@@ -202,6 +219,7 @@ qsys2 u0 (
 );
 assign DRAM_CLK = clk_sdram;
 
+/*  bus_expander does not seem to read back correctly from a non-zero address.
 // ///////////////////////////   I/O expansion bus.
 wire[15:0]                exp_r[`EXP_TOP_REG:0];
 wire[`EXP_TOP_REG:0]      exp_r_read;  
@@ -229,6 +247,15 @@ assign exp_r[`ESR_KEYS] = {14'h0, KEY};
 
 std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, exp_r[`EDR_ANMUX_CTRL], exp_r_load_data[3:0], exp_r_load[`EDR_ANMUX_CTRL]);
 assign anmux_ctrl = exp_r[`EDR_ANMUX_CTRL][3:0];
+*/
+
+std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
+assign LED = r[`DR_LEDS][7:0];
+
+assign r[`SR_KEYS] = {14'h0, KEY}; 
+
+std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, r[`DR_ANMUX_CTRL], r_load_data[3:0], r_load[`DR_ANMUX_CTRL]);
+assign anmux_ctrl = r[`DR_ANMUX_CTRL][3:0];
 
 // ustimer0 counts down on microseconds.
 wire ustimer0_expired;
@@ -244,7 +271,7 @@ cdtimer16 ustimer0 (
 
 // mstimer0 counts down on milliseconds.
 wire mstimer0_expired;
-cdtimer16 timer1 (
+cdtimer16 mstimer0 (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sysreset )  
     ,.data_out        ( r[`DR_MSTIMER0] )
@@ -253,13 +280,25 @@ cdtimer16 timer1 (
     ,.counter_event   ( pulse1k )
     ,.expired         ( mstimer0_expired )
 );
+wire mstimer1_expired;
+cdtimer16 mstimer1 (
+     .sysclk          ( sysclk )  
+    ,.sysreset        ( sysreset )  
+    ,.data_out        ( r[`DR_MSTIMER1] )
+    ,.data_in         ( r_load_data )  
+    ,.load            ( r_load[`DR_MSTIMER1] )
+    ,.counter_event   ( pulse1k )
+    ,.expired         ( mstimer1_expired )
+);
 
-std_reg #(.WIDTH(4)) soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data[3:0], r_load[`DR_SOFT_EVENT]);
+std_reg soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
+assign scope = r[`DR_SOFT_EVENT][14:13]; // copy soft_event_reg to o'scope pins for analysis.
 
 // event controller is listed last to utilize wires from all other parts.
-event_controller #(.NUM_INPUTS(12)) events( 
+// its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
+event_controller #(.NUM_INPUTS(13)) events( 
      .sysclk            (sysclk)
-    ,.sysreset          (sysreset)
+    ,.sysreset          (sysreset || r[`DR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])
     ,.priority_out      (r[`DR_EVENT_PRIORITY])
     ,.priority_load     (r_load[`DR_EVENT_PRIORITY])
     ,.data_in           (r_load_data)
@@ -271,6 +310,7 @@ event_controller #(.NUM_INPUTS(12)) events(
         , r[`DR_FDUART_STATUS][`ATX_FIFO_FULL_BIT]
         ,ustimer0_expired
         ,mstimer0_expired
+        ,mstimer1_expired
         ,KEY[0]
         ,KEY[1]
         ,r[`DR_SOFT_EVENT][3:0]

@@ -34,7 +34,7 @@ func putchar_jtag_func
     //av_ad_hi = $jtag_uart_data_lsw_hi 
     av_ad_lo = $jtag_uart_data_lsw_lo 
     av_write_data = b
-    rtn
+end_func
 
 func getchar_jtag_func
     b = 0x8000
@@ -46,7 +46,7 @@ func getchar_jtag_func
     br and0z :poll
     b = 0xff
     a = and
-    rtn
+end_func
 
 // returns a character in a, or -1 if none.
 func pollchar_jtag_func
@@ -61,4 +61,4 @@ func pollchar_jtag_func
     rtn
     :gotchar
     a = -1
-    rtn
+end_func

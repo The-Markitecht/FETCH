@@ -202,7 +202,7 @@ func wait_for_bp
     :poll
     a = bp_status
     br az :poll
-    rtn
+end_func
     
 func set_bp
     getchar
@@ -239,7 +239,7 @@ func set_bp
     :fail
     putasc "?"
     puteol
-    rtn
+end_func
     
 func load_program
     // load target program from UART.
@@ -271,7 +271,7 @@ func load_program
     a = i
     b = x
     bn eq :loadword
-    rtn
+end_func
 
 // observe a register.  return its value in peek_data.
 // pass its register address in a.
@@ -291,7 +291,7 @@ func peek
     force_opcode = exr_shadow
     tg_force = ($hold_state_mask | $force_load_exr_mask)
     tg_force = 0
-    rtn
+end_func
     
 // show target status display.
 func dump_target
@@ -337,4 +337,4 @@ func dump_target
     b = m9k_data
     a = i
     bn eq :next_reg
-    rtn
+end_func

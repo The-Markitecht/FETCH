@@ -32,7 +32,7 @@ addr == 16'h01 ? 16'h00dd :  // <0052> "
 
 
 // routine sends out the low byte from a to the UART.  blocks until the UART accepts the byte.
-// func putchar_atx // = 0x0002
+// ######## func putchar_atx // = 0x0002
 addr == 16'h02 ? 16'h2004 :  // <0035> push x // func putchar_atx
 
 addr == 16'h03 ? 16'h1000 :  // <0037> x = a
@@ -59,12 +59,12 @@ addr == 16'h0b ? 16'h0412 :  // <0056> b = atx_ctrl
 addr == 16'h0c ? 16'he003 :  // <0057> br and0z :pcatx_wait_for_busy
 addr == 16'h0d ? 16'h000b :  // <0057> "
 addr == 16'h0e ? 16'h4a00 :  // <0058> atx_ctrl = 0
-addr == 16'h0f ? 16'h1008 :  // <0059> pop x // rtn
-addr == 16'h10 ? 16'hfc00 :  // <0059> rtn
+addr == 16'h0f ? 16'h1008 :  // <0059> pop x // end_func
+addr == 16'h10 ? 16'hfc00 :  // <0059> end_func
 
 // routine receives a byte from the UART.  blocks until the UART receives the byte.
 // returns it in the low byte of a.
-// func getchar_atx // = 0x0011
+// ######## func getchar_atx // = 0x0011
 // wait until UART is busy, then idle.
 addr == 16'h11 ? 16'h0204 :  // <0065> a = $arx_busy_mask
 // :wait_for_busy // = 0x0012
@@ -76,11 +76,11 @@ addr == 16'h15 ? 16'h0412 :  // <0070> b = atx_ctrl
 addr == 16'h16 ? 16'he403 :  // <0071> bn and0z :wait_for_idle
 addr == 16'h17 ? 16'h0015 :  // <0071> "
 addr == 16'h18 ? 16'h0011 :  // <0072> a = atx_data
-addr == 16'h19 ? 16'hfc00 :  // <0073> rtn
+addr == 16'h19 ? 16'hfc00 :  // <0073> end_func
 
 // returns a character in a, or -1 if none.
 // this version can miss characters if not polled while the character is arriving.
-// func pollchar_atx // = 0x001a
+// ######## func pollchar_atx // = 0x001a
 // check for UART is busy, then idle.
 addr == 16'h1a ? 16'h0204 :  // <0079> a = $arx_busy_mask
 addr == 16'h1b ? 16'h0412 :  // <0080> b = atx_ctrl
@@ -94,13 +94,13 @@ addr == 16'h21 ? 16'h0011 :  // <0085> a = atx_data
 addr == 16'h22 ? 16'hfc00 :  // <0086> rtn
 // :none // = 0x0023
 addr == 16'h23 ? 16'h0360 :  // <0088> a = -1
-addr == 16'h24 ? 16'hfc00 :  // <0089> rtn
+addr == 16'h24 ? 16'hfc00 :  // <0089> end_func
 
 
 
 // pick a byte from an array of packed words in program space.  fetch & return it in a.
 // pass array base address in x, byte offset in a.
-// func fetch_byte // = 0x0025
+// ######## func fetch_byte // = 0x0025
 addr == 16'h25 ? 16'h0601 :  // <0005> b = 1
 addr == 16'h26 ? 16'he003 :  // <0006> br and0z :pick_byte_even
 addr == 16'h27 ? 16'h0030 :  // <0006> "
@@ -121,7 +121,7 @@ addr == 16'h34 ? 16'h03b0 :  // <0016> "
 addr == 16'h35 ? 16'h06ff :  // <0017> b = 0xff
 addr == 16'h36 ? 16'hc800 :  // <0018> a = and
 addr == 16'h37 ? 16'h0330 :  // <0018> "
-addr == 16'h38 ? 16'hfc00 :  // <0019> rtn
+addr == 16'h38 ? 16'hfc00 :  // <0019> end_func
 
 // find a byte in an array of packed words in program space.
 // pass data byte in a.
@@ -129,7 +129,7 @@ addr == 16'h38 ? 16'hfc00 :  // <0019> rtn
 // array length in i.
 // returns found index in a (or -1 if not found).
 // if the data byte occurs more than once, the final one's position is returned.
-// func find_in_fetch // = 0x0039
+// ######## func find_in_fetch // = 0x0039
 addr == 16'h39 ? 16'h2002 :  // <0027> push i // func find_in_fetch
 addr == 16'h3a ? 16'h2003 :  // <0027> push j // "
 addr == 16'h3b ? 16'h2005 :  // <0027> push y // "
@@ -156,11 +156,11 @@ addr == 16'h4d ? 16'h0808 :  // <0039> pop i // "
 addr == 16'h4e ? 16'hfc00 :  // <0039> rtn
 // :fail // = 0x004f
 addr == 16'h4f ? 16'h0360 :  // <0041> a = -1
-addr == 16'h50 ? 16'hf808 :  // <0042> pop rtna // rtn
+addr == 16'h50 ? 16'hf808 :  // <0042> pop rtna // end_func
 addr == 16'h51 ? 16'h1408 :  // <0042> pop y // "
 addr == 16'h52 ? 16'h0c08 :  // <0042> pop j // "
 addr == 16'h53 ? 16'h0808 :  // <0042> pop i // "
-addr == 16'h54 ? 16'hfc00 :  // <0042> rtn
+addr == 16'h54 ? 16'hfc00 :  // <0042> end_func
 
 
 
@@ -181,7 +181,7 @@ addr == 16'h5c ? 16'h6665 :  // <0054> fe
 
 // function to print a 16-bit number formatted as 4 hex digits.
 // pass number in a.
-// func put4x // = 0x005d
+// ######## func put4x // = 0x005d
 addr == 16'h5d ? 16'h2004 :  // <0058> push x // func put4x
 addr == 16'h5e ? 16'h2006 :  // <0058> push g6 // "
 addr == 16'h5f ? 16'h203e :  // <0058> push rtna // "
@@ -244,14 +244,14 @@ addr == 16'h93 ? 16'hfba0 :  // <0089> putchar a
 addr == 16'h94 ? 16'h0002 :  // <0089> "
 addr == 16'h95 ? 16'hfc00 :  // <0089> "
 
-addr == 16'h96 ? 16'hf808 :  // <0091> pop rtna // rtn
+addr == 16'h96 ? 16'hf808 :  // <0091> pop rtna // end_func
 addr == 16'h97 ? 16'h1808 :  // <0091> pop g6 // "
 addr == 16'h98 ? 16'h1008 :  // <0091> pop x // "
-addr == 16'h99 ? 16'hfc00 :  // <0091> rtn
+addr == 16'h99 ? 16'hfc00 :  // <0091> end_func
 
 // function to scan a 16-bit number formatted as 4 hex digits.
 // return number in a.  return 0 for success in b.
-// func get4x // = 0x009a
+// ######## func get4x // = 0x009a
 addr == 16'h9a ? 16'h2002 :  // <0095> push i // func get4x
 addr == 16'h9b ? 16'h2003 :  // <0095> push j // "
 addr == 16'h9c ? 16'h2004 :  // <0095> push x // "
@@ -300,15 +300,15 @@ addr == 16'hc3 ? 16'h0808 :  // <0116> pop i // "
 addr == 16'hc4 ? 16'hfc00 :  // <0116> rtn
 // :fail // = 0x00c5
 addr == 16'hc5 ? 16'h0760 :  // <0118> b = -1
-addr == 16'hc6 ? 16'hf808 :  // <0119> pop rtna // rtn
+addr == 16'hc6 ? 16'hf808 :  // <0119> pop rtna // end_func
 addr == 16'hc7 ? 16'h1408 :  // <0119> pop y // "
 addr == 16'hc8 ? 16'h1008 :  // <0119> pop x // "
 addr == 16'hc9 ? 16'h0c08 :  // <0119> pop j // "
 addr == 16'hca ? 16'h0808 :  // <0119> pop i // "
-addr == 16'hcb ? 16'hfc00 :  // <0119> rtn
+addr == 16'hcb ? 16'hfc00 :  // <0119> end_func
 
 // routine waits a number of milliseconds given in a.
-// func spinwait // = 0x00cc
+// ######## func spinwait // = 0x00cc
 addr == 16'hcc ? 16'h2004 :  // <0002> push x // func spinwait
 addr == 16'hcd ? 16'h2005 :  // <0002> push y // "
 //patch
@@ -328,9 +328,9 @@ addr == 16'hd6 ? 16'hc800 :  // <0014> a = a+b
 addr == 16'hd7 ? 16'h0300 :  // <0014> "
 addr == 16'hd8 ? 16'he400 :  // <0015> bn az :spinwait_outer
 addr == 16'hd9 ? 16'h00cf :  // <0015> "
-addr == 16'hda ? 16'h1408 :  // <0016> pop y // rtn
+addr == 16'hda ? 16'h1408 :  // <0016> pop y // end_func
 addr == 16'hdb ? 16'h1008 :  // <0016> pop x // "
-addr == 16'hdc ? 16'hfc00 :  // <0016> rtn
+addr == 16'hdc ? 16'hfc00 :  // <0016> end_func
 
 
 
@@ -614,14 +614,14 @@ addr == 16'h1bb ? 16'h2409 :  // <0197> bp0_addr = bp0_addr
 addr == 16'h1bc ? 16'he00f :  // <0199> jmp :main_loop
 addr == 16'h1bd ? 16'h01a6 :  // <0199> "
 
-// func wait_for_bp // = 0x01be
+// ######## func wait_for_bp // = 0x01be
 // :poll // = 0x01be
 addr == 16'h1be ? 16'h0018 :  // <0203> a = bp_status
 addr == 16'h1bf ? 16'he000 :  // <0204> br az :poll
 addr == 16'h1c0 ? 16'h01be :  // <0204> "
-addr == 16'h1c1 ? 16'hfc00 :  // <0205> rtn
+addr == 16'h1c1 ? 16'hfc00 :  // <0205> end_func
 
-// func set_bp // = 0x01c2
+// ######## func set_bp // = 0x01c2
 addr == 16'h1c2 ? 16'h2004 :  // <0207> push x // func set_bp
 addr == 16'h1c3 ? 16'h2005 :  // <0207> push y // "
 addr == 16'h1c4 ? 16'h203e :  // <0207> push rtna // "
@@ -709,12 +709,12 @@ addr == 16'h210 ? 16'h0000 :  // <0241> a = a // puteol
 addr == 16'h211 ? 16'hfba0 :  // <0241> puteol
 addr == 16'h212 ? 16'h0002 :  // <0241> "
 addr == 16'h213 ? 16'hfc00 :  // <0241> "
-addr == 16'h214 ? 16'hf808 :  // <0242> pop rtna // rtn
+addr == 16'h214 ? 16'hf808 :  // <0242> pop rtna // end_func
 addr == 16'h215 ? 16'h1408 :  // <0242> pop y // "
 addr == 16'h216 ? 16'h1008 :  // <0242> pop x // "
-addr == 16'h217 ? 16'hfc00 :  // <0242> rtn
+addr == 16'h217 ? 16'hfc00 :  // <0242> end_func
 
-// func load_program // = 0x0218
+// ######## func load_program // = 0x0218
 addr == 16'h218 ? 16'h2002 :  // <0244> push i // func load_program
 addr == 16'h219 ? 16'h2003 :  // <0244> push j // "
 addr == 16'h21a ? 16'h2004 :  // <0244> push x // "
@@ -806,16 +806,16 @@ addr == 16'h26a ? 16'h0002 :  // <0271> a = i
 addr == 16'h26b ? 16'h0404 :  // <0272> b = x
 addr == 16'h26c ? 16'he407 :  // <0273> bn eq :loadword
 addr == 16'h26d ? 16'h0235 :  // <0273> "
-addr == 16'h26e ? 16'hf808 :  // <0274> pop rtna // rtn
+addr == 16'h26e ? 16'hf808 :  // <0274> pop rtna // end_func
 addr == 16'h26f ? 16'h1808 :  // <0274> pop g6 // "
 addr == 16'h270 ? 16'h1008 :  // <0274> pop x // "
 addr == 16'h271 ? 16'h0c08 :  // <0274> pop j // "
 addr == 16'h272 ? 16'h0808 :  // <0274> pop i // "
-addr == 16'h273 ? 16'hfc00 :  // <0274> rtn
+addr == 16'h273 ? 16'hfc00 :  // <0274> end_func
 
 // observe a register.  return its value in peek_data.
 // pass its register address in a.
-// func peek // = 0x0274
+// ######## func peek // = 0x0274
 addr == 16'h274 ? 16'h07a0 :  // <0279> b = 0x3ff
 addr == 16'h275 ? 16'h03ff :  // <0279> "
 addr == 16'h276 ? 16'hc800 :  // <0280> a = and
@@ -835,10 +835,10 @@ addr == 16'h280 ? 16'h4201 :  // <0288> tg_force = $hold_state_mask
 addr == 16'h281 ? 16'h3415 :  // <0291> force_opcode = exr_shadow
 addr == 16'h282 ? 16'h4203 :  // <0292> tg_force = ($hold_state_mask | $force_load_exr_mask)
 addr == 16'h283 ? 16'h4200 :  // <0293> tg_force = 0
-addr == 16'h284 ? 16'hfc00 :  // <0294> rtn
+addr == 16'h284 ? 16'hfc00 :  // <0294> end_func
 
 // show target status display.
-// func dump_target // = 0x0285
+// ######## func dump_target // = 0x0285
 addr == 16'h285 ? 16'h2002 :  // <0297> push i // func dump_target
 addr == 16'h286 ? 16'h2003 :  // <0297> push j // "
 addr == 16'h287 ? 16'h2004 :  // <0297> push x // "
@@ -926,12 +926,13 @@ addr == 16'h2d1 ? 16'h0414 :  // <0337> b = m9k_data
 addr == 16'h2d2 ? 16'h0002 :  // <0338> a = i
 addr == 16'h2d3 ? 16'he407 :  // <0339> bn eq :next_reg
 addr == 16'h2d4 ? 16'h0295 :  // <0339> "
-addr == 16'h2d5 ? 16'hf808 :  // <0340> pop rtna // rtn
+addr == 16'h2d5 ? 16'hf808 :  // <0340> pop rtna // end_func
 addr == 16'h2d6 ? 16'h1408 :  // <0340> pop y // "
 addr == 16'h2d7 ? 16'h1008 :  // <0340> pop x // "
 addr == 16'h2d8 ? 16'h0c08 :  // <0340> pop j // "
 addr == 16'h2d9 ? 16'h0808 :  // <0340> pop i // "
-addr == 16'h2da ? 16'hfc00 :  // <0340> rtn
+addr == 16'h2da ? 16'hfc00 :  // <0340> end_func
+
         
                 16'hxxxx;
         endmodule

@@ -31,6 +31,7 @@
 
 
 -- routine sends out the low byte from a to the UART.  blocks until the UART accepts the byte.
+-- ######## func putchar_atx -- = 0x0002
     0002 : 2004 ; -- <0035> push x -- func putchar_atx
 
     0003 : 1000 ; -- <0037> x = a
@@ -57,11 +58,12 @@
     000c : e003 ; -- <0057> br and0z :pcatx_wait_for_busy
     000d : 000b ; -- <0057> "
     000e : 4a00 ; -- <0058> atx_ctrl = 0
-    000f : 1008 ; -- <0059> pop x -- rtn
-    0010 : fc00 ; -- <0059> rtn
+    000f : 1008 ; -- <0059> pop x -- end_func
+    0010 : fc00 ; -- <0059> end_func
 
 -- routine receives a byte from the UART.  blocks until the UART receives the byte.
 -- returns it in the low byte of a.
+-- ######## func getchar_atx -- = 0x0011
 -- wait until UART is busy, then idle.
     0011 : 0204 ; -- <0065> a = $arx_busy_mask
 -- :wait_for_busy -- = 0x0012
@@ -73,10 +75,11 @@
     0016 : e403 ; -- <0071> bn and0z :wait_for_idle
     0017 : 0015 ; -- <0071> "
     0018 : 0011 ; -- <0072> a = atx_data
-    0019 : fc00 ; -- <0073> rtn
+    0019 : fc00 ; -- <0073> end_func
 
 -- returns a character in a, or -1 if none.
 -- this version can miss characters if not polled while the character is arriving.
+-- ######## func pollchar_atx -- = 0x001a
 -- check for UART is busy, then idle.
     001a : 0204 ; -- <0079> a = $arx_busy_mask
     001b : 0412 ; -- <0080> b = atx_ctrl
@@ -90,12 +93,13 @@
     0022 : fc00 ; -- <0086> rtn
 -- :none -- = 0x0023
     0023 : 0360 ; -- <0088> a = -1
-    0024 : fc00 ; -- <0089> rtn
+    0024 : fc00 ; -- <0089> end_func
 
 
 
 -- pick a byte from an array of packed words in program space.  fetch & return it in a.
 -- pass array base address in x, byte offset in a.
+-- ######## func fetch_byte -- = 0x0025
     0025 : 0601 ; -- <0005> b = 1
     0026 : e003 ; -- <0006> br and0z :pick_byte_even
     0027 : 0030 ; -- <0006> "
@@ -116,7 +120,7 @@
     0035 : 06ff ; -- <0017> b = 0xff
     0036 : c800 ; -- <0018> a = and
     0037 : 0330 ; -- <0018> "
-    0038 : fc00 ; -- <0019> rtn
+    0038 : fc00 ; -- <0019> end_func
 
 -- find a byte in an array of packed words in program space.
 -- pass data byte in a.
@@ -124,6 +128,7 @@
 -- array length in i.
 -- returns found index in a (or -1 if not found).
 -- if the data byte occurs more than once, the final one's position is returned.
+-- ######## func find_in_fetch -- = 0x0039
     0039 : 2002 ; -- <0027> push i -- func find_in_fetch
     003a : 2003 ; -- <0027> push j -- "
     003b : 2005 ; -- <0027> push y -- "
@@ -150,11 +155,11 @@
     004e : fc00 ; -- <0039> rtn
 -- :fail -- = 0x004f
     004f : 0360 ; -- <0041> a = -1
-    0050 : f808 ; -- <0042> pop rtna -- rtn
+    0050 : f808 ; -- <0042> pop rtna -- end_func
     0051 : 1408 ; -- <0042> pop y -- "
     0052 : 0c08 ; -- <0042> pop j -- "
     0053 : 0808 ; -- <0042> pop i -- "
-    0054 : fc00 ; -- <0042> rtn
+    0054 : fc00 ; -- <0042> end_func
 
 
 
@@ -175,6 +180,7 @@
 
 -- function to print a 16-bit number formatted as 4 hex digits.
 -- pass number in a.
+-- ######## func put4x -- = 0x005d
     005d : 2004 ; -- <0058> push x -- func put4x
     005e : 2006 ; -- <0058> push g6 -- "
     005f : 203e ; -- <0058> push rtna -- "
@@ -237,13 +243,14 @@
     0094 : 0002 ; -- <0089> "
     0095 : fc00 ; -- <0089> "
 
-    0096 : f808 ; -- <0091> pop rtna -- rtn
+    0096 : f808 ; -- <0091> pop rtna -- end_func
     0097 : 1808 ; -- <0091> pop g6 -- "
     0098 : 1008 ; -- <0091> pop x -- "
-    0099 : fc00 ; -- <0091> rtn
+    0099 : fc00 ; -- <0091> end_func
 
 -- function to scan a 16-bit number formatted as 4 hex digits.
 -- return number in a.  return 0 for success in b.
+-- ######## func get4x -- = 0x009a
     009a : 2002 ; -- <0095> push i -- func get4x
     009b : 2003 ; -- <0095> push j -- "
     009c : 2004 ; -- <0095> push x -- "
@@ -292,14 +299,15 @@
     00c4 : fc00 ; -- <0116> rtn
 -- :fail -- = 0x00c5
     00c5 : 0760 ; -- <0118> b = -1
-    00c6 : f808 ; -- <0119> pop rtna -- rtn
+    00c6 : f808 ; -- <0119> pop rtna -- end_func
     00c7 : 1408 ; -- <0119> pop y -- "
     00c8 : 1008 ; -- <0119> pop x -- "
     00c9 : 0c08 ; -- <0119> pop j -- "
     00ca : 0808 ; -- <0119> pop i -- "
-    00cb : fc00 ; -- <0119> rtn
+    00cb : fc00 ; -- <0119> end_func
 
 -- routine waits a number of milliseconds given in a.
+-- ######## func spinwait -- = 0x00cc
     00cc : 2004 ; -- <0002> push x -- func spinwait
     00cd : 2005 ; -- <0002> push y -- "
 --patch
@@ -319,9 +327,9 @@
     00d7 : 0300 ; -- <0014> "
     00d8 : e400 ; -- <0015> bn az :spinwait_outer
     00d9 : 00cf ; -- <0015> "
-    00da : 1408 ; -- <0016> pop y -- rtn
+    00da : 1408 ; -- <0016> pop y -- end_func
     00db : 1008 ; -- <0016> pop x -- "
-    00dc : fc00 ; -- <0016> rtn
+    00dc : fc00 ; -- <0016> end_func
 
 
 
@@ -605,12 +613,14 @@
     01bc : e00f ; -- <0199> jmp :main_loop
     01bd : 01a6 ; -- <0199> "
 
+-- ######## func wait_for_bp -- = 0x01be
 -- :poll -- = 0x01be
     01be : 0018 ; -- <0203> a = bp_status
     01bf : e000 ; -- <0204> br az :poll
     01c0 : 01be ; -- <0204> "
-    01c1 : fc00 ; -- <0205> rtn
+    01c1 : fc00 ; -- <0205> end_func
 
+-- ######## func set_bp -- = 0x01c2
     01c2 : 2004 ; -- <0207> push x -- func set_bp
     01c3 : 2005 ; -- <0207> push y -- "
     01c4 : 203e ; -- <0207> push rtna -- "
@@ -698,11 +708,12 @@
     0211 : fba0 ; -- <0241> puteol
     0212 : 0002 ; -- <0241> "
     0213 : fc00 ; -- <0241> "
-    0214 : f808 ; -- <0242> pop rtna -- rtn
+    0214 : f808 ; -- <0242> pop rtna -- end_func
     0215 : 1408 ; -- <0242> pop y -- "
     0216 : 1008 ; -- <0242> pop x -- "
-    0217 : fc00 ; -- <0242> rtn
+    0217 : fc00 ; -- <0242> end_func
 
+-- ######## func load_program -- = 0x0218
     0218 : 2002 ; -- <0244> push i -- func load_program
     0219 : 2003 ; -- <0244> push j -- "
     021a : 2004 ; -- <0244> push x -- "
@@ -794,15 +805,16 @@
     026b : 0404 ; -- <0272> b = x
     026c : e407 ; -- <0273> bn eq :loadword
     026d : 0235 ; -- <0273> "
-    026e : f808 ; -- <0274> pop rtna -- rtn
+    026e : f808 ; -- <0274> pop rtna -- end_func
     026f : 1808 ; -- <0274> pop g6 -- "
     0270 : 1008 ; -- <0274> pop x -- "
     0271 : 0c08 ; -- <0274> pop j -- "
     0272 : 0808 ; -- <0274> pop i -- "
-    0273 : fc00 ; -- <0274> rtn
+    0273 : fc00 ; -- <0274> end_func
 
 -- observe a register.  return its value in peek_data.
 -- pass its register address in a.
+-- ######## func peek -- = 0x0274
     0274 : 07a0 ; -- <0279> b = 0x3ff
     0275 : 03ff ; -- <0279> "
     0276 : c800 ; -- <0280> a = and
@@ -822,9 +834,10 @@
     0281 : 3415 ; -- <0291> force_opcode = exr_shadow
     0282 : 4203 ; -- <0292> tg_force = ($hold_state_mask | $force_load_exr_mask)
     0283 : 4200 ; -- <0293> tg_force = 0
-    0284 : fc00 ; -- <0294> rtn
+    0284 : fc00 ; -- <0294> end_func
 
 -- show target status display.
+-- ######## func dump_target -- = 0x0285
     0285 : 2002 ; -- <0297> push i -- func dump_target
     0286 : 2003 ; -- <0297> push j -- "
     0287 : 2004 ; -- <0297> push x -- "
@@ -912,12 +925,13 @@
     02d2 : 0002 ; -- <0338> a = i
     02d3 : e407 ; -- <0339> bn eq :next_reg
     02d4 : 0295 ; -- <0339> "
-    02d5 : f808 ; -- <0340> pop rtna -- rtn
+    02d5 : f808 ; -- <0340> pop rtna -- end_func
     02d6 : 1408 ; -- <0340> pop y -- "
     02d7 : 1008 ; -- <0340> pop x -- "
     02d8 : 0c08 ; -- <0340> pop j -- "
     02d9 : 0808 ; -- <0340> pop i -- "
-    02da : fc00 ; -- <0340> rtn
+    02da : fc00 ; -- <0340> end_func
+
         
         END;
     

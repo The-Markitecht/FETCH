@@ -234,18 +234,15 @@ proc parse_line {lin} {
             append ::multi_line $lin \n
         }
     } elseif {[string length $lin] == 0} {
-        emit $lin ;# blank line for readability.
-        emit_mif $lin ;# blank line for readability.
+        emit_comment $lin ;# blank line for readability.
     } elseif {[string equal -length 2 $lin {//}]} {        
-        emit $lin ;# comment line
-        emit_mif "--[string range $lin 2 end]" ;# comment line
+        emit_comment $lin ;# comment line
     } elseif {[string equal -length 1 $lin \" ]} {
         # string constant line
         if { ! [string equal [string index $lin end] \" ]} {
             error "string missing final quote mark: $lin"
         }
-        emit "// $lin"
-        emit_mif "-- $lin"
+        emit_comment "// $lin"
         set lin [subst [string range $lin 1 end-1]]
         if {[string length $lin] != ([string length $lin] / 2 * 2)} {
             append lin "\x0" ;# zero-pad to an even number of bytes, because the ROM description file is word-addressed.  all addressible data must be word-aligned.
@@ -262,8 +259,7 @@ proc parse_line {lin} {
         # label line
         set n "${::func}/[string trim $lin {: }]"
         dict set ::labels $n $::ipr
-        emit "// $lin // = 0x[format %04x $::ipr]"
-        emit_mif "-- $lin -- = 0x[format %04x $::ipr]"
+        emit_comment "// $lin // = 0x[format %04x $::ipr]"
     } elseif {[string equal -length 2 $lin {<<}]} {
         # explicit Tcl line in angle brackets.  return value is discarded.
         if {[string equal [string range $lin end-1 end] {>>} ]} {
@@ -308,6 +304,13 @@ proc console {args} {
 #    }
 }
 
+proc emit_comment {txt} {
+    # "puts" given string into all output files as a comment.  must start with "//".
+    console $txt
+    emit $txt
+    emit_mif $txt
+}
+
 proc emit {args} {
     # "puts" given args into the ROM description file.
     if {$::asm_pass == $::pass(emit)} {
@@ -340,6 +343,15 @@ proc pack_small_constant {dest_addr constant} {
     return [pack $dest_addr [expr $::small_const_opcode | ($constant << $::small_const_shift)]]
 }
 
+namespace eval ::asm {
+    # these procs may be redefined in other files to provide more functionality.
+    
+    proc start_file_handler {} {
+    }
+
+    proc end_file_handler {} {
+    }
+}
 
 proc parse_text {asm_lines pass_num} {
     set ::asm_pass $pass_num
@@ -355,10 +367,12 @@ proc parse_text {asm_lines pass_num} {
         unset $vn
     }
     namespace eval ::asm {}
+    ::asm::start_file_handler
     foreach lin $asm_lines {
         incr ::lnum
         parse_line $lin
     }
+    ::asm::end_file_handler
 }
 
 proc assemble {src_fn rom_fn} {
