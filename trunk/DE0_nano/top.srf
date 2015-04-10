@@ -114,6 +114,8 @@
 { "" "" "" "Verilog HDL assignment warning at spi_master.v(54): truncated value with size 32 to match size of target (16)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Verilog HDL assignment warning at spi_master.v(63): truncated value with size 32 to match size of target (16)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Verilog HDL assignment warning at spi_master.v(69): truncated value with size 32 to match size of target (16)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL or VHDL warning at supervised_synapse316.v(110): object \"poke_data\" assigned a value but never read" {  } {  } 0 10036 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"vr\[31..26\]\" at supervised_synapse316.v(76) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

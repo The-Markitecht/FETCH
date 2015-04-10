@@ -95,8 +95,9 @@ always_ff @(posedge sysclk, posedge pulse1k)
     else if (pulse1m)
         counter1k <= counter1k + 10'd1;        
 */        
+wire timer_enable;
 reg[5:0] counter1m = 0;
-wire pulse1m = (counter1m == 6'd50);
+wire pulse1m = (counter1m == 6'd50) && timer_enable;
 always_ff @(posedge sysclk) 
     counter1m <= (pulse1m ? 6'd0 : counter1m + 6'd1);
 reg[9:0] counter1k = 0;
@@ -124,12 +125,15 @@ wire[`TOP_REG:0]          r_read;
 wire[`TOP_REG:0]          r_load;
 wire[15:0]                r_load_data;  
 wire                      mcu_wait;
+wire                      visor_break_mode;
+assign timer_enable = ! visor_break_mode;
 supervised_synapse316 supmcu(
     .sysclk          (sysclk      ) ,
     .sysreset        (sysreset    ) ,
     .clk_progmem     (clk_progmem),
     .clk_async       (clk_async),
-    .mcu_wait        (mcu_wait),
+    .mcu_wait_in     (mcu_wait),
+    .visor_break_mode(visor_break_mode),
     .boot_break      ( ! dip_switch[3]), 
     .r               (r),
     .r_read          (r_read),
