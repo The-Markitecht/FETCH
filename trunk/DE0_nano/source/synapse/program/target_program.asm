@@ -115,9 +115,9 @@
     a = 0
     b = 2
     :clear_next_word
-    av_ad_lo = a
-    av_write_data = 0
-    a = ad0
+        av_ad_lo = a
+        av_write_data = 0
+        a = ad0
     bn az :clear_next_word
     
     // start handling events.
@@ -154,12 +154,12 @@ event spi_done_handler
     av_ad_hi = 0
     ram_read_lo a = $ram_daq_discard_cnt
     br az :report
-    b = -1
-    a = a+b
-    ram_write_lo $ram_daq_discard_cnt = a
-    a = $anmux_adc_channel
-    call :begin_adc_conversion
-    event_return
+        b = -1
+        a = a+b
+        ram_write_lo $ram_daq_discard_cnt = a
+        a = $anmux_adc_channel
+        call :begin_adc_conversion
+        event_return
 
     // report ADC reading.
     :report
@@ -169,11 +169,11 @@ event spi_done_handler
     // decrement anmux channel & start waiting again.
     call :anmux_get_chn
     br az :all_done
-    b = -1
-    a = a+b
-    call :anmux_set_chn
-    mstimer1 = $anmux_settle_ms
-    event_return
+        b = -1
+        a = a+b
+        call :anmux_set_chn
+        mstimer1 = $anmux_settle_ms
+        event_return
     
     // end of daq pass.
     :all_done
@@ -181,28 +181,29 @@ event spi_done_handler
 end_event
 
 event mstimer0_handler
+    // unified 1-second periodic timer for all low-resolution tasks.
+
     // start timer again.
     mstimer0 = 1000
-    
-    // daq pass counter in RAM.  
+
     av_ad_hi = 0
-    ram_read_lo a = $ram_daq_pass_cnt
+    
+    // realtime counters in RAM.  
+    ram_read_lo a = $ram_seconds_cnt
     b = 1
     a = a+b
-    leds = a
-    ram_write_lo $ram_daq_pass_cnt = a
-    call :put4x 
-    putasc ":"
+    b = 60
+    bn eq :same_minute
+        a = 0
+        ram_read_lo i = $ram_minutes_cnt
+        j = 1
+        ram_write_lo $ram_minutes_cnt = i+j
+    :same_minute
+    ram_write_lo $ram_seconds_cnt = a
     
-    // start to acquire & report all anmux channels.
-    a = 7
-    call :anmux_set_chn
-    mstimer1 = $anmux_settle_ms
+    call :check_power_down    
     
-    // // observe MCU utilization.
-    // a = usage_count
-    // call :put4x
-    // usage_count = 0
+    call :start_daq_pass
 end_event
 
 event mstimer1_handler    
@@ -253,6 +254,28 @@ end_event
 event softevent0_handler
 end_event
     
+func start_daq_pass
+    // daq pass counter in RAM.  
+    av_ad_hi = 0
+    ram_read_lo a = $ram_daq_pass_cnt
+    b = 1
+    a = a+b
+    leds = a
+    ram_write_lo $ram_daq_pass_cnt = a
+    call :put4x 
+    putasc ":"
+    
+    // start to acquire & report all anmux channels.
+    a = 7
+    call :anmux_set_chn
+    mstimer1 = $anmux_settle_ms
+    
+    // // observe MCU utilization.
+    // a = usage_count
+    // call :put4x
+    // usage_count = 0    
+end_func
+    
 func begin_adc_conversion
     // begin SPI transaction, specifying Nano ADC channel to take effect NEXT 
     // conversion after this one.  pass that in a.
@@ -264,3 +287,21 @@ func begin_adc_conversion
     a = a<<1    
     spi_data = a
 end_func    
+
+func check_power_down
+    // check for ignition switch still on. 
+    a = power_sense
+    b = $power_ignition_switch_mask
+    br and0z :ignition_off
+        // still on; extend deadline.
+        ram_read_lo a = $ram_minutes_cnt
+        b = $power_extend_minutes
+        ram_write_lo $ram_power_down_at_min = a+b
+    :ignition_off
+        // check power-down deadline in RAM.    
+        ram_read_lo a = $ram_minutes_cnt
+        ram_read_lo b = $ram_power_down_at_min
+        bn eq :no_power_down
+            call :power_down
+        :no_power_down
+end_func
