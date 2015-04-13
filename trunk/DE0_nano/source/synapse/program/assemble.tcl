@@ -402,6 +402,7 @@ proc assemble {src_fn rom_fn} {
     
     #proc report args {puts [info level 0]}
     #proc report args {puts "report: [lindex [lindex $args 0] 0]"}
+    #proc report args {puts "report: $args"}
     #trace add execution parse_line enterstep report
 
     set ::func_regs [dict create]

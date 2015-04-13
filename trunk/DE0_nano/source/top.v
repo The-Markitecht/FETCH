@@ -47,6 +47,10 @@ module top (
     
     (* chip_pin = "T13, T15" *) output wire[1:0]  scope,
     
+    (* chip_pin = "T13" *) output wire power_relay_pwm,
+    (* chip_pin = "T13" *) input wire  power_lost,
+    (* chip_pin = "T13" *) input wire  ignition_switch_off,
+    
     output wire 		    [9:0]		GPIO_2
     //input wire 		     [2:0]		GPIO_2_IN
 
@@ -302,6 +306,18 @@ cdtimer16 mstimer1 (
     ,.expired         ( mstimer1_expired )
 );
 
+// PWM generator to drive the computer's main power relay.  counts microseconds.  count 50 = 20 KHz.
+cdpwm #(.WIDTH(6), .START(50)) power_relay_pwm_inst (
+     .sysclk          ( sysclk )  
+    ,.sysreset        ( sysreset )  
+    ,.counter_event   ( pulse1m )
+    ,.counter_value   (  )
+    ,.duty            ( r[`DR_POWER_DUTY] )
+    ,.duty_load       ( r_load[`DR_POWER_DUTY] )
+    ,.data_in         ( r_load_data[5:0] )
+    ,.pwm_signal      ( power_relay_pwm )
+);
+
 usage_counter usage (
      .sysclk               ( sysclk )
     ,.sysreset             ( sysreset )
@@ -311,11 +327,16 @@ usage_counter usage (
     ,.sample_enable        ( pulse1k )
 );      
 
-std_reg soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
-assign scope = r[`DR_SOFT_EVENT][14:13]; // copy soft_event_reg to o'scope pins for analysis.
+// synchronizers for detecting off-chip events.
+wire power_lost_sync;
+syncer power_lost_syncer(sysclk, power_lost, power_lost_sync);
+wire ignition_switch_off_sync;
+syncer ignition_switch_syncer(sysclk, ignition_switch_off, ignition_switch_off_sync);
 
 // event controller is listed last to utilize wires from all other parts.
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
+std_reg soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
+assign scope = r[`DR_SOFT_EVENT][14:13]; // copy soft_event_reg to o'scope pins for analysis.
 event_controller #(.NUM_INPUTS(14)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset || r[`DR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])
@@ -325,6 +346,7 @@ event_controller #(.NUM_INPUTS(14)) events(
     ,.event_signals     ({
         // MOST urgent events are listed FIRST.
         1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
+        ,power_lost_sync
         ,ustimer0_expired
         , ! spi_busy
         ,mstimer0_expired
@@ -334,6 +356,8 @@ event_controller #(.NUM_INPUTS(14)) events(
         , r[`DR_FDUART_STATUS][`ATX_FIFO_FULL_BIT]
         ,KEY[0]
         ,KEY[1]
+        ,ignition_switch_off_sync
+        , ! ignition_switch_off_sync
         ,r[`DR_SOFT_EVENT][3:0]
     })
 );

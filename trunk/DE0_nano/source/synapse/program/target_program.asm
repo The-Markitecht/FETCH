@@ -75,14 +75,30 @@
         setvar      anmux_adc_channel       7
         setvar      anmux_settle_ms         5
         setvar      anmux_num_discards      2
+        
+    alias_both power_duty           [incr counter]  "pwr_duty"
+        // power relay duty cycles, in microseconds.  duty cycle time = relay OFF time.
+        setvar power_duty_min                   0
+        setvar power_duty_max                   50
+        setvar power_duty_closing               $power_duty_min
+        setvar power_duty_opening               $power_duty_max
+        setvar power_duty_holding               (int($power_duty_max / 3))
 
     setvar ram_counter $sdram_base
-    ram_define ram_mcu_usage_cnt    2
-    ram_define ram_daq_pass_cnt     2
-    ram_define ram_daq_discard_cnt  2
-        
+    ram_define ram_mcu_usage_cnt            2
+    ram_define ram_daq_pass_cnt             2
+    ram_define ram_daq_discard_cnt          2
+    ram_define ram_minutes_cnt              2
+    ram_define ram_seconds_cnt              2
+    ram_define ram_power_down_at_min        2
+        setvar power_down_never 0xffff
+        setvar power_extend_minutes 30
+    ram_define ram_relay_hold_at_pass       2
+        setvar relay_hold_passes 2
+                
     setvar err_rx_overflow 0xfffe
     setvar err_tx_overflow 0xfffd
+    setvar err_power_down  0xfffc
     
     jmp :main
     
@@ -119,6 +135,10 @@
         av_write_data = 0
         a = ad0
     bn az :clear_next_word
+
+    // init RAM variables.
+    ram_write_lo $ram_power_down_at_min = $power_down_never
+    ram_write_lo $ram_relay_hold_at_pass = $relay_hold_passes
     
     // start handling events.
     soft_event = $event_controller_reset_mask
@@ -130,6 +150,7 @@
     // event 0 not used in this app anyway.
     :event_table    
     ([label :poll_events])
+    ([label :power_lost_handler])
     ([label :ustimer0_handler])
     ([label :spi_done_handler])
     ([label :mstimer0_handler])
@@ -139,6 +160,8 @@
     ([label :uart_tx_overflow_handler])
     ([label :key0_handler])
     ([label :key1_handler])
+    ([label :ignition_switch_off_handler])
+    ([label :ignition_switch_on_handler])
     ([label :softevent3_handler])
     ([label :softevent2_handler])
     ([label :softevent1_handler])
@@ -194,15 +217,17 @@ event mstimer0_handler
     a = a+b
     b = 60
     bn eq :same_minute
-        a = 0
-        ram_read_lo i = $ram_minutes_cnt
-        j = 1
-        ram_write_lo $ram_minutes_cnt = i+j
+        ram_write_lo $ram_seconds_cnt = 0
+        ram_read_lo a = $ram_minutes_cnt
+        b = 1
+        ram_write_lo $ram_minutes_cnt = a+b
+        call :minute_events
+        jmp :minutes_done
     :same_minute
-    ram_write_lo $ram_seconds_cnt = a
+        ram_write_lo $ram_seconds_cnt = a
+    :minutes_done
     
-    call :check_power_down    
-    
+    call :check_power_relay
     call :start_daq_pass
 end_event
 
@@ -288,20 +313,58 @@ func begin_adc_conversion
     spi_data = a
 end_func    
 
+event power_lost_handler
+    // this must be an uncommanded loss of main power, because if it was commanded,
+    // no more events would be handled; this event handler wouldn't have a chance to run.
+    // immediately set the power relay PWM to full power for a few seconds, 
+    // in case the power relay opened accidentally e.g. due to a hard pothole.
+    power_duty = $power_duty_closing
+    ram_read_lo a = $ram_daq_pass_cnt
+    b = $relay_hold_passes
+    ram_write_lo $ram_relay_hold_at_pass = a+b
+    // save persistent data in case the power remains down e.g. due to battery disconnect.
+    call :save_persistent_data
+end_event
+
+event ignition_switch_off_handler
+    // set power-down deadline in RAM.  this makes the system remain powered for several more minutes, for cooldown data logging.    
+    ram_read_lo a = $ram_minutes_cnt
+    b = $power_extend_minutes
+    ram_write_lo $ram_power_down_at_min = a+b
+end_event
+
+event ignition_switch_on_handler
+    ram_write_lo $ram_power_down_at_min = $power_down_never
+end_event
+
+func minute_events
+    call :check_power_down    
+end_func
+
+func check_power_relay
+    ram_read_lo a = $ram_daq_pass_cnt    
+    ram_read_lo b = $ram_relay_hold_at_pass
+    bn eq :done
+        // time to begin "solenoid saver" coil power reduction by PWM.
+        power_duty = $power_duty_holding
+    :done
+end_func
+
 func check_power_down
-    // check for ignition switch still on. 
-    a = power_sense
-    b = $power_ignition_switch_mask
-    br and0z :ignition_off
-        // still on; extend deadline.
-        ram_read_lo a = $ram_minutes_cnt
-        b = $power_extend_minutes
-        ram_write_lo $ram_power_down_at_min = a+b
-    :ignition_off
-        // check power-down deadline in RAM.    
-        ram_read_lo a = $ram_minutes_cnt
-        ram_read_lo b = $ram_power_down_at_min
-        bn eq :no_power_down
-            call :power_down
-        :no_power_down
+    // check power-down deadline in RAM.    
+    ram_read_lo a = $ram_minutes_cnt
+    ram_read_lo b = $ram_power_down_at_min
+    bn eq :done
+        call :power_down
+    :done
+end_func
+
+func power_down
+    // this function never returns.
+    call :save_persistent_data
+    power_duty = $power_duty_opening
+    error_halt_code $err_power_down
+end_func
+
+func save_persistent_data
 end_func
