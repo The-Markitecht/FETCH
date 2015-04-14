@@ -84,7 +84,7 @@
         setvar power_duty_opening               $power_duty_max
         setvar power_duty_holding               (int($power_duty_max / 3))
 
-    setvar ram_counter $sdram_base
+    setvar ram_counter [ram_split $sdram_base]
     ram_define ram_mcu_usage_cnt            2
     ram_define ram_daq_pass_cnt             2
     ram_define ram_daq_discard_cnt          2
@@ -137,8 +137,8 @@
     bn az :clear_next_word
 
     // init RAM variables.
-    ram_write_lo $ram_power_down_at_min = $power_down_never
-    ram_write_lo $ram_relay_hold_at_pass = $relay_hold_passes
+    ram $ram_power_down_at_min = $power_down_never
+    ram $ram_relay_hold_at_pass = $relay_hold_passes
     
     // start handling events.
     soft_event = $event_controller_reset_mask
@@ -174,12 +174,11 @@ end_event
 
 event spi_done_handler
     // discard-counter in RAM.  
-    av_ad_hi = 0
-    ram_read_lo a = $ram_daq_discard_cnt
+    ram a = $ram_daq_discard_cnt
     br az :report
         b = -1
         a = a+b
-        ram_write_lo $ram_daq_discard_cnt = a
+        ram $ram_daq_discard_cnt = a
         a = $anmux_adc_channel
         call :begin_adc_conversion
         event_return
@@ -209,22 +208,20 @@ event mstimer0_handler
     // start timer again.
     mstimer0 = 1000
 
-    av_ad_hi = 0
-    
     // realtime counters in RAM.  
-    ram_read_lo a = $ram_seconds_cnt
+    ram a = $ram_seconds_cnt
     b = 1
     a = a+b
     b = 60
     bn eq :same_minute
-        ram_write_lo $ram_seconds_cnt = 0
-        ram_read_lo a = $ram_minutes_cnt
+        ram $ram_seconds_cnt = 0
+        ram a = $ram_minutes_cnt
         b = 1
-        ram_write_lo $ram_minutes_cnt = a+b
+        ram $ram_minutes_cnt = a+b
         call :minute_events
         jmp :minutes_done
     :same_minute
-        ram_write_lo $ram_seconds_cnt = a
+        ram $ram_seconds_cnt = a
     :minutes_done
     
     call :check_power_relay
@@ -233,8 +230,7 @@ end_event
 
 event mstimer1_handler    
     // start a reading from the current anmux channel.
-    av_ad_hi = 0
-    ram_write_lo $ram_daq_discard_cnt = $anmux_num_discards
+    ram $ram_daq_discard_cnt = $anmux_num_discards
     putasc " "
     putasc "s"
     call :anmux_get_chn
@@ -281,12 +277,11 @@ end_event
     
 func start_daq_pass
     // daq pass counter in RAM.  
-    av_ad_hi = 0
-    ram_read_lo a = $ram_daq_pass_cnt
+    ram a = $ram_daq_pass_cnt
     b = 1
     a = a+b
     leds = a
-    ram_write_lo $ram_daq_pass_cnt = a
+    ram $ram_daq_pass_cnt = a
     call :put4x 
     putasc ":"
     
@@ -319,22 +314,22 @@ event power_lost_handler
     // immediately set the power relay PWM to full power for a few seconds, 
     // in case the power relay opened accidentally e.g. due to a hard pothole.
     power_duty = $power_duty_closing
-    ram_read_lo a = $ram_daq_pass_cnt
+    ram a = $ram_daq_pass_cnt
     b = $relay_hold_passes
-    ram_write_lo $ram_relay_hold_at_pass = a+b
+    ram $ram_relay_hold_at_pass = a+b
     // save persistent data in case the power remains down e.g. due to battery disconnect.
     call :save_persistent_data
 end_event
 
 event ignition_switch_off_handler
     // set power-down deadline in RAM.  this makes the system remain powered for several more minutes, for cooldown data logging.    
-    ram_read_lo a = $ram_minutes_cnt
+    ram a = $ram_minutes_cnt
     b = $power_extend_minutes
-    ram_write_lo $ram_power_down_at_min = a+b
+    ram $ram_power_down_at_min = a+b
 end_event
 
 event ignition_switch_on_handler
-    ram_write_lo $ram_power_down_at_min = $power_down_never
+    ram $ram_power_down_at_min = $power_down_never
 end_event
 
 func minute_events
@@ -342,8 +337,8 @@ func minute_events
 end_func
 
 func check_power_relay
-    ram_read_lo a = $ram_daq_pass_cnt    
-    ram_read_lo b = $ram_relay_hold_at_pass
+    ram a = $ram_daq_pass_cnt    
+    ram b = $ram_relay_hold_at_pass
     bn eq :done
         // time to begin "solenoid saver" coil power reduction by PWM.
         power_duty = $power_duty_holding
@@ -352,8 +347,8 @@ end_func
 
 func check_power_down
     // check power-down deadline in RAM.    
-    ram_read_lo a = $ram_minutes_cnt
-    ram_read_lo b = $ram_power_down_at_min
+    ram a = $ram_minutes_cnt
+    ram b = $ram_power_down_at_min
     bn eq :done
         call :power_down
     :done
