@@ -13,7 +13,7 @@ module cdpwm #(
     
     ,output wire[15:0]           duty
     , input wire                 duty_load
-    , input wire[15:0]           data_in
+    , input wire[MSB:0]          data_in
         
     ,output wire                 pwm_signal
 );
@@ -38,16 +38,18 @@ module cdpwm #(
     wire event_edge = counter_event && ! event_last;
 
     // free-running down counter.
-    reg[15:0] cnt = 0;
+    reg[MSB:0] cnt = 0;
     assign counter_value = cnt;
     wire expired = cnt == '0;
     always_ff @(posedge sysclk, posedge sysreset) begin
         if (sysreset)
             cnt <= 0;
-        else if (expired)
-            cnt <= START;
-        else 
-            cnt <= cnt - 16'd1;
+        else if (event_edge) begin
+            if (expired)
+                cnt <= START;
+            else 
+                cnt <= cnt - 'd1;
+        end
     end
     
     // duty cycle register & signal generator.

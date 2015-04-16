@@ -35,6 +35,8 @@ module top (
     output wire		          		ADC_SCLK,
     input wire 		          		ADC_SDAT,
 
+    (* chip_pin = "C16, C14, A14, B16" *) output wire[3:0] anmux_ctrl,
+    
     (* chip_pin = "M15, B9, T8, M1" *)  input wire[3:0]  dip_switch,
     
     (* chip_pin = "G15" *) input wire   reserved,
@@ -47,11 +49,11 @@ module top (
     
     (* chip_pin = "T13, T15" *) output wire[1:0]  scope,
     
-    (* chip_pin = "T13" *) output wire power_relay_pwm,
-    (* chip_pin = "T13" *) input wire  power_lost,
-    (* chip_pin = "T13" *) input wire  ignition_switch_off,
+    (* chip_pin = "C15" *) output wire power_relay_pwm,
+    (* chip_pin = "E16" *) input wire  power_lost,
+    (* chip_pin = "M16" *) input wire  ignition_switch_off
     
-    output wire 		    [9:0]		GPIO_2
+    //output wire 		    [9:0]		GPIO_2
     //input wire 		     [2:0]		GPIO_2_IN
 
     // inout wire 		    [33:0]		g0,
@@ -111,17 +113,6 @@ always_ff @(posedge sysclk)
         counter1k <= 0;
     else if (pulse1m)
         counter1k <= counter1k + 10'd1;        
-
-// dg408 -  JP3 -   schem -     fpga -  verilog -   nios bit
-// en =2    8       gpio_23     c16     gpio_2[3]   3
-// a2 =15   7       gpio_22     c14     gpio_2[2]   2
-// a1 =16   5       gpio_20     a14     gpio_2[0]   1
-// a0 =1    6       gpio_21     b16     gpio_2[1]   0
-wire[3:0] anmux_ctrl; // dg408 pins en, a2, a1, a0
-assign GPIO_2[3] = anmux_ctrl[3];
-assign GPIO_2[2] = anmux_ctrl[2];
-assign GPIO_2[0] = anmux_ctrl[1];
-assign GPIO_2[1] = anmux_ctrl[0];
 
 // MCU target plus debugging supervisor and a code ROM for each.
 wire[15:0]                r[`TOP_REG:0];
@@ -271,6 +262,11 @@ assign r[`SR_KEYS] = {14'h0, KEY};
 
 std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, r[`DR_ANMUX_CTRL], r_load_data[3:0], r_load[`DR_ANMUX_CTRL]);
 assign anmux_ctrl = r[`DR_ANMUX_CTRL][3:0];
+// dg408 -  JP3 -   schem -     fpga -  verilog -   mcu bit
+// en =2    8       gpio_23     c16     gpio_2[3]   3
+// a2 =15   7       gpio_22     c14     gpio_2[2]   2
+// a1 =16   5       gpio_20     a14     gpio_2[0]   1
+// a0 =1    6       gpio_21     b16     gpio_2[1]   0
 
 // ustimer's count down on microseconds.
 wire ustimer0_expired;
@@ -337,7 +333,7 @@ syncer ignition_switch_syncer(sysclk, ignition_switch_off, ignition_switch_off_s
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
 std_reg soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
 assign scope = r[`DR_SOFT_EVENT][14:13]; // copy soft_event_reg to o'scope pins for analysis.
-event_controller #(.NUM_INPUTS(14)) events( 
+event_controller #(.NUM_INPUTS(17)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset || r[`DR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])
     ,.priority_out      (r[`DR_EVENT_PRIORITY])
