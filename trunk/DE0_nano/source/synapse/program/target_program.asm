@@ -78,11 +78,13 @@
         
     alias_both power_duty           [incr counter]  "pwr_duty"
         // power relay duty cycles, in microseconds.  duty cycle time = relay OFF time.
+        // relay actually remains energized for about another 5 us after pwm goes high,
+        // due to the optocoupler pullup taking some time to climb through the MOSFET's threshold.
         setvar power_duty_min                   0
         setvar power_duty_max                   50
         setvar power_duty_closing               $power_duty_min
         setvar power_duty_opening               $power_duty_max
-        setvar power_duty_holding               (int($power_duty_max / 3))
+        setvar power_duty_holding               (int($power_duty_max / 2))
 
     setvar ram_counter [ram_split $sdram_base]
     ram_define ram_mcu_usage_cnt            2
