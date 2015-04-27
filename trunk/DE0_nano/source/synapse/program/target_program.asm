@@ -34,6 +34,7 @@
         // all Avalon addresses are BYTE addresses.  all Avalon sizes are in BYTES.
         vdefine32 sdram_base                 0x00000000
         vdefine32 sdram_size                 0x02000000
+        setvar ram_counter          [ram_split $sdram_base]
         // SDRAM notes:
         // - all addresses are BYTE addresses.  all must be divisible by 2, because this
         // system only supports 16-bit word accesses.  writes to an odd-numbered address
@@ -75,7 +76,9 @@
         setvar      anmux_adc_channel       7
         setvar      anmux_settle_ms         5
         setvar      anmux_num_discards      2
-        
+        ram_define  ram_daq_pass_cnt        2
+        ram_define  ram_daq_discard_cnt     2
+    
     alias_both power_duty           [incr counter]  "pwr_duty"
         // power relay duty cycles, in microseconds.  duty cycle time = relay OFF time.
         // relay actually remains energized for about another 5 us after pwm goes high,
@@ -85,22 +88,22 @@
         setvar power_duty_closing               $power_duty_min
         setvar power_duty_opening               $power_duty_max
         setvar power_duty_holding               (int($power_duty_max / 2))
+        setvar ignition_switch_off_mask         0x80
+        setvar power_lost_mask                  0x40
+        ram_define ram_power_down_at_min        2
+            setvar power_down_never             0xffff
+            setvar power_extend_minutes         3
+        ram_define ram_relay_hold_at_pass       2
+            setvar relay_hold_passes            2
 
-    setvar ram_counter [ram_split $sdram_base]
-    ram_define ram_mcu_usage_cnt            2
-    ram_define ram_daq_pass_cnt             2
-    ram_define ram_daq_discard_cnt          2
     ram_define ram_minutes_cnt              2
     ram_define ram_seconds_cnt              2
-    ram_define ram_power_down_at_min        2
-        setvar power_down_never 0xffff
-        setvar power_extend_minutes 30
-    ram_define ram_relay_hold_at_pass       2
-        setvar relay_hold_passes 2
+    ram_define ram_mcu_usage_cnt            2    
                 
-    setvar err_rx_overflow 0xfffe
-    setvar err_tx_overflow 0xfffd
-    setvar err_power_down  0xfffc
+    setvar err_rx_overflow              0xfffe
+    setvar err_tx_overflow              0xfffd
+    setvar err_power_down               0xfffc
+    setvar err_power_lost_at_boot       0xfffb
     
     jmp :main
     
@@ -141,6 +144,18 @@
     // init RAM variables.
     ram $ram_power_down_at_min = $power_down_never
     ram $ram_relay_hold_at_pass = $relay_hold_passes
+    
+    // check initial state of power management circuits.
+    // if power is lost or ignition switch is off already, open relay & abort run.
+    // that's important because then the event controller booted up too late to
+    // see edges on those 2 signals.  regular system would never shut itself down.
+    power_duty = $power_duty_closing
+    a = power_duty
+    b = ($power_lost_mask | $ignition_switch_off_mask)
+    br and0z :skip_power_lost
+    power_duty = $power_duty_opening
+    error_halt_code $err_power_lost_at_boot    
+    :skip_power_lost
     
     // start handling events.
     soft_event = $event_controller_reset_mask
@@ -311,6 +326,8 @@ func begin_adc_conversion
 end_func    
 
 event power_lost_handler
+    // at this time we have less than 2 ms of usable run time left.
+
     // this must be an uncommanded loss of main power, because if it was commanded,
     // no more events would be handled; this event handler wouldn't have a chance to run.
     // immediately set the power relay PWM to full power for a few seconds, 
@@ -319,6 +336,9 @@ event power_lost_handler
     ram a = $ram_daq_pass_cnt
     b = $relay_hold_passes
     ram $ram_relay_hold_at_pass = a+b
+    
+    // pause any non-vital power-hogging operations, to conserve power for the EEPROM write.
+    
     // save persistent data in case the power remains down e.g. due to battery disconnect.
     call :save_persistent_data
 end_event

@@ -3,12 +3,16 @@
 
 namespace eval ::asm {
 
+    proc show_error_code {lin error_code} {
+        parse3 leds = $error_code "$lin // leds = $error_code"
+    }
+    
     proc error_halt {lin} {
         jmp $lin $::ipr  
     }
 
     proc error_halt_code {lin error_code} {
-        parse3 leds = $error_code "$lin // leds = $error_code"
+        show_error_code $lin $error_code
         error_halt $lin
     }
 

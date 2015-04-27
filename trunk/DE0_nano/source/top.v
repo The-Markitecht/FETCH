@@ -256,7 +256,7 @@ assign anmux_ctrl = exp_r[`EDR_ANMUX_CTRL][3:0];
 */
 
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
-assign LED = r[`DR_LEDS][7:0];
+assign LED = { ! ignition_switch_off_sync, r[`DR_LEDS][6:0]};
 
 assign r[`SR_KEYS] = {14'h0, KEY}; 
 
@@ -303,16 +303,18 @@ cdtimer16 mstimer1 (
 );
 
 // PWM generator to drive the computer's main power relay.  counts microseconds.  count 50 = 20 KHz.
+wire[15:0] power_duty;
 cdpwm #(.WIDTH(6), .START(50)) power_relay_pwm_inst (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sysreset )  
     ,.counter_event   ( pulse1m )
     ,.counter_value   (  )
-    ,.duty            ( r[`DR_POWER_DUTY] )
+    ,.duty            ( power_duty )
     ,.duty_load       ( r_load[`DR_POWER_DUTY] )
     ,.data_in         ( r_load_data[5:0] )
     ,.pwm_signal      ( power_relay_pwm )
 );
+assign r[`DR_POWER_DUTY] = {8'd0, ignition_switch_off_sync, power_lost_sync, power_duty[5:0]};
 
 usage_counter usage (
      .sysclk               ( sysclk )
