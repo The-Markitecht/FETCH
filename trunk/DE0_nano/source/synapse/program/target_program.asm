@@ -92,7 +92,7 @@
         setvar power_lost_mask                  0x40
         ram_define ram_power_down_at_min        2
             setvar power_down_never             0xffff
-            setvar power_extend_minutes         3
+            setvar power_extend_minutes         10
         ram_define ram_relay_hold_at_pass       2
             setvar relay_hold_passes            2
 
