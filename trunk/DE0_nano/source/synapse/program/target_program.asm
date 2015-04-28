@@ -88,8 +88,9 @@
         setvar power_duty_closing               $power_duty_min
         setvar power_duty_opening               $power_duty_max
         setvar power_duty_holding               (int($power_duty_max / 2))
-        setvar ignition_switch_off_mask         0x80
-        setvar power_lost_mask                  0x40
+        setvar power_lost_mask                  0x0040
+        setvar ignition_switch_off_mask         0x0080
+        setvar beeper_enable_mask               0x0100
         ram_define ram_power_down_at_min        2
             setvar power_down_never             0xffff
             setvar power_extend_minutes         10
@@ -149,6 +150,7 @@
     // if power is lost or ignition switch is off already, open relay & abort run.
     // that's important because then the event controller booted up too late to
     // see edges on those 2 signals.  regular system would never shut itself down.
+    // this setup is the last thing done prior to the event handler loop.
     power_duty = $power_duty_closing
     a = power_duty
     b = ($power_lost_mask | $ignition_switch_off_mask)
@@ -379,7 +381,8 @@ end_func
 func power_down
     // this function never returns.
     call :save_persistent_data
-    power_duty = $power_duty_opening
+    power_duty = ($power_duty_opening | $beeper_enable_mask)
+    // notice the beeper was enabled there, for a little audible feedback during a commanded power-down.
     error_halt_code $err_power_down
 end_func
 

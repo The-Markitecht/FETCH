@@ -57,140 +57,140 @@
 
 
 
-addr == 16'h00 ? 16'he00f :  // <0108> jmp :main
-addr == 16'h01 ? 16'h0150 :  // <0108> "
+addr == 16'h00 ? 16'he00f :  // <0109> jmp :main
+addr == 16'h01 ? 16'h0150 :  // <0109> "
 
-addr == 16'h02 ? 16'h001a :  // <0110> emit_debugger_register_table  counter
+addr == 16'h02 ? 16'h001a :  // <0111> emit_debugger_register_table  counter
 // "       a"
-addr == 16'h03 ? 16'h2020 :  // <0110>   
-addr == 16'h04 ? 16'h2020 :  // <0110>   
-addr == 16'h05 ? 16'h2020 :  // <0110>   
-addr == 16'h06 ? 16'h6120 :  // <0110> a 
+addr == 16'h03 ? 16'h2020 :  // <0111>   
+addr == 16'h04 ? 16'h2020 :  // <0111>   
+addr == 16'h05 ? 16'h2020 :  // <0111>   
+addr == 16'h06 ? 16'h6120 :  // <0111> a 
 // "       b"
-addr == 16'h07 ? 16'h2020 :  // <0110>   
-addr == 16'h08 ? 16'h2020 :  // <0110>   
-addr == 16'h09 ? 16'h2020 :  // <0110>   
-addr == 16'h0a ? 16'h6220 :  // <0110> b 
+addr == 16'h07 ? 16'h2020 :  // <0111>   
+addr == 16'h08 ? 16'h2020 :  // <0111>   
+addr == 16'h09 ? 16'h2020 :  // <0111>   
+addr == 16'h0a ? 16'h6220 :  // <0111> b 
 // "       i"
-addr == 16'h0b ? 16'h2020 :  // <0110>   
-addr == 16'h0c ? 16'h2020 :  // <0110>   
-addr == 16'h0d ? 16'h2020 :  // <0110>   
-addr == 16'h0e ? 16'h6920 :  // <0110> i 
+addr == 16'h0b ? 16'h2020 :  // <0111>   
+addr == 16'h0c ? 16'h2020 :  // <0111>   
+addr == 16'h0d ? 16'h2020 :  // <0111>   
+addr == 16'h0e ? 16'h6920 :  // <0111> i 
 // "       j"
-addr == 16'h0f ? 16'h2020 :  // <0110>   
-addr == 16'h10 ? 16'h2020 :  // <0110>   
-addr == 16'h11 ? 16'h2020 :  // <0110>   
-addr == 16'h12 ? 16'h6a20 :  // <0110> j 
+addr == 16'h0f ? 16'h2020 :  // <0111>   
+addr == 16'h10 ? 16'h2020 :  // <0111>   
+addr == 16'h11 ? 16'h2020 :  // <0111>   
+addr == 16'h12 ? 16'h6a20 :  // <0111> j 
 // "       x"
-addr == 16'h13 ? 16'h2020 :  // <0110>   
-addr == 16'h14 ? 16'h2020 :  // <0110>   
-addr == 16'h15 ? 16'h2020 :  // <0110>   
-addr == 16'h16 ? 16'h7820 :  // <0110> x 
+addr == 16'h13 ? 16'h2020 :  // <0111>   
+addr == 16'h14 ? 16'h2020 :  // <0111>   
+addr == 16'h15 ? 16'h2020 :  // <0111>   
+addr == 16'h16 ? 16'h7820 :  // <0111> x 
 // "       y"
-addr == 16'h17 ? 16'h2020 :  // <0110>   
-addr == 16'h18 ? 16'h2020 :  // <0110>   
-addr == 16'h19 ? 16'h2020 :  // <0110>   
-addr == 16'h1a ? 16'h7920 :  // <0110> y 
+addr == 16'h17 ? 16'h2020 :  // <0111>   
+addr == 16'h18 ? 16'h2020 :  // <0111>   
+addr == 16'h19 ? 16'h2020 :  // <0111>   
+addr == 16'h1a ? 16'h7920 :  // <0111> y 
 // "      g6"
-addr == 16'h1b ? 16'h2020 :  // <0110>   
-addr == 16'h1c ? 16'h2020 :  // <0110>   
-addr == 16'h1d ? 16'h2020 :  // <0110>   
-addr == 16'h1e ? 16'h3667 :  // <0110> 6g
+addr == 16'h1b ? 16'h2020 :  // <0111>   
+addr == 16'h1c ? 16'h2020 :  // <0111>   
+addr == 16'h1d ? 16'h2020 :  // <0111>   
+addr == 16'h1e ? 16'h3667 :  // <0111> 6g
 // "      g7"
-addr == 16'h1f ? 16'h2020 :  // <0110>   
-addr == 16'h20 ? 16'h2020 :  // <0110>   
-addr == 16'h21 ? 16'h2020 :  // <0110>   
-addr == 16'h22 ? 16'h3767 :  // <0110> 7g
+addr == 16'h1f ? 16'h2020 :  // <0111>   
+addr == 16'h20 ? 16'h2020 :  // <0111>   
+addr == 16'h21 ? 16'h2020 :  // <0111>   
+addr == 16'h22 ? 16'h3767 :  // <0111> 7g
 // "//rstk  "
-addr == 16'h23 ? 16'h2f2f :  // <0110> //
-addr == 16'h24 ? 16'h7372 :  // <0110> sr
-addr == 16'h25 ? 16'h6b74 :  // <0110> kt
-addr == 16'h26 ? 16'h2020 :  // <0110>   
+addr == 16'h23 ? 16'h2f2f :  // <0111> //
+addr == 16'h24 ? 16'h7372 :  // <0111> sr
+addr == 16'h25 ? 16'h6b74 :  // <0111> kt
+addr == 16'h26 ? 16'h2020 :  // <0111>   
 // "  ev_pri"
-addr == 16'h27 ? 16'h2020 :  // <0110>   
-addr == 16'h28 ? 16'h7665 :  // <0110> ve
-addr == 16'h29 ? 16'h705f :  // <0110> p_
-addr == 16'h2a ? 16'h6972 :  // <0110> ir
+addr == 16'h27 ? 16'h2020 :  // <0111>   
+addr == 16'h28 ? 16'h7665 :  // <0111> ve
+addr == 16'h29 ? 16'h705f :  // <0111> p_
+addr == 16'h2a ? 16'h6972 :  // <0111> ir
 // "softevnt"
-addr == 16'h2b ? 16'h6f73 :  // <0110> os
-addr == 16'h2c ? 16'h7466 :  // <0110> tf
-addr == 16'h2d ? 16'h7665 :  // <0110> ve
-addr == 16'h2e ? 16'h746e :  // <0110> tn
+addr == 16'h2b ? 16'h6f73 :  // <0111> os
+addr == 16'h2c ? 16'h7466 :  // <0111> tf
+addr == 16'h2d ? 16'h7665 :  // <0111> ve
+addr == 16'h2e ? 16'h746e :  // <0111> tn
 // "   usage"
-addr == 16'h2f ? 16'h2020 :  // <0110>   
-addr == 16'h30 ? 16'h7520 :  // <0110> u 
-addr == 16'h31 ? 16'h6173 :  // <0110> as
-addr == 16'h32 ? 16'h6567 :  // <0110> eg
+addr == 16'h2f ? 16'h2020 :  // <0111>   
+addr == 16'h30 ? 16'h7520 :  // <0111> u 
+addr == 16'h31 ? 16'h6173 :  // <0111> as
+addr == 16'h32 ? 16'h6567 :  // <0111> eg
 // "ustimer0"
-addr == 16'h33 ? 16'h7375 :  // <0110> su
-addr == 16'h34 ? 16'h6974 :  // <0110> it
-addr == 16'h35 ? 16'h656d :  // <0110> em
-addr == 16'h36 ? 16'h3072 :  // <0110> 0r
+addr == 16'h33 ? 16'h7375 :  // <0111> su
+addr == 16'h34 ? 16'h6974 :  // <0111> it
+addr == 16'h35 ? 16'h656d :  // <0111> em
+addr == 16'h36 ? 16'h3072 :  // <0111> 0r
 // "mstimer0"
-addr == 16'h37 ? 16'h736d :  // <0110> sm
-addr == 16'h38 ? 16'h6974 :  // <0110> it
-addr == 16'h39 ? 16'h656d :  // <0110> em
-addr == 16'h3a ? 16'h3072 :  // <0110> 0r
+addr == 16'h37 ? 16'h736d :  // <0111> sm
+addr == 16'h38 ? 16'h6974 :  // <0111> it
+addr == 16'h39 ? 16'h656d :  // <0111> em
+addr == 16'h3a ? 16'h3072 :  // <0111> 0r
 // "mstimer1"
-addr == 16'h3b ? 16'h736d :  // <0110> sm
-addr == 16'h3c ? 16'h6974 :  // <0110> it
-addr == 16'h3d ? 16'h656d :  // <0110> em
-addr == 16'h3e ? 16'h3172 :  // <0110> 1r
+addr == 16'h3b ? 16'h736d :  // <0111> sm
+addr == 16'h3c ? 16'h6974 :  // <0111> it
+addr == 16'h3d ? 16'h656d :  // <0111> em
+addr == 16'h3e ? 16'h3172 :  // <0111> 1r
 // "spi_data"
-addr == 16'h3f ? 16'h7073 :  // <0110> ps
-addr == 16'h40 ? 16'h5f69 :  // <0110> _i
-addr == 16'h41 ? 16'h6164 :  // <0110> ad
-addr == 16'h42 ? 16'h6174 :  // <0110> at
+addr == 16'h3f ? 16'h7073 :  // <0111> ps
+addr == 16'h40 ? 16'h5f69 :  // <0111> _i
+addr == 16'h41 ? 16'h6164 :  // <0111> ad
+addr == 16'h42 ? 16'h6174 :  // <0111> at
 // "//avwrdt"
-addr == 16'h43 ? 16'h2f2f :  // <0110> //
-addr == 16'h44 ? 16'h7661 :  // <0110> va
-addr == 16'h45 ? 16'h7277 :  // <0110> rw
-addr == 16'h46 ? 16'h7464 :  // <0110> td
+addr == 16'h43 ? 16'h2f2f :  // <0111> //
+addr == 16'h44 ? 16'h7661 :  // <0111> va
+addr == 16'h45 ? 16'h7277 :  // <0111> rw
+addr == 16'h46 ? 16'h7464 :  // <0111> td
 // "av_rd_dt"
-addr == 16'h47 ? 16'h7661 :  // <0110> va
-addr == 16'h48 ? 16'h725f :  // <0110> r_
-addr == 16'h49 ? 16'h5f64 :  // <0110> _d
-addr == 16'h4a ? 16'h7464 :  // <0110> td
+addr == 16'h47 ? 16'h7661 :  // <0111> va
+addr == 16'h48 ? 16'h725f :  // <0111> r_
+addr == 16'h49 ? 16'h5f64 :  // <0111> _d
+addr == 16'h4a ? 16'h7464 :  // <0111> td
 // "av_ad_hi"
-addr == 16'h4b ? 16'h7661 :  // <0110> va
-addr == 16'h4c ? 16'h615f :  // <0110> a_
-addr == 16'h4d ? 16'h5f64 :  // <0110> _d
-addr == 16'h4e ? 16'h6968 :  // <0110> ih
+addr == 16'h4b ? 16'h7661 :  // <0111> va
+addr == 16'h4c ? 16'h615f :  // <0111> a_
+addr == 16'h4d ? 16'h5f64 :  // <0111> _d
+addr == 16'h4e ? 16'h6968 :  // <0111> ih
 // "av_ad_lo"
-addr == 16'h4f ? 16'h7661 :  // <0110> va
-addr == 16'h50 ? 16'h615f :  // <0110> a_
-addr == 16'h51 ? 16'h5f64 :  // <0110> _d
-addr == 16'h52 ? 16'h6f6c :  // <0110> ol
+addr == 16'h4f ? 16'h7661 :  // <0111> va
+addr == 16'h50 ? 16'h615f :  // <0111> a_
+addr == 16'h51 ? 16'h5f64 :  // <0111> _d
+addr == 16'h52 ? 16'h6f6c :  // <0111> ol
 // "//uartdt"
-addr == 16'h53 ? 16'h2f2f :  // <0110> //
-addr == 16'h54 ? 16'h6175 :  // <0110> au
-addr == 16'h55 ? 16'h7472 :  // <0110> tr
-addr == 16'h56 ? 16'h7464 :  // <0110> td
+addr == 16'h53 ? 16'h2f2f :  // <0111> //
+addr == 16'h54 ? 16'h6175 :  // <0111> au
+addr == 16'h55 ? 16'h7472 :  // <0111> tr
+addr == 16'h56 ? 16'h7464 :  // <0111> td
 // "uartstat"
-addr == 16'h57 ? 16'h6175 :  // <0110> au
-addr == 16'h58 ? 16'h7472 :  // <0110> tr
-addr == 16'h59 ? 16'h7473 :  // <0110> ts
-addr == 16'h5a ? 16'h7461 :  // <0110> ta
+addr == 16'h57 ? 16'h6175 :  // <0111> au
+addr == 16'h58 ? 16'h7472 :  // <0111> tr
+addr == 16'h59 ? 16'h7473 :  // <0111> ts
+addr == 16'h5a ? 16'h7461 :  // <0111> ta
 // "    keys"
-addr == 16'h5b ? 16'h2020 :  // <0110>   
-addr == 16'h5c ? 16'h2020 :  // <0110>   
-addr == 16'h5d ? 16'h656b :  // <0110> ek
-addr == 16'h5e ? 16'h7379 :  // <0110> sy
+addr == 16'h5b ? 16'h2020 :  // <0111>   
+addr == 16'h5c ? 16'h2020 :  // <0111>   
+addr == 16'h5d ? 16'h656b :  // <0111> ek
+addr == 16'h5e ? 16'h7379 :  // <0111> sy
 // "    leds"
-addr == 16'h5f ? 16'h2020 :  // <0110>   
-addr == 16'h60 ? 16'h2020 :  // <0110>   
-addr == 16'h61 ? 16'h656c :  // <0110> el
-addr == 16'h62 ? 16'h7364 :  // <0110> sd
+addr == 16'h5f ? 16'h2020 :  // <0111>   
+addr == 16'h60 ? 16'h2020 :  // <0111>   
+addr == 16'h61 ? 16'h656c :  // <0111> el
+addr == 16'h62 ? 16'h7364 :  // <0111> sd
 // "   anmux"
-addr == 16'h63 ? 16'h2020 :  // <0110>   
-addr == 16'h64 ? 16'h6120 :  // <0110> a 
-addr == 16'h65 ? 16'h6d6e :  // <0110> mn
-addr == 16'h66 ? 16'h7875 :  // <0110> xu
+addr == 16'h63 ? 16'h2020 :  // <0111>   
+addr == 16'h64 ? 16'h6120 :  // <0111> a 
+addr == 16'h65 ? 16'h6d6e :  // <0111> mn
+addr == 16'h66 ? 16'h7875 :  // <0111> xu
 // "pwr_duty"
-addr == 16'h67 ? 16'h7770 :  // <0110> wp
-addr == 16'h68 ? 16'h5f72 :  // <0110> _r
-addr == 16'h69 ? 16'h7564 :  // <0110> ud
-addr == 16'h6a ? 16'h7974 :  // <0110> yt
+addr == 16'h67 ? 16'h7770 :  // <0111> wp
+addr == 16'h68 ? 16'h5f72 :  // <0111> _r
+addr == 16'h69 ? 16'h7564 :  // <0111> ud
+addr == 16'h6a ? 16'h7974 :  // <0111> yt
 
 // libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
 
@@ -542,334 +542,335 @@ addr == 16'h14f ? 16'hfc00 :  // <0016> end_func
 // jmp :main
 
 // clear the first 64k of RAM.
-addr == 16'h150 ? 16'h4a00 :  // <0135> av_ad_hi = 0
-addr == 16'h151 ? 16'h0200 :  // <0136> a = 0
-addr == 16'h152 ? 16'h0602 :  // <0137> b = 2
+addr == 16'h150 ? 16'h4a00 :  // <0136> av_ad_hi = 0
+addr == 16'h151 ? 16'h0200 :  // <0137> a = 0
+addr == 16'h152 ? 16'h0602 :  // <0138> b = 2
 // :clear_next_word // = 0x0153
-addr == 16'h153 ? 16'h4c00 :  // <0139> av_ad_lo = a
-addr == 16'h154 ? 16'h4200 :  // <0140> av_write_data = 0
-addr == 16'h155 ? 16'h0300 :  // <0141> a = ad0
-addr == 16'h156 ? 16'he400 :  // <0142> bn az :clear_next_word
-addr == 16'h157 ? 16'h0153 :  // <0142> "
+addr == 16'h153 ? 16'h4c00 :  // <0140> av_ad_lo = a
+addr == 16'h154 ? 16'h4200 :  // <0141> av_write_data = 0
+addr == 16'h155 ? 16'h0300 :  // <0142> a = ad0
+addr == 16'h156 ? 16'he400 :  // <0143> bn az :clear_next_word
+addr == 16'h157 ? 16'h0153 :  // <0143> "
 
 // init RAM variables.
-addr == 16'h158 ? 16'h4a00 :  // <0145> ram $ram_power_down_at_min = $power_down_never // av_ad_hi = 0
-addr == 16'h159 ? 16'h4e04 :  // <0145> ram $ram_power_down_at_min = $power_down_never // av_ad_lo = 4
-addr == 16'h15a ? 16'h4360 :  // <0145> ram $ram_power_down_at_min = $power_down_never // av_write_data = 0xffff
-addr == 16'h15b ? 16'h4a00 :  // <0146> ram $ram_relay_hold_at_pass = $relay_hold_passes // av_ad_hi = 0
-addr == 16'h15c ? 16'h4e06 :  // <0146> ram $ram_relay_hold_at_pass = $relay_hold_passes // av_ad_lo = 6
-addr == 16'h15d ? 16'h4202 :  // <0146> ram $ram_relay_hold_at_pass = $relay_hold_passes // av_write_data = 2
+addr == 16'h158 ? 16'h4a00 :  // <0146> ram $ram_power_down_at_min = $power_down_never // av_ad_hi = 0
+addr == 16'h159 ? 16'h4e04 :  // <0146> ram $ram_power_down_at_min = $power_down_never // av_ad_lo = 4
+addr == 16'h15a ? 16'h4360 :  // <0146> ram $ram_power_down_at_min = $power_down_never // av_write_data = 0xffff
+addr == 16'h15b ? 16'h4a00 :  // <0147> ram $ram_relay_hold_at_pass = $relay_hold_passes // av_ad_hi = 0
+addr == 16'h15c ? 16'h4e06 :  // <0147> ram $ram_relay_hold_at_pass = $relay_hold_passes // av_ad_lo = 6
+addr == 16'h15d ? 16'h4202 :  // <0147> ram $ram_relay_hold_at_pass = $relay_hold_passes // av_write_data = 2
 
 // check initial state of power management circuits.
 // if power is lost or ignition switch is off already, open relay & abort run.
 // that's important because then the event controller booted up too late to
 // see edges on those 2 signals.  regular system would never shut itself down.
-addr == 16'h15e ? 16'h6600 :  // <0152> power_duty = $power_duty_closing
-addr == 16'h15f ? 16'h0019 :  // <0153> a = power_duty
-addr == 16'h160 ? 16'h06c0 :  // <0154> b = ($power_lost_mask | $ignition_switch_off_mask)
-addr == 16'h161 ? 16'he003 :  // <0155> br and0z :skip_power_lost
-addr == 16'h162 ? 16'h0168 :  // <0155> "
-addr == 16'h163 ? 16'h6632 :  // <0156> power_duty = $power_duty_opening
-addr == 16'h164 ? 16'h5fa0 :  // <0157> error_halt_code $err_power_lost_at_boot // leds = 0xfffb
-addr == 16'h165 ? 16'hfffb :  // <0157> "
-addr == 16'h166 ? 16'he00f :  // <0157> error_halt_code $err_power_lost_at_boot
-addr == 16'h167 ? 16'h0166 :  // <0157> "
+// this setup is the last thing done prior to the event handler loop.
+addr == 16'h15e ? 16'h6600 :  // <0154> power_duty = $power_duty_closing
+addr == 16'h15f ? 16'h0019 :  // <0155> a = power_duty
+addr == 16'h160 ? 16'h06c0 :  // <0156> b = ($power_lost_mask | $ignition_switch_off_mask)
+addr == 16'h161 ? 16'he003 :  // <0157> br and0z :skip_power_lost
+addr == 16'h162 ? 16'h0168 :  // <0157> "
+addr == 16'h163 ? 16'h6632 :  // <0158> power_duty = $power_duty_opening
+addr == 16'h164 ? 16'h5fa0 :  // <0159> error_halt_code $err_power_lost_at_boot // leds = 0xfffb
+addr == 16'h165 ? 16'hfffb :  // <0159> "
+addr == 16'h166 ? 16'he00f :  // <0159> error_halt_code $err_power_lost_at_boot
+addr == 16'h167 ? 16'h0166 :  // <0159> "
 // :skip_power_lost // = 0x0168
 
 // start handling events.
-addr == 16'h168 ? 16'h2ba0 :  // <0161> soft_event = $event_controller_reset_mask
-addr == 16'h169 ? 16'h8000 :  // <0161> "
-addr == 16'h16a ? 16'h2a00 :  // <0162> soft_event = 0
-addr == 16'h16b ? 16'h37a0 :  // <0163> mstimer0 = 1000
-addr == 16'h16c ? 16'h03e8 :  // <0163> "
-addr == 16'h16d ? 16'he00f :  // <0164> jmp :poll_events
-addr == 16'h16e ? 16'h006b :  // <0164> "
+addr == 16'h168 ? 16'h2ba0 :  // <0163> soft_event = $event_controller_reset_mask
+addr == 16'h169 ? 16'h8000 :  // <0163> "
+addr == 16'h16a ? 16'h2a00 :  // <0164> soft_event = 0
+addr == 16'h16b ? 16'h37a0 :  // <0165> mstimer0 = 1000
+addr == 16'h16c ? 16'h03e8 :  // <0165> "
+addr == 16'h16d ? 16'he00f :  // <0166> jmp :poll_events
+addr == 16'h16e ? 16'h006b :  // <0166> "
 
 // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.
 // event 0 not used in this app anyway.
 // :event_table // = 0x016f
-addr == 16'h16f ? 16'h006b :  // <0169> ([label :poll_events])
-addr == 16'h170 ? 16'h024b :  // <0170> ([label :power_lost_handler])
-addr == 16'h171 ? 16'h0180 :  // <0171> ([label :ustimer0_handler])
-addr == 16'h172 ? 16'h0182 :  // <0172> ([label :spi_done_handler])
-addr == 16'h173 ? 16'h01b2 :  // <0173> ([label :mstimer0_handler])
-addr == 16'h174 ? 16'h01da :  // <0174> ([label :mstimer1_handler])
-addr == 16'h175 ? 16'h01fb :  // <0175> ([label :uart_rx_handler])
-addr == 16'h176 ? 16'h01fd :  // <0176> ([label :uart_rx_overflow_handler])
-addr == 16'h177 ? 16'h0203 :  // <0177> ([label :uart_tx_overflow_handler])
-addr == 16'h178 ? 16'h0209 :  // <0178> ([label :key0_handler])
-addr == 16'h179 ? 16'h0215 :  // <0179> ([label :key1_handler])
-addr == 16'h17a ? 16'h025a :  // <0180> ([label :ignition_switch_off_handler])
-addr == 16'h17b ? 16'h0265 :  // <0181> ([label :ignition_switch_on_handler])
-addr == 16'h17c ? 16'h0221 :  // <0182> ([label :softevent3_handler])
-addr == 16'h17d ? 16'h0223 :  // <0183> ([label :softevent2_handler])
-addr == 16'h17e ? 16'h0225 :  // <0184> ([label :softevent1_handler])
-addr == 16'h17f ? 16'h0227 :  // <0185> ([label :softevent0_handler])
+addr == 16'h16f ? 16'h006b :  // <0171> ([label :poll_events])
+addr == 16'h170 ? 16'h024b :  // <0172> ([label :power_lost_handler])
+addr == 16'h171 ? 16'h0180 :  // <0173> ([label :ustimer0_handler])
+addr == 16'h172 ? 16'h0182 :  // <0174> ([label :spi_done_handler])
+addr == 16'h173 ? 16'h01b2 :  // <0175> ([label :mstimer0_handler])
+addr == 16'h174 ? 16'h01da :  // <0176> ([label :mstimer1_handler])
+addr == 16'h175 ? 16'h01fb :  // <0177> ([label :uart_rx_handler])
+addr == 16'h176 ? 16'h01fd :  // <0178> ([label :uart_rx_overflow_handler])
+addr == 16'h177 ? 16'h0203 :  // <0179> ([label :uart_tx_overflow_handler])
+addr == 16'h178 ? 16'h0209 :  // <0180> ([label :key0_handler])
+addr == 16'h179 ? 16'h0215 :  // <0181> ([label :key1_handler])
+addr == 16'h17a ? 16'h025a :  // <0182> ([label :ignition_switch_off_handler])
+addr == 16'h17b ? 16'h0265 :  // <0183> ([label :ignition_switch_on_handler])
+addr == 16'h17c ? 16'h0221 :  // <0184> ([label :softevent3_handler])
+addr == 16'h17d ? 16'h0223 :  // <0185> ([label :softevent2_handler])
+addr == 16'h17e ? 16'h0225 :  // <0186> ([label :softevent1_handler])
+addr == 16'h17f ? 16'h0227 :  // <0187> ([label :softevent0_handler])
 
 // #########################################################################
 
 // ######## event ustimer0_handler // = 0x0180
-addr == 16'h180 ? 16'he00f :  // <0190> end_event
-addr == 16'h181 ? 16'h006b :  // <0190> "
+addr == 16'h180 ? 16'he00f :  // <0192> end_event
+addr == 16'h181 ? 16'h006b :  // <0192> "
 
 // ######## event spi_done_handler // = 0x0182
 // discard-counter in RAM.
-addr == 16'h182 ? 16'h4a00 :  // <0194> ram a = $ram_daq_discard_cnt // av_ad_hi = 0
-addr == 16'h183 ? 16'h4e02 :  // <0194> ram a = $ram_daq_discard_cnt // av_ad_lo = 2
-addr == 16'h184 ? 16'h0010 :  // <0194> ram a = $ram_daq_discard_cnt // a = av_write_data // start read cycle
-addr == 16'h185 ? 16'h0011 :  // <0194> ram a = $ram_daq_discard_cnt // a = av_read_data // finish read cycle
-addr == 16'h186 ? 16'he000 :  // <0195> br az :report
-addr == 16'h187 ? 16'h0194 :  // <0195> "
-addr == 16'h188 ? 16'h0760 :  // <0196> b = -1
-addr == 16'h189 ? 16'hc800 :  // <0197> a = a+b
-addr == 16'h18a ? 16'h0300 :  // <0197> "
-addr == 16'h18b ? 16'h4a00 :  // <0198> ram $ram_daq_discard_cnt = a // av_ad_hi = 0
-addr == 16'h18c ? 16'h4e02 :  // <0198> ram $ram_daq_discard_cnt = a // av_ad_lo = 2
-addr == 16'h18d ? 16'h4000 :  // <0198> ram $ram_daq_discard_cnt = a // av_write_data = a
-addr == 16'h18e ? 16'h0207 :  // <0199> a = $anmux_adc_channel
-addr == 16'h18f ? 16'hfba0 :  // <0200> call :begin_adc_conversion
-addr == 16'h190 ? 16'h0244 :  // <0200> "
-addr == 16'h191 ? 16'hfc00 :  // <0200> "
-addr == 16'h192 ? 16'he00f :  // <0201> event_return
-addr == 16'h193 ? 16'h006b :  // <0201> "
+addr == 16'h182 ? 16'h4a00 :  // <0196> ram a = $ram_daq_discard_cnt // av_ad_hi = 0
+addr == 16'h183 ? 16'h4e02 :  // <0196> ram a = $ram_daq_discard_cnt // av_ad_lo = 2
+addr == 16'h184 ? 16'h0010 :  // <0196> ram a = $ram_daq_discard_cnt // a = av_write_data // start read cycle
+addr == 16'h185 ? 16'h0011 :  // <0196> ram a = $ram_daq_discard_cnt // a = av_read_data // finish read cycle
+addr == 16'h186 ? 16'he000 :  // <0197> br az :report
+addr == 16'h187 ? 16'h0194 :  // <0197> "
+addr == 16'h188 ? 16'h0760 :  // <0198> b = -1
+addr == 16'h189 ? 16'hc800 :  // <0199> a = a+b
+addr == 16'h18a ? 16'h0300 :  // <0199> "
+addr == 16'h18b ? 16'h4a00 :  // <0200> ram $ram_daq_discard_cnt = a // av_ad_hi = 0
+addr == 16'h18c ? 16'h4e02 :  // <0200> ram $ram_daq_discard_cnt = a // av_ad_lo = 2
+addr == 16'h18d ? 16'h4000 :  // <0200> ram $ram_daq_discard_cnt = a // av_write_data = a
+addr == 16'h18e ? 16'h0207 :  // <0201> a = $anmux_adc_channel
+addr == 16'h18f ? 16'hfba0 :  // <0202> call :begin_adc_conversion
+addr == 16'h190 ? 16'h0244 :  // <0202> "
+addr == 16'h191 ? 16'hfc00 :  // <0202> "
+addr == 16'h192 ? 16'he00f :  // <0203> event_return
+addr == 16'h193 ? 16'h006b :  // <0203> "
 
 // report ADC reading.
 // :report // = 0x0194
-addr == 16'h194 ? 16'h000f :  // <0205> a = spi_data
-addr == 16'h195 ? 16'hfba0 :  // <0206> call :put4x
-addr == 16'h196 ? 16'h00d0 :  // <0206> "
-addr == 16'h197 ? 16'hfc00 :  // <0206> "
+addr == 16'h194 ? 16'h000f :  // <0207> a = spi_data
+addr == 16'h195 ? 16'hfba0 :  // <0208> call :put4x
+addr == 16'h196 ? 16'h00d0 :  // <0208> "
+addr == 16'h197 ? 16'hfc00 :  // <0208> "
 
 // decrement anmux channel & start waiting again.
-addr == 16'h198 ? 16'hfba0 :  // <0209> call :anmux_get_chn
-addr == 16'h199 ? 16'h0093 :  // <0209> "
-addr == 16'h19a ? 16'hfc00 :  // <0209> "
-addr == 16'h19b ? 16'he000 :  // <0210> br az :all_done
-addr == 16'h19c ? 16'h01a6 :  // <0210> "
-addr == 16'h19d ? 16'h0760 :  // <0211> b = -1
-addr == 16'h19e ? 16'hc800 :  // <0212> a = a+b
-addr == 16'h19f ? 16'h0300 :  // <0212> "
-addr == 16'h1a0 ? 16'hfba0 :  // <0213> call :anmux_set_chn
-addr == 16'h1a1 ? 16'h008f :  // <0213> "
-addr == 16'h1a2 ? 16'hfc00 :  // <0213> "
-addr == 16'h1a3 ? 16'h3a05 :  // <0214> mstimer1 = $anmux_settle_ms
-addr == 16'h1a4 ? 16'he00f :  // <0215> event_return
-addr == 16'h1a5 ? 16'h006b :  // <0215> "
+addr == 16'h198 ? 16'hfba0 :  // <0211> call :anmux_get_chn
+addr == 16'h199 ? 16'h0093 :  // <0211> "
+addr == 16'h19a ? 16'hfc00 :  // <0211> "
+addr == 16'h19b ? 16'he000 :  // <0212> br az :all_done
+addr == 16'h19c ? 16'h01a6 :  // <0212> "
+addr == 16'h19d ? 16'h0760 :  // <0213> b = -1
+addr == 16'h19e ? 16'hc800 :  // <0214> a = a+b
+addr == 16'h19f ? 16'h0300 :  // <0214> "
+addr == 16'h1a0 ? 16'hfba0 :  // <0215> call :anmux_set_chn
+addr == 16'h1a1 ? 16'h008f :  // <0215> "
+addr == 16'h1a2 ? 16'hfc00 :  // <0215> "
+addr == 16'h1a3 ? 16'h3a05 :  // <0216> mstimer1 = $anmux_settle_ms
+addr == 16'h1a4 ? 16'he00f :  // <0217> event_return
+addr == 16'h1a5 ? 16'h006b :  // <0217> "
 
 // end of daq pass.
 // :all_done // = 0x01a6
-addr == 16'h1a6 ? 16'h020d :  // <0219> a = 13 // puteol
-addr == 16'h1a7 ? 16'h0000 :  // <0219> a = a // puteol
-addr == 16'h1a8 ? 16'hfba0 :  // <0219> puteol
-addr == 16'h1a9 ? 16'h0078 :  // <0219> "
-addr == 16'h1aa ? 16'hfc00 :  // <0219> "
-addr == 16'h1ab ? 16'h020a :  // <0219> a = 10 // puteol
-addr == 16'h1ac ? 16'h0000 :  // <0219> a = a // puteol
-addr == 16'h1ad ? 16'hfba0 :  // <0219> puteol
-addr == 16'h1ae ? 16'h0078 :  // <0219> "
-addr == 16'h1af ? 16'hfc00 :  // <0219> "
-addr == 16'h1b0 ? 16'he00f :  // <0220> end_event
-addr == 16'h1b1 ? 16'h006b :  // <0220> "
+addr == 16'h1a6 ? 16'h020d :  // <0221> a = 13 // puteol
+addr == 16'h1a7 ? 16'h0000 :  // <0221> a = a // puteol
+addr == 16'h1a8 ? 16'hfba0 :  // <0221> puteol
+addr == 16'h1a9 ? 16'h0078 :  // <0221> "
+addr == 16'h1aa ? 16'hfc00 :  // <0221> "
+addr == 16'h1ab ? 16'h020a :  // <0221> a = 10 // puteol
+addr == 16'h1ac ? 16'h0000 :  // <0221> a = a // puteol
+addr == 16'h1ad ? 16'hfba0 :  // <0221> puteol
+addr == 16'h1ae ? 16'h0078 :  // <0221> "
+addr == 16'h1af ? 16'hfc00 :  // <0221> "
+addr == 16'h1b0 ? 16'he00f :  // <0222> end_event
+addr == 16'h1b1 ? 16'h006b :  // <0222> "
 
 // ######## event mstimer0_handler // = 0x01b2
 // unified 1-second periodic timer for all low-resolution tasks.
 
 // start timer again.
-addr == 16'h1b2 ? 16'h37a0 :  // <0226> mstimer0 = 1000
-addr == 16'h1b3 ? 16'h03e8 :  // <0226> "
+addr == 16'h1b2 ? 16'h37a0 :  // <0228> mstimer0 = 1000
+addr == 16'h1b3 ? 16'h03e8 :  // <0228> "
 
 // realtime counters in RAM.
-addr == 16'h1b4 ? 16'h4a00 :  // <0229> ram a = $ram_seconds_cnt // av_ad_hi = 0
-addr == 16'h1b5 ? 16'h4e0a :  // <0229> ram a = $ram_seconds_cnt // av_ad_lo = 10
-addr == 16'h1b6 ? 16'h0010 :  // <0229> ram a = $ram_seconds_cnt // a = av_write_data // start read cycle
-addr == 16'h1b7 ? 16'h0011 :  // <0229> ram a = $ram_seconds_cnt // a = av_read_data // finish read cycle
-addr == 16'h1b8 ? 16'h0601 :  // <0230> b = 1
-addr == 16'h1b9 ? 16'hc800 :  // <0231> a = a+b
-addr == 16'h1ba ? 16'h0300 :  // <0231> "
-addr == 16'h1bb ? 16'h063c :  // <0232> b = 60
-addr == 16'h1bc ? 16'he407 :  // <0233> bn eq :same_minute
-addr == 16'h1bd ? 16'h01cf :  // <0233> "
-addr == 16'h1be ? 16'h4a00 :  // <0234> ram $ram_seconds_cnt = 0 // av_ad_hi = 0
-addr == 16'h1bf ? 16'h4e0a :  // <0234> ram $ram_seconds_cnt = 0 // av_ad_lo = 10
-addr == 16'h1c0 ? 16'h4200 :  // <0234> ram $ram_seconds_cnt = 0 // av_write_data = 0
-addr == 16'h1c1 ? 16'h4a00 :  // <0235> ram a = $ram_minutes_cnt // av_ad_hi = 0
-addr == 16'h1c2 ? 16'h4e08 :  // <0235> ram a = $ram_minutes_cnt // av_ad_lo = 8
-addr == 16'h1c3 ? 16'h0010 :  // <0235> ram a = $ram_minutes_cnt // a = av_write_data // start read cycle
-addr == 16'h1c4 ? 16'h0011 :  // <0235> ram a = $ram_minutes_cnt // a = av_read_data // finish read cycle
-addr == 16'h1c5 ? 16'h0601 :  // <0236> b = 1
-addr == 16'h1c6 ? 16'h4a00 :  // <0237> ram $ram_minutes_cnt = a+b // av_ad_hi = 0
-addr == 16'h1c7 ? 16'h4e08 :  // <0237> ram $ram_minutes_cnt = a+b // av_ad_lo = 8
-addr == 16'h1c8 ? 16'hc800 :  // <0237> ram $ram_minutes_cnt = a+b // av_write_data = a+b
-addr == 16'h1c9 ? 16'h4300 :  // <0237> "
-addr == 16'h1ca ? 16'hfba0 :  // <0238> call :minute_events
-addr == 16'h1cb ? 16'h026a :  // <0238> "
-addr == 16'h1cc ? 16'hfc00 :  // <0238> "
-addr == 16'h1cd ? 16'he00f :  // <0239> jmp :minutes_done
-addr == 16'h1ce ? 16'h01d2 :  // <0239> "
+addr == 16'h1b4 ? 16'h4a00 :  // <0231> ram a = $ram_seconds_cnt // av_ad_hi = 0
+addr == 16'h1b5 ? 16'h4e0a :  // <0231> ram a = $ram_seconds_cnt // av_ad_lo = 10
+addr == 16'h1b6 ? 16'h0010 :  // <0231> ram a = $ram_seconds_cnt // a = av_write_data // start read cycle
+addr == 16'h1b7 ? 16'h0011 :  // <0231> ram a = $ram_seconds_cnt // a = av_read_data // finish read cycle
+addr == 16'h1b8 ? 16'h0601 :  // <0232> b = 1
+addr == 16'h1b9 ? 16'hc800 :  // <0233> a = a+b
+addr == 16'h1ba ? 16'h0300 :  // <0233> "
+addr == 16'h1bb ? 16'h063c :  // <0234> b = 60
+addr == 16'h1bc ? 16'he407 :  // <0235> bn eq :same_minute
+addr == 16'h1bd ? 16'h01cf :  // <0235> "
+addr == 16'h1be ? 16'h4a00 :  // <0236> ram $ram_seconds_cnt = 0 // av_ad_hi = 0
+addr == 16'h1bf ? 16'h4e0a :  // <0236> ram $ram_seconds_cnt = 0 // av_ad_lo = 10
+addr == 16'h1c0 ? 16'h4200 :  // <0236> ram $ram_seconds_cnt = 0 // av_write_data = 0
+addr == 16'h1c1 ? 16'h4a00 :  // <0237> ram a = $ram_minutes_cnt // av_ad_hi = 0
+addr == 16'h1c2 ? 16'h4e08 :  // <0237> ram a = $ram_minutes_cnt // av_ad_lo = 8
+addr == 16'h1c3 ? 16'h0010 :  // <0237> ram a = $ram_minutes_cnt // a = av_write_data // start read cycle
+addr == 16'h1c4 ? 16'h0011 :  // <0237> ram a = $ram_minutes_cnt // a = av_read_data // finish read cycle
+addr == 16'h1c5 ? 16'h0601 :  // <0238> b = 1
+addr == 16'h1c6 ? 16'h4a00 :  // <0239> ram $ram_minutes_cnt = a+b // av_ad_hi = 0
+addr == 16'h1c7 ? 16'h4e08 :  // <0239> ram $ram_minutes_cnt = a+b // av_ad_lo = 8
+addr == 16'h1c8 ? 16'hc800 :  // <0239> ram $ram_minutes_cnt = a+b // av_write_data = a+b
+addr == 16'h1c9 ? 16'h4300 :  // <0239> "
+addr == 16'h1ca ? 16'hfba0 :  // <0240> call :minute_events
+addr == 16'h1cb ? 16'h026a :  // <0240> "
+addr == 16'h1cc ? 16'hfc00 :  // <0240> "
+addr == 16'h1cd ? 16'he00f :  // <0241> jmp :minutes_done
+addr == 16'h1ce ? 16'h01d2 :  // <0241> "
 // :same_minute // = 0x01cf
-addr == 16'h1cf ? 16'h4a00 :  // <0241> ram $ram_seconds_cnt = a // av_ad_hi = 0
-addr == 16'h1d0 ? 16'h4e0a :  // <0241> ram $ram_seconds_cnt = a // av_ad_lo = 10
-addr == 16'h1d1 ? 16'h4000 :  // <0241> ram $ram_seconds_cnt = a // av_write_data = a
+addr == 16'h1cf ? 16'h4a00 :  // <0243> ram $ram_seconds_cnt = a // av_ad_hi = 0
+addr == 16'h1d0 ? 16'h4e0a :  // <0243> ram $ram_seconds_cnt = a // av_ad_lo = 10
+addr == 16'h1d1 ? 16'h4000 :  // <0243> ram $ram_seconds_cnt = a // av_write_data = a
 // :minutes_done // = 0x01d2
 
-addr == 16'h1d2 ? 16'hfba0 :  // <0244> call :check_power_relay
-addr == 16'h1d3 ? 16'h0270 :  // <0244> "
-addr == 16'h1d4 ? 16'hfc00 :  // <0244> "
-addr == 16'h1d5 ? 16'hfba0 :  // <0245> call :start_daq_pass
-addr == 16'h1d6 ? 16'h0229 :  // <0245> "
-addr == 16'h1d7 ? 16'hfc00 :  // <0245> "
-addr == 16'h1d8 ? 16'he00f :  // <0246> end_event
-addr == 16'h1d9 ? 16'h006b :  // <0246> "
+addr == 16'h1d2 ? 16'hfba0 :  // <0246> call :check_power_relay
+addr == 16'h1d3 ? 16'h0270 :  // <0246> "
+addr == 16'h1d4 ? 16'hfc00 :  // <0246> "
+addr == 16'h1d5 ? 16'hfba0 :  // <0247> call :start_daq_pass
+addr == 16'h1d6 ? 16'h0229 :  // <0247> "
+addr == 16'h1d7 ? 16'hfc00 :  // <0247> "
+addr == 16'h1d8 ? 16'he00f :  // <0248> end_event
+addr == 16'h1d9 ? 16'h006b :  // <0248> "
 
 // ######## event mstimer1_handler // = 0x01da
 // start a reading from the current anmux channel.
-addr == 16'h1da ? 16'h4a00 :  // <0250> ram $ram_daq_discard_cnt = $anmux_num_discards // av_ad_hi = 0
-addr == 16'h1db ? 16'h4e02 :  // <0250> ram $ram_daq_discard_cnt = $anmux_num_discards // av_ad_lo = 2
-addr == 16'h1dc ? 16'h4202 :  // <0250> ram $ram_daq_discard_cnt = $anmux_num_discards // av_write_data = 2
-addr == 16'h1dd ? 16'h0220 :  // <0251> a = 32 // putasc " "
-addr == 16'h1de ? 16'h0000 :  // <0251> a = a // putasc " "
-addr == 16'h1df ? 16'hfba0 :  // <0251> putasc " "
-addr == 16'h1e0 ? 16'h0078 :  // <0251> "
-addr == 16'h1e1 ? 16'hfc00 :  // <0251> "
-addr == 16'h1e2 ? 16'h0273 :  // <0252> a = 115 // putasc "s"
-addr == 16'h1e3 ? 16'h0000 :  // <0252> a = a // putasc "s"
-addr == 16'h1e4 ? 16'hfba0 :  // <0252> putasc "s"
-addr == 16'h1e5 ? 16'h0078 :  // <0252> "
-addr == 16'h1e6 ? 16'hfc00 :  // <0252> "
-addr == 16'h1e7 ? 16'hfba0 :  // <0253> call :anmux_get_chn
-addr == 16'h1e8 ? 16'h0093 :  // <0253> "
-addr == 16'h1e9 ? 16'hfc00 :  // <0253> "
-addr == 16'h1ea ? 16'h0630 :  // <0254> b = 48 // asc b = "0"
-addr == 16'h1eb ? 16'hc800 :  // <0255> a = a+b // putchar a+b
-addr == 16'h1ec ? 16'h0300 :  // <0255> "
-addr == 16'h1ed ? 16'hfba0 :  // <0255> putchar a+b
-addr == 16'h1ee ? 16'h0078 :  // <0255> "
-addr == 16'h1ef ? 16'hfc00 :  // <0255> "
-addr == 16'h1f0 ? 16'h023d :  // <0256> a = 61 // putasc "="
-addr == 16'h1f1 ? 16'h0000 :  // <0256> a = a // putasc "="
-addr == 16'h1f2 ? 16'hfba0 :  // <0256> putasc "="
-addr == 16'h1f3 ? 16'h0078 :  // <0256> "
-addr == 16'h1f4 ? 16'hfc00 :  // <0256> "
-addr == 16'h1f5 ? 16'h0207 :  // <0257> a = $anmux_adc_channel
-addr == 16'h1f6 ? 16'hfba0 :  // <0258> call :begin_adc_conversion
-addr == 16'h1f7 ? 16'h0244 :  // <0258> "
-addr == 16'h1f8 ? 16'hfc00 :  // <0258> "
-addr == 16'h1f9 ? 16'he00f :  // <0259> end_event
-addr == 16'h1fa ? 16'h006b :  // <0259> "
+addr == 16'h1da ? 16'h4a00 :  // <0252> ram $ram_daq_discard_cnt = $anmux_num_discards // av_ad_hi = 0
+addr == 16'h1db ? 16'h4e02 :  // <0252> ram $ram_daq_discard_cnt = $anmux_num_discards // av_ad_lo = 2
+addr == 16'h1dc ? 16'h4202 :  // <0252> ram $ram_daq_discard_cnt = $anmux_num_discards // av_write_data = 2
+addr == 16'h1dd ? 16'h0220 :  // <0253> a = 32 // putasc " "
+addr == 16'h1de ? 16'h0000 :  // <0253> a = a // putasc " "
+addr == 16'h1df ? 16'hfba0 :  // <0253> putasc " "
+addr == 16'h1e0 ? 16'h0078 :  // <0253> "
+addr == 16'h1e1 ? 16'hfc00 :  // <0253> "
+addr == 16'h1e2 ? 16'h0273 :  // <0254> a = 115 // putasc "s"
+addr == 16'h1e3 ? 16'h0000 :  // <0254> a = a // putasc "s"
+addr == 16'h1e4 ? 16'hfba0 :  // <0254> putasc "s"
+addr == 16'h1e5 ? 16'h0078 :  // <0254> "
+addr == 16'h1e6 ? 16'hfc00 :  // <0254> "
+addr == 16'h1e7 ? 16'hfba0 :  // <0255> call :anmux_get_chn
+addr == 16'h1e8 ? 16'h0093 :  // <0255> "
+addr == 16'h1e9 ? 16'hfc00 :  // <0255> "
+addr == 16'h1ea ? 16'h0630 :  // <0256> b = 48 // asc b = "0"
+addr == 16'h1eb ? 16'hc800 :  // <0257> a = a+b // putchar a+b
+addr == 16'h1ec ? 16'h0300 :  // <0257> "
+addr == 16'h1ed ? 16'hfba0 :  // <0257> putchar a+b
+addr == 16'h1ee ? 16'h0078 :  // <0257> "
+addr == 16'h1ef ? 16'hfc00 :  // <0257> "
+addr == 16'h1f0 ? 16'h023d :  // <0258> a = 61 // putasc "="
+addr == 16'h1f1 ? 16'h0000 :  // <0258> a = a // putasc "="
+addr == 16'h1f2 ? 16'hfba0 :  // <0258> putasc "="
+addr == 16'h1f3 ? 16'h0078 :  // <0258> "
+addr == 16'h1f4 ? 16'hfc00 :  // <0258> "
+addr == 16'h1f5 ? 16'h0207 :  // <0259> a = $anmux_adc_channel
+addr == 16'h1f6 ? 16'hfba0 :  // <0260> call :begin_adc_conversion
+addr == 16'h1f7 ? 16'h0244 :  // <0260> "
+addr == 16'h1f8 ? 16'hfc00 :  // <0260> "
+addr == 16'h1f9 ? 16'he00f :  // <0261> end_event
+addr == 16'h1fa ? 16'h006b :  // <0261> "
 
 // ######## event uart_rx_handler // = 0x01fb
 // handle data here
-addr == 16'h1fb ? 16'he00f :  // <0263> end_event
-addr == 16'h1fc ? 16'h006b :  // <0263> "
+addr == 16'h1fb ? 16'he00f :  // <0265> end_event
+addr == 16'h1fc ? 16'h006b :  // <0265> "
 
 // ######## event uart_rx_overflow_handler // = 0x01fd
-addr == 16'h1fd ? 16'h5fa0 :  // <0266> error_halt_code $err_rx_overflow // leds = 0xfffe
-addr == 16'h1fe ? 16'hfffe :  // <0266> "
-addr == 16'h1ff ? 16'he00f :  // <0266> error_halt_code $err_rx_overflow
-addr == 16'h200 ? 16'h01ff :  // <0266> "
-addr == 16'h201 ? 16'he00f :  // <0267> end_event
-addr == 16'h202 ? 16'h006b :  // <0267> "
+addr == 16'h1fd ? 16'h5fa0 :  // <0268> error_halt_code $err_rx_overflow // leds = 0xfffe
+addr == 16'h1fe ? 16'hfffe :  // <0268> "
+addr == 16'h1ff ? 16'he00f :  // <0268> error_halt_code $err_rx_overflow
+addr == 16'h200 ? 16'h01ff :  // <0268> "
+addr == 16'h201 ? 16'he00f :  // <0269> end_event
+addr == 16'h202 ? 16'h006b :  // <0269> "
 
 // ######## event uart_tx_overflow_handler // = 0x0203
-addr == 16'h203 ? 16'h5fa0 :  // <0270> error_halt_code $err_tx_overflow // leds = 0xfffd
-addr == 16'h204 ? 16'hfffd :  // <0270> "
-addr == 16'h205 ? 16'he00f :  // <0270> error_halt_code $err_tx_overflow
-addr == 16'h206 ? 16'h0205 :  // <0270> "
-addr == 16'h207 ? 16'he00f :  // <0271> end_event
-addr == 16'h208 ? 16'h006b :  // <0271> "
+addr == 16'h203 ? 16'h5fa0 :  // <0272> error_halt_code $err_tx_overflow // leds = 0xfffd
+addr == 16'h204 ? 16'hfffd :  // <0272> "
+addr == 16'h205 ? 16'he00f :  // <0272> error_halt_code $err_tx_overflow
+addr == 16'h206 ? 16'h0205 :  // <0272> "
+addr == 16'h207 ? 16'he00f :  // <0273> end_event
+addr == 16'h208 ? 16'h006b :  // <0273> "
 
 // ######## event key0_handler // = 0x0209
-addr == 16'h209 ? 16'h026b :  // <0274> a = 107 // putasc "k"
-addr == 16'h20a ? 16'h0000 :  // <0274> a = a // putasc "k"
-addr == 16'h20b ? 16'hfba0 :  // <0274> putasc "k"
-addr == 16'h20c ? 16'h0078 :  // <0274> "
-addr == 16'h20d ? 16'hfc00 :  // <0274> "
-addr == 16'h20e ? 16'h0230 :  // <0275> a = 48 // putasc "0"
-addr == 16'h20f ? 16'h0000 :  // <0275> a = a // putasc "0"
-addr == 16'h210 ? 16'hfba0 :  // <0275> putasc "0"
-addr == 16'h211 ? 16'h0078 :  // <0275> "
-addr == 16'h212 ? 16'hfc00 :  // <0275> "
-addr == 16'h213 ? 16'he00f :  // <0276> end_event
-addr == 16'h214 ? 16'h006b :  // <0276> "
+addr == 16'h209 ? 16'h026b :  // <0276> a = 107 // putasc "k"
+addr == 16'h20a ? 16'h0000 :  // <0276> a = a // putasc "k"
+addr == 16'h20b ? 16'hfba0 :  // <0276> putasc "k"
+addr == 16'h20c ? 16'h0078 :  // <0276> "
+addr == 16'h20d ? 16'hfc00 :  // <0276> "
+addr == 16'h20e ? 16'h0230 :  // <0277> a = 48 // putasc "0"
+addr == 16'h20f ? 16'h0000 :  // <0277> a = a // putasc "0"
+addr == 16'h210 ? 16'hfba0 :  // <0277> putasc "0"
+addr == 16'h211 ? 16'h0078 :  // <0277> "
+addr == 16'h212 ? 16'hfc00 :  // <0277> "
+addr == 16'h213 ? 16'he00f :  // <0278> end_event
+addr == 16'h214 ? 16'h006b :  // <0278> "
 
 // ######## event key1_handler // = 0x0215
-addr == 16'h215 ? 16'h026b :  // <0279> a = 107 // putasc "k"
-addr == 16'h216 ? 16'h0000 :  // <0279> a = a // putasc "k"
-addr == 16'h217 ? 16'hfba0 :  // <0279> putasc "k"
-addr == 16'h218 ? 16'h0078 :  // <0279> "
-addr == 16'h219 ? 16'hfc00 :  // <0279> "
-addr == 16'h21a ? 16'h0231 :  // <0280> a = 49 // putasc "1"
-addr == 16'h21b ? 16'h0000 :  // <0280> a = a // putasc "1"
-addr == 16'h21c ? 16'hfba0 :  // <0280> putasc "1"
-addr == 16'h21d ? 16'h0078 :  // <0280> "
-addr == 16'h21e ? 16'hfc00 :  // <0280> "
-addr == 16'h21f ? 16'he00f :  // <0281> end_event
-addr == 16'h220 ? 16'h006b :  // <0281> "
+addr == 16'h215 ? 16'h026b :  // <0281> a = 107 // putasc "k"
+addr == 16'h216 ? 16'h0000 :  // <0281> a = a // putasc "k"
+addr == 16'h217 ? 16'hfba0 :  // <0281> putasc "k"
+addr == 16'h218 ? 16'h0078 :  // <0281> "
+addr == 16'h219 ? 16'hfc00 :  // <0281> "
+addr == 16'h21a ? 16'h0231 :  // <0282> a = 49 // putasc "1"
+addr == 16'h21b ? 16'h0000 :  // <0282> a = a // putasc "1"
+addr == 16'h21c ? 16'hfba0 :  // <0282> putasc "1"
+addr == 16'h21d ? 16'h0078 :  // <0282> "
+addr == 16'h21e ? 16'hfc00 :  // <0282> "
+addr == 16'h21f ? 16'he00f :  // <0283> end_event
+addr == 16'h220 ? 16'h006b :  // <0283> "
 
 // ######## event softevent3_handler // = 0x0221
-addr == 16'h221 ? 16'he00f :  // <0284> end_event
-addr == 16'h222 ? 16'h006b :  // <0284> "
+addr == 16'h221 ? 16'he00f :  // <0286> end_event
+addr == 16'h222 ? 16'h006b :  // <0286> "
 
 // ######## event softevent2_handler // = 0x0223
-addr == 16'h223 ? 16'he00f :  // <0287> end_event
-addr == 16'h224 ? 16'h006b :  // <0287> "
+addr == 16'h223 ? 16'he00f :  // <0289> end_event
+addr == 16'h224 ? 16'h006b :  // <0289> "
 
 // ######## event softevent1_handler // = 0x0225
-addr == 16'h225 ? 16'he00f :  // <0290> end_event
-addr == 16'h226 ? 16'h006b :  // <0290> "
+addr == 16'h225 ? 16'he00f :  // <0292> end_event
+addr == 16'h226 ? 16'h006b :  // <0292> "
 
 // ######## event softevent0_handler // = 0x0227
-addr == 16'h227 ? 16'he00f :  // <0293> end_event
-addr == 16'h228 ? 16'h006b :  // <0293> "
+addr == 16'h227 ? 16'he00f :  // <0295> end_event
+addr == 16'h228 ? 16'h006b :  // <0295> "
 
 // ######## func start_daq_pass // = 0x0229
-addr == 16'h229 ? 16'h203e :  // <0295> push rtna // func start_daq_pass
+addr == 16'h229 ? 16'h203e :  // <0297> push rtna // func start_daq_pass
 // daq pass counter in RAM.
-addr == 16'h22a ? 16'h4a00 :  // <0297> ram a = $ram_daq_pass_cnt // av_ad_hi = 0
-addr == 16'h22b ? 16'h4e00 :  // <0297> ram a = $ram_daq_pass_cnt // av_ad_lo = 0
-addr == 16'h22c ? 16'h0010 :  // <0297> ram a = $ram_daq_pass_cnt // a = av_write_data // start read cycle
-addr == 16'h22d ? 16'h0011 :  // <0297> ram a = $ram_daq_pass_cnt // a = av_read_data // finish read cycle
-addr == 16'h22e ? 16'h0601 :  // <0298> b = 1
-addr == 16'h22f ? 16'hc800 :  // <0299> a = a+b
-addr == 16'h230 ? 16'h0300 :  // <0299> "
-addr == 16'h231 ? 16'h5c00 :  // <0300> leds = a
-addr == 16'h232 ? 16'h4a00 :  // <0301> ram $ram_daq_pass_cnt = a // av_ad_hi = 0
-addr == 16'h233 ? 16'h4e00 :  // <0301> ram $ram_daq_pass_cnt = a // av_ad_lo = 0
-addr == 16'h234 ? 16'h4000 :  // <0301> ram $ram_daq_pass_cnt = a // av_write_data = a
-addr == 16'h235 ? 16'hfba0 :  // <0302> call :put4x
-addr == 16'h236 ? 16'h00d0 :  // <0302> "
-addr == 16'h237 ? 16'hfc00 :  // <0302> "
-addr == 16'h238 ? 16'h023a :  // <0303> a = 58 // putasc ":"
-addr == 16'h239 ? 16'h0000 :  // <0303> a = a // putasc ":"
-addr == 16'h23a ? 16'hfba0 :  // <0303> putasc ":"
-addr == 16'h23b ? 16'h0078 :  // <0303> "
-addr == 16'h23c ? 16'hfc00 :  // <0303> "
+addr == 16'h22a ? 16'h4a00 :  // <0299> ram a = $ram_daq_pass_cnt // av_ad_hi = 0
+addr == 16'h22b ? 16'h4e00 :  // <0299> ram a = $ram_daq_pass_cnt // av_ad_lo = 0
+addr == 16'h22c ? 16'h0010 :  // <0299> ram a = $ram_daq_pass_cnt // a = av_write_data // start read cycle
+addr == 16'h22d ? 16'h0011 :  // <0299> ram a = $ram_daq_pass_cnt // a = av_read_data // finish read cycle
+addr == 16'h22e ? 16'h0601 :  // <0300> b = 1
+addr == 16'h22f ? 16'hc800 :  // <0301> a = a+b
+addr == 16'h230 ? 16'h0300 :  // <0301> "
+addr == 16'h231 ? 16'h5c00 :  // <0302> leds = a
+addr == 16'h232 ? 16'h4a00 :  // <0303> ram $ram_daq_pass_cnt = a // av_ad_hi = 0
+addr == 16'h233 ? 16'h4e00 :  // <0303> ram $ram_daq_pass_cnt = a // av_ad_lo = 0
+addr == 16'h234 ? 16'h4000 :  // <0303> ram $ram_daq_pass_cnt = a // av_write_data = a
+addr == 16'h235 ? 16'hfba0 :  // <0304> call :put4x
+addr == 16'h236 ? 16'h00d0 :  // <0304> "
+addr == 16'h237 ? 16'hfc00 :  // <0304> "
+addr == 16'h238 ? 16'h023a :  // <0305> a = 58 // putasc ":"
+addr == 16'h239 ? 16'h0000 :  // <0305> a = a // putasc ":"
+addr == 16'h23a ? 16'hfba0 :  // <0305> putasc ":"
+addr == 16'h23b ? 16'h0078 :  // <0305> "
+addr == 16'h23c ? 16'hfc00 :  // <0305> "
 
 // start to acquire & report all anmux channels.
-addr == 16'h23d ? 16'h0207 :  // <0306> a = 7
-addr == 16'h23e ? 16'hfba0 :  // <0307> call :anmux_set_chn
-addr == 16'h23f ? 16'h008f :  // <0307> "
-addr == 16'h240 ? 16'hfc00 :  // <0307> "
-addr == 16'h241 ? 16'h3a05 :  // <0308> mstimer1 = $anmux_settle_ms
+addr == 16'h23d ? 16'h0207 :  // <0308> a = 7
+addr == 16'h23e ? 16'hfba0 :  // <0309> call :anmux_set_chn
+addr == 16'h23f ? 16'h008f :  // <0309> "
+addr == 16'h240 ? 16'hfc00 :  // <0309> "
+addr == 16'h241 ? 16'h3a05 :  // <0310> mstimer1 = $anmux_settle_ms
 
 // // observe MCU utilization.
 // a = usage_count
 // call :put4x
 // usage_count = 0
-addr == 16'h242 ? 16'hf808 :  // <0314> pop rtna // end_func
-addr == 16'h243 ? 16'hfc00 :  // <0314> end_func
+addr == 16'h242 ? 16'hf808 :  // <0316> pop rtna // end_func
+addr == 16'h243 ? 16'hfc00 :  // <0316> end_func
 
 // ######## func begin_adc_conversion // = 0x0244
 // begin SPI transaction, specifying Nano ADC channel to take effect NEXT
 // conversion after this one.  pass that in a.
 
-addr == 16'h244 ? 16'h0352 :  // <0320> a = a<<4
-addr == 16'h245 ? 16'h0352 :  // <0321> a = a<<4
-addr == 16'h246 ? 16'h0351 :  // <0322> a = a<<1
-addr == 16'h247 ? 16'h0351 :  // <0323> a = a<<1
-addr == 16'h248 ? 16'h0351 :  // <0324> a = a<<1
-addr == 16'h249 ? 16'h3c00 :  // <0325> spi_data = a
-addr == 16'h24a ? 16'hfc00 :  // <0326> end_func
+addr == 16'h244 ? 16'h0352 :  // <0322> a = a<<4
+addr == 16'h245 ? 16'h0352 :  // <0323> a = a<<4
+addr == 16'h246 ? 16'h0351 :  // <0324> a = a<<1
+addr == 16'h247 ? 16'h0351 :  // <0325> a = a<<1
+addr == 16'h248 ? 16'h0351 :  // <0326> a = a<<1
+addr == 16'h249 ? 16'h3c00 :  // <0327> spi_data = a
+addr == 16'h24a ? 16'hfc00 :  // <0328> end_func
 
 // ######## event power_lost_handler // = 0x024b
 // at this time we have less than 2 ms of usable run time left.
@@ -878,107 +879,109 @@ addr == 16'h24a ? 16'hfc00 :  // <0326> end_func
 // no more events would be handled; this event handler wouldn't have a chance to run.
 // immediately set the power relay PWM to full power for a few seconds,
 // in case the power relay opened accidentally e.g. due to a hard pothole.
-addr == 16'h24b ? 16'h6600 :  // <0335> power_duty = $power_duty_closing
-addr == 16'h24c ? 16'h4a00 :  // <0336> ram a = $ram_daq_pass_cnt // av_ad_hi = 0
-addr == 16'h24d ? 16'h4e00 :  // <0336> ram a = $ram_daq_pass_cnt // av_ad_lo = 0
-addr == 16'h24e ? 16'h0010 :  // <0336> ram a = $ram_daq_pass_cnt // a = av_write_data // start read cycle
-addr == 16'h24f ? 16'h0011 :  // <0336> ram a = $ram_daq_pass_cnt // a = av_read_data // finish read cycle
-addr == 16'h250 ? 16'h0602 :  // <0337> b = $relay_hold_passes
-addr == 16'h251 ? 16'h4a00 :  // <0338> ram $ram_relay_hold_at_pass = a+b // av_ad_hi = 0
-addr == 16'h252 ? 16'h4e06 :  // <0338> ram $ram_relay_hold_at_pass = a+b // av_ad_lo = 6
-addr == 16'h253 ? 16'hc800 :  // <0338> ram $ram_relay_hold_at_pass = a+b // av_write_data = a+b
-addr == 16'h254 ? 16'h4300 :  // <0338> "
+addr == 16'h24b ? 16'h6600 :  // <0337> power_duty = $power_duty_closing
+addr == 16'h24c ? 16'h4a00 :  // <0338> ram a = $ram_daq_pass_cnt // av_ad_hi = 0
+addr == 16'h24d ? 16'h4e00 :  // <0338> ram a = $ram_daq_pass_cnt // av_ad_lo = 0
+addr == 16'h24e ? 16'h0010 :  // <0338> ram a = $ram_daq_pass_cnt // a = av_write_data // start read cycle
+addr == 16'h24f ? 16'h0011 :  // <0338> ram a = $ram_daq_pass_cnt // a = av_read_data // finish read cycle
+addr == 16'h250 ? 16'h0602 :  // <0339> b = $relay_hold_passes
+addr == 16'h251 ? 16'h4a00 :  // <0340> ram $ram_relay_hold_at_pass = a+b // av_ad_hi = 0
+addr == 16'h252 ? 16'h4e06 :  // <0340> ram $ram_relay_hold_at_pass = a+b // av_ad_lo = 6
+addr == 16'h253 ? 16'hc800 :  // <0340> ram $ram_relay_hold_at_pass = a+b // av_write_data = a+b
+addr == 16'h254 ? 16'h4300 :  // <0340> "
 
 // pause any non-vital power-hogging operations, to conserve power for the EEPROM write.
 
 // save persistent data in case the power remains down e.g. due to battery disconnect.
-addr == 16'h255 ? 16'hfba0 :  // <0343> call :save_persistent_data
-addr == 16'h256 ? 16'h0297 :  // <0343> "
-addr == 16'h257 ? 16'hfc00 :  // <0343> "
-addr == 16'h258 ? 16'he00f :  // <0344> end_event
-addr == 16'h259 ? 16'h006b :  // <0344> "
+addr == 16'h255 ? 16'hfba0 :  // <0345> call :save_persistent_data
+addr == 16'h256 ? 16'h0298 :  // <0345> "
+addr == 16'h257 ? 16'hfc00 :  // <0345> "
+addr == 16'h258 ? 16'he00f :  // <0346> end_event
+addr == 16'h259 ? 16'h006b :  // <0346> "
 
 // ######## event ignition_switch_off_handler // = 0x025a
 // set power-down deadline in RAM.  this makes the system remain powered for several more minutes, for cooldown data logging.
-addr == 16'h25a ? 16'h4a00 :  // <0348> ram a = $ram_minutes_cnt // av_ad_hi = 0
-addr == 16'h25b ? 16'h4e08 :  // <0348> ram a = $ram_minutes_cnt // av_ad_lo = 8
-addr == 16'h25c ? 16'h0010 :  // <0348> ram a = $ram_minutes_cnt // a = av_write_data // start read cycle
-addr == 16'h25d ? 16'h0011 :  // <0348> ram a = $ram_minutes_cnt // a = av_read_data // finish read cycle
-addr == 16'h25e ? 16'h0603 :  // <0349> b = $power_extend_minutes
-addr == 16'h25f ? 16'h4a00 :  // <0350> ram $ram_power_down_at_min = a+b // av_ad_hi = 0
-addr == 16'h260 ? 16'h4e04 :  // <0350> ram $ram_power_down_at_min = a+b // av_ad_lo = 4
-addr == 16'h261 ? 16'hc800 :  // <0350> ram $ram_power_down_at_min = a+b // av_write_data = a+b
-addr == 16'h262 ? 16'h4300 :  // <0350> "
-addr == 16'h263 ? 16'he00f :  // <0351> end_event
-addr == 16'h264 ? 16'h006b :  // <0351> "
+addr == 16'h25a ? 16'h4a00 :  // <0350> ram a = $ram_minutes_cnt // av_ad_hi = 0
+addr == 16'h25b ? 16'h4e08 :  // <0350> ram a = $ram_minutes_cnt // av_ad_lo = 8
+addr == 16'h25c ? 16'h0010 :  // <0350> ram a = $ram_minutes_cnt // a = av_write_data // start read cycle
+addr == 16'h25d ? 16'h0011 :  // <0350> ram a = $ram_minutes_cnt // a = av_read_data // finish read cycle
+addr == 16'h25e ? 16'h060a :  // <0351> b = $power_extend_minutes
+addr == 16'h25f ? 16'h4a00 :  // <0352> ram $ram_power_down_at_min = a+b // av_ad_hi = 0
+addr == 16'h260 ? 16'h4e04 :  // <0352> ram $ram_power_down_at_min = a+b // av_ad_lo = 4
+addr == 16'h261 ? 16'hc800 :  // <0352> ram $ram_power_down_at_min = a+b // av_write_data = a+b
+addr == 16'h262 ? 16'h4300 :  // <0352> "
+addr == 16'h263 ? 16'he00f :  // <0353> end_event
+addr == 16'h264 ? 16'h006b :  // <0353> "
 
 // ######## event ignition_switch_on_handler // = 0x0265
-addr == 16'h265 ? 16'h4a00 :  // <0354> ram $ram_power_down_at_min = $power_down_never // av_ad_hi = 0
-addr == 16'h266 ? 16'h4e04 :  // <0354> ram $ram_power_down_at_min = $power_down_never // av_ad_lo = 4
-addr == 16'h267 ? 16'h4360 :  // <0354> ram $ram_power_down_at_min = $power_down_never // av_write_data = 0xffff
-addr == 16'h268 ? 16'he00f :  // <0355> end_event
-addr == 16'h269 ? 16'h006b :  // <0355> "
+addr == 16'h265 ? 16'h4a00 :  // <0356> ram $ram_power_down_at_min = $power_down_never // av_ad_hi = 0
+addr == 16'h266 ? 16'h4e04 :  // <0356> ram $ram_power_down_at_min = $power_down_never // av_ad_lo = 4
+addr == 16'h267 ? 16'h4360 :  // <0356> ram $ram_power_down_at_min = $power_down_never // av_write_data = 0xffff
+addr == 16'h268 ? 16'he00f :  // <0357> end_event
+addr == 16'h269 ? 16'h006b :  // <0357> "
 
 // ######## func minute_events // = 0x026a
-addr == 16'h26a ? 16'h203e :  // <0357> push rtna // func minute_events
-addr == 16'h26b ? 16'hfba0 :  // <0358> call :check_power_down
-addr == 16'h26c ? 16'h027c :  // <0358> "
-addr == 16'h26d ? 16'hfc00 :  // <0358> "
-addr == 16'h26e ? 16'hf808 :  // <0359> pop rtna // end_func
-addr == 16'h26f ? 16'hfc00 :  // <0359> end_func
+addr == 16'h26a ? 16'h203e :  // <0359> push rtna // func minute_events
+addr == 16'h26b ? 16'hfba0 :  // <0360> call :check_power_down
+addr == 16'h26c ? 16'h027c :  // <0360> "
+addr == 16'h26d ? 16'hfc00 :  // <0360> "
+addr == 16'h26e ? 16'hf808 :  // <0361> pop rtna // end_func
+addr == 16'h26f ? 16'hfc00 :  // <0361> end_func
 
 // ######## func check_power_relay // = 0x0270
-addr == 16'h270 ? 16'h4a00 :  // <0362> ram a = $ram_daq_pass_cnt // av_ad_hi = 0
-addr == 16'h271 ? 16'h4e00 :  // <0362> ram a = $ram_daq_pass_cnt // av_ad_lo = 0
-addr == 16'h272 ? 16'h0010 :  // <0362> ram a = $ram_daq_pass_cnt // a = av_write_data // start read cycle
-addr == 16'h273 ? 16'h0011 :  // <0362> ram a = $ram_daq_pass_cnt // a = av_read_data // finish read cycle
-addr == 16'h274 ? 16'h4a00 :  // <0363> ram b = $ram_relay_hold_at_pass // av_ad_hi = 0
-addr == 16'h275 ? 16'h4e06 :  // <0363> ram b = $ram_relay_hold_at_pass // av_ad_lo = 6
-addr == 16'h276 ? 16'h0410 :  // <0363> ram b = $ram_relay_hold_at_pass // b = av_write_data // start read cycle
-addr == 16'h277 ? 16'h0411 :  // <0363> ram b = $ram_relay_hold_at_pass // b = av_read_data // finish read cycle
-addr == 16'h278 ? 16'he407 :  // <0364> bn eq :done
-addr == 16'h279 ? 16'h027b :  // <0364> "
+addr == 16'h270 ? 16'h4a00 :  // <0364> ram a = $ram_daq_pass_cnt // av_ad_hi = 0
+addr == 16'h271 ? 16'h4e00 :  // <0364> ram a = $ram_daq_pass_cnt // av_ad_lo = 0
+addr == 16'h272 ? 16'h0010 :  // <0364> ram a = $ram_daq_pass_cnt // a = av_write_data // start read cycle
+addr == 16'h273 ? 16'h0011 :  // <0364> ram a = $ram_daq_pass_cnt // a = av_read_data // finish read cycle
+addr == 16'h274 ? 16'h4a00 :  // <0365> ram b = $ram_relay_hold_at_pass // av_ad_hi = 0
+addr == 16'h275 ? 16'h4e06 :  // <0365> ram b = $ram_relay_hold_at_pass // av_ad_lo = 6
+addr == 16'h276 ? 16'h0410 :  // <0365> ram b = $ram_relay_hold_at_pass // b = av_write_data // start read cycle
+addr == 16'h277 ? 16'h0411 :  // <0365> ram b = $ram_relay_hold_at_pass // b = av_read_data // finish read cycle
+addr == 16'h278 ? 16'he407 :  // <0366> bn eq :done
+addr == 16'h279 ? 16'h027b :  // <0366> "
 // time to begin "solenoid saver" coil power reduction by PWM.
-addr == 16'h27a ? 16'h6619 :  // <0366> power_duty = $power_duty_holding
+addr == 16'h27a ? 16'h6619 :  // <0368> power_duty = $power_duty_holding
 // :done // = 0x027b
-addr == 16'h27b ? 16'hfc00 :  // <0368> end_func
+addr == 16'h27b ? 16'hfc00 :  // <0370> end_func
 
 // ######## func check_power_down // = 0x027c
-addr == 16'h27c ? 16'h203e :  // <0370> push rtna // func check_power_down
+addr == 16'h27c ? 16'h203e :  // <0372> push rtna // func check_power_down
 // check power-down deadline in RAM.
-addr == 16'h27d ? 16'h4a00 :  // <0372> ram a = $ram_minutes_cnt // av_ad_hi = 0
-addr == 16'h27e ? 16'h4e08 :  // <0372> ram a = $ram_minutes_cnt // av_ad_lo = 8
-addr == 16'h27f ? 16'h0010 :  // <0372> ram a = $ram_minutes_cnt // a = av_write_data // start read cycle
-addr == 16'h280 ? 16'h0011 :  // <0372> ram a = $ram_minutes_cnt // a = av_read_data // finish read cycle
-addr == 16'h281 ? 16'h4a00 :  // <0373> ram b = $ram_power_down_at_min // av_ad_hi = 0
-addr == 16'h282 ? 16'h4e04 :  // <0373> ram b = $ram_power_down_at_min // av_ad_lo = 4
-addr == 16'h283 ? 16'h0410 :  // <0373> ram b = $ram_power_down_at_min // b = av_write_data // start read cycle
-addr == 16'h284 ? 16'h0411 :  // <0373> ram b = $ram_power_down_at_min // b = av_read_data // finish read cycle
-addr == 16'h285 ? 16'he407 :  // <0374> bn eq :done
-addr == 16'h286 ? 16'h028a :  // <0374> "
-addr == 16'h287 ? 16'hfba0 :  // <0375> call :power_down
-addr == 16'h288 ? 16'h028c :  // <0375> "
-addr == 16'h289 ? 16'hfc00 :  // <0375> "
+addr == 16'h27d ? 16'h4a00 :  // <0374> ram a = $ram_minutes_cnt // av_ad_hi = 0
+addr == 16'h27e ? 16'h4e08 :  // <0374> ram a = $ram_minutes_cnt // av_ad_lo = 8
+addr == 16'h27f ? 16'h0010 :  // <0374> ram a = $ram_minutes_cnt // a = av_write_data // start read cycle
+addr == 16'h280 ? 16'h0011 :  // <0374> ram a = $ram_minutes_cnt // a = av_read_data // finish read cycle
+addr == 16'h281 ? 16'h4a00 :  // <0375> ram b = $ram_power_down_at_min // av_ad_hi = 0
+addr == 16'h282 ? 16'h4e04 :  // <0375> ram b = $ram_power_down_at_min // av_ad_lo = 4
+addr == 16'h283 ? 16'h0410 :  // <0375> ram b = $ram_power_down_at_min // b = av_write_data // start read cycle
+addr == 16'h284 ? 16'h0411 :  // <0375> ram b = $ram_power_down_at_min // b = av_read_data // finish read cycle
+addr == 16'h285 ? 16'he407 :  // <0376> bn eq :done
+addr == 16'h286 ? 16'h028a :  // <0376> "
+addr == 16'h287 ? 16'hfba0 :  // <0377> call :power_down
+addr == 16'h288 ? 16'h028c :  // <0377> "
+addr == 16'h289 ? 16'hfc00 :  // <0377> "
 // :done // = 0x028a
-addr == 16'h28a ? 16'hf808 :  // <0377> pop rtna // end_func
-addr == 16'h28b ? 16'hfc00 :  // <0377> end_func
+addr == 16'h28a ? 16'hf808 :  // <0379> pop rtna // end_func
+addr == 16'h28b ? 16'hfc00 :  // <0379> end_func
 
 // ######## func power_down // = 0x028c
-addr == 16'h28c ? 16'h203e :  // <0379> push rtna // func power_down
+addr == 16'h28c ? 16'h203e :  // <0381> push rtna // func power_down
 // this function never returns.
-addr == 16'h28d ? 16'hfba0 :  // <0381> call :save_persistent_data
-addr == 16'h28e ? 16'h0297 :  // <0381> "
-addr == 16'h28f ? 16'hfc00 :  // <0381> "
-addr == 16'h290 ? 16'h6632 :  // <0382> power_duty = $power_duty_opening
-addr == 16'h291 ? 16'h5fa0 :  // <0383> error_halt_code $err_power_down // leds = 0xfffc
-addr == 16'h292 ? 16'hfffc :  // <0383> "
-addr == 16'h293 ? 16'he00f :  // <0383> error_halt_code $err_power_down
-addr == 16'h294 ? 16'h0293 :  // <0383> "
-addr == 16'h295 ? 16'hf808 :  // <0384> pop rtna // end_func
-addr == 16'h296 ? 16'hfc00 :  // <0384> end_func
-
-// ######## func save_persistent_data // = 0x0297
+addr == 16'h28d ? 16'hfba0 :  // <0383> call :save_persistent_data
+addr == 16'h28e ? 16'h0298 :  // <0383> "
+addr == 16'h28f ? 16'hfc00 :  // <0383> "
+addr == 16'h290 ? 16'h67a0 :  // <0384> power_duty = ($power_duty_opening | $beeper_inhibit_mask)
+addr == 16'h291 ? 16'h0132 :  // <0384> "
+// notice the beeper was enabled there, for a little audible feedback during a commanded power-down.
+addr == 16'h292 ? 16'h5fa0 :  // <0386> error_halt_code $err_power_down // leds = 0xfffc
+addr == 16'h293 ? 16'hfffc :  // <0386> "
+addr == 16'h294 ? 16'he00f :  // <0386> error_halt_code $err_power_down
+addr == 16'h295 ? 16'h0294 :  // <0386> "
+addr == 16'h296 ? 16'hf808 :  // <0387> pop rtna // end_func
 addr == 16'h297 ? 16'hfc00 :  // <0387> end_func
+
+// ######## func save_persistent_data // = 0x0298
+addr == 16'h298 ? 16'hfc00 :  // <0390> end_func
 
         
                 16'hxxxx;

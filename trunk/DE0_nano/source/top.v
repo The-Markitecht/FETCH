@@ -51,7 +51,9 @@ module top (
     
     (* chip_pin = "C15" *) output wire power_relay_pwm,
     (* chip_pin = "E16" *) input wire  power_lost,
-    (* chip_pin = "M16" *) input wire  ignition_switch_off
+    (* chip_pin = "M16" *) input wire  ignition_switch_off,
+    
+    (* chip_pin = "D16" *) output wire beeper_enable
     
     //output wire 		    [9:0]		GPIO_2
     //input wire 		     [2:0]		GPIO_2_IN
@@ -314,7 +316,8 @@ cdpwm #(.WIDTH(6), .START(50)) power_relay_pwm_inst (
     ,.data_in         ( r_load_data[5:0] )
     ,.pwm_signal      ( power_relay_pwm )
 );
-assign r[`DR_POWER_DUTY] = {8'd0, ignition_switch_off_sync, power_lost_sync, power_duty[5:0]};
+assign r[`DR_POWER_DUTY] = {7'd0, beeper_enable, ignition_switch_off_sync, power_lost_sync, power_duty[5:0]};
+std_reg #(.WIDTH(1)) beep_en_reg(sysclk, sysreset, beeper_enable, r_load_data[8], r_load[`DR_POWER_DUTY]);
 
 usage_counter usage (
      .sysclk               ( sysclk )
