@@ -1,15 +1,16 @@
-`include "header.v"
+`include <header.v>
 
 module efi_timer (
-    input           sysclk,
-    input           sysreset,
-    input           pulse50k,
-    input           pulse1m,
-    input           ign_coil,
-    input[15:0]     ign_timeout_len_20us,
-    input[15:0]     efi_len_us,
-    output reg      injector_open,  // to injector solenoid driver.
-    output          puff_event // to MCU for coordination.  rising and falling edges signal start and end of injection time.
+     input wire          sysclk
+    ,input wire          sysreset
+    ,input wire          pulse50k
+    ,input wire          pulse1m
+    ,input wire          ign_coil
+    ,input wire[15:0]    ign_timeout_len_20us
+    ,input wire[15:0]    efi_len_us
+    ,output reg          injector_open  // to injector solenoid driver.
+    ,output wire         puff_event // to MCU for coordination.  rising and falling edges signal start and end of injection time.
+    ,input wire          efi_enable // from MCU for coordination.  rising edge is required for initialization.  low level prevents further triggering.
 );
     // fuel injection timing circuit.
     // injector opens after the 4th rising edge of signal from ignition coil.
@@ -29,9 +30,13 @@ module efi_timer (
     reg efi_trigger_last = 0;
     always_ff @(posedge sysclk)
         efi_trigger_last <= efi_trigger_comb; 
-    wire efi_trigger_edge = efi_trigger_comb && ! efi_trigger_last;
-    wire efi_reload = efi_trigger_edge;
+    wire efi_trigger_rise = efi_trigger_comb && ! efi_trigger_last;
     wire efi_closed;
+    reg efi_enable_last = 0;
+    always_ff @(posedge sysclk)
+        efi_enable_last <= efi_enable; 
+    wire efi_enable_rise = efi_enable && ! efi_enable_last;    
+    wire efi_reload = efi_enable_rise || (efi_trigger_rise && efi_enable);
     syncer ign_syncer(sysclk, ign_coil, ign_coil_sync);
     debounce_counter #(.WIDTH(4)) ign_coil_debouncer (
          .clk         (sysclk)
@@ -63,7 +68,7 @@ module efi_timer (
         ,.sysreset        ( sysreset )  
         ,.data_out        (  )
         ,.data_in         ( efi_len_us )  
-        ,.load            ( efi_trigger_edge )
+        ,.load            ( efi_trigger_rise )
         ,.counter_event   ( pulse1m )
         ,.expired         ( efi_closed )
     );

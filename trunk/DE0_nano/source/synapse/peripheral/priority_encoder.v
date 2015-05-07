@@ -1,4 +1,4 @@
-`include "header.v"
+`include <header.v>
 
 // synthesize with SystemVerilog
 

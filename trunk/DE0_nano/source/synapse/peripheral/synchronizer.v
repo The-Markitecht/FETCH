@@ -2,7 +2,7 @@
 // this file corrected 9/2011 to utilize opposing clock edges.
 
 module synchronizer3
-#(parameter width = 1)
+#(parameter width = 1, parameter msb = width - 1)
 (
     input in_clk,
     input out_clk,
@@ -21,7 +21,6 @@ module synchronizer3
     
     // this is the full-featured version.
 
-    localparam msb = width - 1;    
     reg[msb:0] in_sync;
     always @(posedge in_clk) 
         in_sync <= reset ? {width{reset_level}} : in;    
@@ -35,7 +34,7 @@ module synchronizer3
 endmodule
 
 module syncer3
-#(parameter width = 1)
+#(parameter width = 1, parameter msb = width - 1)
 (
     input in_clk,
     input out_clk,
@@ -52,7 +51,6 @@ module syncer3
 
     // this is the simplified easy-to-use version.
 
-    localparam msb = width - 1;
     synchronizer3 #(.width(width)) s1 (
         .in_clk(in_clk),
         .out_clk(out_clk),
@@ -64,7 +62,7 @@ module syncer3
 endmodule
 
 module synchronizer
-#(parameter width = 1)
+#(parameter width = 1, parameter msb = width - 1)
 (
     input clk,
     input reset,
@@ -78,7 +76,6 @@ module synchronizer
     // adds 1 full cycle of latency.
     // this is the full-featured version.
 
-    localparam msb = width - 1;
     reg[msb:0] r0;
     always @(negedge clk)
         r0 <= reset ? {width{reset_level}} : in;
@@ -89,7 +86,7 @@ module synchronizer
 endmodule
 
 module syncer
-#(parameter width = 1)
+#(parameter width = 1, parameter msb = width - 1)
 (
     input clk,
     input[msb:0] in,
@@ -101,7 +98,6 @@ module syncer
     // adds 1 full cycle of latency.
     // this is the simplified easy-to-use version.
 
-    localparam msb = width - 1;
     synchronizer #(.width(width)) s1 (
         .clk(clk),
         .reset(1'b0),

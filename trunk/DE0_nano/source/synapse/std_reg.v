@@ -1,4 +1,4 @@
-`include "header.v"
+`include <header.v>
 `include "target_program_defines.v"
 
 // synthesize with SystemVerilog

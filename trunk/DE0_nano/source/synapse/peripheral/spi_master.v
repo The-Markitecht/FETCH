@@ -1,5 +1,8 @@
+`include <header.v>
+
 module spi_master #(
      parameter WIDTH = 8
+    ,parameter MSB = WIDTH - 1
     ,parameter SPI_CLOCK_DIVISOR = 65536
 ) (
      input wire                  sysclk            
@@ -23,8 +26,6 @@ module spi_master #(
     // spi_mi is sampled on the RISING edge of spi_sck (virtually).
     // spi_mo is shifted on the FALLING edge of spi_sck.
     // module interface is compatible with a Synapse316 host system, even when WIDTH > 16.
-    
-    localparam MSB = WIDTH - 1;    
     
     // dedicated clock divider from sysclk to SPI clock, to ensure consistent timing.
     // timing supplied by an external prescaler would surely be inconsistent at the start & end of the transaction.

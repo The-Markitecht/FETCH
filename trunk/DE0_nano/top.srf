@@ -121,6 +121,9 @@
 { "" "" "" "Verilog HDL assignment warning at debounce_counter.v(27): truncated value with size 32 to match size of target (4)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Verilog HDL assignment warning at debounce_counter.v(30): truncated value with size 32 to match size of target (4)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Verilog HDL assignment warning at debounce_counter.v(26): truncated value with size 32 to match size of target (4)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL assignment warning at spi_master.v(52): truncated value with size 32 to match size of target (9)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL assignment warning at spi_master.v(64): truncated value with size 32 to match size of target (16)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL assignment warning at spi_master.v(70): truncated value with size 32 to match size of target (16)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

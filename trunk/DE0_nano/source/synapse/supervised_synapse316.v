@@ -1,4 +1,4 @@
-`include "header.v"
+`include <header.v>
 `include "target_program_defines.v"
 `include "visor_program_defines.v"
 

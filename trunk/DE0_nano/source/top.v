@@ -1,4 +1,4 @@
-`include "header.v"
+`include <header.v>
 `include "target_program_defines.v"
 
 module top (
@@ -134,6 +134,12 @@ always_ff @(posedge sysclk, posedge pulse1k)
     else if (pulse1m)
         counter1k <= counter1k + 10'd1;        
 */        
+
+// synchronizers for detecting off-chip events.
+wire power_lost_sync;
+syncer power_lost_syncer(sysclk, power_lost, power_lost_sync);
+wire ignition_switch_off_sync;
+syncer ignition_switch_syncer(sysclk, ignition_switch_off, ignition_switch_off_sync);
         
 // MCU target plus debugging supervisor and a code ROM for each.
 wire[15:0]                r[`TOP_REG:0];
@@ -348,12 +354,6 @@ usage_counter usage (
     ,.sample_enable        ( pulse1k )
 );      
 
-// synchronizers for detecting off-chip events.
-wire power_lost_sync;
-syncer power_lost_syncer(sysclk, power_lost, power_lost_sync);
-wire ignition_switch_off_sync;
-syncer ignition_switch_syncer(sysclk, ignition_switch_off, ignition_switch_off_sync);
-
 // fuel injection circuit.
 std_reg efi_len_reg(sysclk, sysreset, r[`DR_EFI_LEN], r_load_data, r_load[`DR_EFI_LEN]);
 std_reg ign_timeout_len_reg(sysclk, sysreset, r[`DR_IGN_TIMEOUT_LEN], r_load_data, r_load[`DR_IGN_TIMEOUT_LEN]);
@@ -368,6 +368,7 @@ efi_timer efi1 (
     ,.efi_len_us            (r[`DR_EFI_LEN])
     ,.injector_open         (injector1_open)
     ,.puff_event            (puff_event1)
+    ,.efi_enable            (r[`DR_EFI_LEN] != 0)
 );
 
 // event controller is listed last to utilize wires from all other parts.

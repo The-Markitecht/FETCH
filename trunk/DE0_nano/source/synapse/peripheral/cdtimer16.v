@@ -1,4 +1,4 @@
-`include "header.v"
+`include <header.v>
 
 module cdtimer16 (
      input wire                  sysclk            
