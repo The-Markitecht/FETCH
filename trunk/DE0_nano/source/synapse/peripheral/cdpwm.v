@@ -38,12 +38,12 @@ module cdpwm #(
     wire event_edge = counter_event && ! event_last;
 
     // free-running down counter.
-    reg[MSB:0] cnt = 0;
+    reg[MSB:0] cnt = START[MSB:0];
     assign counter_value = cnt;
     wire expired = cnt == '0;
     always_ff @(posedge sysclk, posedge sysreset) begin
         if (sysreset)
-            cnt <= 0;
+            cnt <= START[MSB:0];
         else if (event_edge) begin
             if (expired)
                 cnt <= START;

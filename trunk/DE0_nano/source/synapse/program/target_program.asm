@@ -97,6 +97,9 @@
         ram_define ram_relay_hold_at_pass       2
             setvar relay_hold_passes            2
 
+    alias_both efi_len              [incr counter]  "efi_len"
+    alias_both ign_timeout_len      [incr counter]  "igntmout"
+            
     ram_define ram_minutes_cnt              2
     ram_define ram_seconds_cnt              2
     ram_define ram_mcu_usage_cnt            2    
@@ -145,6 +148,10 @@
     // init RAM variables.
     ram $ram_power_down_at_min = $power_down_never
     ram $ram_relay_hold_at_pass = $relay_hold_passes
+    
+    // init fuel injection.
+    efi_len = 3
+    ign_timeout_len = 0xffff
     
     // check initial state of power management circuits.
     // if power is lost or ignition switch is off already, open relay & abort run.
@@ -381,8 +388,7 @@ end_func
 func power_down
     // this function never returns.
     call :save_persistent_data
-    power_duty = ($power_duty_opening | $beeper_enable_mask)
-    // notice the beeper was enabled there, for a little audible feedback during a commanded power-down.
+    power_duty = $power_duty_opening
     error_halt_code $err_power_down
 end_func
 

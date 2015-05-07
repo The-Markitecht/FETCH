@@ -51,6 +51,10 @@
 `define ANMUX_CHANNEL_MASK  7
 `define SR_POWER_DUTY  25
 `define DR_POWER_DUTY  25
+`define SR_EFI_LEN  26
+`define DR_EFI_LEN  26
+`define SR_IGN_TIMEOUT_LEN  27
+`define DR_IGN_TIMEOUT_LEN  27
 `define ATX_FIFO_EMPTY_BIT  0
 `define ATX_FIFO_FULL_BIT  1
 `define ATX_BUSY_BIT  2

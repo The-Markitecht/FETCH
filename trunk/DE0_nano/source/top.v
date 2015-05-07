@@ -2,67 +2,70 @@
 `include "target_program_defines.v"
 
 module top (
-    (* chip_pin = "R8" *) input wire clk50m,
+     (* chip_pin = "R8" *) input wire clk50m
 
-    output wire		     [7:0]		LED, // active HIGH
-    input wire 		     [1:0]		KEY, // active LOW
-    // input 		     [3:0]		SW,
+    ,output wire		     [7:0]		LED // active HIGH
+    ,input wire 		     [1:0]		KEY // active LOW
+    // ,input 		     [3:0]		SW
 
-    output wire		    [12:0]		DRAM_ADDR,
-    output wire		     [1:0]		DRAM_BA,
-    output wire		          		DRAM_CAS_N,
-    output wire		          		DRAM_CKE,
-    output wire		          		DRAM_CLK,
-    output wire		          		DRAM_CS_N,
-    inout  wire		    [15:0]		DRAM_DQ,
-    output wire		     [1:0]		DRAM_DQM,
-    output wire		          		DRAM_RAS_N,
-    output wire		          		DRAM_WE_N,
+    ,output wire		    [12:0]		DRAM_ADDR
+    ,output wire		     [1:0]		DRAM_BA
+    ,output wire		          		DRAM_CAS_N
+    ,output wire		          		DRAM_CKE
+    ,output wire		          		DRAM_CLK
+    ,output wire		          		DRAM_CS_N
+    ,inout  wire		    [15:0]		DRAM_DQ
+    ,output wire		     [1:0]		DRAM_DQM
+    ,output wire		          		DRAM_RAS_N
+    ,output wire		          		DRAM_WE_N
 
-    // output wire		          		EPCS_ASDO,
-    // input wire 		          		EPCS_DATA0,
-    // output wire		          		EPCS_DCLK,
-    // output wire		          		EPCS_NCSO,
+    // ,output wire		          		EPCS_ASDO
+    // ,input wire 		          		EPCS_DATA0
+    // ,output wire		          		EPCS_DCLK
+    // ,output wire		          		EPCS_NCSO
 
     // //////////// Accelerometer and EEPROM //////////
-    // output wire		          		G_SENSOR_CS_N,
-    // input wire 		          		G_SENSOR_INT,
-    // output wire		          		I2C_SCLK,
-    // inout wire 		          		I2C_SDAT,
+    // ,output wire		          		G_SENSOR_CS_N
+    // ,input wire 		          		G_SENSOR_INT
+    // ,output wire		          		I2C_SCLK
+    // ,inout wire 		          		I2C_SDAT
 
-    output wire		          		ADC_CS_N,
-    output wire		          		ADC_SADDR,
-    output wire		          		ADC_SCLK,
-    input wire 		          		ADC_SDAT,
+    ,output wire		          		ADC_CS_N
+    ,output wire		          		ADC_SADDR
+    ,output wire		          		ADC_SCLK
+    ,input wire 		          		ADC_SDAT
 
-    (* chip_pin = "C16, C14, A14, B16" *) output wire[3:0] anmux_ctrl,
+    ,(* chip_pin = "C16, C14, A14, B16" *) output wire[3:0] anmux_ctrl
     
-    (* chip_pin = "M15, B9, T8, M1" *)  input wire[3:0]  dip_switch,
+    ,(* chip_pin = "M15, B9, T8, M1" *)  input wire[3:0]  dip_switch
     
-    (* chip_pin = "G15" *) input wire   reserved,
+    ,(* chip_pin = "G15" *) input wire   reserved
     
-    (* chip_pin = "F13" *) output wire  async_tx_line,
-    (* chip_pin = "T9" *)  input wire   async_rx_line,
-
-    (* chip_pin = "G16" *) output wire  dbg_async_tx_line,
-    (* chip_pin = "F14" *)  input wire  dbg_async_rx_line,
+    ,(* chip_pin = "F13" *) output wire  async_tx_line
+    ,(* chip_pin = "T9" *)  input wire   async_rx_line
     
-    (* chip_pin = "T13, T15" *) output wire[1:0]  scope,
+    ,(* chip_pin = "G16" *) output wire  dbg_async_tx_line
+    ,(* chip_pin = "F14" *)  input wire  dbg_async_rx_line
     
-    (* chip_pin = "C15" *) output wire power_relay_pwm,
-    (* chip_pin = "E16" *) input wire  power_lost,
-    (* chip_pin = "M16" *) input wire  ignition_switch_off,
+    ,(* chip_pin = "T13, T15" *) output wire[1:0]  scope
     
-    (* chip_pin = "D16" *) output wire beeper_enable
+    ,(* chip_pin = "C15" *) output wire power_relay_pwm
+    ,(* chip_pin = "E16" *) input wire  power_lost
+    ,(* chip_pin = "M16" *) input wire  ignition_switch_off
     
-    //output wire 		    [9:0]		GPIO_2
-    //input wire 		     [2:0]		GPIO_2_IN
-
-    // inout wire 		    [33:0]		g0,
-    // input wire 		     [1:0]		g0_IN,
-
-    // inout wire 		    [33:0]		g1,
-    // input wire 		     [1:0]		g1_IN
+    ,(* chip_pin = "D16" *) output wire beeper_enable
+    
+    ,(* chip_pin = "A8" *) input wire  ign_coil_wht_lo
+    ,(* chip_pin = "D3" *) output wire injector1_open
+    
+    //,output wire 		    [9:0]		GPIO_2
+    //,input wire 		     [2:0]		GPIO_2_IN
+      
+    //, inout wire 		    [33:0]		g0
+    //, input wire 		     [1:0]		g0_IN
+      
+    //, inout wire 		    [33:0]		g1
+    //, input wire 		     [1:0]		g1_IN
 );
 
 ////////////////////////////////////////////////////////////////////////////
@@ -88,9 +91,37 @@ always_ff @(posedge sysclk) begin
 end
 wire sysreset = rst2;
 
+// realtime counters.  first the 1 MHz.  divide sysclk by 50.
+wire timer_enable;
+reg[5:0] counter1m = 0;
+wire pulse1m = (counter1m == 6'd50) && timer_enable;
+always_ff @(posedge sysclk) 
+    counter1m <= (pulse1m ? 6'd0 : counter1m + 6'd1);
+// slower realtime counters.  these are dividers fed by the 1 MHz.    
+wire pulse50k;
+cdtimer16 counter50k (
+     .sysclk          ( sysclk )  
+    ,.sysreset        ( sysreset )  
+    ,.data_out        (  )
+    ,.data_in         ( 16'd20 )  
+    ,.load            ( pulse50k )
+    ,.counter_event   ( pulse1m )
+    ,.expired         ( pulse50k )
+);
+wire pulse1k;
+cdtimer16 counter1k (
+     .sysclk          ( sysclk )  
+    ,.sysreset        ( sysreset )  
+    ,.data_out        (  )
+    ,.data_in         ( 16'd50 )  
+    ,.load            ( pulse1k )
+    ,.counter_event   ( pulse50k )
+    ,.expired         ( pulse1k )
+);
+
+// alternate realtime counters.
 /* use flop's "clear" input to eliminate data muxers.  
 but somehow this doesn't increment counter1k at all.
-see if it's because of the comma in the always clause.  that should be "or".
 reg[5:0] counter1m = 0;
 wire pulse1m = (counter1m == 6'd50);
 always_ff @(posedge sysclk, posedge pulse1m) 
@@ -103,19 +134,7 @@ always_ff @(posedge sysclk, posedge pulse1k)
     else if (pulse1m)
         counter1k <= counter1k + 10'd1;        
 */        
-wire timer_enable;
-reg[5:0] counter1m = 0;
-wire pulse1m = (counter1m == 6'd50) && timer_enable;
-always_ff @(posedge sysclk) 
-    counter1m <= (pulse1m ? 6'd0 : counter1m + 6'd1);
-reg[9:0] counter1k = 0;
-wire pulse1k = (counter1k == 10'd1000);
-always_ff @(posedge sysclk) 
-    if (pulse1k)
-        counter1k <= 0;
-    else if (pulse1m)
-        counter1k <= counter1k + 10'd1;        
-
+        
 // MCU target plus debugging supervisor and a code ROM for each.
 wire[15:0]                r[`TOP_REG:0];
 wire[`TOP_REG:0]          r_read;  
@@ -319,6 +338,7 @@ cdpwm #(.WIDTH(6), .START(50)) power_relay_pwm_inst (
 assign r[`DR_POWER_DUTY] = {7'd0, beeper_enable, ignition_switch_off_sync, power_lost_sync, power_duty[5:0]};
 std_reg #(.WIDTH(1)) beep_en_reg(sysclk, sysreset, beeper_enable, r_load_data[8], r_load[`DR_POWER_DUTY]);
 
+// MCU usage counter
 usage_counter usage (
      .sysclk               ( sysclk )
     ,.sysreset             ( sysreset )
@@ -333,6 +353,22 @@ wire power_lost_sync;
 syncer power_lost_syncer(sysclk, power_lost, power_lost_sync);
 wire ignition_switch_off_sync;
 syncer ignition_switch_syncer(sysclk, ignition_switch_off, ignition_switch_off_sync);
+
+// fuel injection circuit.
+std_reg efi_len_reg(sysclk, sysreset, r[`DR_EFI_LEN], r_load_data, r_load[`DR_EFI_LEN]);
+std_reg ign_timeout_len_reg(sysclk, sysreset, r[`DR_IGN_TIMEOUT_LEN], r_load_data, r_load[`DR_IGN_TIMEOUT_LEN]);
+wire puff_event1;
+efi_timer efi1 (
+     .sysclk                (sysclk)
+    ,.sysreset              (sysreset)
+    ,.pulse50k              (pulse50k)
+    ,.pulse1m               (pulse1m)
+    ,.ign_coil              ( ! ign_coil_wht_lo)
+    ,.ign_timeout_len_20us  (r[`DR_IGN_TIMEOUT_LEN])
+    ,.efi_len_us            (r[`DR_EFI_LEN])
+    ,.injector_open         (injector1_open)
+    ,.puff_event            (puff_event1)
+);
 
 // event controller is listed last to utilize wires from all other parts.
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
