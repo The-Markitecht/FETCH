@@ -45,7 +45,7 @@ module cdpwm #(
             cnt <= START[MSB:0];
         else if (event_edge) begin
             if (expired)
-                cnt <= START;
+                cnt <= START[MSB:0];
             else 
                 cnt <= cnt - 'd1;
         end

@@ -56,7 +56,7 @@ module top (
     ,(* chip_pin = "D16" *) output wire beeper_enable
     
     ,(* chip_pin = "A8" *) input wire  ign_coil_wht_lo
-    ,(* chip_pin = "D3" *) output wire injector1_open
+    ,(* chip_pin = "C9" *) output wire injector1_open
     
     //,output wire 		    [9:0]		GPIO_2
     //,input wire 		     [2:0]		GPIO_2_IN
@@ -94,7 +94,7 @@ wire sysreset = rst2;
 // realtime counters.  first the 1 MHz.  divide sysclk by 50.
 wire timer_enable;
 reg[5:0] counter1m = 0;
-wire pulse1m = (counter1m == 6'd50) && timer_enable;
+wire pulse1m = (counter1m == 6'd49) && timer_enable;
 always_ff @(posedge sysclk) 
     counter1m <= (pulse1m ? 6'd0 : counter1m + 6'd1);
 // slower realtime counters.  these are dividers fed by the 1 MHz.    
@@ -283,7 +283,7 @@ assign anmux_ctrl = exp_r[`EDR_ANMUX_CTRL][3:0];
 */
 
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
-assign LED = { ! ignition_switch_off_sync, r[`DR_LEDS][6:0]};
+//assign LED = { ! ignition_switch_off_sync, r[`DR_LEDS][6:0]};
 
 assign r[`SR_KEYS] = {14'h0, KEY}; 
 
@@ -355,27 +355,30 @@ usage_counter usage (
 );      
 
 // fuel injection circuit.
-std_reg efi_len_reg(sysclk, sysreset, r[`DR_EFI_LEN], r_load_data, r_load[`DR_EFI_LEN]);
-std_reg ign_timeout_len_reg(sysclk, sysreset, r[`DR_IGN_TIMEOUT_LEN], r_load_data, r_load[`DR_IGN_TIMEOUT_LEN]);
+std_reg efi_len_reg(sysclk, sysreset, r[`DR_EFI_LEN_US], r_load_data, r_load[`DR_EFI_LEN_US]);
+std_reg ign_timeout_len_reg(sysclk, sysreset, r[`DR_IGN_TIMEOUT_LEN_20US], r_load_data, r_load[`DR_IGN_TIMEOUT_LEN_20US]);
 wire puff_event1;
+wire inj;
+assign injector1_open = dip_switch[0] ? inj : ign_coil_wht_lo;
 efi_timer efi1 (
      .sysclk                (sysclk)
     ,.sysreset              (sysreset)
     ,.pulse50k              (pulse50k)
     ,.pulse1m               (pulse1m)
     ,.ign_coil              ( ! ign_coil_wht_lo)
-    ,.ign_timeout_len_20us  (r[`DR_IGN_TIMEOUT_LEN])
-    ,.efi_len_us            (r[`DR_EFI_LEN])
-    ,.injector_open         (injector1_open)
+    ,.ign_timeout_len_20us  (r[`DR_IGN_TIMEOUT_LEN_20US])
+    ,.efi_len_us            (r[`DR_EFI_LEN_US])
+    ,.injector_open         (inj)
     ,.puff_event            (puff_event1)
-    ,.efi_enable            (r[`DR_EFI_LEN] != 0)
+    ,.efi_enable            (r[`DR_EFI_LEN_US] != 0)
+    ,.leds      (LED)
 );
 
 // event controller is listed last to utilize wires from all other parts.
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
 std_reg soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
 assign scope = r[`DR_SOFT_EVENT][14:13]; // copy soft_event_reg to o'scope pins for analysis.
-event_controller #(.NUM_INPUTS(17)) events( 
+event_controller #(.NUM_INPUTS(18)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset || r[`DR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])
     ,.priority_out      (r[`DR_EVENT_PRIORITY])
@@ -385,8 +388,9 @@ event_controller #(.NUM_INPUTS(17)) events(
         // MOST urgent events are listed FIRST.
         1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
         ,power_lost_sync
+        , ! puff_event1 // signal the END of an injector puff, so the pulse length can be adjusted for the next puff.
         ,ustimer0_expired
-        , ! spi_busy
+        , ! spi_busy // signal the END of a SPI transaction.
         ,mstimer0_expired
         ,mstimer1_expired
         , ! r[`DR_FDUART_STATUS][`ARX_FIFO_EMPTY_BIT]

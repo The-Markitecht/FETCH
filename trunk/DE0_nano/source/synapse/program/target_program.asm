@@ -97,12 +97,16 @@
         ram_define ram_relay_hold_at_pass       2
             setvar relay_hold_passes            2
 
-    alias_both efi_len              [incr counter]  "efi_len"
-    alias_both ign_timeout_len      [incr counter]  "igntmout"
-            
+    alias_both efi_len_us           [incr counter]  "efilenus"        
+    alias_both ign_timeout_len_20us [incr counter]  "igntmout"
+        // SETTING efi_len_us NON-ZERO ENABLES FUEL INJECTION!!  zero disables it.
+        // MUST SET ign_timeout_len_20us NON-ZERO PRIOR TO ENABLING!
+        // otherwise the module latches up in a non-working state.
+        
     ram_define ram_minutes_cnt              2
     ram_define ram_seconds_cnt              2
     ram_define ram_mcu_usage_cnt            2    
+    ram_define ram_dial_setting             2    
                 
     setvar err_rx_overflow              0xfffe
     setvar err_tx_overflow              0xfffd
@@ -150,8 +154,8 @@
     ram $ram_relay_hold_at_pass = $relay_hold_passes
     
     // init fuel injection.
-    efi_len = 3
-    ign_timeout_len = 0xffff
+    ign_timeout_len_20us = 0xfffc
+    efi_len_us = 3000
     
     // check initial state of power management circuits.
     // if power is lost or ignition switch is off already, open relay & abort run.
@@ -162,8 +166,8 @@
     a = power_duty
     b = ($power_lost_mask | $ignition_switch_off_mask)
     br and0z :skip_power_lost
-    power_duty = $power_duty_opening
-    error_halt_code $err_power_lost_at_boot    
+        power_duty = $power_duty_opening
+        error_halt_code $err_power_lost_at_boot    
     :skip_power_lost
     
     // start handling events.
@@ -177,6 +181,7 @@
     :event_table    
     ([label :poll_events])
     ([label :power_lost_handler])
+    ([label :puff1_done_handler])
     ([label :ustimer0_handler])
     ([label :spi_done_handler])
     ([label :mstimer0_handler])
@@ -225,7 +230,8 @@ event spi_done_handler
     
     // end of daq pass.
     :all_done
-    puteol    
+    puteol   
+    ram $ram_dial_setting = spi_data
 end_event
 
 event mstimer0_handler
@@ -361,6 +367,17 @@ end_event
 
 event ignition_switch_on_handler
     ram $ram_power_down_at_min = $power_down_never
+end_event
+
+event puff1_done_handler
+    ram a = $ram_dial_setting
+    a = a<<1
+    a = a<<1
+    a = a<<1
+    bn az :nonzero
+        a = 1
+    :nonzero
+    efi_len_us = a
 end_event
 
 func minute_events

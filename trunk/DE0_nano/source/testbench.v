@@ -6,8 +6,8 @@ module testbench ();
 reg clk50m = 0;
 wire sysclk = clk50m;
 always begin
-    #5 clk50m = 1;
-    #5 clk50m = 0;
+    #10 clk50m = 1;
+    #10 clk50m = 0;
 end
 wire async_pll_lock = 1'b1;
 reg rst0 = 1, rst1 = 1, rst2 = 1;
@@ -21,7 +21,7 @@ wire sysreset = rst2;
 // realtime counters.  first the 1 MHz.  divide sysclk by 50.
 wire timer_enable = 1'b1;
 reg[5:0] counter1m = 0;
-wire pulse1m = (counter1m == 6'd50) && timer_enable;
+wire pulse1m = (counter1m == 6'd49) && timer_enable;
 always_ff @(posedge sysclk) 
     counter1m <= (pulse1m ? 6'd0 : counter1m + 6'd1);
 // slower realtime counters.  these are dividers fed by the 1 MHz.    
@@ -49,6 +49,8 @@ cdtimer16 counter1k (
 wire injector1_open;
 reg ign_coil_wht = 0;
 reg en = 0;
+reg[15:0] len = 0;
+reg[15:0] timeout_len = 0;
 // fuel injection circuit.
 wire puff_event1;
 efi_timer efi1 (
@@ -57,8 +59,8 @@ efi_timer efi1 (
     ,.pulse50k              (pulse50k)
     ,.pulse1m               (pulse1m)
     ,.ign_coil              (ign_coil_wht)
-    ,.ign_timeout_len_20us  (16'd4000)
-    ,.efi_len_us            (16'd3000)
+    ,.ign_timeout_len_20us  (timeout_len)
+    ,.efi_len_us            (len)
     ,.injector_open         (injector1_open)
     ,.puff_event            (puff_event1)
     ,.efi_enable            (en)
@@ -69,7 +71,8 @@ initial	begin
     $dumpvars;
 
     // times are nanoseconds.
-    #1000 en = 1;
+    #2000 timeout_len = 16'hfffc;
+    #50 len = 3000; en = 1; 
     
     #5000000 ign_coil_wht = 1;
     #5000000 ign_coil_wht = 0;
