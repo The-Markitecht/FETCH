@@ -86,7 +86,12 @@
         setvar      beeper_enable_mask      (1 << $beeper_enable_bit)
         vdefine     ftdi_power_bit          7
         setvar      ftdi_power_mask         (1 << $ftdi_power_bit)
-    
+        setvar      not_ftdi_power_mask     (0xffff ^ $ftdi_power_mask)
+        ram_define  ram_comm_restart_at_min
+        ram_define  ram_ftdi_downtime_remain_sec
+        setvar      comm_grace_period_min   2
+        setvar      ftdi_down_period_sec    5
+
     alias_both anmux_ctrl           [incr counter]  "anmux"
         vdefine     anmux_enable_mask       0x0008
         vdefine     anmux_channel_mask      0x0007
@@ -175,6 +180,7 @@
     
     // power up FTDI USB board, and init any other special board control functions.
     board_ctrl = $ftdi_power_mask
+    call :postpone_comm_restart
     
     // check initial state of power management circuits.
     // if power is lost or ignition switch is off already, open relay & abort run.
@@ -276,6 +282,7 @@ event mstimer0_handler
     :minutes_done
     
     call :check_power_relay
+    call :check_communication
     call :start_daq_pass
 end_event
 
@@ -293,9 +300,18 @@ event mstimer1_handler
 end_event
     
 event uart_rx_handler
-    // handle data here
+    :again
+        pollchar
+        b = -1
+        br eq :done
+        b = 10
+        br ne :skip_lf
+            call :postpone_comm_restart
+        :skip_lf
+    br always :again
+    :done
 end_event
-    
+
 event uart_rx_overflow_handler
     error_halt_code $err_rx_overflow
 end_event
@@ -430,3 +446,45 @@ end_func
 
 func save_persistent_data
 end_func
+
+func check_communication
+    ram a = $ram_ftdi_downtime_remain_sec
+    br az :skip_ftdi_powerup
+        b = -1
+        a = a+b
+        ram $ram_ftdi_downtime_remain_sec = a
+        br az :do_power_on
+            rtn
+        :do_power_on
+        call :ftdi_power_on
+        rtn
+    :skip_ftdi_powerup
+
+    ram a = $ram_minutes_cnt
+    ram b = $ram_comm_restart_at_min 
+    br ne :done
+        // comm restart is required.
+        call :postpone_comm_restart
+        ram $ftdi_downtime_remain_sec = $ftdi_down_period_sec
+        call :ftdi_power_off
+    :done
+end_func
+
+func postpone_comm_restart
+    ram a = $ram_minutes_cnt
+    b = $comm_grace_period_min
+    ram $ram_comm_restart_at_min = a+b
+end_func
+    
+func ftdi_power_off
+    a = board_ctrl
+    b = $not_ftdi_power_mask
+    board_ctrl = and
+end_func
+    
+func ftdi_power_on
+    a = board_ctrl
+    b = $ftdi_power_mask
+    board_ctrl = or
+end_func
+    

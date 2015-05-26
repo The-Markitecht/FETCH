@@ -9,10 +9,6 @@
 
     proc getchar {lin} {
         getchar_$::asm::console_driver $lin 
-        # automatic echo
-        push \" a
-        putchar \" a
-        pop \" a
     }
 
     proc pollchar {lin} {

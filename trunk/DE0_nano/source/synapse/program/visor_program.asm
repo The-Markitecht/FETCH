@@ -56,6 +56,14 @@
     include lib/console.asm
     include lib/time.asm
 
+    proc getchar_echo {lin} {
+        getchar_$::asm::console_driver $lin 
+        # automatic echo
+        push \" a
+        putchar \" a
+        pop \" a
+    }
+    
     // ////////////////////////////////////////////
     :main
     // put target into reset.
@@ -103,7 +111,7 @@
     call :put4x
     putasc " "
     putasc ">"
-    getchar
+    getchar_echo
     jmp :parse_cmd
     
     :running_prompt
@@ -205,9 +213,9 @@ func wait_for_bp
 end_func
     
 func set_bp
-    getchar
+    getchar_echo
     x = a
-    getchar
+    getchar_echo
     asc b = "="
     bn eq :fail
     call :get4x
