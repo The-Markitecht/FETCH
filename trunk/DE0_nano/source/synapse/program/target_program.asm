@@ -67,8 +67,25 @@
         // vdefine     anmux_enable_mask       0x0008
         // vdefine     anmux_channel_mask      0x0007
 
-    alias_src  keys                 [incr counter]  "keys"
     alias_both leds                 [incr counter]  "leds"
+    
+    alias_both board_ctrl           [incr counter]  "brd_ctrl"
+        vdefine     dipswitch0_bit          0
+        setvar      dipswitch0_mask         (1 << $dipswitch0_bit)
+        vdefine     dipswitch1_bit          1
+        setvar      dipswitch1_mask         (1 << $dipswitch1_bit)
+        vdefine     dipswitch2_bit          2
+        setvar      dipswitch2_mask         (1 << $dipswitch2_bit)
+        vdefine     dipswitch3_bit          3
+        setvar      dipswitch3_mask         (1 << $dipswitch3_bit)
+        vdefine     key0_bit                4
+        setvar      key0_mask               (1 << $key0_bit)
+        vdefine     key1_bit                5
+        setvar      key1_mask               (1 << $key1_bit)
+        vdefine     beeper_enable_bit       6
+        setvar      beeper_enable_mask      (1 << $beeper_enable_bit)
+        vdefine     ftdi_power_bit          7
+        setvar      ftdi_power_mask         (1 << $ftdi_power_bit)
     
     alias_both anmux_ctrl           [incr counter]  "anmux"
         vdefine     anmux_enable_mask       0x0008
@@ -76,8 +93,8 @@
         setvar      anmux_adc_channel       7
         setvar      anmux_settle_ms         5
         setvar      anmux_num_discards      2
-        ram_define  ram_daq_pass_cnt        2
-        ram_define  ram_daq_discard_cnt     2
+        ram_define  ram_daq_pass_cnt        
+        ram_define  ram_daq_discard_cnt     
     
     alias_both power_duty           [incr counter]  "pwr_duty"
         // power relay duty cycles, in microseconds.  duty cycle time = relay OFF time.
@@ -90,11 +107,10 @@
         setvar power_duty_holding               (int($power_duty_max / 2))
         setvar power_lost_mask                  0x0040
         setvar ignition_switch_off_mask         0x0080
-        setvar beeper_enable_mask               0x0100
-        ram_define ram_power_down_at_min        2
+        ram_define ram_power_down_at_min        
             setvar power_down_never             0xffff
             setvar power_extend_minutes         10
-        ram_define ram_relay_hold_at_pass       2
+        ram_define ram_relay_hold_at_pass       
             setvar relay_hold_passes            2
 
     alias_both efi_len_us           [incr counter]  "efilenus"        
@@ -103,10 +119,10 @@
         // MUST SET ign_timeout_len_20us NON-ZERO PRIOR TO ENABLING!
         // otherwise the module latches up in a non-working state.
         
-    ram_define ram_minutes_cnt              2
-    ram_define ram_seconds_cnt              2
-    ram_define ram_mcu_usage_cnt            2    
-    ram_define ram_dial_setting             2    
+    ram_define ram_minutes_cnt              
+    ram_define ram_seconds_cnt              
+    ram_define ram_mcu_usage_cnt             
+    ram_define ram_dial_setting              
                 
     setvar err_rx_overflow              0xfffe
     setvar err_tx_overflow              0xfffd
@@ -156,6 +172,20 @@
     // init fuel injection.
     ign_timeout_len_20us = 0xfffc
     efi_len_us = 3000
+    
+    // power up FTDI USB board, and init any other special board control functions.
+    board_ctrl = $ftdi_power_mask
+
+//patch
+:testagain
+    board_ctrl = $beeper_enable_mask
+    a = 1000
+    call :spinwait
+    board_ctrl = $ftdi_power_mask
+    a = 1000
+    call :spinwait
+br always :testagain 
+    
     
     // check initial state of power management circuits.
     // if power is lost or ignition switch is off already, open relay & abort run.

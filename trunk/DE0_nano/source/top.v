@@ -55,6 +55,8 @@ module top (
     
     ,(* chip_pin = "D16" *) output wire beeper_enable
     
+    ,(* chip_pin = "D14" *) output wire ftdi_power
+    
     ,(* chip_pin = "A8" *) input wire  ign_coil_wht_lo
     ,(* chip_pin = "C9" *) output wire injector1_open
     
@@ -285,7 +287,9 @@ assign anmux_ctrl = exp_r[`EDR_ANMUX_CTRL][3:0];
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
 //assign LED = { ! ignition_switch_off_sync, r[`DR_LEDS][6:0]};
 
-assign r[`SR_KEYS] = {14'h0, KEY}; 
+assign r[`DR_BOARD_CTRL] = {8'h0, ftdi_power, beeper_enable, KEY[1:0], dip_switch[3:0]}; 
+std_reg #(.WIDTH(1)) beep_en_reg(sysclk, sysreset, beeper_enable, r_load_data[`BEEPER_ENABLE_BIT], r_load[`DR_BOARD_CTRL]);
+std_reg #(.WIDTH(1)) ftdi_power_reg(sysclk, sysreset, ftdi_power, r_load_data[`FTDI_POWER_BIT], r_load[`DR_BOARD_CTRL]);
 
 std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, r[`DR_ANMUX_CTRL], r_load_data[3:0], r_load[`DR_ANMUX_CTRL]);
 assign anmux_ctrl = r[`DR_ANMUX_CTRL][3:0];
@@ -341,8 +345,7 @@ cdpwm #(.WIDTH(6), .START(50)) power_relay_pwm_inst (
     ,.data_in         ( r_load_data[5:0] )
     ,.pwm_signal      ( power_relay_pwm )
 );
-assign r[`DR_POWER_DUTY] = {7'd0, beeper_enable, ignition_switch_off_sync, power_lost_sync, power_duty[5:0]};
-std_reg #(.WIDTH(1)) beep_en_reg(sysclk, sysreset, beeper_enable, r_load_data[8], r_load[`DR_POWER_DUTY]);
+assign r[`DR_POWER_DUTY] = {8'd0, ignition_switch_off_sync, power_lost_sync, power_duty[5:0]};
 
 // MCU usage counter
 usage_counter usage (
