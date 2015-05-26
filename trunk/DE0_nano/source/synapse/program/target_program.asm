@@ -175,17 +175,6 @@
     
     // power up FTDI USB board, and init any other special board control functions.
     board_ctrl = $ftdi_power_mask
-
-//patch
-:testagain
-    board_ctrl = $beeper_enable_mask
-    a = 1000
-    call :spinwait
-    board_ctrl = $ftdi_power_mask
-    a = 1000
-    call :spinwait
-br always :testagain 
-    
     
     // check initial state of power management circuits.
     // if power is lost or ignition switch is off already, open relay & abort run.
