@@ -111,7 +111,7 @@
         setvar power_duty_opening               $power_duty_max
         setvar power_duty_holding               (int($power_duty_max / 2))
         setvar power_lost_mask                  0x0040
-        setvar ignition_switch_off_mask         0x0080
+        setvar ign_switch_off_mask              0x0080
         ram_define ram_power_down_at_min        
             setvar power_down_never             0xffff
             setvar power_extend_minutes         10
@@ -123,7 +123,27 @@
         // SETTING efi_len_us NON-ZERO ENABLES FUEL INJECTION!!  zero disables it.
         // MUST SET ign_timeout_len_20us NON-ZERO PRIOR TO ENABLING!
         // otherwise the module latches up in a non-working state.
+    alias_both ign_capture_jf       [incr counter]  "igntmcap"
         
+    // all ignition time vars are expressed in 20us "jiffies" or "jf".
+    // 5000 RPM = about 140 jf between rising edges on chevy ignition white wire.
+    // 1000 RPM = about 700 jf 
+    // 100  RPM = about 7000 jf
+    setvar ign_history_idx_bits     4
+    setvar ign_history_len          (1 << $ign_history_idx_bits)
+    setvar ign_history_idx_mask     ($ign_history_len - 1)
+    // setvar ign_history_quarter      ($ign_history_len / 4)
+    // setvar ign_quarter_avg_shift    ($ign_history_idx_bits - 2)
+    ram_define ram_ign_history_idx
+    ram_define ram_ign_history_jf   ($ign_history_len * 2)
+    // ram_define ram_ign_oldest_avg_jf
+    // ram_define ram_ign_newest_avg_jf
+    ram_define ram_ign_avg_jf
+    ram_define ram_rpm_valid
+    ram_define ram_ign_fastest_jf
+    ram_define ram_ign_slowest_jf
+
+    // realtime counting.
     ram_define ram_minutes_cnt              
     ram_define ram_seconds_cnt              
     ram_define ram_mcu_usage_cnt             
@@ -143,348 +163,452 @@
     include ../peripheral/driver/event_controller.asm
     include ../peripheral/driver/fduart.asm
     include ../peripheral/driver/anmux.asm
-    include lib/string.asm
     include lib/console.asm
+    include lib/math.asm
+    include lib/string.asm
     include lib/time.asm
 
     // #########################################################################
     :main
-    
-// soft_event = $event_controller_reset_mask
-// soft_event = 0
-// mstimer0 = 1000
-// :waiting
-// a = event_priority
-// br az :waiting
-// event_priority = a
-// putasc "."    
-// jmp :main
-    
-    // clear the first 64k of RAM.
-    av_ad_hi = 0
-    a = 0
-    b = 2
-    :clear_next_word
-        av_ad_lo = a
-        av_write_data = 0
-        a = ad0
-    bn az :clear_next_word
 
-    // init RAM variables.
-    ram $ram_power_down_at_min = $power_down_never
-    ram $ram_relay_hold_at_pass = $relay_hold_passes
+    testmath 0 0 
+    testmath 0 1 
+    testmath 1 0 
+    testmath 1 1 
+    testmath 1 2 
+    testmath 2 0 
+    testmath 2 1 
+    testmath 2 2 
+    testmath 2 3 
+    testmath 2 4 
+    testmath 3 2 
+    testmath 4 2 
+    testmath 7 9 
+    testmath 200 200
+    testmath 7 1
+    testmath 10 5
+    testmath 1 1
+    testmath 100 5
+    testmath 99 100
+    testmath 65000 7000
+    testmath 65000 65000
+    testmath 43805 1
     
-    // init fuel injection.
-    ign_timeout_len_20us = 0xfffc
-    efi_len_us = 3000
     
-    // power up FTDI USB board, and init any other special board control functions.
-    board_ctrl = $ftdi_power_mask
-    call :postpone_comm_restart
+    a = 1000
+    call :spinwait
+    jmp :main
     
-    // check initial state of power management circuits.
-    // if power is lost or ignition switch is off already, open relay & abort run.
-    // that's important because then the event controller booted up too late to
-    // see edges on those 2 signals.  regular system would never shut itself down.
-    // this setup is the last thing done prior to the event handler loop.
-    power_duty = $power_duty_closing
-    a = power_duty
-    b = ($power_lost_mask | $ignition_switch_off_mask)
-    br and0z :skip_power_lost
-        power_duty = $power_duty_opening
-        error_halt_code $err_power_lost_at_boot    
-    :skip_power_lost
+    // // clear the first 64k of RAM.
+    // av_ad_hi = 0
+    // a = 0
+    // b = 2
+    // :clear_next_word
+        // av_ad_lo = a
+        // av_write_data = 0
+        // a = ad0
+    // bn az :clear_next_word
+
+    // // init RAM variables.
+    // ram $ram_power_down_at_min = $power_down_never
+    // ram $ram_relay_hold_at_pass = $relay_hold_passes
     
-    // start handling events.
-    soft_event = $event_controller_reset_mask
-    soft_event = 0
-    mstimer0 = 1000
-    jmp :poll_events
+    // // init fuel injection.
+    // ign_timeout_len_20us = 0xfffc
+    // efi_len_us = 3000
+    // call :set_engine_stopped
+    
+    // // power up FTDI USB board, and init any other special board control functions.
+    // board_ctrl = $ftdi_power_mask
+    // call :postpone_comm_restart
+    
+    // // check initial state of power management circuits.
+    // // if power is lost or ignition switch is off already, open relay & abort run.
+    // // that's important because then the event controller booted up too late to
+    // // see edges on those 2 signals.  regular system would never shut itself down.
+    // // this setup is the last thing done prior to the event handler loop.
+    // power_duty = $power_duty_closing
+    // a = power_duty
+    // b = ($power_lost_mask | $ign_switch_off_mask)
+    // br and0z :skip_power_lost
+        // power_duty = $power_duty_opening
+        // error_halt_code $err_power_lost_at_boot    
+    // :skip_power_lost
+    
+    // // start handling events.
+    // soft_event = $event_controller_reset_mask
+    // soft_event = 0
+    // mstimer0 = 1000
+    // jmp :poll_events
         
     // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.  
     // event 0 not used in this app anyway.
     :event_table    
-    ([label :poll_events])
-    ([label :power_lost_handler])
-    ([label :puff1_done_handler])
-    ([label :ustimer0_handler])
-    ([label :spi_done_handler])
-    ([label :mstimer0_handler])
-    ([label :mstimer1_handler])
-    ([label :uart_rx_handler])
-    ([label :uart_rx_overflow_handler])
-    ([label :uart_tx_overflow_handler])
-    ([label :key0_handler])
-    ([label :key1_handler])
-    ([label :ignition_switch_off_handler])
-    ([label :ignition_switch_on_handler])
-    ([label :softevent3_handler])
-    ([label :softevent2_handler])
-    ([label :softevent1_handler])
-    ([label :softevent0_handler])
+    // ([label :poll_events])
+    // ([label :power_lost_handler])
+    // ([label :ign_captured_handler])
+    // ([label :puff1_done_handler])
+    // ([label :ustimer0_handler])
+    // ([label :spi_done_handler])
+    // ([label :mstimer0_handler])
+    // ([label :mstimer1_handler])
+    // ([label :uart_rx_handler])
+    // ([label :uart_rx_overflow_handler])
+    // ([label :uart_tx_overflow_handler])
+    // ([label :key0_handler])
+    // ([label :key1_handler])
+    // ([label :ign_switch_off_handler])
+    // ([label :ign_switch_on_handler])
+    // ([label :softevent3_handler])
+    // ([label :softevent2_handler])
+    // ([label :softevent1_handler])
+    // ([label :softevent0_handler])
     
-    // #########################################################################
+    // // #########################################################################
 
-event ustimer0_handler
-end_event
+// func set_engine_stopped
+    // ram $ram_rpm_valid = 0
+    // ram $ram_ign_history_idx = 0
+    // // for startup, look for RPM between 50 and 1160
+    // ram $ram_ign_fastest_jf = ([rpm_to_jf 1160])
+    // ram $ram_ign_slowest_jf = ([rpm_to_jf 50])    
+// end_func    
 
-event spi_done_handler
-    // discard-counter in RAM.  
-    ram a = $ram_daq_discard_cnt
-    br az :report
-        b = -1
-        a = a+b
-        ram $ram_daq_discard_cnt = a
-        a = $anmux_adc_channel
-        call :begin_adc_conversion
-        event_return
-
-    // report ADC reading.
-    :report
-    a = spi_data
-    call :put4x 
-
-    // decrement anmux channel & start waiting again.
-    call :anmux_get_chn
-    br az :all_done
-        b = -1
-        a = a+b
-        call :anmux_set_chn
-        mstimer1 = $anmux_settle_ms
-        event_return
+// // func wrap_history_idx
+    // // :again
+        // // b = $ign_history_len
+        // // br lt :done
+        // // b = ([negate $ign_history_len])
+        // // a = a+b
+    // // jmp :again
+    // // :done    
+// // end_func
     
-    // end of daq pass.
-    :all_done
-    puteol   
-    ram $ram_dial_setting = spi_data
-end_event
-
-event mstimer0_handler
-    // unified 1-second periodic timer for all low-resolution tasks.
-
-    // start timer again.
-    mstimer0 = 1000
-
-    // realtime counters in RAM.  
-    ram a = $ram_seconds_cnt
-    b = 1
-    a = a+b
-    b = 60
-    bn eq :same_minute
-        ram $ram_seconds_cnt = 0
-        ram a = $ram_minutes_cnt
-        b = 1
-        ram $ram_minutes_cnt = a+b
-        call :minute_events
-        jmp :minutes_done
-    :same_minute
-        ram $ram_seconds_cnt = a
-    :minutes_done
+// event ign_captured_handler
+    // // discard outlier time.
+    // a = ign_capture_jf
+    // ram b = $ram_ign_fastest_jf
+    // br lt :done
+    // ram b = $ram_ign_slowest_jf
+    // br gt :done
     
-    call :check_power_relay
-    call :check_communication
-    call :start_daq_pass
-end_event
+    // // increment buffer index and memorize time.
+    // ram a = $ram_ign_history_idx
+    // b = 1
+    // a = a+b
+    // b = $ign_history_idx_mask
+    // a = and    
+    // ram $ram_ign_history_idx = a
+    // struct_write $ram_ign_history_jf a = ign_capture_jf
+    
+    // // ////////// compute new jiffy estimate.
+    
+    // // // first, total up the oldest 25% of the history
+    // // // this doesn't work above 2^14 jf.  that's below 44 RPM.
+    // // // reg a must be already loaded with the history index most recently written.
+    // // // a=index, i=total, x=loop count.
+    // // i = 0
+    // // x = $ign_history_quarter
+    // // y = -1
+    // // :next_oldest
+        // // b = 1
+        // // a = a+b    
+        // // b = $ign_history_idx_mask
+        // // a = and    
+        // // struct_read j = $ram_ign_history_jf a
+        // // i = i+j
+        // // x = x+y
+    // // bn xz :next_oldest
+    // // // memorize average.
+    // // a = i
+    // // << for {set n 0} {$n < $ign_avg_shift} {incr n} {parse3 a = a>>1 {}} >>
+    // // ram $ram_ign_oldest_avg_jf = a
+    
+    // // average entire history.
+    // // b = total, i = index = loop count
+    // b = 0
+    // i = $ign_history_len
+    // j = -1
+    // :next_avg
+        // struct_read a = $ram_ign_history_jf i
+        // a = a>>$ign_history_idx_bits
+        // b = a+b
+        // i = i+j
+    // bn iz :next_avg
+    // ram $ram_ign_avg_jf = b
+    
+    // // convert to new RPM estimate.
+    // // b = jiffies, i = RPM
+    // i = 1
+    // :next_div
+        // a = i
+        // i = a<<1
+        // a = b
+        // b = a>>1
+// // patch: need math, maybe 2 divisions.    
+    // :done
+// end_event
+    
+// event ustimer0_handler
+// end_event
 
-event mstimer1_handler    
-    // start a reading from the current anmux channel.
-    ram $ram_daq_discard_cnt = $anmux_num_discards
-    putasc " "
-    putasc "s"
-    call :anmux_get_chn
-    asc b = "0"
-    putchar a+b
-    putasc "="    
-    a = $anmux_adc_channel
-    call :begin_adc_conversion
-end_event
-    
-event uart_rx_handler
-    :again
-        pollchar
-        b = -1
-        br eq :done
-        b = 10
-        br ne :skip_lf
-            call :postpone_comm_restart
-        :skip_lf
-    br always :again
-    :done
-end_event
+// event spi_done_handler
+    // // discard-counter in RAM.  
+    // ram a = $ram_daq_discard_cnt
+    // br az :report
+        // b = -1
+        // a = a+b
+        // ram $ram_daq_discard_cnt = a
+        // a = $anmux_adc_channel
+        // call :begin_adc_conversion
+        // event_return
 
-event uart_rx_overflow_handler
-    error_halt_code $err_rx_overflow
-end_event
-    
-event uart_tx_overflow_handler
-    error_halt_code $err_tx_overflow
-end_event
-    
-event key0_handler
-    putasc "k"
-    putasc "0"
-end_event
-    
-event key1_handler
-    putasc "k"
-    putasc "1"
-end_event
-    
-event softevent3_handler
-end_event
-    
-event softevent2_handler
-end_event
-    
-event softevent1_handler
-end_event
-    
-event softevent0_handler
-end_event
-    
-func start_daq_pass
-    // daq pass counter in RAM.  
-    ram a = $ram_daq_pass_cnt
-    b = 1
-    a = a+b
-    leds = a
-    ram $ram_daq_pass_cnt = a
-    call :put4x 
-    putasc ":"
-    
-    // start to acquire & report all anmux channels.
-    a = 7
-    call :anmux_set_chn
-    mstimer1 = $anmux_settle_ms
-    
-    // // observe MCU utilization.
-    // a = usage_count
-    // call :put4x
-    // usage_count = 0    
-end_func
-    
-func begin_adc_conversion
-    // begin SPI transaction, specifying Nano ADC channel to take effect NEXT 
-    // conversion after this one.  pass that in a.
-    
-    a = a<<4
-    a = a<<4
-    a = a<<1
-    a = a<<1
-    a = a<<1    
-    spi_data = a
-end_func    
+    // // report ADC reading.
+    // :report
+    // a = spi_data
+    // call :put4x 
 
-event power_lost_handler
-    // at this time we have less than 2 ms of usable run time left.
-
-    // this must be an uncommanded loss of main power, because if it was commanded,
-    // no more events would be handled; this event handler wouldn't have a chance to run.
-    // immediately set the power relay PWM to full power for a few seconds, 
-    // in case the power relay opened accidentally e.g. due to a hard pothole.
-    power_duty = $power_duty_closing
-    ram a = $ram_daq_pass_cnt
-    b = $relay_hold_passes
-    ram $ram_relay_hold_at_pass = a+b
+    // // decrement anmux channel & start waiting again.
+    // call :anmux_get_chn
+    // br az :all_done
+        // b = -1
+        // a = a+b
+        // call :anmux_set_chn
+        // mstimer1 = $anmux_settle_ms
+        // event_return
     
-    // pause any non-vital power-hogging operations, to conserve power for the EEPROM write.
+    // // end of daq pass.
+    // :all_done
+    // puteol   
+    // ram $ram_dial_setting = spi_data
+// end_event
+
+// event mstimer0_handler
+    // // unified 1-second periodic timer for all low-resolution tasks.
+
+    // // start timer again.
+    // mstimer0 = 1000
+
+    // // realtime counters in RAM.  
+    // ram a = $ram_seconds_cnt
+    // b = 1
+    // a = a+b
+    // b = 60
+    // bn eq :same_minute
+        // ram $ram_seconds_cnt = 0
+        // ram a = $ram_minutes_cnt
+        // b = 1
+        // ram $ram_minutes_cnt = a+b
+        // call :minute_events
+        // jmp :minutes_done
+    // :same_minute
+        // ram $ram_seconds_cnt = a
+    // :minutes_done
     
-    // save persistent data in case the power remains down e.g. due to battery disconnect.
-    call :save_persistent_data
-end_event
+    // call :check_power_relay
+    // call :check_communication
+    // call :start_daq_pass
+// end_event
 
-event ignition_switch_off_handler
-    // set power-down deadline in RAM.  this makes the system remain powered for several more minutes, for cooldown data logging.    
-    ram a = $ram_minutes_cnt
-    b = $power_extend_minutes
-    ram $ram_power_down_at_min = a+b
-end_event
-
-event ignition_switch_on_handler
-    ram $ram_power_down_at_min = $power_down_never
-end_event
-
-event puff1_done_handler
-    ram a = $ram_dial_setting
-    a = a<<1
-    a = a<<1
-    a = a<<1
-    bn az :nonzero
-        a = 1
-    :nonzero
-    efi_len_us = a
-end_event
-
-func minute_events
-    call :check_power_down    
-end_func
-
-func check_power_relay
-    ram a = $ram_daq_pass_cnt    
-    ram b = $ram_relay_hold_at_pass
-    bn eq :done
-        // time to begin "solenoid saver" coil power reduction by PWM.
-        power_duty = $power_duty_holding
-    :done
-end_func
-
-func check_power_down
-    // check power-down deadline in RAM.    
-    ram a = $ram_minutes_cnt
-    ram b = $ram_power_down_at_min
-    bn eq :done
-        call :power_down
-    :done
-end_func
-
-func power_down
-    // this function never returns.
-    call :save_persistent_data
-    power_duty = $power_duty_opening
-    error_halt_code $err_power_down
-end_func
-
-func save_persistent_data
-end_func
-
-func check_communication
-    ram a = $ram_ftdi_downtime_remain_sec
-    br az :skip_ftdi_powerup
-        b = -1
-        a = a+b
-        ram $ram_ftdi_downtime_remain_sec = a
-        br az :do_power_on
-            rtn
-        :do_power_on
-        call :ftdi_power_on
-        rtn
-    :skip_ftdi_powerup
-
-    ram a = $ram_minutes_cnt
-    ram b = $ram_comm_restart_at_min 
-    br ne :done
-        // comm restart is required.
-        call :postpone_comm_restart
-        ram $ftdi_downtime_remain_sec = $ftdi_down_period_sec
-        call :ftdi_power_off
-    :done
-end_func
-
-func postpone_comm_restart
-    ram a = $ram_minutes_cnt
-    b = $comm_grace_period_min
-    ram $ram_comm_restart_at_min = a+b
-end_func
+// event mstimer1_handler    
+    // // start a reading from the current anmux channel.
+    // ram $ram_daq_discard_cnt = $anmux_num_discards
+    // putasc " "
+    // putasc "s"
+    // call :anmux_get_chn
+    // asc b = "0"
+    // putchar a+b
+    // putasc "="    
+    // a = $anmux_adc_channel
+    // call :begin_adc_conversion
+// end_event
     
-func ftdi_power_off
-    a = board_ctrl
-    b = $not_ftdi_power_mask
-    board_ctrl = and
-end_func
+// event uart_rx_handler
+    // :again
+        // pollchar
+        // b = -1
+        // br eq :done
+        // b = 10
+        // bn eq :skip_lf
+            // call :postpone_comm_restart
+        // :skip_lf
+    // jmp :again
+    // :done
+// end_event
+
+// event uart_rx_overflow_handler
+    // error_halt_code $err_rx_overflow
+// end_event
     
-func ftdi_power_on
-    a = board_ctrl
-    b = $ftdi_power_mask
-    board_ctrl = or
-end_func
+// event uart_tx_overflow_handler
+    // error_halt_code $err_tx_overflow
+// end_event
+    
+// event key0_handler
+    // putasc "k"
+    // putasc "0"
+// end_event
+    
+// event key1_handler
+    // putasc "k"
+    // putasc "1"
+// end_event
+    
+// event softevent3_handler
+// end_event
+    
+// event softevent2_handler
+// end_event
+    
+// event softevent1_handler
+// end_event
+    
+// event softevent0_handler
+// end_event
+    
+// func start_daq_pass
+    // // daq pass counter in RAM.  
+    // ram a = $ram_daq_pass_cnt
+    // b = 1
+    // a = a+b
+    // leds = a
+    // ram $ram_daq_pass_cnt = a
+    // call :put4x 
+    // putasc ":"
+    
+    // // start to acquire & report all anmux channels.
+    // a = 7
+    // call :anmux_set_chn
+    // mstimer1 = $anmux_settle_ms
+    
+    // // // observe MCU utilization.
+    // // a = usage_count
+    // // call :put4x
+    // // usage_count = 0    
+// end_func
+    
+// func begin_adc_conversion
+    // // begin SPI transaction, specifying Nano ADC channel to take effect NEXT 
+    // // conversion after this one.  pass that in a.
+    
+    // a = a<<4
+    // a = a<<4
+    // a = a<<1
+    // a = a<<1
+    // a = a<<1    
+    // spi_data = a
+// end_func    
+
+// event power_lost_handler
+    // // at this time we have less than 2 ms of usable run time left.
+
+    // // this must be an uncommanded loss of main power, because if it was commanded,
+    // // no more events would be handled; this event handler wouldn't have a chance to run.
+    // // immediately set the power relay PWM to full power for a few seconds, 
+    // // in case the power relay opened accidentally e.g. due to a hard pothole.
+    // power_duty = $power_duty_closing
+    // ram a = $ram_daq_pass_cnt
+    // b = $relay_hold_passes
+    // ram $ram_relay_hold_at_pass = a+b
+    
+    // // pause any non-vital power-hogging operations, to conserve power for the EEPROM write.
+    
+    // // save persistent data in case the power remains down e.g. due to battery disconnect.
+    // call :save_persistent_data
+// end_event
+
+// event ign_switch_off_handler
+    // // set power-down deadline in RAM.  this makes the system remain powered for several more minutes, for cooldown data logging.    
+    // ram a = $ram_minutes_cnt
+    // b = $power_extend_minutes
+    // ram $ram_power_down_at_min = a+b
+// end_event
+
+// event ign_switch_on_handler
+    // ram $ram_power_down_at_min = $power_down_never
+// end_event
+
+// event puff1_done_handler
+    // ram a = $ram_dial_setting
+    // a = a<<1
+    // a = a<<1
+    // a = a<<1
+    // bn az :nonzero
+        // a = 1
+    // :nonzero
+    // efi_len_us = a
+// end_event
+
+// func minute_events
+    // call :check_power_down    
+// end_func
+
+// func check_power_relay
+    // ram a = $ram_daq_pass_cnt    
+    // ram b = $ram_relay_hold_at_pass
+    // bn eq :done
+        // // time to begin "solenoid saver" coil power reduction by PWM.
+        // power_duty = $power_duty_holding
+    // :done
+// end_func
+
+// func check_power_down
+    // // check power-down deadline in RAM.    
+    // ram a = $ram_minutes_cnt
+    // ram b = $ram_power_down_at_min
+    // bn eq :done
+        // call :power_down
+    // :done
+// end_func
+
+// func power_down
+    // // this function never returns.
+    // call :save_persistent_data
+    // power_duty = $power_duty_opening
+    // error_halt_code $err_power_down
+// end_func
+
+// func save_persistent_data
+// end_func
+
+// func check_communication
+    // ram a = $ram_ftdi_downtime_remain_sec
+    // br az :skip_ftdi_powerup
+        // b = -1
+        // a = a+b
+        // ram $ram_ftdi_downtime_remain_sec = a
+        // br az :do_power_on
+            // rtn
+        // :do_power_on
+        // call :ftdi_power_on
+        // rtn
+    // :skip_ftdi_powerup
+
+    // ram a = $ram_minutes_cnt
+    // ram b = $ram_comm_restart_at_min 
+    // bn eq :done
+        // // comm restart is required.
+        // call :postpone_comm_restart
+        // ram $ram_ftdi_downtime_remain_sec = $ftdi_down_period_sec
+        // call :ftdi_power_off
+    // :done
+// end_func
+
+// func postpone_comm_restart
+    // ram a = $ram_minutes_cnt
+    // b = $comm_grace_period_min
+    // ram $ram_comm_restart_at_min = a+b
+// end_func
+    
+// func ftdi_power_off
+    // a = board_ctrl
+    // b = $not_ftdi_power_mask
+    // board_ctrl = and
+// end_func
+    
+// func ftdi_power_on
+    // a = board_ctrl
+    // b = $ftdi_power_mask
+    // board_ctrl = or
+// end_func
     

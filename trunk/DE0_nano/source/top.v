@@ -363,12 +363,13 @@ std_reg ign_timeout_len_reg(sysclk, sysreset, r[`DR_IGN_TIMEOUT_LEN_20US], r_loa
 wire puff_event1;
 wire inj;
 assign injector1_open = dip_switch[0] ? inj : ign_coil_wht_lo;
+wire ign_coil_wht_hi = ! ign_coil_wht_lo;
 efi_timer efi1 (
      .sysclk                (sysclk)
     ,.sysreset              (sysreset)
     ,.pulse50k              (pulse50k)
     ,.pulse1m               (pulse1m)
-    ,.ign_coil              ( ! ign_coil_wht_lo)
+    ,.ign_coil              (ign_coil_wht_hi)
     ,.ign_timeout_len_20us  (r[`DR_IGN_TIMEOUT_LEN_20US])
     ,.efi_len_us            (r[`DR_EFI_LEN_US])
     ,.injector_open         (inj)
@@ -376,6 +377,7 @@ efi_timer efi1 (
     ,.efi_enable            (r[`DR_EFI_LEN_US] != 0)
     ,.leds      (LED)
 );
+wire ignition_captured = 0; //patch
 
 // event controller is listed last to utilize wires from all other parts.
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
@@ -391,6 +393,7 @@ event_controller #(.NUM_INPUTS(18)) events(
         // MOST urgent events are listed FIRST.
         1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
         ,power_lost_sync
+        ,ignition_captured
         , ! puff_event1 // signal the END of an injector puff, so the pulse length can be adjusted for the next puff.
         ,ustimer0_expired
         , ! spi_busy // signal the END of a SPI transaction.

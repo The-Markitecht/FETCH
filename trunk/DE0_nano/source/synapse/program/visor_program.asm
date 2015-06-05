@@ -56,13 +56,13 @@
     include lib/console.asm
     include lib/time.asm
 
-    proc getchar_echo {lin} {
+    << proc getchar_echo {lin} {
         getchar_$::asm::console_driver $lin 
         # automatic echo
         push \" a
         putchar \" a
         pop \" a
-    }
+    } >>
     
     // ////////////////////////////////////////////
     :main

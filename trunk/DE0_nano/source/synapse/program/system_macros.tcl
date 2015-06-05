@@ -245,6 +245,12 @@ namespace eval ::asm {
         parse3 $dest = fetchd \"
     }
 
+    # math macros and routines.
+    proc negate {valu} {
+        # 16-bit two's complement negation.
+        return [expr {(($valu ^ 0xffff) + 1) & 0xffff}]
+    }
+    
     # assembler and source-handling macros.
     proc include {lin fn} {
         console "assembling include: $fn"
