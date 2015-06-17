@@ -110,10 +110,7 @@ namespace eval ::asm {
     proc func {lin label} {
         verify_func_closure
         set label [string trim $label {: }]
-    #    if {[dict exists $::labels $label]} {
-    #        error "redefined label: $label"
-    #    }
-        dict set ::labels $label $::ipr
+        set_label $label
         emit_comment "// ######## $lin // = 0x[format %04x $::ipr]"
         set ::func $label
         if { $::asm_pass == $::pass(func) } {

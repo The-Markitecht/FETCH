@@ -25,7 +25,7 @@ error_halt_code 0xffc0
     proc event {lin label} {
         # this is declared similar to a func, but is not a func.
         set label [string trim $label {: }]
-        dict set ::labels $label $::ipr
+        set_label $label
         emit_comment "// ######## $lin // = 0x[format %04x $::ipr]"
     }    
 

@@ -111,6 +111,14 @@ proc label {name} {
     return [dict get $::labels $name]
 }
 
+proc set_label {name} {
+#    if {[dict exists $::labels $label]} {
+#        error "redefined label: $label"
+#    }
+    dict set ::labels $name $::ipr   
+    return $name
+}
+
 proc uses_reg {reg} {
     # memorize use of a given register by the current function.
     if { ! [dict exists $::adest rstk]} return ;# only memorize if program includes a return stack.
@@ -259,8 +267,7 @@ proc parse_line {lin} {
         }
     } elseif {[string equal -length 1 $lin {:}]} {
         # label line
-        set n "${::func}/[string trim $lin {: }]"
-        dict set ::labels $n $::ipr
+        set_label "${::func}/[string trim $lin {: }]"
         emit_comment "// $lin // = 0x[format %04x $::ipr]"
     } elseif {[string equal -length 2 $lin {<<}]} {
         # explicit Tcl line in angle brackets.  return value is discarded.
@@ -355,6 +362,13 @@ namespace eval ::asm {
     }
 }
 
+proc parse_lines {asm_lines pass_num} {
+    foreach lin $asm_lines {
+        incr ::lnum
+        parse_line $lin
+    }
+}
+
 proc parse_text {asm_lines pass_num} {
     set ::asm_pass $pass_num
     console "####################   PASS $::asm_pass  ####################"
@@ -370,10 +384,7 @@ proc parse_text {asm_lines pass_num} {
     }
     namespace eval ::asm {}
     ::asm::start_file_handler
-    foreach lin $asm_lines {
-        incr ::lnum
-        parse_line $lin
-    }
+    parse_lines $asm_lines $pass_num
     ::asm::end_file_handler
 }
 
