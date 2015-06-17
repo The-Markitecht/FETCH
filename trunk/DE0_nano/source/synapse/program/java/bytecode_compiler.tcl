@@ -16,7 +16,7 @@ proc bytecode {byte name body} {
 }
 
 proc next {} {
-    incr ::java::ip
+    incr ::java::jip
     return [read $::java::class_file 1]
 }
 
@@ -31,17 +31,17 @@ proc suggest_reg {reg} {
     }
 }
 
-proc compile {class_fn} {
+proc compile_class {class_fn} {
     # open a Java .class file by its given filename.
     # assemble corresponding Synapse native machine code by calling assembler macros.
 
     set ::java::class_file [open $class_fn rb]
     fconfigure $::java::class_file -translation binary
-    set ::java::ip 0
+    set ::java::jip 0
     while { ! [eof $::java::class_file]} {
         set bc [next]
         set dic [dict get $::java::bytecodes $bc]
-        console [format %04x=%02x=%s $::java::ip $bc [dict get $dic name]]
+        console [format %04x=%02x=%s $::java::jip $bc [dict get $dic name]]
         parse_lines [dict get $dic body] $::asm_pass
     }
     close $::java::class_file
@@ -75,3 +75,13 @@ proc local {index {reg {}}} {
     return $reg
 }
 
+proc ::asm::j: {lin name} {
+    # define a label inside a java bytecode script.
+    set name [string trim $name {:}]
+    set_label ${name}_$::java::jip
+}
+
+proc jlabel {name} {
+    set name [string trim $name {:}]
+    return [::label ${name}_$::java::jip]
+}

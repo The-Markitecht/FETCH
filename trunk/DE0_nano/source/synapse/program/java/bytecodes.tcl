@@ -594,6 +594,100 @@ namespace eval ::java {
         rtn
     }
 all routines must be rewritten as a raw assembly context. working upward.
+
+also create an M9K ram for locals.
+also create an operand stack with special support for replacing the top 1 or 2 cells in 1 cycle.
+also create operators addressable by the synapse, which see their operands directly in the top few cells of operand stack.
+all that is peripherals to the synapse; no change to synapse316.v.
+
+then the machine is a mostly-hardware JVM; it's just managed by the synapse.
+all that could be done in 1 shot: an altera stack megafunc, topped by a section of fabric
+configured to act as the area near the top of the stack.  that's where the special operations happen.
+trouble with that idea is method calls.  a method using 50 locals, even if the fabric area is
+50 deep, still takes 50+ cycles just to call, while those 50 slots are created on top of the stack,
+one per cycle.  also the opposite happens on return.  that's where a RAM-based stack run by a
+soft JVM is much faster.  allocating the 50 is just a matter of incrementing the SP by 50.
+
+a good compromise: a unified stack (operands + locals + call stack) in dual-port M9k, 
+managed by synapse.  a set of operators taking their operands from those 2 ports.
+the synapse then copies a result from one of those to an appropriate RAM cell (determined
+at compile time) (could be operands or locals) and adjusts the SP.
+SP is a dedicated register.
+SP drives dedicated adders to implement SP-relative addressing.
+one adder for each ram port, each with its own offset register.
+
+would that really be any faster than a simple 1-port M9k and a soft JVM brute-forced by the synapse??
+(assuming an SP-relative address adder is provided.)
+not sure.  either way, each operand must be set up by loading its offset.  then its value
+retrieved (regardless of whether the value is directly accessible by synapse).  
+then operated.  then result offset loaded.  then result stored.
+
+yeah the 2-port is better.  synapse could load the result offset while operator is
+computing.  also more parallelism if both operand offsets (which are known at compile time)
+are loaded in the same cycle.  even better if they can both fit into 1 synapse "small constant".
+the synapse can automatically trigger various numbers of wait states in the glue logic by
+which register addresses it writes at each stage.
+while the glue logic plays out the java operation (often unattended) synapse can proceed to
+e.g. adjust the SP.  make that safe by writing to a SP buffer register, where the new SP is
+held until end of java operation is signaled by the glue logic.
+SP handling can be greatly sped up by a dedicated SP increment adder.  a synapse write to the
+adder triggers it.  that's 1 cycle to adjust the SP instead of 3 (load increment; wait for compute;
+copy result to SP).  the dedicated adder is identical to the synapse "accumulator" concept i considered before.
+accumulators weren't used then because they couldn't fully replace general purpose adders, and
+the redundancy took up too much area for pure synapse MCU.  but for java, bigger area is OK.
+
+"glue logic" of the 2-port design is really java execution logic.  includes a 
+highly sequential FSM to drive timing.  the FSM is managed and driven by the synapse.
+so the synapse can be stripped of some of its operators for area & speed.
+synapse only has to implement a kind of "microcode" for the java logic, except for special
+cases like class loading, method calling, or native call marshaling.
+
+for a typical java instruction the synapse would: 
+1 cycle: load both operand offsets from its exr (small constant).
+    some timing info can also be derived from the register address written.
+1 cycle: write the offset to address the bytecode result (could be operands or locals).
+    some timing info can also be derived from the register address written.
+    e.g. how many cycles to wait before applying the address to the RAM port, which was
+    recently busy reading an operand.
+1 cycle: write the SP increment.
+    more timing info can be derived from the register address written.
+    e.g. how many cycles to wait before applying new SP value.
+
+the bytecode scripts should call generalized tcl procs for each of those steps, to help
+decouple the bytecode scripts from the java logic implementation.
+then some of the scripts become more declarative and less imperative.
+    
+an advantage of the hardware-assisted M9k soft JVM (the 2-port design) is no need for
+e.g. data flow analysis at compile time.  nor register/resource assigments by the compiler.
+(those things are involved in most other solutions for eliminating operand push/pop cycles.)
+the compiler can be fairly simple, kind of like my first attempt here.  just the bytecode
+scripts have to be carefully written to drive the java logic correctly and not violate its timing.
+they're tightly coupled to the java logic.
+
+there are about 60 kbytes of m9k available today.  
+that's the max size of the unified java stack (operands + locals + call stack).
+that should be fine as long as the object heap is elsewhere (SDRAM).
+so getfield will be slower (7-10 cycles).
+
+SP can be instrumented by hardware to report the max stack usage.
+
+the hardware-assisted M9k soft JVM (the 2-port design) 
+might take up as many cycles as the brute-force approach i already have.
+synapse makes brute-force so easy, and the bytecodes i implemented so far don't have
+pushes/pops on them that the soft JVM wouldn't have.
+but the trouble with brute-force is yet to come.  it puts all locals in SDRAM, because
+they won't all fit in synapse registers, and the operand stack is not random-access,
+so they can't go there.  SDRAM is SO SLOW for locals.
+but i COULD (after proof of concept) put all locals in a stack in m9k instead of SDRAM.
+keep the operand stack as-is.  brute-force java instructions.
+keep the call stack as-is (it's simply pushed into the operand stack).
+or merge the call stack into the locals stack in m9k, PROVIDED that the jvm spec doesn't
+rely on the operand stack being the same as the call stack, e.g. allowing an arithmetic
+bytecode early in a method body, with no preceding operand push, using a method parameter
+as an operand.  CHECK ON THAT BEFORE CHOOSING A DESIGN.  hardware-assist vs. brute-force.
+either way the heap is probably in SDRAM due to size.  so getfield will be slower (7-10 cycles).
+
+
     bytecode 0x78 ishl {
         jpop j
         jpop a
@@ -601,12 +695,12 @@ all routines must be rewritten as a raw assembly context. working upward.
         i = and  
         a = j    
         j = -1   
-        br iz done_$::java::ip
-        << set_label again_$::java::ip >>
+        br iz [jlabel done]
+        j: again:
         a = a<<1
         j = i+j
-        bn iz again_$::java::ip
-        << set_label done_$::java::ip >>
+        bn iz [jlabel again]
+        j: done:
     }
 
     bytecode 0x7a ishr {
