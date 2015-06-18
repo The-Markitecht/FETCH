@@ -28,6 +28,15 @@ func divide
     // 16-bit division.  b = a / b.  return remainder in a.
     // division by zero results in zero.
 
+non-zero quotient is often twice what it should be.
+bigger quotients also might have a 2nd bug.
+looks like an add'l zero to the right of every 1 ??
+7/1 = 0x2a
+0x64/0x5 = 0x48
+remainder OK.
+
+also gets into infinite loop on 0xfde8 / 0x1b58 .
+    
     // degenerate cases.
     br lt :zero
     br az :zero
@@ -115,6 +124,7 @@ func testmath
     putasc "q"
     a = i
     call :put4x
+    puteol
 end_func
 <<
 proc testmath {lin a b} {

@@ -187,7 +187,6 @@
     testmath 200 200
     testmath 7 1
     testmath 10 5
-    testmath 1 1
     testmath 100 5
     testmath 99 100
     testmath 65000 7000
