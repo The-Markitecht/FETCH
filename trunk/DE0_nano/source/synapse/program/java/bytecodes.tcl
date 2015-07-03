@@ -685,9 +685,64 @@ or merge the call stack into the locals stack in m9k, PROVIDED that the jvm spec
 rely on the operand stack being the same as the call stack, e.g. allowing an arithmetic
 bytecode early in a method body, with no preceding operand push, using a method parameter
 as an operand.  CHECK ON THAT BEFORE CHOOSING A DESIGN.  hardware-assist vs. brute-force.
+no the jvm doesn't allow that.
+yes the jvm is explicitly tolerant of various stack architectures.  but per the
+details of method invocation 3.7, it's by far fastest to have a unified
+stack for operands, method parms (call stack) and locals.  the "j stack".
+
 either way the heap is probably in SDRAM due to size.  so getfield will be slower (7-10 cycles).
+that could be mitigated by marking certain classes as "fast storage".  keep those in m9k.
+that's 2 heaps.  generalize to N heaps instead, for portability.
 
+hardware (synapse operators):
+    jop0 thru jop3 = java operands, assuming NUM_JOP_REGS = 4.  r/w.
+        java operators are wired directly to these.
+        these are wired as a virtual extension to the j stack.  they hold the content
+        of the top-most cells of the j stack.  jop0 is used as top-of-stack content.
+        every j stack push actually writes the new value to jop0.  jop1 thru jop3 shift in
+        the value of their neighbor.  jop3 writes to m9k at jsp-4.
+        pop is the opposite of that process.
+        whenever j stack data is accessed (jd), it uses these if jspi < NUM_JOP_REGS.
+    jd = java stack data bits.  r/w.  to/from m9k, or jop regs if jspi < NUM_JOP_REGS.
+        this might be further complicated by accessing locals with jsofad.
+        but do i even need this??  jpop and the arithmetic operators might obsolete this.
+    jsp = java stack pointer.  r/w.  
+    obsolete: jsp+1 = reads as jsp incremented.  writes go to the j stack and auto-increments jsp.
+    obsolete: jsp-1 = reads as jsp decremented.  writes ignored.
+    jpush = write-only destination that writes to jop0 and causes a j stack push (all jop's shift, jop3 to m9k).
+    jpop = read-only source that reads from jop0 and causes a j stack pop (all jop's shift, jop3 from m9k).
+    jpopwr = write-only.  like jpop, but jop0 loads the value written instead of shifting in from jop1,
+        and all arithmetic operator results are preserved, unaffected by the pop.
+        this is equivalent to 2 pops then a push, but faster.
+        use to implement binary arithmitic bytecodes in just 1 cycle.
+    jspi = jsp increment.  the operand for the jsp arbitrary adder.  r/w.
+    jspinow = same as jspi but writing it causes jsp to load the same value on the same cycle as jspad.
+    jspad = jsp adder result = jsp + jspi.  read only.
+    arithmetic operator results = read only.
+        implement these in their own module separate from the j stack.
+    jsof = start of frame pointer.  r/w.  used to access locals.
+    jsofi = jsof increment.  the operand for the jsof arbitrary adder.
+    jsofinow = same as jsofi but writing it causes jsof to load the same value on the same cycle as jsofad.
+    jsofad = jsof adder result = jsof + jsofi.  read only.
+hardware (not directly adressible by synapse):
+    jstk_addr_comb = combinational signal; the address bits for the m9k containing java stack.
+        = jsp for stack accesses, or jspad for locals etc.  trigger that by recent
+        write to jspi.  end it after about 2 cycles, or the next access to j stack data?
+        
+how to utilize synapse native operator regs?  at all??  no.  avoid them for java data,
+to prevent any possibility of contention during implementation.  use only for control or
+out-of-band work.
 
+jop regs might make it tricky/impossible to arbitrarily adjust jsp.
+not really.  just burns a few cycles.  adjusting up:
+    jpush once for each unit of desired increment, limit = NUM_JOP_REGS.  minimum = 0.
+    further increment jsp by the desired amount, less NUM_JOP_REGS.
+adjusting down is the opposite:
+    decrement jsp by the desired amount, less NUM_JOP_REGS.  minimum = 0.
+    jpop once for each unit of desired decrement, limit = NUM_JOP_REGS. 
+    
+implement a few bytecodes for the j stack machine to validate the machine before implementing in verilog.
+    
     bytecode 0x78 ishl {
         jpop j
         jpop a
