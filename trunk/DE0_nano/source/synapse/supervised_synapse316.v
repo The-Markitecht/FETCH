@@ -83,7 +83,7 @@ wire[15:0]                vr_load_data;
 // );
 visor_pgm visor_rom(
     .clock(clk_progmem),
-    .address(code_addr[9:0]),
+    .address(code_addr[`VISOR_CODE_ADDR_TOP:0]),
     .q(code_fetched)
 );
 synapse316 #(.NUM_REGS(`VISOR_NUM_REGS)) visor (
@@ -199,7 +199,7 @@ assign vr[`DR_ATX_DATA][15:8] = 8'd0;
 
 
 // on-chip M9K RAM for target MCU program.  dual-ported.
-std_reg #(.WIDTH(10)) m9k_addr_reg(sysclk, sysreset, vr[`DR_M9K_ADDR], vr_load_data[9:0], vr_load[`DR_M9K_ADDR]);
+std_reg #(.WIDTH(`CODE_ADDR_WIDTH)) m9k_addr_reg(sysclk, sysreset, vr[`DR_M9K_ADDR], vr_load_data[`CODE_ADDR_TOP:0], vr_load[`DR_M9K_ADDR]);
 wire[15:0] m9k_data;
 std_reg m9k_data_reg(sysclk, sysreset, m9k_data, vr_load_data, vr_load[`DR_M9K_DATA]);
 reg m9k_wren = 0;
@@ -210,8 +210,8 @@ always_ff @(posedge sysreset, posedge sysclk) begin
         m9k_wren <= vr_load[`DR_M9K_DATA];
 end
 ram2port	target_program (
-	.address_a ( vr[`DR_M9K_ADDR][9:0] ),
-	.address_b ( tg_code_addr[9:0] ),
+	.address_a ( vr[`DR_M9K_ADDR][`CODE_ADDR_TOP:0] ),
+	.address_b ( tg_code_addr[`CODE_ADDR_TOP:0] ),
 	.clock_a ( clk_progmem ),
 	.clock_b ( clk_progmem ),
 	.data_a ( m9k_data ),

@@ -1,3 +1,6 @@
+`define CODE_ADDR_WIDTH  10
+`define CODE_ADDR_TOP  9
+`define CODE_SIZE_MAX_WORDS  1024
 `define NUM_REGS  32
 `define TOP_REG  31
 `define NUM_GP  8

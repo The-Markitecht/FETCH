@@ -48,8 +48,8 @@ module ram2port (
 	q_a,
 	q_b);
 
-	input	[9:0]  address_a;
-	input	[9:0]  address_b;
+	input	[11:0]  address_a;
+	input	[11:0]  address_b;
 	input	  clock_a;
 	input	  clock_b;
 	input	[15:0]  data_a;
@@ -107,8 +107,8 @@ module ram2port (
 		altsyncram_component.init_file = "target_program.mif",
 		altsyncram_component.intended_device_family = "Cyclone IV E",
 		altsyncram_component.lpm_type = "altsyncram",
-		altsyncram_component.numwords_a = 1024,
-		altsyncram_component.numwords_b = 1024,
+		altsyncram_component.numwords_a = 4096,
+		altsyncram_component.numwords_b = 4096,
 		altsyncram_component.operation_mode = "BIDIR_DUAL_PORT",
 		altsyncram_component.outdata_aclr_a = "NONE",
 		altsyncram_component.outdata_aclr_b = "NONE",
@@ -118,8 +118,8 @@ module ram2port (
 		altsyncram_component.ram_block_type = "M9K",
 		altsyncram_component.read_during_write_mode_port_a = "NEW_DATA_NO_NBE_READ",
 		altsyncram_component.read_during_write_mode_port_b = "NEW_DATA_NO_NBE_READ",
-		altsyncram_component.widthad_a = 10,
-		altsyncram_component.widthad_b = 10,
+		altsyncram_component.widthad_a = 12,
+		altsyncram_component.widthad_b = 12,
 		altsyncram_component.width_a = 16,
 		altsyncram_component.width_b = 16,
 		altsyncram_component.width_byteena_a = 1,
@@ -162,7 +162,7 @@ endmodule
 // Retrieval info: PRIVATE: JTAG_ENABLED NUMERIC "0"
 // Retrieval info: PRIVATE: JTAG_ID STRING "NONE"
 // Retrieval info: PRIVATE: MAXIMUM_DEPTH NUMERIC "0"
-// Retrieval info: PRIVATE: MEMSIZE NUMERIC "16384"
+// Retrieval info: PRIVATE: MEMSIZE NUMERIC "65536"
 // Retrieval info: PRIVATE: MEM_IN_BITS NUMERIC "0"
 // Retrieval info: PRIVATE: MIFfilename STRING "target_program.mif"
 // Retrieval info: PRIVATE: OPERATION_MODE NUMERIC "3"
@@ -201,8 +201,8 @@ endmodule
 // Retrieval info: CONSTANT: INIT_FILE STRING "target_program.mif"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone IV E"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altsyncram"
-// Retrieval info: CONSTANT: NUMWORDS_A NUMERIC "1024"
-// Retrieval info: CONSTANT: NUMWORDS_B NUMERIC "1024"
+// Retrieval info: CONSTANT: NUMWORDS_A NUMERIC "4096"
+// Retrieval info: CONSTANT: NUMWORDS_B NUMERIC "4096"
 // Retrieval info: CONSTANT: OPERATION_MODE STRING "BIDIR_DUAL_PORT"
 // Retrieval info: CONSTANT: OUTDATA_ACLR_A STRING "NONE"
 // Retrieval info: CONSTANT: OUTDATA_ACLR_B STRING "NONE"
@@ -212,15 +212,15 @@ endmodule
 // Retrieval info: CONSTANT: RAM_BLOCK_TYPE STRING "M9K"
 // Retrieval info: CONSTANT: READ_DURING_WRITE_MODE_PORT_A STRING "NEW_DATA_NO_NBE_READ"
 // Retrieval info: CONSTANT: READ_DURING_WRITE_MODE_PORT_B STRING "NEW_DATA_NO_NBE_READ"
-// Retrieval info: CONSTANT: WIDTHAD_A NUMERIC "10"
-// Retrieval info: CONSTANT: WIDTHAD_B NUMERIC "10"
+// Retrieval info: CONSTANT: WIDTHAD_A NUMERIC "12"
+// Retrieval info: CONSTANT: WIDTHAD_B NUMERIC "12"
 // Retrieval info: CONSTANT: WIDTH_A NUMERIC "16"
 // Retrieval info: CONSTANT: WIDTH_B NUMERIC "16"
 // Retrieval info: CONSTANT: WIDTH_BYTEENA_A NUMERIC "1"
 // Retrieval info: CONSTANT: WIDTH_BYTEENA_B NUMERIC "1"
 // Retrieval info: CONSTANT: WRCONTROL_WRADDRESS_REG_B STRING "CLOCK1"
-// Retrieval info: USED_PORT: address_a 0 0 10 0 INPUT NODEFVAL "address_a[9..0]"
-// Retrieval info: USED_PORT: address_b 0 0 10 0 INPUT NODEFVAL "address_b[9..0]"
+// Retrieval info: USED_PORT: address_a 0 0 12 0 INPUT NODEFVAL "address_a[11..0]"
+// Retrieval info: USED_PORT: address_b 0 0 12 0 INPUT NODEFVAL "address_b[11..0]"
 // Retrieval info: USED_PORT: clock_a 0 0 0 0 INPUT VCC "clock_a"
 // Retrieval info: USED_PORT: clock_b 0 0 0 0 INPUT NODEFVAL "clock_b"
 // Retrieval info: USED_PORT: data_a 0 0 16 0 INPUT NODEFVAL "data_a[15..0]"
@@ -229,8 +229,8 @@ endmodule
 // Retrieval info: USED_PORT: q_b 0 0 16 0 OUTPUT NODEFVAL "q_b[15..0]"
 // Retrieval info: USED_PORT: wren_a 0 0 0 0 INPUT GND "wren_a"
 // Retrieval info: USED_PORT: wren_b 0 0 0 0 INPUT GND "wren_b"
-// Retrieval info: CONNECT: @address_a 0 0 10 0 address_a 0 0 10 0
-// Retrieval info: CONNECT: @address_b 0 0 10 0 address_b 0 0 10 0
+// Retrieval info: CONNECT: @address_a 0 0 12 0 address_a 0 0 12 0
+// Retrieval info: CONNECT: @address_b 0 0 12 0 address_b 0 0 12 0
 // Retrieval info: CONNECT: @clock0 0 0 0 0 clock_a 0 0 0 0
 // Retrieval info: CONNECT: @clock1 0 0 0 0 clock_b 0 0 0 0
 // Retrieval info: CONNECT: @data_a 0 0 16 0 data_a 0 0 16 0

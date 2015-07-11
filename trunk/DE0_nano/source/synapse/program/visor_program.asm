@@ -2,6 +2,15 @@
 // assembly source code.    
 // for debugging supervisor mcu.
 
+    // program code dimensions.  these are for the VISOR code, not the TARGET code.
+    vdefine CODE_ADDR_WIDTH         10
+    vdefine CODE_ADDR_TOP           ($CODE_ADDR_WIDTH - 1)
+    vdefine CODE_SIZE_MAX_WORDS     (1 << $CODE_ADDR_WIDTH)
+    // repeated for use in visor Verilog, where the target's code dimensions (above) override the visor's.
+    vdefine VISOR_CODE_ADDR_WIDTH      $CODE_ADDR_WIDTH       
+    vdefine VISOR_CODE_ADDR_TOP        $CODE_ADDR_TOP         
+    vdefine VISOR_CODE_SIZE_MAX_WORDS  $CODE_SIZE_MAX_WORDS   
+
     // register file configuration
     vdefine VISOR_NUM_REGS 32
     vdefine VISOR_TOP_REG ($VISOR_NUM_REGS - 1)
@@ -55,6 +64,10 @@
     include lib/string.asm
     include lib/console.asm
     include lib/time.asm
+    
+    setvar fletcher_sum1_reg g6
+    setvar fletcher_sum2_reg g7
+    include lib/fletcher.asm
 
     << proc getchar_echo {lin} {
         getchar_$::asm::console_driver $lin 
@@ -251,34 +264,47 @@ end_func
     
 func load_program
     // load target program from UART.
+    
     // length, little-endian.  memorize in x.
+    puteol
     putasc L
     get16 x
     a = x
-    call put4x
+    call :put4x
+    puteol
+    
     // put target into reset again, in case this is a target warm boot.
     bus_ctrl = $tg_reset_mask   
+    
     // load opcodes.  count up address in i.
     i = 0
     j = 1
+    call :fletcher16_init
     :loadword
-    putasc A
-    a = i
-    call put4x
-    putasc "="
-    get16 g6
-    a = g6
-    call put4x
-    putasc "="
-    m9k_addr = i
-    m9k_data = g6
-    a = m9k_data
-    call put4x
-    puteol
-    i = i+j
-    a = i
-    b = x
+        // receive, store in RAM.
+        get16 a
+        m9k_addr = i
+        m9k_data = a
+
+        // read back from RAM and build checksum.
+        a = m9k_data
+        call :fletcher16_input16 
+        
+        //  show decimated feedback text, for more speed:
+        a = i
+        b = 0x1f
+        bn and0z :skip_text
+            putasc "."
+        :skip_text
+        
+        i = i+j
+        a = i
+        b = x
     bn eq :loadword
+    puteol
+    call :fletcher16_result
+    call :put4x
+    puteol
 end_func
 
 // observe a register.  return its value in peek_data.

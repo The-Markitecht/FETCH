@@ -1,7 +1,12 @@
 // #########################################################################
 // assembly source code.    
 
-    // register file configuration
+    // program code dimensions.
+    vdefine CODE_ADDR_WIDTH         10
+    vdefine CODE_ADDR_TOP           ($CODE_ADDR_WIDTH - 1)
+    vdefine CODE_SIZE_MAX_WORDS     (1 << $CODE_ADDR_WIDTH)
+    
+    // register file configuration.
     vdefine NUM_REGS 32
     vdefine TOP_REG ($NUM_REGS - 1)
     vdefine NUM_GP 8
@@ -128,7 +133,8 @@
     // all ignition time vars are expressed in 20us "jiffies" or "jf".
     // 5000 RPM = about 140 jf between rising edges on chevy ignition white wire.
     // 1000 RPM = about 700 jf 
-    // 100  RPM = about 7000 jf
+    //  100 RPM = about 7000 jf
+    //   22 RPM = about 32000 jf, the slowest figure that's safe for the divide routine.
     setvar ign_history_idx_bits     4
     setvar ign_history_len          (1 << $ign_history_idx_bits)
     setvar ign_history_idx_mask     ($ign_history_len - 1)
@@ -139,6 +145,7 @@
     // ram_define ram_ign_oldest_avg_jf
     // ram_define ram_ign_newest_avg_jf
     ram_define ram_ign_avg_jf
+    ram_define ram_avg_rpm
     ram_define ram_rpm_valid
     ram_define ram_ign_fastest_jf
     ram_define ram_ign_slowest_jf
@@ -169,35 +176,16 @@
     include lib/time.asm
 
     // #########################################################################
-    :main
+    :main    
+    
+    putasc "T"
+    putasc "G"
+    putasc "T"
+    puteol
 
-    testmath 0 0 
-    testmath 0 1 
-    testmath 1 0 
-    testmath 1 1 
-    testmath 1 2 
-    testmath 2 0 
-    testmath 2 1 
-    testmath 2 2 
-    testmath 2 3 
-    testmath 2 4 
-    testmath 3 2 
-    testmath 4 2 
-    testmath 7 9 
-    testmath 200 200
-    testmath 7 1
-    testmath 10 5
-    testmath 100 5
-    testmath 99 100
-    testmath 65000 7000
-    testmath 65000 65000
-    testmath 43805 1
-    
-    
-    a = 1000
-    call :spinwait
-    jmp :main
-    
+jmp :main
+:event_table   
+   
     // // clear the first 64k of RAM.
     // av_ad_hi = 0
     // a = 0
@@ -240,9 +228,9 @@
     // mstimer0 = 1000
     // jmp :poll_events
         
-    // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.  
-    // event 0 not used in this app anyway.
-    :event_table    
+    // // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.  
+    // // event 0 not used in this app anyway.
+    // :event_table    
     // ([label :poll_events])
     // ([label :power_lost_handler])
     // ([label :ign_captured_handler])
@@ -297,6 +285,10 @@
     // a = a+b
     // b = $ign_history_idx_mask
     // a = and    
+    // bn az :no_wrap
+        // // history buffer is full now.  average will be valid.
+        // ram $ram_rpm_valid = 1
+    // :no_wrap
     // ram $ram_ign_history_idx = a
     // struct_write $ram_ign_history_jf a = ign_capture_jf
     
@@ -336,15 +328,11 @@
     // bn iz :next_avg
     // ram $ram_ign_avg_jf = b
     
-    // // convert to new RPM estimate.
-    // // b = jiffies, i = RPM
-    // i = 1
-    // :next_div
-        // a = i
-        // i = a<<1
-        // a = b
-        // b = a>>1
-// // patch: need math, maybe 2 divisions.    
+    // // convert jiffies b to new RPM estimate.
+    // a = b
+    // call :jf_to_rpm
+    // ram $ram_avg_rpm = a
+    
     // :done
 // end_event
     
@@ -406,7 +394,7 @@
     
     // call :check_power_relay
     // call :check_communication
-    // call :start_daq_pass
+    // call :start_daq_pass    
 // end_event
 
 // event mstimer1_handler    
@@ -474,6 +462,14 @@
     // ram $ram_daq_pass_cnt = a
     // call :put4x 
     // putasc ":"
+
+    // putasc " "
+    // putasc "r"
+    // putasc "p"
+    // putasc "m"
+    // putasc "="
+    // ram a = $ram_avg_rpm 
+    // call :put4x
     
     // // start to acquire & report all anmux channels.
     // a = 7
@@ -611,3 +607,14 @@
     // board_ctrl = or
 // end_func
     
+// func jf_to_rpm
+    // // pass jiffies in a.  return rpm in a.
+    // // resolution = 32 rpm.
+    // b = a
+    // a = 0x5573 
+    // // = 700000 >> 5
+    // call :divide
+    // a = b
+    // a = a<<4
+    // a = a<<1
+// end_func

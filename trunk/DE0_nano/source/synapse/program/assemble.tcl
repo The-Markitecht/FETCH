@@ -421,6 +421,9 @@ proc assemble {src_fn rom_fn} {
     
     parse_text $asm_lines $::pass(label)
     set len_words $::ipr
+    if {$len_words > $::asm::CODE_SIZE_MAX_WORDS} {
+        error "Code size $len_words exceeds code memory size $::asm::CODE_SIZE_MAX_WORDS words."
+    }
     
     set ::rom_file [open $::rom_fn w]
     puts $::rom_file "
@@ -434,7 +437,7 @@ proc assemble {src_fn rom_fn} {
     "    
     set ::mif_file [open $::mif_fn w]
     puts $::mif_file "
-        DEPTH = 1024 ;               -- The size of memory in words
+        DEPTH = $::asm::CODE_SIZE_MAX_WORDS ;  -- The size of memory in words
         WIDTH = 16;                   -- bits per data word
         ADDRESS_RADIX = HEX;          
         DATA_RADIX = HEX;             
