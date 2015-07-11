@@ -18,6 +18,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Xml;
 using System.Text.RegularExpressions;
+using debug_monitor;
 
 namespace CVtool
 {
@@ -196,7 +197,7 @@ namespace CVtool
             for (int i = start; i < (start + len); i++)
             {
                 port.Write(a, i, 1);
-                Thread.Sleep(20);
+                Thread.Sleep(1);
                 rx_tmr_tick(null, null);
             }
         }
@@ -218,12 +219,25 @@ namespace CVtool
             log(src_fn);
             send("l");
             byte[] b;
+            fletcher16 sum = new fletcher16();
             using (System.IO.FileStream fs = new System.IO.FileStream(src_fn, System.IO.FileMode.Open, System.IO.FileAccess.Read))
             {
                 b = new byte[fs.Length];
-                fs.Read(b, 0, (int)fs.Length);
+                fs.Read(b, 0, b.Length);
             }
+
+            //b = new byte[0x10];
+            //b[0] = (byte)(b.Length / 2 - 1); // program length field (in words).
+            //b[1] = 0;
+            //for (int i = 2; i < b.Length; i++)
+            //    b[i] = (byte)i;
+
+            for (int i = 2; i < b.Length; i++)
+                sum.input8(b[i]);
+            logf("{0} = file sum", sum.result().ToString("x4"));
+
             send(b, 0, b.Length);
+
             load_source(source_fn);
         }
 
