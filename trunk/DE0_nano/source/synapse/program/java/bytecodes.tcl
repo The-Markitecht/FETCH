@@ -702,8 +702,8 @@ hardware (synapse operators):
         every j stack push actually writes the new value to jop0.  jop1 thru jop3 shift in
         the value of their neighbor.  jop3 writes to m9k at jsp-4.
         pop is the opposite of that process.
-        whenever j stack data is accessed (jd), it uses these if jspi < NUM_JOP_REGS.
-    jd = java stack data bits.  r/w.  to/from m9k, or jop regs if jspi < NUM_JOP_REGS.
+        whenever j stack data is accessed (jd), it uses these if jspinc < NUM_JOP_REGS.
+    obsolete: jd = java stack data bits.  r/w.  to/from m9k, or jop regs if jspinc < NUM_JOP_REGS.
         this might be further complicated by accessing locals with jsofad.
         but do i even need this??  jpop and the arithmetic operators might obsolete this.
     jsp = java stack pointer.  r/w.  
@@ -712,22 +712,24 @@ hardware (synapse operators):
     jpush = write-only destination that writes to jop0 and causes a j stack push (all jop's shift, jop3 to m9k).
     jpop = read-only source that reads from jop0 and causes a j stack pop (all jop's shift, jop3 from m9k).
     jpopwr = write-only.  like jpop, but jop0 loads the value written instead of shifting in from jop1,
-        and all arithmetic operator results are preserved, unaffected by the pop.
+        and all arithmetic operator results are preserved, unaffected by the pop. << that hold might not be needed.
         this is equivalent to 2 pops then a push, but faster.
         use to implement binary arithmitic bytecodes in just 1 cycle.
-    jspi = jsp increment.  the operand for the jsp arbitrary adder.  r/w.
-    jspinow = same as jspi but writing it causes jsp to load the same value on the same cycle as jspad.
-    jspad = jsp adder result = jsp + jspi.  read only.
+    jspinc = jsp increment.  the operand for the jsp arbitrary adder.  r/w.
+    jspinow = same as jspinc but writing it causes jsp to load the same value on the same cycle as jspsum.
     arithmetic operator results = read only.
         implement these in their own module separate from the j stack.
-    jsof = start of frame pointer.  r/w.  used to access locals.
-    jsofi = jsof increment.  the operand for the jsof arbitrary adder.
-    jsofinow = same as jsofi but writing it causes jsof to load the same value on the same cycle as jsofad.
-    jsofad = jsof adder result = jsof + jsofi.  read only.
+    jframe = start of frame pointer.  r/w.  used to access locals.
+    jfinc = jframe increment.  the operand for the jframe arbitrary adder.
+    jfinow = same as jfinc but writing it causes jframe to load the same value on the same cycle as jfsum.
+    jaddr = ram address to fall back on when no other address is active.
+        useful for random access e.g. garbage collector.
 hardware (not directly adressible by synapse):
-    jstk_addr_comb = combinational signal; the address bits for the m9k containing java stack.
-        = jsp for stack accesses, or jspad for locals etc.  trigger that by recent
-        write to jspi.  end it after about 2 cycles, or the next access to j stack data?
+    obsolete: jstk_addr_comb = combinational signal; the address bits for the m9k containing java stack.
+        = jsp for stack accesses, or jspsum for locals etc.  trigger that by recent
+        write to jspinc.  end it after about 2 cycles, or the next access to j stack data?
+    obsolete: jspsum = jsp adder result = jsp + jspinc.  read only.
+    obsolete: jfsum = jframe adder result = jframe + jfinc.  read only.
         
 how to utilize synapse native operator regs?  at all??  no.  avoid them for java data,
 to prevent any possibility of contention during implementation.  use only for control or
@@ -740,6 +742,10 @@ not really.  just burns a few cycles.  adjusting up:
 adjusting down is the opposite:
     decrement jsp by the desired amount, less NUM_JOP_REGS.  minimum = 0.
     jpop once for each unit of desired decrement, limit = NUM_JOP_REGS. 
+
+all that can really be done just as well on 1 ram port.  the jstack machine is basically a 
+memory addressing circuit anyway.  it works mostly by muxing the right addresses onto a ram port.
+if it does that well enough, then the mcu doesn't need a second port for random accesses.
     
 implement a few bytecodes for the j stack machine to validate the machine before implementing in verilog.
     
