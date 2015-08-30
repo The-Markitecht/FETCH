@@ -173,14 +173,15 @@
     include lib/string.asm
     include lib/time.asm
 
+    // string resources
+    :boot_msg
+        "TGT\r\n\x0"
+        
     // #########################################################################
-    :main    
+    :main  
+    a = :boot_msg
+    call :print_nt 
     
-    putasc "T"
-    putasc "G"
-    putasc "T"
-    puteol
-
     // clear the first 64k of RAM.
     av_ad_hi = 0
     a = 0

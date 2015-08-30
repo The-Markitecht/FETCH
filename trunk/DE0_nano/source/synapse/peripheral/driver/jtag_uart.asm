@@ -5,7 +5,9 @@ setvar console_driver jtag
 
 <<
     proc putchar_jtag {lin reg} {
-        parse3 b = $reg $lin
+        if {[src $reg] != [dest b]} {
+            parse3 b = $reg $lin
+        }
         call \" :putchar_jtag_func
     }
 

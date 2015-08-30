@@ -20,7 +20,9 @@ vdefine arx_busy_mask            (1 << $arx_busy_bit       )
 
 << 
     proc putchar_fduart {lin reg} {
-        parse3 a = $reg "a = $reg // $lin"
+        if {[src $reg] != [dest a]} {
+            parse3 a = $reg "a = $reg // $lin"
+        }
         call $lin putchar_fduart
     }
 

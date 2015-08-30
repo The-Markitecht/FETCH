@@ -113,3 +113,28 @@ func get4x
     :fail
     b = -1
 end_func
+
+// print a null-terminated string from packed words in program space.
+// pass its word address (not its byte address) in a.  
+// string must start on a word boundary.
+// no newline or other delimiter is added automatically.
+func print_nt
+    i = a
+    j = 1
+    :next_word
+        fetch x from i
+        // now i = current word address, x = data word, b = low byte mask, a = data byte.
+        a = x
+        b = 0xff
+        br and0z :done
+        putchar a
+        a = x
+        a = a>>4
+        a = a>>4
+        b = 0xff
+        br and0z :done
+        putchar a
+        i = i+j
+        jmp :next_word
+    :done
+end_func

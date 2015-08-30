@@ -10,7 +10,9 @@ vdefine arx_busy_mask           0x0004
 << 
     proc putchar_atx {lin reg} {
         # for my own uart_v2_tx hardware.
-        parse3 a = $reg "a = $reg // $lin"
+        if {[src $reg] != [dest a]} {
+            parse3 a = $reg "a = $reg // $lin"
+        }
         call $lin putchar_atx
     }
 

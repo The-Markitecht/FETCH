@@ -248,7 +248,7 @@ proc parse_line {lin} {
     } elseif {[string equal -length 2 $lin {//}]} {        
         emit_comment $lin ;# comment line
     } elseif {[string equal -length 1 $lin \" ]} {
-        # string constant line
+        # string constant line.  note: NO DELIMITER is added here.  e.g. if a null terminator is needed it must be specified explicitly.
         if { ! [string equal [string index $lin end] \" ]} {
             error "string missing final quote mark: $lin"
         }

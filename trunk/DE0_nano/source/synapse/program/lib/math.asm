@@ -116,31 +116,6 @@ func divide
     rtn    
 end_func
 
-func testmath
-    x = a
-    y = b
-    putasc " "
-    a = x
-    call :put4x
-    putasc ","
-    a = y
-    call :put4x
-    putasc "="
-    a = x
-    b = y
-    call :multiply
-    call :put4x
-    putasc "r"
-    a = x
-    b = y
-    call :divide
-    i = b
-    call :put4x
-    putasc "q"
-    a = i
-    call :put4x
-    puteol
-end_func
 <<
 proc testmath {lin a b} {
     parse3 a = $a ""
@@ -210,5 +185,32 @@ set math_test_code {
         bn xz :next_divisor
         i = i+j
     bn iz :next_dividend
+    
+func testmath
+    x = a
+    y = b
+    putasc " "
+    a = x
+    call :put4x
+    putasc ","
+    a = y
+    call :put4x
+    putasc "="
+    a = x
+    b = y
+    call :multiply
+    call :put4x
+    putasc "r"
+    a = x
+    b = y
+    call :divide
+    i = b
+    call :put4x
+    putasc "q"
+    a = i
+    call :put4x
+    puteol
+end_func
+    
 }
 >>

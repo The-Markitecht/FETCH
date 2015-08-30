@@ -96,7 +96,8 @@ wire sysreset = rst2;
 // realtime counters.  first the 1 MHz.  divide sysclk by 50.
 wire timer_enable;
 reg[5:0] counter1m = 0;
-wire pulse1m = (counter1m == 6'd49) && timer_enable;
+wire pulse1m_ungated = (counter1m == 6'd49);
+wire pulse1m = pulse1m_ungated && timer_enable;
 always_ff @(posedge sysclk) 
     counter1m <= (pulse1m ? 6'd0 : counter1m + 6'd1);
 // slower realtime counters.  these are dividers fed by the 1 MHz.    
@@ -338,7 +339,7 @@ wire[15:0] power_duty;
 cdpwm #(.WIDTH(6), .START(50)) power_relay_pwm_inst (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sysreset )  
-    ,.counter_event   ( pulse1m )
+    ,.counter_event   ( pulse1m_ungated ) // must be ungated, so the relay keeps working while the visor pauses the target MCU.
     ,.counter_value   (  )
     ,.duty            ( power_duty )
     ,.duty_load       ( r_load[`DR_POWER_DUTY] )
