@@ -153,6 +153,12 @@
     ram_define ram_mcu_usage_cnt             
     ram_define ram_dial_setting              
 
+    // text flag reporting.
+    setvar num_text_flag_pointers       8
+    setvar tfp_mask                     ($num_text_flag_pointers - 1)
+    ram_define ram_text_flag_pointers   ($num_text_flag_pointers * 2)
+    ram_define ram_next_tfp
+    
     // error code constants.
     setvar err_rx_overflow              0xfffe
     setvar err_tx_overflow              0xfffd
@@ -249,12 +255,18 @@
     
     // #########################################################################
 
+:engine_stopped_msg
+    "ESTP\x0"
+    
 func set_engine_stopped
     ram $ram_rpm_valid = 0
     ram $ram_ign_history_idx = 0
     // for startup, look for RPM between 50 and 1160
     ram $ram_ign_fastest_jf = ([rpm_to_jf 1160])
     ram $ram_ign_slowest_jf = ([rpm_to_jf 50])    
+    
+    a = :engine_stopped_msg
+    call :set_text_flag    
 end_func    
 
 // func wrap_history_idx
@@ -362,6 +374,7 @@ event spi_done_handler
     
     // end of daq pass.
     :all_done
+    call :report_text_flags
     puteol   
     ram $ram_dial_setting = spi_data
 end_event
@@ -448,6 +461,12 @@ end_event
     
 event softevent0_handler
 end_event
+
+:rpm_msg
+    ": rpm=\x0"
+
+:efi_len_msg
+    " efi=\x0"
     
 func start_daq_pass
     // daq pass counter in RAM.  
@@ -457,14 +476,15 @@ func start_daq_pass
     leds = a
     ram $ram_daq_pass_cnt = a
     call :put4x 
-    putasc ":"
 
-    putasc " "
-    putasc "r"
-    putasc "p"
-    putasc "m"
-    putasc "="
+    a = :rpm_msg
+    call :print_nt 
     ram a = $ram_avg_rpm 
+    call :put4x
+
+    a = :efi_len_msg
+    call :print_nt 
+    a = efi_len_us
     call :put4x
     
     // start to acquire & report all anmux channels.
@@ -508,15 +528,25 @@ event power_lost_handler
     call :save_persistent_data
 end_event
 
+:ign_off_msg
+    "IGOF\x0"
+
 event ign_switch_off_handler
     // set power-down deadline in RAM.  this makes the system remain powered for several more minutes, for cooldown data logging.    
     ram a = $ram_minutes_cnt
     b = $power_extend_minutes
     ram $ram_power_down_at_min = a+b
+    a = :ign_off_msg
+    call :set_text_flag    
 end_event
+
+:ign_on_msg
+    "IGON\x0"
 
 event ign_switch_on_handler
     ram $ram_power_down_at_min = $power_down_never
+    a = :ign_on_msg
+    call :set_text_flag    
 end_event
 
 event puff1_done_handler
@@ -534,12 +564,17 @@ func minute_events
     call :check_power_down    
 end_func
 
+:power_hold_msg
+    "PWH\x0"
+
 func check_power_relay
     ram a = $ram_daq_pass_cnt    
     ram b = $ram_relay_hold_at_pass
     bn eq :done
         // time to begin "solenoid saver" coil power reduction by PWM.
         power_duty = $power_duty_holding
+        a = :power_hold_msg
+        call :set_text_flag
     :done
 end_func
 
@@ -591,16 +626,49 @@ func postpone_comm_restart
     ram $ram_comm_restart_at_min = a+b
 end_func
     
+:ftdi_off_msg
+    "FTOF\x0"
+
 func ftdi_power_off
     a = board_ctrl
     b = $not_ftdi_power_mask
     board_ctrl = and
+    a = :ftdi_off_msg
+    call :set_text_flag
 end_func
+    
+:ftdi_on_msg
+    "FTON\x0"
     
 func ftdi_power_on
     a = board_ctrl
     b = $ftdi_power_mask
     board_ctrl = or
+    a = :ftdi_on_msg
+    call :set_text_flag
+end_func
+
+func set_text_flag
+    ram b = $ram_next_tfp
+    struct_write $ram_text_flag_pointers  b  =  a
+    a = -1
+    b = a+b
+    a = $tfp_mask
+    ram $ram_next_tfp = and
+end_func
+
+func report_text_flags
+    i = $num_text_flag_pointers
+    j = -1
+    :next_ptr
+        i = i+j
+        struct_read a = $ram_text_flag_pointers  i
+        br az :skip
+            call :print_nt
+            putasc ","
+            struct_write $ram_text_flag_pointers  i  =  0
+        :skip        
+    bn iz :next_ptr
 end_func
     
 func jf_to_rpm

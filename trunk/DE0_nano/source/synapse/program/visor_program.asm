@@ -76,6 +76,11 @@
         pop \" a
     } >>
     
+    :boot_msg
+        "\r\nVISOR\x0"
+    :running_msg
+        "\r\nRUN >\x0"
+    
     // ////////////////////////////////////////////
     :main
     // put target into reset.
@@ -88,12 +93,8 @@
     bp0_addr = $bp_disable
 
     // startup message
-    puteol
-    putasc "V"
-    putasc "I"
-    putasc "S"
-    putasc "O"
-    putasc "R"
+    a = :boot_msg
+    call :print_nt
     
     // check for bootloader signal.
     a = boot_break    
@@ -127,12 +128,8 @@
     jmp :parse_cmd
     
     :running_prompt
-    puteol
-    putasc "R"
-    putasc "U"
-    putasc "N"
-    putasc " "
-    putasc ">"
+    a = :running_msg
+    call :print_nt
     :run_poll
     pollchar
     b = -1
@@ -334,6 +331,8 @@ func dump_target
     // fetch register name from table in target program.
     // i = register number.  x = 2-byte word index within each name string.
     // peek is skipped for any reg name starting with 2 slashes (good for read-sensitive regs). 
+    putasc " "
+    putasc " "
     x = 0
     y = 1
     :next_chars

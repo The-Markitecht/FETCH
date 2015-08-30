@@ -83,17 +83,25 @@ namespace eval ::asm {
     }
     
     proc struct_read {lin  value_reg  eq  addr  offset_reg} {
-        push $lin a
-        push $lin b
+        if {[dest $value_reg] != [dest a]} {
+            push $lin a
+        }
+        if {[dest $value_reg] != [dest b]} {
+            push $lin b
+        }
         lassign [split $addr {'}] hi lo
         parse3 b $eq $offset_reg $lin
         parse3 a $eq $lo $lin
         parse3 av_ad_hi $eq [expr {$hi}] "$lin // av_ad_hi = $hi"
-        parse3 av_ad_lo $eq ad0          "$lin // av_ad_lo = $lo"
+        parse3 av_ad_lo $eq ad0          "$lin // av_ad_lo = $lo + $offset_reg"
         parse3 $value_reg $eq av_write_data "$lin // $value_reg = av_write_data"
         parse3 $value_reg $eq av_read_data  "$lin // $value_reg = av_read_data"
-        pop $lin b
-        pop $lin a
+        if {[dest $value_reg] != [dest a]} {
+            pop $lin a
+        }
+        if {[dest $value_reg] != [dest b]} {
+            pop $lin b
+        }
     }
 
     proc struct_write {lin  addr  offset_reg  eq  value_reg} {
@@ -103,7 +111,7 @@ namespace eval ::asm {
         parse3 b $eq $offset_reg $lin
         parse3 a $eq $lo $lin
         parse3 av_ad_hi $eq [expr {$hi}] "$lin // av_ad_hi = $hi"
-        parse3 av_ad_lo $eq ad0 "$lin // av_ad_lo = $lo"
+        parse3 av_ad_lo $eq ad0 "$lin // av_ad_lo = $lo + $offset_reg"
         parse3 av_write_data $eq $value_reg "$lin // av_write_data = $value_reg"
         pop $lin b
         pop $lin a
