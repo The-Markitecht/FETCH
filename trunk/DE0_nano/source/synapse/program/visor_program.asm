@@ -2,14 +2,13 @@
 // assembly source code.    
 // for debugging supervisor mcu.
 
-    // program code dimensions.  these are for the VISOR code, not the TARGET code.
-    vdefine CODE_ADDR_WIDTH         10
-    vdefine CODE_ADDR_TOP           ($CODE_ADDR_WIDTH - 1)
-    vdefine CODE_SIZE_MAX_WORDS     (1 << $CODE_ADDR_WIDTH)
-    // repeated for use in visor Verilog, where the target's code dimensions (above) override the visor's.
-    vdefine VISOR_CODE_ADDR_WIDTH      $CODE_ADDR_WIDTH       
-    vdefine VISOR_CODE_ADDR_TOP        $CODE_ADDR_TOP         
-    vdefine VISOR_CODE_SIZE_MAX_WORDS  $CODE_SIZE_MAX_WORDS   
+    // program code dimensions.  
+    declare_target_code_size
+    // these are for the VISOR code, not the TARGET code.
+    vdefine VISOR_CODE_ADDR_WIDTH       10  
+    vdefine VISOR_CODE_ADDR_TOP         ($VISOR_CODE_ADDR_WIDTH - 1)  
+    vdefine VISOR_CODE_SIZE_MAX_WORDS   (1 << $VISOR_CODE_ADDR_WIDTH)      
+    setvar ASSEMBLER_MAX_WORDS          $VISOR_CODE_SIZE_MAX_WORDS
 
     // register file configuration
     vdefine VISOR_NUM_REGS 32

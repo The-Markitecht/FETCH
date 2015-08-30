@@ -362,14 +362,22 @@ namespace eval ::asm {
     }
 }
 
-proc parse_lines {asm_lines pass_num} {
+proc parse {assembly_text} {
+    # call e.g. from a macro, to easily switch back to an assembly context, passing a block of assembly text.
+    # line numbering is stalled in this case, to maintain sync with the source file that called the macro.
+    foreach lin [split $assembly_text \n] {
+        parse_line $lin
+    }
+}
+
+proc parse_lines {asm_lines} {
     foreach lin $asm_lines {
         incr ::lnum
         parse_line $lin
     }
 }
 
-proc parse_text {asm_lines pass_num} {
+proc parse_pass {asm_lines pass_num} {
     set ::asm_pass $pass_num
     console "####################   PASS $::asm_pass  ####################"
     set ::ipr 0
@@ -384,11 +392,11 @@ proc parse_text {asm_lines pass_num} {
     }
     namespace eval ::asm {}
     ::asm::start_file_handler
-    parse_lines $asm_lines $pass_num
+    parse_lines $asm_lines 
     ::asm::end_file_handler
 }
 
-proc assemble {src_fn rom_fn} {
+proc assemble_file {src_fn rom_fn} {
     # assemble the given source filename, overwriting the given verilog ROM description filename.
 
     set ::src_fn $src_fn
@@ -417,12 +425,12 @@ proc assemble {src_fn rom_fn} {
     #trace add execution parse_line enterstep report
 
     set ::func_regs [dict create]
-    parse_text $asm_lines $::pass(func) 
+    parse_pass $asm_lines $::pass(func) 
     
-    parse_text $asm_lines $::pass(label)
+    parse_pass $asm_lines $::pass(label)
     set len_words $::ipr
-    if {$len_words > $::asm::CODE_SIZE_MAX_WORDS} {
-        error "Code size $len_words exceeds code memory size $::asm::CODE_SIZE_MAX_WORDS words."
+    if {$len_words > $::asm::ASSEMBLER_MAX_WORDS} {
+        error "Code size $len_words exceeds code memory size $::asm::ASSEMBLER_MAX_WORDS words."
     }
     
     set ::rom_file [open $::rom_fn w]
@@ -437,7 +445,7 @@ proc assemble {src_fn rom_fn} {
     "    
     set ::mif_file [open $::mif_fn w]
     puts $::mif_file "
-        DEPTH = $::asm::CODE_SIZE_MAX_WORDS ;  -- The size of memory in words
+        DEPTH = $::asm::ASSEMBLER_MAX_WORDS ;  -- The size of memory in words
         WIDTH = 16;                   -- bits per data word
         ADDRESS_RADIX = HEX;          
         DATA_RADIX = HEX;             
@@ -447,7 +455,7 @@ proc assemble {src_fn rom_fn} {
     set ::bin_file [open $::bin_fn w]
     fconfigure $::bin_file -translation binary
     puts -nonewline $::bin_file [format %c%c [expr {$len_words & 0xff}] [expr {($len_words >> 8) & 0xff}] ]
-    parse_text $asm_lines $::pass(emit)
+    parse_pass $asm_lines $::pass(emit)
     puts $::rom_file {        
                 16'hxxxx;
         endmodule

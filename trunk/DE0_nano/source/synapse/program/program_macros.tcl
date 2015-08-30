@@ -16,6 +16,15 @@ namespace eval ::asm {
         error_halt $lin
     }
 
+    proc declare_target_code_size {lin} {
+        parse {
+            vdefine CODE_ADDR_WIDTH         12
+            vdefine CODE_ADDR_TOP           ($CODE_ADDR_WIDTH - 1)
+            vdefine CODE_SIZE_MAX_WORDS     (1 << $CODE_ADDR_WIDTH)
+            setvar ASSEMBLER_MAX_WORDS      $CODE_SIZE_MAX_WORDS
+        }
+    }
+    
     proc vdefine {lin name valu} {
         if {$::asm_pass == $::pass(emit)} {
             puts $::vdefines "`define [string toupper $name]  [expr $valu]"

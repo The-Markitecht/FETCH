@@ -8,7 +8,7 @@ proc assemble_with_macros {src_fn rom_fn} {
     console "writing $vdfn"
     set ::vdefines [open $vdfn w]
     
-    assemble  $src_fn "[file rootname $src_fn].v"
+    assemble_file  $src_fn "[file rootname $src_fn].v"
     
     # puts $::f [verilog_define_labels * asm_]
     console "closing $vdfn"
@@ -25,5 +25,5 @@ cd synapse/program
 # }
 
 # assemble each program explicitly:
-assemble_with_macros target_program.asm "target_program.v"
 assemble_with_macros visor_program.asm "visor_program.v"
+assemble_with_macros target_program.asm "target_program.v"
