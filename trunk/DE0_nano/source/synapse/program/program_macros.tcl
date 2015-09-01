@@ -73,6 +73,7 @@ namespace eval ::asm {
     proc ram_define {lin name {size_bytes 2}} {
         # ram_counter must increment after memorizing, because the size may vary from one call to the next.
         setvar $lin $name $::asm::ram_counter
+        dict set ::debugger_ram_names [ram_join $::asm::ram_counter] $name
         set ::asm::ram_counter [ram_split [expr {[ram_join $::asm::ram_counter] + $size_bytes}]]
     }
 

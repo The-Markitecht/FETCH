@@ -7,6 +7,9 @@ vdefine atx_load_mask           0x0001
 vdefine atx_busy_mask           0x0002
 vdefine arx_busy_mask           0x0004
 
+:eol_msg
+    "\r\n\x0"
+
 << 
     proc putchar_atx {lin reg} {
         # for my own uart_v2_tx hardware.
@@ -26,10 +29,8 @@ vdefine arx_busy_mask           0x0004
     }
     
     proc puteol_atx {lin} {
-        asc $lin a = "\r"
-        putchar $lin a
-        asc $lin a = "\n"
-        putchar $lin a
+        parse3 a = :eol_msg "a = :eol_msg // $lin"
+        call $lin :print_nt
     }    
 >>
 

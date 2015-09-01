@@ -34,6 +34,9 @@ namespace CVtool
         protected StringBuilder rx_sbuf = new StringBuilder(RETAIN_CHARS * 2);
         //protected Dictionary<UInt16,UInt16> old_values = new Dictionary<UInt16,UInt16>();
         protected Dictionary<UInt16,UInt16> line_nums = new Dictionary<UInt16,UInt16>();
+        protected Dictionary<string,UInt16> src_reg_map = new Dictionary<string,UInt16>();
+        protected Dictionary<string,UInt16> dest_reg_map = new Dictionary<string,UInt16>();
+        protected Dictionary<string,UInt32> ram_map = new Dictionary<string,UInt32>();
         protected Regex ipr_re = new Regex("\n([0-9a-f]{4}),([0-9a-f]{4}) >$", RegexOptions.Compiled);
         protected List<Paragraph> lines = new List<Paragraph>();
         protected string source_fn = null;
@@ -52,23 +55,50 @@ namespace CVtool
             rx_tmr.Stop();
             log(src_fn);
             string patn = @" ^ \s* ([0-9a-f]{4}) \s* : \s* ([0-9a-f]{4}) \s* ; \s* -- \s* <(\d\d\d\d)> ";
-            Regex re = new Regex(patn, RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+            Regex src_re = new Regex(patn, RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+            patn = @" ^ \s* -- \s* (src|dest) \s* reg \s* ([0-9a-f]{4}) \s+ (\w+) \s* $ ";
+            Regex reg_map_re = new Regex(patn, RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+            patn = @" ^ \s* -- \s* ram \s* ([0-9a-f]{8}) \s+ (\w+) \s* $ ";
+            Regex ram_map_re = new Regex(patn, RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
             UInt16 lnum = 0;
             lines.Clear();
             line_nums.Clear();
+            src_reg_map.Clear();
+            ram_map.Clear();
             src_doc.Blocks.Clear();
             using (System.IO.StreamReader rdr = new System.IO.StreamReader(src_fn))
             {                
                 while ( ! rdr.EndOfStream) 
                 {
                     string lin = rdr.ReadLine();
-                    Match m = re.Match(lin);
+
+                    Match m = src_re.Match(lin);
                     if (m.Success)
                     {
                         UInt16 addr = UInt16.Parse(m.Groups[1].Value, System.Globalization.NumberStyles.HexNumber);
                         //UInt16 lnum = UInt16.Parse(m.Groups[3].Value);
                         line_nums[addr] = lnum;
                     }
+
+                    m = reg_map_re.Match(lin);
+                    if (m.Success)
+                    {
+                        UInt16 addr = UInt16.Parse(m.Groups[2].Value, System.Globalization.NumberStyles.HexNumber);
+                        string name = m.Groups[3].Value.ToLower();
+                        if (m.Groups[1].Value == "src")
+                            src_reg_map[name] = addr;
+                        else
+                            dest_reg_map[name] = addr;
+                    }
+
+                    m = ram_map_re.Match(lin);
+                    if (m.Success)
+                    {
+                        UInt32 addr = UInt32.Parse(m.Groups[1].Value, System.Globalization.NumberStyles.HexNumber);
+                        string name = m.Groups[2].Value.ToLower();
+                        ram_map[name] = addr;
+                    }
+
                     Paragraph p = new Paragraph(new Run(lin));
                     lines.Add(p);
                     src_doc.Blocks.Add(p);
@@ -188,7 +218,7 @@ namespace CVtool
             {
                 ar[0] = c;
                 port.Write(ar, 0, 1);
-                Thread.Sleep(50);
+                Thread.Sleep(2);
             }
         }
 
@@ -308,6 +338,39 @@ namespace CVtool
         {
             show_ipr();
         }
+
+        private void dump0_btn_Click(object sender, RoutedEventArgs e)
+        {
+            dump(dump0_addr_txt, dump0_len_txt);
+        }
+
+        private void dump1_btn_Click(object sender, RoutedEventArgs e)
+        {
+            dump(dump1_addr_txt, dump1_len_txt);
+        }
+
+        private void dump(TextBox addr_txt, TextBox len_txt)
+        {
+            try
+            {                
+                string s = addr_txt.Text.Trim().ToLower();
+                UInt32 addr = UInt32.Parse(s, System.Globalization.NumberStyles.HexNumber);
+                UInt16 addr_hi = (UInt16)(addr >> 16);
+                UInt16 addr_lo = (UInt16)(addr & 0xffff);
+                s = len_txt.Text.Trim().ToLower();
+                UInt16 len = UInt16.Parse(s, System.Globalization.NumberStyles.HexNumber);
+                s = "u" + src_reg_map["av_write_data"].ToString("x4") + " " + src_reg_map["av_read_data"].ToString("x4") 
+                    + " " + src_reg_map["av_ad_lo"].ToString("x4") + " " + src_reg_map["av_ad_hi"].ToString("x4") 
+                    + " " + addr_hi.ToString("x4") + " " + addr_lo.ToString("x4") + " " + len.ToString("x4") + ".";
+                log("\n" + s);
+                send(s);            
+            }
+            catch (Exception ex)
+            {
+                log(ex.ToString());
+            }
+        }
+
 
 
 

@@ -29,37 +29,39 @@ namespace eval ::asm {
     # }
 
     # common register aliases.
-    proc alias_src {lin name addr debugger_name} {
+    proc alias_src {lin name addr visor_name} {
         dict set ::asrc $name $addr
         if {[is_expander_reference $addr]} {
             vdefine $lin "esr_$name" [indirect_reg $addr]
         } else {
             vdefine $lin "sr_$name" $addr
         }
-        set debugger_name [string trim $debugger_name]
-        if {[string length $debugger_name] > 0} {
-            dict set ::debugger_names $addr $debugger_name
+        set visor_name [string trim $visor_name]
+        if {[string length $visor_name] > 0} {
+            dict set ::visor_names $addr $visor_name
         }
+        dict set ::debugger_src_names $addr $name
     }
-    proc alias_src_latency {lin name addr debugger_name latency_cycles} {
-        alias_src $lin $name $addr $debugger_name
+    proc alias_src_latency {lin name addr visor_name latency_cycles} {
+        alias_src $lin $name $addr $visor_name
         dict set ::latency $name $latency_cycles
     }
-    proc alias_dest {lin name addr debugger_name} {
+    proc alias_dest {lin name addr visor_name} {
         dict set ::adest $name $addr
         if {[is_expander_reference $addr]} {
             vdefine $lin "edr_$name" [indirect_reg $addr]
         } else {
             vdefine $lin "dr_$name" $addr
         }
-        set debugger_name [string trim $debugger_name]
-        if {[string length $debugger_name] > 0} {
-            dict set ::debugger_names $addr $debugger_name
+        set visor_name [string trim $visor_name]
+        if {[string length $visor_name] > 0} {
+            dict set ::visor_names $addr $visor_name
         }
+        dict set ::debugger_dest_names $addr $name
     }
-    proc alias_both {lin name addr debugger_name} {
-        alias_src  $lin $name $addr $debugger_name
-        alias_dest $lin $name $addr $debugger_name
+    proc alias_both {lin name addr visor_name} {
+        alias_src  $lin $name $addr $visor_name
+        alias_dest $lin $name $addr $visor_name
     }
     proc alias_flag {lin name addr} {
         dict set ::flagsrc $name $addr
@@ -284,10 +286,10 @@ namespace eval ::asm {
         emit_word $expected $lin
         set found 0
         for {set i 0} {$i < $::asm::num_regs} {incr i} {
-            if [dict exists $::debugger_names $i] {
+            if [dict exists $::visor_names $i] {
                 incr found
                 # truncate & pad.  right-justify, unless it's marked unreadable, then left-justify to preserve the mark.
-                set name [string range [dict get $::debugger_names $i] 0 7]
+                set name [string range [dict get $::visor_names $i] 0 7]
                 if { ! [string equal -length 2 $name // ]} {
                     parse_line " \"[format "%8s" $name]\" "
                 } else {

@@ -26,9 +26,20 @@
                 <Button Name="set_bp3_btn" DockPanel.Dock="Right"  Margin="0,0,8,8" Click="set_bp3_btn_Click">Set</Button>
                 <TextBox Name="bp3_txt" Margin="8,0,0,8" TabIndex="0" MinWidth="50" KeyUp="bp3_txt_KeyUp"></TextBox>
             </DockPanel>
-            <Button Name="step_btn" Margin="8" Content="Step" Click="step_btn_Click"></Button>
+            <Button Name="step_btn" Margin="8,8,8,32" Content="Step" Click="step_btn_Click"></Button>
             <RadioButton Content="Highlight IPR" Height="16" Name="ipr_chk" Margin="8,8,8,4" Checked="ipr_chk_Checked" />
             <RadioButton Content="Highlight EXR" Height="16" Name="exr_chk" Margin="8,4,8,8" IsChecked="True" Checked="exr_chk_Checked" />
+            <TextBlock Margin="8,32,8,0">Addr, Len:</TextBlock>
+            <StackPanel Orientation="Horizontal" Margin="8,0,8,8">
+                <TextBox Margin="0,0,4,0" DockPanel.Dock="Left" MinWidth="64" Name="dump0_addr_txt" TabIndex="0" />
+                <TextBox Margin="4,0" MinWidth="32" Name="dump0_len_txt" TabIndex="0" />
+                <Button Name="dump0_btn" DockPanel.Dock="Right"   Click="dump0_btn_Click" Margin="4,0,0,0">Dump</Button>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="8,0,8,8">
+                <TextBox Margin="0,0,4,0" DockPanel.Dock="Left" MinWidth="64" Name="dump1_addr_txt" TabIndex="0" />
+                <TextBox Margin="4,0" MinWidth="32" Name="dump1_len_txt" TabIndex="0" />
+                <Button Name="dump1_btn" DockPanel.Dock="Right"   Click="dump1_btn_Click" Margin="4,0,0,0">Dump</Button>
+            </StackPanel>
         </StackPanel>
 
         <RichTextBox Name="src_txt"  AcceptsReturn="True" VerticalScrollBarVisibility="Visible" FontFamily="Fixedsys Excelsior 3.01" FontSize="16" Cursor="Arrow">

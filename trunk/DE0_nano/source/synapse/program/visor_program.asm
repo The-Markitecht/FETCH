@@ -5,7 +5,7 @@
     // program code dimensions.  
     declare_system_dimensions
     // these are for the VISOR code, not the TARGET code.
-    vdefine visor_code_addr_width       10  
+    vdefine visor_code_addr_width       11  
     vdefine visor_code_addr_top         ($visor_code_addr_width - 1)  
     vdefine visor_code_size_max_words   (1 << $visor_code_addr_width)      
     setvar assembler_max_words          $visor_code_size_max_words
@@ -60,6 +60,12 @@
     alias_src  bp_status	    [incr counter]  {}
     alias_src  boot_break       [incr counter]  {}
 
+    // Synapse instruction set architecture constants.
+    setvar src_mask ((1 << $src_width) - 1)
+    setvar src_field_mask $src_mask 
+    setvar dest_mask ((1 << $dest_width) - 1)
+    setvar dest_field_mask ($dest_mask << $dest_lsb)
+    
     convention_gpx
     
     jmp :main
@@ -67,7 +73,6 @@
     include ../peripheral/driver/my_uart_v2.asm
     include lib/string.asm
     include lib/console.asm
-    include lib/time.asm
     
     setvar fletcher_sum1_reg g6
     setvar fletcher_sum2_reg g7
@@ -199,7 +204,11 @@
         :skip_poke
 
         // command = dump Avalon data e.g. from SDRAM.
-//patch: need code much like the other commands.  each time pass down 4x avalon master reg addresses, a start address lo+hi, and a length in bytes.
+        asc b = "u"
+        bn eq :skip_dump
+            call :dump_avalon
+            jmp :cmd_loop
+        :skip_dump
         
         putasc "?"
         puteol
@@ -232,9 +241,148 @@
     jmp :main_loop
 } >>
     
+func dump_avalon 
+    // test case: u0010 0011 0013 0012 0000 0000 0080.
+  
+    // this func may borrow some peripheral registers to hold temporary data.
+    // but it can only borrow registers that don't have side effects that are relevant to this function.
+    setvar  av_data_regs  g6
+    setvar  av_ad_lo_reg  g7
+
+    // parse av_write_data reg address into av_data_regs high byte.
+    call :get4x    
+    i = b
+    bn iz :fail
+    a = a<<4
+    $av_data_regs = a<<4
+    getchar_echo
+    
+    // parse av_read_data reg address into av_data_regs low byte.
+    call :get4x    
+    i = b
+    bn iz :fail
+    b = $av_data_regs
+    $av_data_regs = or
+    getchar_echo    
+    
+    // parse av_ad_lo reg address into av_ad_lo_reg.
+    call :get4x    
+    i = b
+    bn iz :fail
+    $av_ad_lo_reg = a
+    getchar_echo
+    
+    // parse av_ad_hi reg address into x.
+    call :get4x    
+    i = b
+    bn iz :fail
+    x = a
+    getchar_echo
+    
+    // parse start byte address high word into target's avalon master.
+    call :get4x    
+    i = b
+    bn iz :fail
+    poke_data = a
+    a = x
+    call :poke
+    getchar_echo
+    
+    // parse start byte address low word into target's avalon master.
+    call :get4x    
+    i = b
+    bn iz :fail
+    poke_data = a
+    a = $av_ad_lo_reg
+    call :poke
+    getchar_echo
+    
+    // parse length (in bytes) into i.
+    call :get4x    
+    x = b
+    bn xz :fail
+    i = a>>1
+    br iz :fail
+    
+    getchar_echo
+    asc b = "."
+    bn eq :fail
+        
+    :next_row
+        // print row header.
+        puteol
+        a = $av_ad_lo_reg
+        call :peek
+        a = peek_data
+        call :put4x
+        putasc ":"
+        
+        // print 8 data words.
+        x = 8                
+        :next_word
+            // print data word from target's avalon master.
+            putasc " "
+            a = $av_data_regs
+            call :peek_avalon
+            a = peek_data
+            call :put4x 
+        
+            // increment target's av_ad_lo.
+            a = $av_ad_lo_reg
+            call :peek
+            a = peek_data
+            b = 2
+            poke_data = a+b
+            a = $av_ad_lo_reg
+            call :poke
+
+            // check if all words have been dumped.
+            j = -1
+            i = i+j
+            br iz :done
+            
+            // check for end of row.
+            y = -1
+            x = x+y
+        bn xz :next_word        
+    jmp :next_row
+    
+    :done
+    puteol
+    rtn
+    
+    :fail
+    putasc "?"
+    puteol
+end_func
+    
+// trigger a read in the target's avalon master.  return the data in peek_data.
+// the 32-bit avalon address must already be poked into the target's avalon master.
+// pass av_data_regs in a.  av_write_data reg address in its high byte; av_read_data reg address in its low byte.
+func peek_avalon    
+    // peek the target's av_write_data register to trigger an avalon read as a side effect.
+    push a
+    a = a>>4
+    a = a>>4
+    call :peek
+    
+    // wait for target's avalon master to receive data e.g. from SDRAM controller.
+    a = 15
+    b = -1
+    :wait
+        a = a+b
+    bn az :wait
+    
+    // peek data word from target's avalon master.
+    pop a
+    b = 0xff
+    a = and
+    call :peek
+end_func
+    
 func wait_for_bp    
     :poll
-    a = bp_status
+        a = bp_status
     br az :poll
 end_func
     
@@ -315,21 +463,23 @@ func force_instruction
     tg_force = 0
 end_func
     
-// poke a register.  pass the value in poke_data.
+// write to a register in the target MCU.  pass the value in poke_data.
 // pass its register address in a.
 func poke
-    setvar dest_mask (((1 << $dest_width) - 1) << $dest_lsb)
     b = $dest_mask
     a = and
+    a = a<<4
+    a = a<<4
+    a = a<<1
+    a = a<<1
     b = ([src dbgpoke])
     force_opcode = or
     call :force_instruction
 end_func
     
-// observe a register.  return its value in peek_data.
+// observe a register in the target MCU.  return its value in peek_data.
 // pass its register address in a.
 func peek
-    setvar src_mask ((1 << $src_width) - 1)
     b = $src_mask
     a = and
     b = ([dest nop] << $dest_lsb)

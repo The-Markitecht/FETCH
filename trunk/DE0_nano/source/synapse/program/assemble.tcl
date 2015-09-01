@@ -53,7 +53,10 @@ set ::flagsrc_shift 0
 
 set ::labels [dict create]
 
-set ::debugger_names [dict create]
+set ::visor_names [dict create]
+set ::debugger_src_names [dict create]
+set ::debugger_dest_names [dict create]
+set ::debugger_ram_names [dict create]
 
 # #########################################################################
 # assembler functions.
@@ -462,6 +465,15 @@ proc assemble_file {src_fn rom_fn} {
         endmodule
     }
     close $::rom_file
+    dict for {addr name} $::debugger_src_names {
+        puts $::mif_file "-- src reg [format %04x $addr] $name"
+    }
+    dict for {addr name} $::debugger_dest_names {
+        puts $::mif_file "-- dest reg [format %04x $addr] $name"
+    }
+    dict for {addr name} $::debugger_ram_names {
+        puts $::mif_file "-- ram [format %08x $addr] $name"
+    }
     puts $::mif_file {        
         END;
     }

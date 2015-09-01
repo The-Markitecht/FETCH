@@ -1731,6 +1731,93 @@
     04a8 : f808 ; -- <0683> pop rtna -- end_func
     04a9 : fc00 ; -- <0683> end_func
 
+-- src reg 0000 a
+-- src reg 0001 b
+-- src reg 0002 i
+-- src reg 0003 j
+-- src reg 0004 x
+-- src reg 0005 y
+-- src reg 0300 a+b
+-- src reg 0310 i+j
+-- src reg 0320 x+y
+-- src reg 0330 and
+-- src reg 0334 or
+-- src reg 0338 xor
+-- src reg 0350 a>>1
+-- src reg 0351 a<<1
+-- src reg 0352 a<<4
+-- src reg 0353 a>>4
+-- src reg 0360 0xffff
+-- src reg 0006 g6
+-- src reg 0007 g7
+-- src reg 0008 rstk
+-- src reg 0009 event_priority
+-- src reg 000a soft_event
+-- src reg 000b usage_count
+-- src reg 000c ustimer0
+-- src reg 000d mstimer0
+-- src reg 000e mstimer1
+-- src reg 000f spi_data
+-- src reg 0010 av_write_data
+-- src reg 0011 av_read_data
+-- src reg 0012 av_ad_hi
+-- src reg 0013 av_ad_lo
+-- src reg 0014 fduart_data
+-- src reg 0015 fduart_status
+-- src reg 0016 leds
+-- src reg 0017 board_ctrl
+-- src reg 0018 anmux_ctrl
+-- src reg 0019 power_duty
+-- src reg 001a efi_len_us
+-- src reg 001b ign_timeout_len_20us
+-- src reg 001c ign_capture_jf
+-- dest reg 0000 a
+-- dest reg 0001 b
+-- dest reg 0002 i
+-- dest reg 0003 j
+-- dest reg 0004 x
+-- dest reg 0005 y
+-- dest reg 0006 g6
+-- dest reg 0007 g7
+-- dest reg 0008 rstk
+-- dest reg 0009 event_priority
+-- dest reg 000a soft_event
+-- dest reg 000b usage_count
+-- dest reg 000c ustimer0
+-- dest reg 000d mstimer0
+-- dest reg 000e mstimer1
+-- dest reg 000f spi_data
+-- dest reg 0010 av_write_data
+-- dest reg 0012 av_ad_hi
+-- dest reg 0013 av_ad_lo
+-- dest reg 0014 fduart_data
+-- dest reg 0015 fduart_status
+-- dest reg 0016 leds
+-- dest reg 0017 board_ctrl
+-- dest reg 0018 anmux_ctrl
+-- dest reg 0019 power_duty
+-- dest reg 001a efi_len_us
+-- dest reg 001b ign_timeout_len_20us
+-- dest reg 001c ign_capture_jf
+-- ram 00000000 ram_comm_restart_at_min
+-- ram 00000002 ram_ftdi_downtime_remain_sec
+-- ram 00000004 ram_daq_pass_cnt
+-- ram 00000006 ram_daq_discard_cnt
+-- ram 00000008 ram_power_down_at_min
+-- ram 0000000a ram_relay_hold_at_pass
+-- ram 0000000c ram_ign_history_idx
+-- ram 0000000e ram_ign_history_jf
+-- ram 0000002e ram_ign_avg_jf
+-- ram 00000030 ram_avg_rpm
+-- ram 00000032 ram_rpm_valid
+-- ram 00000034 ram_ign_fastest_jf
+-- ram 00000036 ram_ign_slowest_jf
+-- ram 00000038 ram_minutes_cnt
+-- ram 0000003a ram_seconds_cnt
+-- ram 0000003c ram_mcu_usage_cnt
+-- ram 0000003e ram_dial_setting
+-- ram 00000040 ram_text_flag_pointers
+-- ram 00000050 ram_next_tfp
         
         END;
     
