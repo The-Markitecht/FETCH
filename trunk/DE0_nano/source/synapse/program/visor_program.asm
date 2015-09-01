@@ -3,25 +3,24 @@
 // for debugging supervisor mcu.
 
     // program code dimensions.  
-    declare_target_code_size
+    declare_system_dimensions
     // these are for the VISOR code, not the TARGET code.
-    vdefine VISOR_CODE_ADDR_WIDTH       10  
-    vdefine VISOR_CODE_ADDR_TOP         ($VISOR_CODE_ADDR_WIDTH - 1)  
-    vdefine VISOR_CODE_SIZE_MAX_WORDS   (1 << $VISOR_CODE_ADDR_WIDTH)      
-    setvar ASSEMBLER_MAX_WORDS          $VISOR_CODE_SIZE_MAX_WORDS
+    vdefine visor_code_addr_width       10  
+    vdefine visor_code_addr_top         ($visor_code_addr_width - 1)  
+    vdefine visor_code_size_max_words   (1 << $visor_code_addr_width)      
+    setvar assembler_max_words          $visor_code_size_max_words
 
     // register file configuration
-    vdefine VISOR_NUM_REGS 32
-    vdefine VISOR_TOP_REG ($VISOR_NUM_REGS - 1)
-    vdefine VISOR_NUM_GP 8
-    vdefine VISOR_TOP_GP ($VISOR_NUM_GP - 1)
-    vdefine VIO $VISOR_NUM_GP    
-    setvar NUM_GP $VISOR_NUM_GP
+    vdefine visor_num_regs 32
+    vdefine visor_top_reg ($visor_num_regs - 1)
+    vdefine visor_num_gp 8
+    vdefine visor_top_gp ($visor_num_gp - 1)
+    setvar num_gp $visor_num_gp
     
     // application-specific register aliases.  
     alias_both g6               6               "g6"
     alias_both g7               7               "g7"
-    setvar counter $VISOR_TOP_GP
+    setvar counter $visor_top_gp
     
     alias_both rstk             [incr counter]  "//rstk"
     
@@ -33,14 +32,21 @@
     alias_both force_opcode	    [incr counter]  {}
     alias_both poke_data        [incr counter]  {}
     alias_both bus_ctrl	        [incr counter]  {}
-        vdefine bp_step_mask 	                0x0008
-        vdefine divert_code_bus_mask 	        0x0004
-        vdefine tg_reset_mask 		            0x0002
-        vdefine tg_code_ready_mask	            0x0001
+        vdefine bp_step_bit            3
+        vdefine bp_step_mask           (1 << $bp_step_bit)
+        vdefine divert_code_bus_bit    2
+        vdefine divert_code_bus_mask   (1 << $divert_code_bus_bit)
+        vdefine tg_reset_bit           1
+        vdefine tg_reset_mask          (1 << $tg_reset_bit)
+        vdefine tg_code_ready_bit      0
+        vdefine tg_code_ready_mask     (1 << $tg_code_ready_bit)
     alias_both tg_force	        [incr counter]  {}
-        vdefine force_exec_mask        0x0004
-        vdefine force_load_exr_mask    0x0002
-        vdefine hold_state_mask        0x0001   
+        vdefine force_exec_bit          ($debug_force_exec_bit - $word_width)
+        vdefine force_exec_mask         (1 << $force_exec_bit)
+        vdefine force_load_exr_bit      ($debug_force_load_exr_bit - $word_width)
+        vdefine force_load_exr_mask     (1 << $force_load_exr_bit)
+        vdefine hold_state_bit          ($debug_force_hold_state_bit - $word_width)
+        vdefine hold_state_mask         (1 << $hold_state_bit)
         
     alias_both atx_data         [incr counter]  "atx_data"
     alias_both atx_ctrl         [incr counter]  "atx_ctrl"
@@ -51,7 +57,6 @@
     alias_src  exr_shadow	    [incr counter]  {}
     alias_src  tg_code_addr     [incr counter]  {}
     alias_src  peek_data        [incr counter]  {}
-    //alias_src  tg_debug_out	    [incr counter]  {}
     alias_src  bp_status	    [incr counter]  {}
     alias_src  boot_break       [incr counter]  {}
 
@@ -188,8 +193,8 @@
     putasc "?"
     puteol
     jmp :cmd_loop
-    
-    // demonstrations //////////////////////////////
+
+<< set demonstrations {
 
     // set a breakpoint, wait til it hits.
     bp0_addr = 0x15
@@ -214,6 +219,7 @@
     bp0_addr = bp0_addr
         
     jmp :main_loop
+} >>
     
 func wait_for_bp    
     :poll
@@ -306,10 +312,10 @@ end_func
 // observe a register.  return its value in peek_data.
 // pass its register address in a.
 func peek
-    b = 0x3ff
+    setvar src_mask ((1 << $src_width) - 1)
+    b = $src_mask
     a = and
-    // debug_peek_reg = 31 << 10
-    b = 0x7c00
+    b = ([dest nop] << $dest_lsb)
     force_opcode = or
     bus_ctrl = $divert_code_bus_mask
     tg_force = $hold_state_mask

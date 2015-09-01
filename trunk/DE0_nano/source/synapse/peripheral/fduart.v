@@ -46,7 +46,8 @@ module fduart #(
         .rdclk ( clk_async ),
         .q ( atx_par ),
         .rdreq ( atx_fifo_read_ack ),
-        .rdempty ( tx_stop )
+        .rdempty ( tx_stop ),
+        .rdfull ()
     );    
     uart_v2_tx utx (
          .uart_sample_clk(clk_async) // clocked at 4x bit rate.
@@ -69,6 +70,8 @@ module fduart #(
         .wrclk ( clk_async ),
         .data ( arx_par ),
         .wrreq ( arx_fifo_write ),
+        .wrempty (),
+        .wrfull (),
 
         .rdclk ( sysclk ),
         .q ( arx_reg_out[7:0] ),

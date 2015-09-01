@@ -19,6 +19,7 @@ set ::asrc [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     -1      0x360   \
     _imm16_ 0x3a0   \
     fetchd  0x3b0   \
+    dbgpoke 0x3c0   \
     nop     0       \
     ]
 #    flags   0x340   \
@@ -429,8 +430,8 @@ proc assemble_file {src_fn rom_fn} {
     
     parse_pass $asm_lines $::pass(label)
     set len_words $::ipr
-    if {$len_words > $::asm::ASSEMBLER_MAX_WORDS} {
-        error "Code size $len_words exceeds code memory size $::asm::ASSEMBLER_MAX_WORDS words."
+    if {$len_words > $::asm::assembler_max_words} {
+        error "Code size $len_words exceeds code memory size $::asm::assembler_max_words words."
     }
     
     set ::rom_file [open $::rom_fn w]
@@ -445,7 +446,7 @@ proc assemble_file {src_fn rom_fn} {
     "    
     set ::mif_file [open $::mif_fn w]
     puts $::mif_file "
-        DEPTH = $::asm::ASSEMBLER_MAX_WORDS ;  -- The size of memory in words
+        DEPTH = $::asm::assembler_max_words ;  -- The size of memory in words
         WIDTH = 16;                   -- bits per data word
         ADDRESS_RADIX = HEX;          
         DATA_RADIX = HEX;             

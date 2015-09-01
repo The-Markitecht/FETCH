@@ -335,7 +335,7 @@ cdtimer16 mstimer1 (
 );
 
 // PWM generator to drive the computer's main power relay.  counts microseconds.  count 50 = 20 KHz.
-wire[15:0] power_duty;
+wire[5:0] power_duty;
 cdpwm #(.WIDTH(6), .START(50)) power_relay_pwm_inst (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sysreset )  

@@ -204,7 +204,7 @@ namespace eval ::asm {
 
     proc convention_gp {lin} {
         # set up Calling Convention "GP".  stackable = all gp regs beyond y.
-        # does not include operand regs (a to y), i/o regs (beyond NUM_GP), or result regs.
+        # does not include operand regs (a to y), i/o regs (beyond num_gp), or result regs.
         if {[llength $::stackable] > 0} {
             error "calling convention specified more than once in same program: $lin"
         }
@@ -212,14 +212,14 @@ namespace eval ::asm {
             error "calling convention requires a return stack 'rstk': $lin"
         }    
         stackable $lin rtna
-        for {set i [expr [src y] + 1]} {$i < $::asm::NUM_GP} {incr i} {
+        for {set i [expr [src y] + 1]} {$i < $::asm::num_gp} {incr i} {
             stackable $lin g$i
         }
     }
 
     proc convention_gpx {lin} {
         # set up Calling Convention "GP eXtended".  stackable = all gp and operand regs beyond b.
-        # includes operand regs (i, j, x, y), but not i/o regs (beyond NUM_GP), or result regs.
+        # includes operand regs (i, j, x, y), but not i/o regs (beyond num_gp), or result regs.
         convention_gp $lin
         stackable $lin i j x y
     }
@@ -262,10 +262,7 @@ namespace eval ::asm {
         set parent_lnum $::lnum
         set ::lnum 0
         start_file_handler
-        foreach lin $asm_lines {
-            incr ::lnum
-            parse_line $lin
-        }
+        parse_lines $asm_lines 
         end_file_handler
         cd $parent_dir
         set ::ml_state {}
@@ -286,7 +283,7 @@ namespace eval ::asm {
         set expected [expr {[set "::asm::$counter_var_name"] + 1}]
         emit_word $expected $lin
         set found 0
-        for {set i 0} {$i < $::asm::NUM_REGS} {incr i} {
+        for {set i 0} {$i < $::asm::num_regs} {incr i} {
             if [dict exists $::debugger_names $i] {
                 incr found
                 # truncate & pad.  right-justify, unless it's marked unreadable, then left-justify to preserve the mark.

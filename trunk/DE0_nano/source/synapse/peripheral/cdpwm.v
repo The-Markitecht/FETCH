@@ -2,7 +2,6 @@
 
 module cdpwm #(
      parameter WIDTH = 16
-    ,parameter MSB = WIDTH - 1
     ,parameter START = 65535
 ) (
      input wire                  sysclk            
@@ -10,9 +9,9 @@ module cdpwm #(
 
     ,input wire                  counter_event
 
-    ,output wire[15:0]           counter_value
+    ,output wire[MSB:0]          counter_value
     
-    ,output wire[15:0]           duty
+    ,output wire[MSB:0]          duty
     , input wire                 duty_load
     , input wire[MSB:0]          data_in
         
@@ -29,6 +28,8 @@ module cdpwm #(
     // at that time START has just been loaded into the counter.
     // duty = 0 makes output always low.
     // duty = START + 1 makes output always high.
+
+    localparam MSB = WIDTH - 1;
     
     // counter_event rising edge detector.
     reg event_last = 0;

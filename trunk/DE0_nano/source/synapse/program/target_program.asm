@@ -1,19 +1,18 @@
 // #########################################################################
 // assembly source code.    
 
-    declare_target_code_size
+    declare_system_dimensions
     
     // register file configuration.
-    vdefine NUM_REGS 32
-    vdefine TOP_REG ($NUM_REGS - 1)
-    vdefine NUM_GP 8
-    vdefine TOP_GP ($NUM_GP - 1)
-    vdefine IO $NUM_GP
+    vdefine num_regs 32
+    vdefine top_reg ($num_regs - 1)
+    vdefine num_gp 8
+    vdefine top_gp ($num_gp - 1)
 
     // application-specific register aliases.    
     alias_both g6                   6               "g6"
     alias_both g7                   7               "g7"
-    setvar counter $TOP_GP    
+    setvar counter $top_gp    
     alias_both rstk                 [incr counter]  "//rstk"
     alias_both event_priority       [incr counter]  "ev_pri"
     alias_both soft_event           [incr counter]  "softevnt"
