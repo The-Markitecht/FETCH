@@ -100,7 +100,9 @@ std_reg #(.WIDTH(3)) force_reg(sysclk, sysreset, vr[`DR_TG_FORCE], vr_load_data[
 std_reg force_opcode_reg(sysclk, sysreset, vr[`DR_FORCE_OPCODE], vr_load_data, vr_load[`DR_FORCE_OPCODE]);
 
 // peek data register.  loads its data only from the TARGET but is readable only by the VISOR.
-wire do_peek = vr[`DR_TG_FORCE][`FORCE_EXEC_BIT] && (vr[`DR_FORCE_OPCODE][`WORD_MSB:`DEST_LSB] == `DEST_WIDTH'h36);
+reg do_peek = 0;
+always_ff @(posedge sysclk)
+    do_peek <= vr[`DR_TG_FORCE][`FORCE_EXEC_BIT] && (vr[`DR_FORCE_OPCODE][`WORD_MSB:`DEST_LSB] == `DEST_NOP); 
 std_reg peek_data_reg (sysclk, sysreset, vr[`SR_PEEK_DATA], r_load_data, do_peek);    
 
 // poke data register.  loads its data only from the VISOR but is also visible to the TARGET.

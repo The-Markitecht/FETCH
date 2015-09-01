@@ -104,94 +104,105 @@
     // check for bootloader signal.
     a = boot_break    
     bn az :boot_run
-    // ^^^ for press-to-debug; runs target by default.
-    // br az :boot_run
-    // ^^^ for press-to-run; debugs target by default.
-    // step into the first target instruction.
-    bus_ctrl = $bp_step_mask
-    call :wait_for_bp
-    jmp :cmd_loop
-    // release target reset, to run.
+        // ^^^ for press-to-debug; runs target by default.
+        // br az :boot_run
+        // ^^^ for press-to-run; debugs target by default.
+        
+        // step into the first target instruction.
+        bus_ctrl = $bp_step_mask
+        call :wait_for_bp
+        jmp :cmd_loop
     :boot_run
-    bus_ctrl = 0   
+        // release target reset, to run.
+        bus_ctrl = 0   
 
     // command prompt loop.
     :cmd_loop
-    a = bus_ctrl
-    b = 0
-    br eq :running_prompt
-    
-    call :dump_target
-    a = tg_code_addr
-    call :put4x
-    putasc ","
-    a = exr_shadow
-    call :put4x
-    putasc " "
-    putasc ">"
-    getchar_echo
-    jmp :parse_cmd
-    
-    :running_prompt
-    a = :running_msg
-    call :print_nt
-    :run_poll
-    pollchar
-    b = -1
-    bn eq :parse_cmd
-    a = bp_status
-    br az :run_poll
-    // target hit a breakpoint; switch to stepping mode.
-    bus_ctrl = $bp_step_mask
-    jmp :cmd_loop
+        a = bus_ctrl
+        b = 0
+        br eq :running_prompt
+        
+            call :dump_target
+            a = tg_code_addr
+            call :put4x
+            putasc ","
+            a = exr_shadow
+            call :put4x
+            putasc " "
+            putasc ">"
+            getchar_echo
+            jmp :parse_cmd
+        
+        :running_prompt
+            a = :running_msg
+            call :print_nt
+            :run_poll
+            pollchar
+            b = -1
+            bn eq :parse_cmd
+            a = bp_status
+            br az :run_poll
+            // target hit a breakpoint; switch to stepping mode.
+            bus_ctrl = $bp_step_mask
+            jmp :cmd_loop
 
-    :parse_cmd
-    
-    // command = step next instruction.
-    asc b = "n"
-    bn eq :skip_step
-    bus_ctrl = $bp_step_mask
-    bp0_addr = bp0_addr
-    call :wait_for_bp
-    jmp :cmd_loop
-    :skip_step
-    
-    // command = reset target.
-    asc b = "R"
-    bn eq :skip_reset
-    bus_ctrl = $tg_reset_mask   
-    nop
-    nop
-    bus_ctrl = $bp_step_mask
-    call :wait_for_bp
-    jmp :cmd_loop
-    :skip_reset
+        :parse_cmd
+        
+        // command = step next instruction.
+        asc b = "n"
+        bn eq :skip_step
+            bus_ctrl = $bp_step_mask
+            bp0_addr = bp0_addr
+            call :wait_for_bp
+            jmp :cmd_loop
+        :skip_step
+        
+        // command = reset target.
+        asc b = "R"
+        bn eq :skip_reset
+            bus_ctrl = $tg_reset_mask   
+            nop
+            nop
+            bus_ctrl = $bp_step_mask
+            call :wait_for_bp
+            jmp :cmd_loop
+        :skip_reset
 
-    // command = load program.
-    asc b = "l"
-    bn eq :skip_load
-    call :load_program
-    jmp :cmd_loop
-    :skip_load
+        // command = load program.
+        asc b = "l"
+        bn eq :skip_load
+            call :load_program
+            jmp :cmd_loop
+        :skip_load
 
-    // command = run full speed.
-    asc b = "r"
-    bn eq :skip_run
-    // release target reset, to run.
-    bus_ctrl = 0   
-    bp0_addr = bp0_addr
-    jmp :cmd_loop
-    :skip_run
+        // command = run full speed.
+        asc b = "r"
+        bn eq :skip_run
+            // release target reset, to run.
+            bus_ctrl = 0   
+            bp0_addr = bp0_addr
+            jmp :cmd_loop
+        :skip_run
 
-    // command = set breakpoint.
-    asc b = "b"
-    bn eq :skip_setbrk
-    call :set_bp
-    jmp :cmd_loop
-    :skip_setbrk
+        // command = set breakpoint.
+        asc b = "b"
+        bn eq :skip_setbrk
+            call :set_bp
+            jmp :cmd_loop
+        :skip_setbrk
 
-    putasc "?"
-    puteol
+        // command = poke register.
+        asc b = "o"
+        bn eq :skip_poke
+            call :poke_cmd
+            jmp :cmd_loop
+        :skip_poke
+
+        // command = dump Avalon data e.g. from SDRAM.
+//patch: need code much like the other commands.  each time pass down 4x avalon master reg addresses, a start address lo+hi, and a length in bytes.
+        
+        putasc "?"
+        puteol
     jmp :cmd_loop
 
 << set demonstrations {
@@ -259,11 +270,140 @@ func set_bp
     :b3
     bp3_addr = y
     rtn
+    
     :fail
     putasc "?"
     puteol
 end_func
     
+func poke_cmd
+    // x = destination register address to poke.
+    call :get4x
+    x = a    
+    a = 0
+    bn eq :fail
+    
+    getchar_echo
+    asc b = "="
+    bn eq :fail
+    
+    // parse value to poke.
+    call :get4x
+    poke_data = a
+    a = 0
+    bn eq :fail
+    
+    a = x
+    call :poke
+    rtn
+    
+    :fail
+    putasc "?"
+    puteol
+end_func
+
+// force execution of the opcode passed in force_opcode.
+func force_instruction
+    bus_ctrl = $divert_code_bus_mask
+    tg_force = $hold_state_mask
+    tg_force = ($hold_state_mask | $force_load_exr_mask)
+    tg_force = ($hold_state_mask | $force_exec_mask)
+    tg_force = $hold_state_mask
+    // refill target exr so it can resume seamlessly.
+    force_opcode = exr_shadow
+    tg_force = ($hold_state_mask | $force_load_exr_mask)
+    tg_force = 0
+end_func
+    
+// poke a register.  pass the value in poke_data.
+// pass its register address in a.
+func poke
+    setvar dest_mask (((1 << $dest_width) - 1) << $dest_lsb)
+    b = $dest_mask
+    a = and
+    b = ([src dbgpoke])
+    force_opcode = or
+    call :force_instruction
+end_func
+    
+// observe a register.  return its value in peek_data.
+// pass its register address in a.
+func peek
+    setvar src_mask ((1 << $src_width) - 1)
+    b = $src_mask
+    a = and
+    b = ([dest nop] << $dest_lsb)
+    force_opcode = or
+    call :force_instruction
+    // target's register value is now in peek_data.    
+end_func
+    
+// show target status display.
+func dump_target
+    puteol
+    i = 0
+    j = 1
+    :next_reg
+        // fetch register name from table in target program.
+        // i = register number.
+        // peek is skipped for any reg name starting with 2 slashes (good for read-sensitive regs). 
+        a = i
+        a = a<<1
+        a = a<<1
+        b = 3
+        a = a+b
+        b = x
+        m9k_addr = a+b
+        a = m9k_data
+        b = 0x2f2f
+        br eq :no_peek
+            putasc " "
+            putasc " "
+            a = m9k_addr
+            b = 8
+            call :print_fixed_target
+            putasc "="
+            a = i
+            call :peek
+            a = peek_data
+            call :put4x
+            puteol
+        :no_peek
+        i = i+j
+        // loop up to the number of registers in the target program's register name table.
+        m9k_addr = 2
+        b = m9k_data
+        a = i
+    bn eq :next_reg
+end_func
+
+// print a fixed-length string from packed words in TARGET program space.
+// pass its word address (not its byte address) in a,  its length (bytes) in b.
+// string must start on a word boundary.
+// no newline or other delimiter is added automatically.
+func print_fixed_target
+    i = a
+    j = 1
+    x = b
+    y = -1
+    :next_word
+        br xz :done
+        x = ad2
+        m9k_addr = i
+        g6 = m9k_data
+        // now x = bytes remaining, i = current word address, g6 = data word.
+        putchar g6
+        br xz :done
+        x = ad2
+        a = g6
+        a = a>>4
+        a = a>>4
+        putchar a
+        i = i+j
+        jmp :next_word
+    :done
+end_func
+
 func load_program
     // load target program from UART.
     
@@ -309,70 +449,3 @@ func load_program
     puteol
 end_func
 
-// observe a register.  return its value in peek_data.
-// pass its register address in a.
-func peek
-    setvar src_mask ((1 << $src_width) - 1)
-    b = $src_mask
-    a = and
-    b = ([dest nop] << $dest_lsb)
-    force_opcode = or
-    bus_ctrl = $divert_code_bus_mask
-    tg_force = $hold_state_mask
-    tg_force = ($hold_state_mask | $force_load_exr_mask)
-    tg_force = ($hold_state_mask | $force_exec_mask)
-    tg_force = $hold_state_mask
-    // target's register value is now in peek_data.    
-    // refill target exr so it can resume seamlessly.
-    force_opcode = exr_shadow
-    tg_force = ($hold_state_mask | $force_load_exr_mask)
-    tg_force = 0
-end_func
-    
-// show target status display.
-func dump_target
-    puteol
-    i = 0
-    :next_reg
-    // fetch register name from table in target program.
-    // i = register number.  x = 2-byte word index within each name string.
-    // peek is skipped for any reg name starting with 2 slashes (good for read-sensitive regs). 
-    putasc " "
-    putasc " "
-    x = 0
-    y = 1
-    :next_chars
-    a = i
-    a = a<<1
-    a = a<<1
-    b = 3
-    a = a+b
-    b = x
-    m9k_addr = a+b
-    a = m9k_data
-    b = 0x2f2f
-    br eq :no_peek
-    putchar m9k_data
-    a = m9k_data
-    a = a>>4
-    a = a>>4
-    putchar a
-    x = x+y
-    a = x
-    b = 4
-    bn eq :next_chars    
-    putasc "="
-    a = i
-    call :peek
-    a = peek_data
-    call :put4x
-    puteol
-    :no_peek
-    j = 1
-    i = i+j
-    // loop up to the number of registers in the target program's register name table.
-    m9k_addr = 2
-    b = m9k_data
-    a = i
-    bn eq :next_reg
-end_func

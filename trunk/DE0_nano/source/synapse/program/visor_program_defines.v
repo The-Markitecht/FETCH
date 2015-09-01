@@ -8,6 +8,7 @@
 `define SRC_WIDTH  10
 `define IPR_WIDTH  16
 `define IPR_TOP  15
+`define DEST_NOP  50
 `define DEBUG_IN_WIDTH  19
 `define DEBUG_FORCE_EXEC_BIT  18
 `define DEBUG_FORCE_LOAD_EXR_BIT  17

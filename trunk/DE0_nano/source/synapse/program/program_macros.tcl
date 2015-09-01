@@ -38,6 +38,9 @@ namespace eval ::asm {
             vdefine ipr_width               $word_width
             vdefine ipr_top                 ($ipr_width - 1)
             
+            // Synapse instruction set codes.
+            vdefine dest_nop                [dest nop]
+            
             // debugging supervisor contants.  these are also required by implementation of the target MCU core.
             vdefine debug_in_width          19
                 vdefine debug_force_exec_bit        18

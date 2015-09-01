@@ -114,6 +114,32 @@ func get4x
     b = -1
 end_func
 
+// print a fixed-length string from packed words in program space.
+// pass its word address (not its byte address) in a,  its length (bytes) in b.
+// string must start on a word boundary.
+// no newline or other delimiter is added automatically.
+func print_fixed
+    i = a
+    j = 1
+    x = b
+    y = -1
+    :next_word
+        br xz :done
+        x = ad2
+        fetch g6 from i
+        // now x = bytes remaining, i = current word address, g6 = data word.
+        putchar g6
+        br xz :done
+        x = ad2
+        a = g6
+        a = a>>4
+        a = a>>4
+        putchar a
+        i = i+j
+        jmp :next_word
+    :done
+end_func
+
 // print a null-terminated string from packed words in program space.
 // pass its word address (not its byte address) in a.  
 // string must start on a word boundary.

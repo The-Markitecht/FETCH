@@ -186,7 +186,7 @@
     :main  
     a = :boot_msg
     call :print_nt 
-    
+        
     // clear the first 64k of RAM.
     av_ad_hi = 0
     a = 0

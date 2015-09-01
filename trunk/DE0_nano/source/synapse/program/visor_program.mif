@@ -20,6 +20,8 @@
 
 -- Synapse instruction set architecture constants.
 
+-- Synapse instruction set codes.
+
 -- debugging supervisor contants.  these are also required by implementation of the target MCU core.
 
 -- program code dimensions.
@@ -37,7 +39,7 @@
 
 
     0000 : e00f ; -- <0065> jmp :main
-    0001 : 0133 ; -- <0065> "
+    0001 : 015a ; -- <0065> "
 
 
 -- driver library for my_uart_v2 simple async transceiver.
@@ -311,679 +313,857 @@
     00c0 : 0808 ; -- <0115> pop i -- "
     00c1 : fc00 ; -- <0115> end_func
 
+-- print a fixed-length string from packed words in program space.
+-- pass its word address (not its byte address) in a,  its length (bytes) in b.
+-- string must start on a word boundary.
+-- no newline or other delimiter is added automatically.
+-- ######## func print_fixed -- = 0x00c2
+    00c2 : 2002 ; -- <0121> push i -- func print_fixed
+    00c3 : 2003 ; -- <0121> push j -- "
+    00c4 : 2004 ; -- <0121> push x -- "
+    00c5 : 2005 ; -- <0121> push y -- "
+    00c6 : 2006 ; -- <0121> push g6 -- "
+    00c7 : 203e ; -- <0121> push rtna -- "
+    00c8 : 0800 ; -- <0122> i = a
+    00c9 : 0e01 ; -- <0123> j = 1
+    00ca : 1001 ; -- <0124> x = b
+    00cb : 1760 ; -- <0125> y = -1
+-- :next_word -- = 0x00cc
+    00cc : e002 ; -- <0127> br xz :done
+    00cd : 00e2 ; -- <0127> "
+    00ce : 1320 ; -- <0128> x = ad2
+    00cf : d002 ; -- <0129> fetch g6 from i
+    00d0 : 1bb0 ; -- <0129> "
+-- now x = bytes remaining, i = current word address, g6 = data word.
+    00d1 : 0006 ; -- <0131> a = g6 -- putchar g6
+    00d2 : fba0 ; -- <0131> putchar g6
+    00d3 : 0002 ; -- <0131> "
+    00d4 : fc00 ; -- <0131> "
+    00d5 : e002 ; -- <0132> br xz :done
+    00d6 : 00e2 ; -- <0132> "
+    00d7 : 1320 ; -- <0133> x = ad2
+    00d8 : 0006 ; -- <0134> a = g6
+    00d9 : 0353 ; -- <0135> a = a>>4
+    00da : 0353 ; -- <0136> a = a>>4
+    00db : fba0 ; -- <0137> putchar a
+    00dc : 0002 ; -- <0137> "
+    00dd : fc00 ; -- <0137> "
+    00de : c800 ; -- <0138> i = i+j
+    00df : 0b10 ; -- <0138> "
+    00e0 : e00f ; -- <0139> jmp :next_word
+    00e1 : 00cc ; -- <0139> "
+-- :done -- = 0x00e2
+    00e2 : f808 ; -- <0141> pop rtna -- end_func
+    00e3 : 1808 ; -- <0141> pop g6 -- "
+    00e4 : 1408 ; -- <0141> pop y -- "
+    00e5 : 1008 ; -- <0141> pop x -- "
+    00e6 : 0c08 ; -- <0141> pop j -- "
+    00e7 : 0808 ; -- <0141> pop i -- "
+    00e8 : fc00 ; -- <0141> end_func
+
 -- print a null-terminated string from packed words in program space.
 -- pass its word address (not its byte address) in a.
 -- string must start on a word boundary.
 -- no newline or other delimiter is added automatically.
--- ######## func print_nt -- = 0x00c2
-    00c2 : 2002 ; -- <0121> push i -- func print_nt
-    00c3 : 2003 ; -- <0121> push j -- "
-    00c4 : 2004 ; -- <0121> push x -- "
-    00c5 : 203e ; -- <0121> push rtna -- "
-    00c6 : 0800 ; -- <0122> i = a
-    00c7 : 0e01 ; -- <0123> j = 1
--- :next_word -- = 0x00c8
-    00c8 : d002 ; -- <0125> fetch x from i
-    00c9 : 13b0 ; -- <0125> "
+-- ######## func print_nt -- = 0x00e9
+    00e9 : 2002 ; -- <0147> push i -- func print_nt
+    00ea : 2003 ; -- <0147> push j -- "
+    00eb : 2004 ; -- <0147> push x -- "
+    00ec : 203e ; -- <0147> push rtna -- "
+    00ed : 0800 ; -- <0148> i = a
+    00ee : 0e01 ; -- <0149> j = 1
+-- :next_word -- = 0x00ef
+    00ef : d002 ; -- <0151> fetch x from i
+    00f0 : 13b0 ; -- <0151> "
 -- now i = current word address, x = data word, b = low byte mask, a = data byte.
-    00ca : 0004 ; -- <0127> a = x
-    00cb : 06ff ; -- <0128> b = 0xff
-    00cc : e003 ; -- <0129> br and0z :done
-    00cd : 00de ; -- <0129> "
-    00ce : fba0 ; -- <0130> putchar a
-    00cf : 0002 ; -- <0130> "
-    00d0 : fc00 ; -- <0130> "
-    00d1 : 0004 ; -- <0131> a = x
-    00d2 : 0353 ; -- <0132> a = a>>4
-    00d3 : 0353 ; -- <0133> a = a>>4
-    00d4 : 06ff ; -- <0134> b = 0xff
-    00d5 : e003 ; -- <0135> br and0z :done
-    00d6 : 00de ; -- <0135> "
-    00d7 : fba0 ; -- <0136> putchar a
-    00d8 : 0002 ; -- <0136> "
-    00d9 : fc00 ; -- <0136> "
-    00da : c800 ; -- <0137> i = i+j
-    00db : 0b10 ; -- <0137> "
-    00dc : e00f ; -- <0138> jmp :next_word
-    00dd : 00c8 ; -- <0138> "
--- :done -- = 0x00de
-    00de : f808 ; -- <0140> pop rtna -- end_func
-    00df : 1008 ; -- <0140> pop x -- "
-    00e0 : 0c08 ; -- <0140> pop j -- "
-    00e1 : 0808 ; -- <0140> pop i -- "
-    00e2 : fc00 ; -- <0140> end_func
+    00f1 : 0004 ; -- <0153> a = x
+    00f2 : 06ff ; -- <0154> b = 0xff
+    00f3 : e003 ; -- <0155> br and0z :done
+    00f4 : 0105 ; -- <0155> "
+    00f5 : fba0 ; -- <0156> putchar a
+    00f6 : 0002 ; -- <0156> "
+    00f7 : fc00 ; -- <0156> "
+    00f8 : 0004 ; -- <0157> a = x
+    00f9 : 0353 ; -- <0158> a = a>>4
+    00fa : 0353 ; -- <0159> a = a>>4
+    00fb : 06ff ; -- <0160> b = 0xff
+    00fc : e003 ; -- <0161> br and0z :done
+    00fd : 0105 ; -- <0161> "
+    00fe : fba0 ; -- <0162> putchar a
+    00ff : 0002 ; -- <0162> "
+    0100 : fc00 ; -- <0162> "
+    0101 : c800 ; -- <0163> i = i+j
+    0102 : 0b10 ; -- <0163> "
+    0103 : e00f ; -- <0164> jmp :next_word
+    0104 : 00ef ; -- <0164> "
+-- :done -- = 0x0105
+    0105 : f808 ; -- <0166> pop rtna -- end_func
+    0106 : 1008 ; -- <0166> pop x -- "
+    0107 : 0c08 ; -- <0166> pop j -- "
+    0108 : 0808 ; -- <0166> pop i -- "
+    0109 : fc00 ; -- <0166> end_func
+
 -- routine waits a number of milliseconds given in a.
--- ######## func spinwait -- = 0x00e3
-    00e3 : 2004 ; -- <0002> push x -- func spinwait
-    00e4 : 2005 ; -- <0002> push y -- "
+-- ######## func spinwait -- = 0x010a
+    010a : 2004 ; -- <0002> push x -- func spinwait
+    010b : 2005 ; -- <0002> push y -- "
 --patch
 --rtn
-    00e5 : 0760 ; -- <0005> b = -1
--- :spinwait_outer -- = 0x00e6
-    00e6 : 13a0 ; -- <0007> x = 16666
-    00e7 : 411a ; -- <0007> "
-    00e8 : 1760 ; -- <0008> y = -1
-    00e9 : c800 ; -- <0009> nop
--- :spinwait_inner -- = 0x00ea
+    010c : 0760 ; -- <0005> b = -1
+-- :spinwait_outer -- = 0x010d
+    010d : 13a0 ; -- <0007> x = 16666
+    010e : 411a ; -- <0007> "
+    010f : 1760 ; -- <0008> y = -1
+    0110 : c800 ; -- <0009> nop
+-- :spinwait_inner -- = 0x0111
 -- use of the ad2 name overrides auto-nop here.
-    00ea : 1320 ; -- <0012> x = ad2
-    00eb : e402 ; -- <0013> bn xz :spinwait_inner
-    00ec : 00ea ; -- <0013> "
-    00ed : c800 ; -- <0014> a = a+b
-    00ee : 0300 ; -- <0014> "
-    00ef : e400 ; -- <0015> bn az :spinwait_outer
-    00f0 : 00e6 ; -- <0015> "
-    00f1 : 1408 ; -- <0016> pop y -- end_func
-    00f2 : 1008 ; -- <0016> pop x -- "
-    00f3 : fc00 ; -- <0016> end_func
+    0111 : 1320 ; -- <0012> x = ad2
+    0112 : e402 ; -- <0013> bn xz :spinwait_inner
+    0113 : 0111 ; -- <0013> "
+    0114 : c800 ; -- <0014> a = a+b
+    0115 : 0300 ; -- <0014> "
+    0116 : e400 ; -- <0015> bn az :spinwait_outer
+    0117 : 010d ; -- <0015> "
+    0118 : 1408 ; -- <0016> pop y -- end_func
+    0119 : 1008 ; -- <0016> pop x -- "
+    011a : fc00 ; -- <0016> end_func
 
 
 
 
 
--- ######## func fletcher16_init -- = 0x00f4
-    00f4 : 1a00 ; -- <0005> $fletcher_sum1_reg = 0
-    00f5 : 1e00 ; -- <0006> $fletcher_sum2_reg = 0
-    00f6 : fc00 ; -- <0007> end_func
+-- ######## func fletcher16_init -- = 0x011b
+    011b : 1a00 ; -- <0005> $fletcher_sum1_reg = 0
+    011c : 1e00 ; -- <0006> $fletcher_sum2_reg = 0
+    011d : fc00 ; -- <0007> end_func
 
 -- compute the modulus(255) of a number given in a.  return remainder in a.
--- ######## func mod255 -- = 0x00f7
+-- ######## func mod255 -- = 0x011e
 -- while a is greater than 254, subtract 255.
--- :mod255_again -- = 0x00f7
-    00f7 : 06fe ; -- <0013> b = 0xfe
-    00f8 : e006 ; -- <0014> br gt :mod255_greater
-    00f9 : 00fb ; -- <0014> "
-    00fa : fc00 ; -- <0015> rtn
--- :mod255_greater -- = 0x00fb
-    00fb : 07a0 ; -- <0017> b = 0xff01
-    00fc : ff01 ; -- <0017> "
-    00fd : c800 ; -- <0018> a = a+b
-    00fe : 0300 ; -- <0018> "
-    00ff : e00f ; -- <0019> jmp :mod255_again
-    0100 : 00f7 ; -- <0019> "
-    0101 : fc00 ; -- <0020> end_func
+-- :mod255_again -- = 0x011e
+    011e : 06fe ; -- <0013> b = 0xfe
+    011f : e006 ; -- <0014> br gt :mod255_greater
+    0120 : 0122 ; -- <0014> "
+    0121 : fc00 ; -- <0015> rtn
+-- :mod255_greater -- = 0x0122
+    0122 : 07a0 ; -- <0017> b = 0xff01
+    0123 : ff01 ; -- <0017> "
+    0124 : c800 ; -- <0018> a = a+b
+    0125 : 0300 ; -- <0018> "
+    0126 : e00f ; -- <0019> jmp :mod255_again
+    0127 : 011e ; -- <0019> "
+    0128 : fc00 ; -- <0020> end_func
 
 -- accumulate a Fletcher16 checksum, given the next byte of data in a.
--- ######## func fletcher16_input8 -- = 0x0102
-    0102 : 203e ; -- <0023> push rtna -- func fletcher16_input8
-    0103 : 0406 ; -- <0024> b = $fletcher_sum1_reg
-    0104 : c800 ; -- <0025> a = a+b
-    0105 : 0300 ; -- <0025> "
-    0106 : fba0 ; -- <0026> call :mod255
-    0107 : 00f7 ; -- <0026> "
-    0108 : fc00 ; -- <0026> "
-    0109 : 1800 ; -- <0027> $fletcher_sum1_reg = a
+-- ######## func fletcher16_input8 -- = 0x0129
+    0129 : 203e ; -- <0023> push rtna -- func fletcher16_input8
+    012a : 0406 ; -- <0024> b = $fletcher_sum1_reg
+    012b : c800 ; -- <0025> a = a+b
+    012c : 0300 ; -- <0025> "
+    012d : fba0 ; -- <0026> call :mod255
+    012e : 011e ; -- <0026> "
+    012f : fc00 ; -- <0026> "
+    0130 : 1800 ; -- <0027> $fletcher_sum1_reg = a
 
-    010a : 0407 ; -- <0029> b = $fletcher_sum2_reg
-    010b : c800 ; -- <0030> a = a+b
-    010c : 0300 ; -- <0030> "
-    010d : fba0 ; -- <0031> call :mod255
-    010e : 00f7 ; -- <0031> "
-    010f : fc00 ; -- <0031> "
-    0110 : 1c00 ; -- <0032> $fletcher_sum2_reg = a
-    0111 : f808 ; -- <0033> pop rtna -- end_func
-    0112 : fc00 ; -- <0033> end_func
+    0131 : 0407 ; -- <0029> b = $fletcher_sum2_reg
+    0132 : c800 ; -- <0030> a = a+b
+    0133 : 0300 ; -- <0030> "
+    0134 : fba0 ; -- <0031> call :mod255
+    0135 : 011e ; -- <0031> "
+    0136 : fc00 ; -- <0031> "
+    0137 : 1c00 ; -- <0032> $fletcher_sum2_reg = a
+    0138 : f808 ; -- <0033> pop rtna -- end_func
+    0139 : fc00 ; -- <0033> end_func
 
 -- accumulate a Fletcher16 checksum, given the next word of data in a.
--- ######## func fletcher16_input16 -- = 0x0113
-    0113 : 2002 ; -- <0036> push i -- func fletcher16_input16
-    0114 : 203e ; -- <0036> push rtna -- "
-    0115 : 0b53 ; -- <0037> i = a>>4
-    0116 : 06ff ; -- <0038> b = 0xff
-    0117 : c800 ; -- <0039> a = and
-    0118 : 0330 ; -- <0039> "
-    0119 : fba0 ; -- <0040> call :fletcher16_input8
-    011a : 0102 ; -- <0040> "
-    011b : fc00 ; -- <0040> "
-    011c : 0002 ; -- <0041> a = i
-    011d : 0353 ; -- <0042> a = a>>4
-    011e : fba0 ; -- <0043> call :fletcher16_input8
-    011f : 0102 ; -- <0043> "
-    0120 : fc00 ; -- <0043> "
-    0121 : f808 ; -- <0044> pop rtna -- end_func
-    0122 : 0808 ; -- <0044> pop i -- "
-    0123 : fc00 ; -- <0044> end_func
+-- ######## func fletcher16_input16 -- = 0x013a
+    013a : 2002 ; -- <0036> push i -- func fletcher16_input16
+    013b : 203e ; -- <0036> push rtna -- "
+    013c : 0b53 ; -- <0037> i = a>>4
+    013d : 06ff ; -- <0038> b = 0xff
+    013e : c800 ; -- <0039> a = and
+    013f : 0330 ; -- <0039> "
+    0140 : fba0 ; -- <0040> call :fletcher16_input8
+    0141 : 0129 ; -- <0040> "
+    0142 : fc00 ; -- <0040> "
+    0143 : 0002 ; -- <0041> a = i
+    0144 : 0353 ; -- <0042> a = a>>4
+    0145 : fba0 ; -- <0043> call :fletcher16_input8
+    0146 : 0129 ; -- <0043> "
+    0147 : fc00 ; -- <0043> "
+    0148 : f808 ; -- <0044> pop rtna -- end_func
+    0149 : 0808 ; -- <0044> pop i -- "
+    014a : fc00 ; -- <0044> end_func
 
 -- return the combined 16-bit result of Fletcher16 checksum in a.
--- ######## func fletcher16_result -- = 0x0124
-    0124 : 0007 ; -- <0048> a = $fletcher_sum2_reg
-    0125 : 0352 ; -- <0049> a = a<<4
-    0126 : 0352 ; -- <0050> a = a<<4
-    0127 : 0406 ; -- <0051> b = $fletcher_sum1_reg
-    0128 : c800 ; -- <0052> a = or
-    0129 : 0334 ; -- <0052> "
-    012a : fc00 ; -- <0053> end_func
+-- ######## func fletcher16_result -- = 0x014b
+    014b : 0007 ; -- <0048> a = $fletcher_sum2_reg
+    014c : 0352 ; -- <0049> a = a<<4
+    014d : 0352 ; -- <0050> a = a<<4
+    014e : 0406 ; -- <0051> b = $fletcher_sum1_reg
+    014f : c800 ; -- <0052> a = or
+    0150 : 0334 ; -- <0052> "
+    0151 : fc00 ; -- <0053> end_func
 
 
 
 
--- :boot_msg -- = 0x012b
+-- :boot_msg -- = 0x0152
 -- "\r\nVISOR\x0"
-    012b : 0a0d ; -- <0085>   
-    012c : 4956 ; -- <0085> IV
-    012d : 4f53 ; -- <0085> OS
-    012e : 0052 ; -- <0085>  R
--- :running_msg -- = 0x012f
+    0152 : 0a0d ; -- <0085>   
+    0153 : 4956 ; -- <0085> IV
+    0154 : 4f53 ; -- <0085> OS
+    0155 : 0052 ; -- <0085>  R
+-- :running_msg -- = 0x0156
 -- "\r\nRUN >\x0"
-    012f : 0a0d ; -- <0087>   
-    0130 : 5552 ; -- <0087> UR
-    0131 : 204e ; -- <0087>  N
-    0132 : 003e ; -- <0087>  >
+    0156 : 0a0d ; -- <0087>   
+    0157 : 5552 ; -- <0087> UR
+    0158 : 204e ; -- <0087>  N
+    0159 : 003e ; -- <0087>  >
 
 -- --------------------------------------------
--- :main -- = 0x0133
+-- :main -- = 0x015a
 -- put target into reset.
-    0133 : 3e02 ; -- <0092> bus_ctrl = $tg_reset_mask
+    015a : 3e02 ; -- <0092> bus_ctrl = $tg_reset_mask
 
 -- init visor.
-    0134 : 3360 ; -- <0095> bp3_addr = $bp_disable
-    0135 : 2f60 ; -- <0096> bp2_addr = $bp_disable
-    0136 : 2b60 ; -- <0097> bp1_addr = $bp_disable
-    0137 : 2760 ; -- <0098> bp0_addr = $bp_disable
+    015b : 3360 ; -- <0095> bp3_addr = $bp_disable
+    015c : 2f60 ; -- <0096> bp2_addr = $bp_disable
+    015d : 2b60 ; -- <0097> bp1_addr = $bp_disable
+    015e : 2760 ; -- <0098> bp0_addr = $bp_disable
 
 -- startup message
-    0138 : 03a0 ; -- <0101> a = :boot_msg
-    0139 : 012b ; -- <0101> "
-    013a : fba0 ; -- <0102> call :print_nt
-    013b : 00c2 ; -- <0102> "
-    013c : fc00 ; -- <0102> "
+    015f : 03a0 ; -- <0101> a = :boot_msg
+    0160 : 0152 ; -- <0101> "
+    0161 : fba0 ; -- <0102> call :print_nt
+    0162 : 00e9 ; -- <0102> "
+    0163 : fc00 ; -- <0102> "
 
 -- check for bootloader signal.
-    013d : 0019 ; -- <0105> a = boot_break
-    013e : e400 ; -- <0106> bn az :boot_run
-    013f : 0146 ; -- <0106> "
+    0164 : 0019 ; -- <0105> a = boot_break
+    0165 : e400 ; -- <0106> bn az :boot_run
+    0166 : 016d ; -- <0106> "
 -- ^^^ for press-to-debug; runs target by default.
 -- br az :boot_run
 -- ^^^ for press-to-run; debugs target by default.
+
 -- step into the first target instruction.
-    0140 : 3e08 ; -- <0111> bus_ctrl = $bp_step_mask
-    0141 : fba0 ; -- <0112> call :wait_for_bp
-    0142 : 01b8 ; -- <0112> "
-    0143 : fc00 ; -- <0112> "
-    0144 : e00f ; -- <0113> jmp :cmd_loop
-    0145 : 0147 ; -- <0113> "
+    0167 : 3e08 ; -- <0112> bus_ctrl = $bp_step_mask
+    0168 : fba0 ; -- <0113> call :wait_for_bp
+    0169 : 01e7 ; -- <0113> "
+    016a : fc00 ; -- <0113> "
+    016b : e00f ; -- <0114> jmp :cmd_loop
+    016c : 016e ; -- <0114> "
+-- :boot_run -- = 0x016d
 -- release target reset, to run.
--- :boot_run -- = 0x0146
-    0146 : 3e00 ; -- <0116> bus_ctrl = 0
+    016d : 3e00 ; -- <0117> bus_ctrl = 0
 
 -- command prompt loop.
--- :cmd_loop -- = 0x0147
-    0147 : 000f ; -- <0120> a = bus_ctrl
-    0148 : 0600 ; -- <0121> b = 0
-    0149 : e007 ; -- <0122> br eq :running_prompt
-    014a : 016c ; -- <0122> "
+-- :cmd_loop -- = 0x016e
+    016e : 000f ; -- <0121> a = bus_ctrl
+    016f : 0600 ; -- <0122> b = 0
+    0170 : e007 ; -- <0123> br eq :running_prompt
+    0171 : 0193 ; -- <0123> "
 
-    014b : fba0 ; -- <0124> call :dump_target
-    014c : 0287 ; -- <0124> "
-    014d : fc00 ; -- <0124> "
-    014e : 0016 ; -- <0125> a = tg_code_addr
-    014f : fba0 ; -- <0126> call :put4x
-    0150 : 005d ; -- <0126> "
-    0151 : fc00 ; -- <0126> "
-    0152 : 022c ; -- <0127> a = 44 -- putasc ","
-    0153 : fba0 ; -- <0127> putasc ","
-    0154 : 0002 ; -- <0127> "
-    0155 : fc00 ; -- <0127> "
-    0156 : 0015 ; -- <0128> a = exr_shadow
-    0157 : fba0 ; -- <0129> call :put4x
-    0158 : 005d ; -- <0129> "
-    0159 : fc00 ; -- <0129> "
-    015a : 0220 ; -- <0130> a = 32 -- putasc " "
-    015b : fba0 ; -- <0130> putasc " "
-    015c : 0002 ; -- <0130> "
-    015d : fc00 ; -- <0130> "
-    015e : 023e ; -- <0131> a = 62 -- putasc ">"
-    015f : fba0 ; -- <0131> putasc ">"
-    0160 : 0002 ; -- <0131> "
-    0161 : fc00 ; -- <0131> "
-    0162 : fba0 ; -- <0132> getchar_echo
-    0163 : 0011 ; -- <0132> "
-    0164 : fc00 ; -- <0132> "
-    0165 : 2000 ; -- <0132> push a -- "
-    0166 : fba0 ; -- <0132> "
-    0167 : 0002 ; -- <0132> "
-    0168 : fc00 ; -- <0132> "
-    0169 : 0008 ; -- <0132> pop a -- "
-    016a : e00f ; -- <0133> jmp :parse_cmd
-    016b : 017d ; -- <0133> "
+    0172 : fba0 ; -- <0125> call :dump_target
+    0173 : 0292 ; -- <0125> "
+    0174 : fc00 ; -- <0125> "
+    0175 : 0016 ; -- <0126> a = tg_code_addr
+    0176 : fba0 ; -- <0127> call :put4x
+    0177 : 005d ; -- <0127> "
+    0178 : fc00 ; -- <0127> "
+    0179 : 022c ; -- <0128> a = 44 -- putasc ","
+    017a : fba0 ; -- <0128> putasc ","
+    017b : 0002 ; -- <0128> "
+    017c : fc00 ; -- <0128> "
+    017d : 0015 ; -- <0129> a = exr_shadow
+    017e : fba0 ; -- <0130> call :put4x
+    017f : 005d ; -- <0130> "
+    0180 : fc00 ; -- <0130> "
+    0181 : 0220 ; -- <0131> a = 32 -- putasc " "
+    0182 : fba0 ; -- <0131> putasc " "
+    0183 : 0002 ; -- <0131> "
+    0184 : fc00 ; -- <0131> "
+    0185 : 023e ; -- <0132> a = 62 -- putasc ">"
+    0186 : fba0 ; -- <0132> putasc ">"
+    0187 : 0002 ; -- <0132> "
+    0188 : fc00 ; -- <0132> "
+    0189 : fba0 ; -- <0133> getchar_echo
+    018a : 0011 ; -- <0133> "
+    018b : fc00 ; -- <0133> "
+    018c : 2000 ; -- <0133> push a -- "
+    018d : fba0 ; -- <0133> "
+    018e : 0002 ; -- <0133> "
+    018f : fc00 ; -- <0133> "
+    0190 : 0008 ; -- <0133> pop a -- "
+    0191 : e00f ; -- <0134> jmp :parse_cmd
+    0192 : 01a4 ; -- <0134> "
 
--- :running_prompt -- = 0x016c
-    016c : 03a0 ; -- <0136> a = :running_msg
-    016d : 012f ; -- <0136> "
-    016e : fba0 ; -- <0137> call :print_nt
-    016f : 00c2 ; -- <0137> "
-    0170 : fc00 ; -- <0137> "
--- :run_poll -- = 0x0171
-    0171 : fba0 ; -- <0139> pollchar
-    0172 : 001a ; -- <0139> "
-    0173 : fc00 ; -- <0139> "
-    0174 : 0760 ; -- <0140> b = -1
-    0175 : e407 ; -- <0141> bn eq :parse_cmd
-    0176 : 017d ; -- <0141> "
-    0177 : 0018 ; -- <0142> a = bp_status
-    0178 : e000 ; -- <0143> br az :run_poll
-    0179 : 0171 ; -- <0143> "
+-- :running_prompt -- = 0x0193
+    0193 : 03a0 ; -- <0137> a = :running_msg
+    0194 : 0156 ; -- <0137> "
+    0195 : fba0 ; -- <0138> call :print_nt
+    0196 : 00e9 ; -- <0138> "
+    0197 : fc00 ; -- <0138> "
+-- :run_poll -- = 0x0198
+    0198 : fba0 ; -- <0140> pollchar
+    0199 : 001a ; -- <0140> "
+    019a : fc00 ; -- <0140> "
+    019b : 0760 ; -- <0141> b = -1
+    019c : e407 ; -- <0142> bn eq :parse_cmd
+    019d : 01a4 ; -- <0142> "
+    019e : 0018 ; -- <0143> a = bp_status
+    019f : e000 ; -- <0144> br az :run_poll
+    01a0 : 0198 ; -- <0144> "
 -- target hit a breakpoint; switch to stepping mode.
-    017a : 3e08 ; -- <0145> bus_ctrl = $bp_step_mask
-    017b : e00f ; -- <0146> jmp :cmd_loop
-    017c : 0147 ; -- <0146> "
+    01a1 : 3e08 ; -- <0146> bus_ctrl = $bp_step_mask
+    01a2 : e00f ; -- <0147> jmp :cmd_loop
+    01a3 : 016e ; -- <0147> "
 
--- :parse_cmd -- = 0x017d
+-- :parse_cmd -- = 0x01a4
 
 -- command = step next instruction.
-    017d : 066e ; -- <0151> b = 110 -- asc b = "n"
-    017e : e407 ; -- <0152> bn eq :skip_step
-    017f : 0187 ; -- <0152> "
-    0180 : 3e08 ; -- <0153> bus_ctrl = $bp_step_mask
-    0181 : 2409 ; -- <0154> bp0_addr = bp0_addr
-    0182 : fba0 ; -- <0155> call :wait_for_bp
-    0183 : 01b8 ; -- <0155> "
-    0184 : fc00 ; -- <0155> "
-    0185 : e00f ; -- <0156> jmp :cmd_loop
-    0186 : 0147 ; -- <0156> "
--- :skip_step -- = 0x0187
+    01a4 : 066e ; -- <0152> b = 110 -- asc b = "n"
+    01a5 : e407 ; -- <0153> bn eq :skip_step
+    01a6 : 01ae ; -- <0153> "
+    01a7 : 3e08 ; -- <0154> bus_ctrl = $bp_step_mask
+    01a8 : 2409 ; -- <0155> bp0_addr = bp0_addr
+    01a9 : fba0 ; -- <0156> call :wait_for_bp
+    01aa : 01e7 ; -- <0156> "
+    01ab : fc00 ; -- <0156> "
+    01ac : e00f ; -- <0157> jmp :cmd_loop
+    01ad : 016e ; -- <0157> "
+-- :skip_step -- = 0x01ae
 
 -- command = reset target.
-    0187 : 0652 ; -- <0160> b = 82 -- asc b = "R"
-    0188 : e407 ; -- <0161> bn eq :skip_reset
-    0189 : 0193 ; -- <0161> "
-    018a : 3e02 ; -- <0162> bus_ctrl = $tg_reset_mask
-    018b : c800 ; -- <0163> nop
-    018c : c800 ; -- <0164> nop
-    018d : 3e08 ; -- <0165> bus_ctrl = $bp_step_mask
-    018e : fba0 ; -- <0166> call :wait_for_bp
-    018f : 01b8 ; -- <0166> "
-    0190 : fc00 ; -- <0166> "
-    0191 : e00f ; -- <0167> jmp :cmd_loop
-    0192 : 0147 ; -- <0167> "
--- :skip_reset -- = 0x0193
+    01ae : 0652 ; -- <0161> b = 82 -- asc b = "R"
+    01af : e407 ; -- <0162> bn eq :skip_reset
+    01b0 : 01ba ; -- <0162> "
+    01b1 : 3e02 ; -- <0163> bus_ctrl = $tg_reset_mask
+    01b2 : c800 ; -- <0164> nop
+    01b3 : c800 ; -- <0165> nop
+    01b4 : 3e08 ; -- <0166> bus_ctrl = $bp_step_mask
+    01b5 : fba0 ; -- <0167> call :wait_for_bp
+    01b6 : 01e7 ; -- <0167> "
+    01b7 : fc00 ; -- <0167> "
+    01b8 : e00f ; -- <0168> jmp :cmd_loop
+    01b9 : 016e ; -- <0168> "
+-- :skip_reset -- = 0x01ba
 
 -- command = load program.
-    0193 : 066c ; -- <0171> b = 108 -- asc b = "l"
-    0194 : e407 ; -- <0172> bn eq :skip_load
-    0195 : 019b ; -- <0172> "
-    0196 : fba0 ; -- <0173> call :load_program
-    0197 : 020d ; -- <0173> "
-    0198 : fc00 ; -- <0173> "
-    0199 : e00f ; -- <0174> jmp :cmd_loop
-    019a : 0147 ; -- <0174> "
--- :skip_load -- = 0x019b
+    01ba : 066c ; -- <0172> b = 108 -- asc b = "l"
+    01bb : e407 ; -- <0173> bn eq :skip_load
+    01bc : 01c2 ; -- <0173> "
+    01bd : fba0 ; -- <0174> call :load_program
+    01be : 0300 ; -- <0174> "
+    01bf : fc00 ; -- <0174> "
+    01c0 : e00f ; -- <0175> jmp :cmd_loop
+    01c1 : 016e ; -- <0175> "
+-- :skip_load -- = 0x01c2
 
 -- command = run full speed.
-    019b : 0672 ; -- <0178> b = 114 -- asc b = "r"
-    019c : e407 ; -- <0179> bn eq :skip_run
-    019d : 01a2 ; -- <0179> "
+    01c2 : 0672 ; -- <0179> b = 114 -- asc b = "r"
+    01c3 : e407 ; -- <0180> bn eq :skip_run
+    01c4 : 01c9 ; -- <0180> "
 -- release target reset, to run.
-    019e : 3e00 ; -- <0181> bus_ctrl = 0
-    019f : 2409 ; -- <0182> bp0_addr = bp0_addr
-    01a0 : e00f ; -- <0183> jmp :cmd_loop
-    01a1 : 0147 ; -- <0183> "
--- :skip_run -- = 0x01a2
+    01c5 : 3e00 ; -- <0182> bus_ctrl = 0
+    01c6 : 2409 ; -- <0183> bp0_addr = bp0_addr
+    01c7 : e00f ; -- <0184> jmp :cmd_loop
+    01c8 : 016e ; -- <0184> "
+-- :skip_run -- = 0x01c9
 
 -- command = set breakpoint.
-    01a2 : 0662 ; -- <0187> b = 98 -- asc b = "b"
-    01a3 : e407 ; -- <0188> bn eq :skip_setbrk
-    01a4 : 01aa ; -- <0188> "
-    01a5 : fba0 ; -- <0189> call :set_bp
-    01a6 : 01bc ; -- <0189> "
-    01a7 : fc00 ; -- <0189> "
-    01a8 : e00f ; -- <0190> jmp :cmd_loop
-    01a9 : 0147 ; -- <0190> "
--- :skip_setbrk -- = 0x01aa
+    01c9 : 0662 ; -- <0188> b = 98 -- asc b = "b"
+    01ca : e407 ; -- <0189> bn eq :skip_setbrk
+    01cb : 01d1 ; -- <0189> "
+    01cc : fba0 ; -- <0190> call :set_bp
+    01cd : 01eb ; -- <0190> "
+    01ce : fc00 ; -- <0190> "
+    01cf : e00f ; -- <0191> jmp :cmd_loop
+    01d0 : 016e ; -- <0191> "
+-- :skip_setbrk -- = 0x01d1
 
-    01aa : 023f ; -- <0193> a = 63 -- putasc "?"
-    01ab : fba0 ; -- <0193> putasc "?"
-    01ac : 0002 ; -- <0193> "
-    01ad : fc00 ; -- <0193> "
-    01ae : 020d ; -- <0194> a = 13 -- puteol
-    01af : fba0 ; -- <0194> puteol
-    01b0 : 0002 ; -- <0194> "
-    01b1 : fc00 ; -- <0194> "
-    01b2 : 020a ; -- <0194> a = 10 -- puteol
-    01b3 : fba0 ; -- <0194> puteol
-    01b4 : 0002 ; -- <0194> "
-    01b5 : fc00 ; -- <0194> "
-    01b6 : e00f ; -- <0195> jmp :cmd_loop
-    01b7 : 0147 ; -- <0195> "
+-- command = poke register.
+    01d1 : 066f ; -- <0195> b = 111 -- asc b = "o"
+    01d2 : e407 ; -- <0196> bn eq :skip_poke
+    01d3 : 01d9 ; -- <0196> "
+    01d4 : fba0 ; -- <0197> call :poke_cmd
+    01d5 : 023c ; -- <0197> "
+    01d6 : fc00 ; -- <0197> "
+    01d7 : e00f ; -- <0198> jmp :cmd_loop
+    01d8 : 016e ; -- <0198> "
+-- :skip_poke -- = 0x01d9
+
+    01d9 : 023f ; -- <0201> a = 63 -- putasc "?"
+    01da : fba0 ; -- <0201> putasc "?"
+    01db : 0002 ; -- <0201> "
+    01dc : fc00 ; -- <0201> "
+    01dd : 020d ; -- <0202> a = 13 -- puteol
+    01de : fba0 ; -- <0202> puteol
+    01df : 0002 ; -- <0202> "
+    01e0 : fc00 ; -- <0202> "
+    01e1 : 020a ; -- <0202> a = 10 -- puteol
+    01e2 : fba0 ; -- <0202> puteol
+    01e3 : 0002 ; -- <0202> "
+    01e4 : fc00 ; -- <0202> "
+    01e5 : e00f ; -- <0203> jmp :cmd_loop
+    01e6 : 016e ; -- <0203> "
 
 
--- ######## func wait_for_bp -- = 0x01b8
--- :poll -- = 0x01b8
-    01b8 : 0018 ; -- <0226> a = bp_status
-    01b9 : e000 ; -- <0227> br az :poll
-    01ba : 01b8 ; -- <0227> "
-    01bb : fc00 ; -- <0228> end_func
+-- ######## func wait_for_bp -- = 0x01e7
+-- :poll -- = 0x01e7
+    01e7 : 0018 ; -- <0234> a = bp_status
+    01e8 : e000 ; -- <0235> br az :poll
+    01e9 : 01e7 ; -- <0235> "
+    01ea : fc00 ; -- <0236> end_func
 
--- ######## func set_bp -- = 0x01bc
-    01bc : 2004 ; -- <0230> push x -- func set_bp
-    01bd : 2005 ; -- <0230> push y -- "
-    01be : 203e ; -- <0230> push rtna -- "
-    01bf : fba0 ; -- <0231> getchar_echo
-    01c0 : 0011 ; -- <0231> "
-    01c1 : fc00 ; -- <0231> "
-    01c2 : 2000 ; -- <0231> push a -- "
-    01c3 : fba0 ; -- <0231> "
-    01c4 : 0002 ; -- <0231> "
-    01c5 : fc00 ; -- <0231> "
-    01c6 : 0008 ; -- <0231> pop a -- "
-    01c7 : 1000 ; -- <0232> x = a
-    01c8 : fba0 ; -- <0233> getchar_echo
-    01c9 : 0011 ; -- <0233> "
-    01ca : fc00 ; -- <0233> "
-    01cb : 2000 ; -- <0233> push a -- "
-    01cc : fba0 ; -- <0233> "
-    01cd : 0002 ; -- <0233> "
-    01ce : fc00 ; -- <0233> "
-    01cf : 0008 ; -- <0233> pop a -- "
-    01d0 : 063d ; -- <0234> b = 61 -- asc b = "="
-    01d1 : e407 ; -- <0235> bn eq :fail
-    01d2 : 01fd ; -- <0235> "
-    01d3 : fba0 ; -- <0236> call :get4x
-    01d4 : 0096 ; -- <0236> "
-    01d5 : fc00 ; -- <0236> "
-    01d6 : 1400 ; -- <0237> y = a
-    01d7 : 0200 ; -- <0238> a = 0
-    01d8 : e407 ; -- <0239> bn eq :fail
-    01d9 : 01fd ; -- <0239> "
-    01da : 0004 ; -- <0240> a = x
-    01db : 0630 ; -- <0241> b = 48 -- asc b = "0"
-    01dc : e007 ; -- <0242> br eq :b0
-    01dd : 01e9 ; -- <0242> "
-    01de : 0631 ; -- <0243> b = 49 -- asc b = "1"
-    01df : e007 ; -- <0244> br eq :b1
-    01e0 : 01ee ; -- <0244> "
-    01e1 : 0632 ; -- <0245> b = 50 -- asc b = "2"
-    01e2 : e007 ; -- <0246> br eq :b2
-    01e3 : 01f3 ; -- <0246> "
-    01e4 : 0633 ; -- <0247> b = 51 -- asc b = "3"
-    01e5 : e007 ; -- <0248> br eq :b3
-    01e6 : 01f8 ; -- <0248> "
-    01e7 : e00f ; -- <0249> jmp :fail
-    01e8 : 01fd ; -- <0249> "
--- :b0 -- = 0x01e9
-    01e9 : 2405 ; -- <0251> bp0_addr = y
-    01ea : f808 ; -- <0252> pop rtna -- rtn
-    01eb : 1408 ; -- <0252> pop y -- "
-    01ec : 1008 ; -- <0252> pop x -- "
-    01ed : fc00 ; -- <0252> rtn
--- :b1 -- = 0x01ee
-    01ee : 2805 ; -- <0254> bp1_addr = y
-    01ef : f808 ; -- <0255> pop rtna -- rtn
-    01f0 : 1408 ; -- <0255> pop y -- "
-    01f1 : 1008 ; -- <0255> pop x -- "
-    01f2 : fc00 ; -- <0255> rtn
--- :b2 -- = 0x01f3
-    01f3 : 2c05 ; -- <0257> bp2_addr = y
-    01f4 : f808 ; -- <0258> pop rtna -- rtn
-    01f5 : 1408 ; -- <0258> pop y -- "
-    01f6 : 1008 ; -- <0258> pop x -- "
-    01f7 : fc00 ; -- <0258> rtn
--- :b3 -- = 0x01f8
-    01f8 : 3005 ; -- <0260> bp3_addr = y
-    01f9 : f808 ; -- <0261> pop rtna -- rtn
-    01fa : 1408 ; -- <0261> pop y -- "
-    01fb : 1008 ; -- <0261> pop x -- "
-    01fc : fc00 ; -- <0261> rtn
--- :fail -- = 0x01fd
-    01fd : 023f ; -- <0263> a = 63 -- putasc "?"
-    01fe : fba0 ; -- <0263> putasc "?"
-    01ff : 0002 ; -- <0263> "
-    0200 : fc00 ; -- <0263> "
-    0201 : 020d ; -- <0264> a = 13 -- puteol
-    0202 : fba0 ; -- <0264> puteol
-    0203 : 0002 ; -- <0264> "
-    0204 : fc00 ; -- <0264> "
-    0205 : 020a ; -- <0264> a = 10 -- puteol
-    0206 : fba0 ; -- <0264> puteol
-    0207 : 0002 ; -- <0264> "
-    0208 : fc00 ; -- <0264> "
-    0209 : f808 ; -- <0265> pop rtna -- end_func
-    020a : 1408 ; -- <0265> pop y -- "
-    020b : 1008 ; -- <0265> pop x -- "
-    020c : fc00 ; -- <0265> end_func
+-- ######## func set_bp -- = 0x01eb
+    01eb : 2004 ; -- <0238> push x -- func set_bp
+    01ec : 2005 ; -- <0238> push y -- "
+    01ed : 203e ; -- <0238> push rtna -- "
+    01ee : fba0 ; -- <0239> getchar_echo
+    01ef : 0011 ; -- <0239> "
+    01f0 : fc00 ; -- <0239> "
+    01f1 : 2000 ; -- <0239> push a -- "
+    01f2 : fba0 ; -- <0239> "
+    01f3 : 0002 ; -- <0239> "
+    01f4 : fc00 ; -- <0239> "
+    01f5 : 0008 ; -- <0239> pop a -- "
+    01f6 : 1000 ; -- <0240> x = a
+    01f7 : fba0 ; -- <0241> getchar_echo
+    01f8 : 0011 ; -- <0241> "
+    01f9 : fc00 ; -- <0241> "
+    01fa : 2000 ; -- <0241> push a -- "
+    01fb : fba0 ; -- <0241> "
+    01fc : 0002 ; -- <0241> "
+    01fd : fc00 ; -- <0241> "
+    01fe : 0008 ; -- <0241> pop a -- "
+    01ff : 063d ; -- <0242> b = 61 -- asc b = "="
+    0200 : e407 ; -- <0243> bn eq :fail
+    0201 : 022c ; -- <0243> "
+    0202 : fba0 ; -- <0244> call :get4x
+    0203 : 0096 ; -- <0244> "
+    0204 : fc00 ; -- <0244> "
+    0205 : 1400 ; -- <0245> y = a
+    0206 : 0200 ; -- <0246> a = 0
+    0207 : e407 ; -- <0247> bn eq :fail
+    0208 : 022c ; -- <0247> "
+    0209 : 0004 ; -- <0248> a = x
+    020a : 0630 ; -- <0249> b = 48 -- asc b = "0"
+    020b : e007 ; -- <0250> br eq :b0
+    020c : 0218 ; -- <0250> "
+    020d : 0631 ; -- <0251> b = 49 -- asc b = "1"
+    020e : e007 ; -- <0252> br eq :b1
+    020f : 021d ; -- <0252> "
+    0210 : 0632 ; -- <0253> b = 50 -- asc b = "2"
+    0211 : e007 ; -- <0254> br eq :b2
+    0212 : 0222 ; -- <0254> "
+    0213 : 0633 ; -- <0255> b = 51 -- asc b = "3"
+    0214 : e007 ; -- <0256> br eq :b3
+    0215 : 0227 ; -- <0256> "
+    0216 : e00f ; -- <0257> jmp :fail
+    0217 : 022c ; -- <0257> "
+-- :b0 -- = 0x0218
+    0218 : 2405 ; -- <0259> bp0_addr = y
+    0219 : f808 ; -- <0260> pop rtna -- rtn
+    021a : 1408 ; -- <0260> pop y -- "
+    021b : 1008 ; -- <0260> pop x -- "
+    021c : fc00 ; -- <0260> rtn
+-- :b1 -- = 0x021d
+    021d : 2805 ; -- <0262> bp1_addr = y
+    021e : f808 ; -- <0263> pop rtna -- rtn
+    021f : 1408 ; -- <0263> pop y -- "
+    0220 : 1008 ; -- <0263> pop x -- "
+    0221 : fc00 ; -- <0263> rtn
+-- :b2 -- = 0x0222
+    0222 : 2c05 ; -- <0265> bp2_addr = y
+    0223 : f808 ; -- <0266> pop rtna -- rtn
+    0224 : 1408 ; -- <0266> pop y -- "
+    0225 : 1008 ; -- <0266> pop x -- "
+    0226 : fc00 ; -- <0266> rtn
+-- :b3 -- = 0x0227
+    0227 : 3005 ; -- <0268> bp3_addr = y
+    0228 : f808 ; -- <0269> pop rtna -- rtn
+    0229 : 1408 ; -- <0269> pop y -- "
+    022a : 1008 ; -- <0269> pop x -- "
+    022b : fc00 ; -- <0269> rtn
 
--- ######## func load_program -- = 0x020d
-    020d : 2002 ; -- <0267> push i -- func load_program
-    020e : 2003 ; -- <0267> push j -- "
-    020f : 2004 ; -- <0267> push x -- "
-    0210 : 203e ; -- <0267> push rtna -- "
--- load target program from UART.
+-- :fail -- = 0x022c
+    022c : 023f ; -- <0272> a = 63 -- putasc "?"
+    022d : fba0 ; -- <0272> putasc "?"
+    022e : 0002 ; -- <0272> "
+    022f : fc00 ; -- <0272> "
+    0230 : 020d ; -- <0273> a = 13 -- puteol
+    0231 : fba0 ; -- <0273> puteol
+    0232 : 0002 ; -- <0273> "
+    0233 : fc00 ; -- <0273> "
+    0234 : 020a ; -- <0273> a = 10 -- puteol
+    0235 : fba0 ; -- <0273> puteol
+    0236 : 0002 ; -- <0273> "
+    0237 : fc00 ; -- <0273> "
+    0238 : f808 ; -- <0274> pop rtna -- end_func
+    0239 : 1408 ; -- <0274> pop y -- "
+    023a : 1008 ; -- <0274> pop x -- "
+    023b : fc00 ; -- <0274> end_func
 
--- length, little-endian.  memorize in x.
-    0211 : 020d ; -- <0271> a = 13 -- puteol
-    0212 : fba0 ; -- <0271> puteol
-    0213 : 0002 ; -- <0271> "
-    0214 : fc00 ; -- <0271> "
-    0215 : 020a ; -- <0271> a = 10 -- puteol
-    0216 : fba0 ; -- <0271> puteol
-    0217 : 0002 ; -- <0271> "
-    0218 : fc00 ; -- <0271> "
-    0219 : 024c ; -- <0272> a = 76 -- putasc L
-    021a : fba0 ; -- <0272> putasc L
-    021b : 0002 ; -- <0272> "
-    021c : fc00 ; -- <0272> "
-    021d : fba0 ; -- <0273> get16 x
-    021e : 0011 ; -- <0273> "
-    021f : fc00 ; -- <0273> "
-    0220 : 2000 ; -- <0273> push a -- "
-    0221 : fba0 ; -- <0273> "
-    0222 : 0011 ; -- <0273> "
-    0223 : fc00 ; -- <0273> "
-    0224 : 0352 ; -- <0273> "
-    0225 : 0352 ; -- <0273> "
-    0226 : 0408 ; -- <0273> pop b -- "
-    0227 : c800 ; -- <0273> "
-    0228 : 1334 ; -- <0273> "
-    0229 : 0004 ; -- <0274> a = x
-    022a : fba0 ; -- <0275> call :put4x
-    022b : 005d ; -- <0275> "
-    022c : fc00 ; -- <0275> "
-    022d : 020d ; -- <0276> a = 13 -- puteol
-    022e : fba0 ; -- <0276> puteol
-    022f : 0002 ; -- <0276> "
-    0230 : fc00 ; -- <0276> "
-    0231 : 020a ; -- <0276> a = 10 -- puteol
-    0232 : fba0 ; -- <0276> puteol
-    0233 : 0002 ; -- <0276> "
-    0234 : fc00 ; -- <0276> "
+-- ######## func poke_cmd -- = 0x023c
+    023c : 2004 ; -- <0276> push x -- func poke_cmd
+    023d : 203e ; -- <0276> push rtna -- "
+-- x = destination register address to poke.
+    023e : fba0 ; -- <0278> call :get4x
+    023f : 0096 ; -- <0278> "
+    0240 : fc00 ; -- <0278> "
+    0241 : 1000 ; -- <0279> x = a
+    0242 : 0200 ; -- <0280> a = 0
+    0243 : e407 ; -- <0281> bn eq :fail
+    0244 : 025e ; -- <0281> "
 
--- put target into reset again, in case this is a target warm boot.
-    0235 : 3e02 ; -- <0279> bus_ctrl = $tg_reset_mask
+    0245 : fba0 ; -- <0283> getchar_echo
+    0246 : 0011 ; -- <0283> "
+    0247 : fc00 ; -- <0283> "
+    0248 : 2000 ; -- <0283> push a -- "
+    0249 : fba0 ; -- <0283> "
+    024a : 0002 ; -- <0283> "
+    024b : fc00 ; -- <0283> "
+    024c : 0008 ; -- <0283> pop a -- "
+    024d : 063d ; -- <0284> b = 61 -- asc b = "="
+    024e : e407 ; -- <0285> bn eq :fail
+    024f : 025e ; -- <0285> "
 
--- load opcodes.  count up address in i.
-    0236 : 0a00 ; -- <0282> i = 0
-    0237 : 0e01 ; -- <0283> j = 1
-    0238 : fba0 ; -- <0284> call :fletcher16_init
-    0239 : 00f4 ; -- <0284> "
-    023a : fc00 ; -- <0284> "
--- :loadword -- = 0x023b
--- receive, store in RAM.
-    023b : fba0 ; -- <0287> get16 a
-    023c : 0011 ; -- <0287> "
-    023d : fc00 ; -- <0287> "
-    023e : 2000 ; -- <0287> push a -- "
-    023f : fba0 ; -- <0287> "
-    0240 : 0011 ; -- <0287> "
-    0241 : fc00 ; -- <0287> "
-    0242 : 0352 ; -- <0287> "
-    0243 : 0352 ; -- <0287> "
-    0244 : 0408 ; -- <0287> pop b -- "
-    0245 : c800 ; -- <0287> "
-    0246 : 0334 ; -- <0287> "
-    0247 : 4c02 ; -- <0288> m9k_addr = i
-    0248 : 5000 ; -- <0289> m9k_data = a
+-- parse value to poke.
+    0250 : fba0 ; -- <0288> call :get4x
+    0251 : 0096 ; -- <0288> "
+    0252 : fc00 ; -- <0288> "
+    0253 : 3800 ; -- <0289> poke_data = a
+    0254 : 0200 ; -- <0290> a = 0
+    0255 : e407 ; -- <0291> bn eq :fail
+    0256 : 025e ; -- <0291> "
 
--- read back from RAM and build checksum.
-    0249 : 0014 ; -- <0292> a = m9k_data
-    024a : fba0 ; -- <0293> call :fletcher16_input16
-    024b : 0113 ; -- <0293> "
-    024c : fc00 ; -- <0293> "
+    0257 : 0004 ; -- <0293> a = x
+    0258 : fba0 ; -- <0294> call :poke
+    0259 : 0276 ; -- <0294> "
+    025a : fc00 ; -- <0294> "
+    025b : f808 ; -- <0295> pop rtna -- rtn
+    025c : 1008 ; -- <0295> pop x -- "
+    025d : fc00 ; -- <0295> rtn
 
---  show decimated feedback text, for more speed:
-    024d : 0002 ; -- <0296> a = i
-    024e : 061f ; -- <0297> b = 0x1f
-    024f : e403 ; -- <0298> bn and0z :skip_text
-    0250 : 0255 ; -- <0298> "
-    0251 : 022e ; -- <0299> a = 46 -- putasc "."
-    0252 : fba0 ; -- <0299> putasc "."
-    0253 : 0002 ; -- <0299> "
-    0254 : fc00 ; -- <0299> "
--- :skip_text -- = 0x0255
+-- :fail -- = 0x025e
+    025e : 023f ; -- <0298> a = 63 -- putasc "?"
+    025f : fba0 ; -- <0298> putasc "?"
+    0260 : 0002 ; -- <0298> "
+    0261 : fc00 ; -- <0298> "
+    0262 : 020d ; -- <0299> a = 13 -- puteol
+    0263 : fba0 ; -- <0299> puteol
+    0264 : 0002 ; -- <0299> "
+    0265 : fc00 ; -- <0299> "
+    0266 : 020a ; -- <0299> a = 10 -- puteol
+    0267 : fba0 ; -- <0299> puteol
+    0268 : 0002 ; -- <0299> "
+    0269 : fc00 ; -- <0299> "
+    026a : f808 ; -- <0300> pop rtna -- end_func
+    026b : 1008 ; -- <0300> pop x -- "
+    026c : fc00 ; -- <0300> end_func
 
-    0255 : c800 ; -- <0302> i = i+j
-    0256 : 0b10 ; -- <0302> "
-    0257 : 0002 ; -- <0303> a = i
-    0258 : 0404 ; -- <0304> b = x
-    0259 : e407 ; -- <0305> bn eq :loadword
-    025a : 023b ; -- <0305> "
-    025b : 020d ; -- <0306> a = 13 -- puteol
-    025c : fba0 ; -- <0306> puteol
-    025d : 0002 ; -- <0306> "
-    025e : fc00 ; -- <0306> "
-    025f : 020a ; -- <0306> a = 10 -- puteol
-    0260 : fba0 ; -- <0306> puteol
-    0261 : 0002 ; -- <0306> "
-    0262 : fc00 ; -- <0306> "
-    0263 : fba0 ; -- <0307> call :fletcher16_result
-    0264 : 0124 ; -- <0307> "
-    0265 : fc00 ; -- <0307> "
-    0266 : fba0 ; -- <0308> call :put4x
-    0267 : 005d ; -- <0308> "
-    0268 : fc00 ; -- <0308> "
-    0269 : 020d ; -- <0309> a = 13 -- puteol
-    026a : fba0 ; -- <0309> puteol
-    026b : 0002 ; -- <0309> "
-    026c : fc00 ; -- <0309> "
-    026d : 020a ; -- <0309> a = 10 -- puteol
-    026e : fba0 ; -- <0309> puteol
-    026f : 0002 ; -- <0309> "
-    0270 : fc00 ; -- <0309> "
-    0271 : f808 ; -- <0310> pop rtna -- end_func
-    0272 : 1008 ; -- <0310> pop x -- "
-    0273 : 0c08 ; -- <0310> pop j -- "
-    0274 : 0808 ; -- <0310> pop i -- "
-    0275 : fc00 ; -- <0310> end_func
+-- force execution of the opcode passed in force_opcode.
+-- ######## func force_instruction -- = 0x026d
+    026d : 3e04 ; -- <0304> bus_ctrl = $divert_code_bus_mask
+    026e : 4201 ; -- <0305> tg_force = $hold_state_mask
+    026f : 4203 ; -- <0306> tg_force = ($hold_state_mask | $force_load_exr_mask)
+    0270 : 4205 ; -- <0307> tg_force = ($hold_state_mask | $force_exec_mask)
+    0271 : 4201 ; -- <0308> tg_force = $hold_state_mask
+-- refill target exr so it can resume seamlessly.
+    0272 : 3415 ; -- <0310> force_opcode = exr_shadow
+    0273 : 4203 ; -- <0311> tg_force = ($hold_state_mask | $force_load_exr_mask)
+    0274 : 4200 ; -- <0312> tg_force = 0
+    0275 : fc00 ; -- <0313> end_func
+
+-- poke a register.  pass the value in poke_data.
+-- pass its register address in a.
+-- ######## func poke -- = 0x0276
+    0276 : 203e ; -- <0317> push rtna -- func poke
+    0277 : 07a0 ; -- <0319> b = $dest_mask
+    0278 : fc00 ; -- <0319> "
+    0279 : c800 ; -- <0320> a = and
+    027a : 0330 ; -- <0320> "
+    027b : 07a0 ; -- <0321> b = ([src dbgpoke])
+    027c : 03c0 ; -- <0321> "
+    027d : c800 ; -- <0322> force_opcode = or
+    027e : 3734 ; -- <0322> "
+    027f : fba0 ; -- <0323> call :force_instruction
+    0280 : 026d ; -- <0323> "
+    0281 : fc00 ; -- <0323> "
+    0282 : f808 ; -- <0324> pop rtna -- end_func
+    0283 : fc00 ; -- <0324> end_func
 
 -- observe a register.  return its value in peek_data.
 -- pass its register address in a.
--- ######## func peek -- = 0x0276
-    0276 : 07a0 ; -- <0316> b = $src_mask
-    0277 : 03ff ; -- <0316> "
-    0278 : c800 ; -- <0317> a = and
-    0279 : 0330 ; -- <0317> "
-    027a : 07a0 ; -- <0318> b = ([dest nop] << $dest_lsb)
-    027b : c800 ; -- <0318> "
-    027c : c800 ; -- <0319> force_opcode = or
-    027d : 3734 ; -- <0319> "
-    027e : 3e04 ; -- <0320> bus_ctrl = $divert_code_bus_mask
-    027f : 4201 ; -- <0321> tg_force = $hold_state_mask
-    0280 : 4203 ; -- <0322> tg_force = ($hold_state_mask | $force_load_exr_mask)
-    0281 : 4205 ; -- <0323> tg_force = ($hold_state_mask | $force_exec_mask)
-    0282 : 4201 ; -- <0324> tg_force = $hold_state_mask
+-- ######## func peek -- = 0x0284
+    0284 : 203e ; -- <0328> push rtna -- func peek
+    0285 : 07a0 ; -- <0330> b = $src_mask
+    0286 : 03ff ; -- <0330> "
+    0287 : c800 ; -- <0331> a = and
+    0288 : 0330 ; -- <0331> "
+    0289 : 07a0 ; -- <0332> b = ([dest nop] << $dest_lsb)
+    028a : c800 ; -- <0332> "
+    028b : c800 ; -- <0333> force_opcode = or
+    028c : 3734 ; -- <0333> "
+    028d : fba0 ; -- <0334> call :force_instruction
+    028e : 026d ; -- <0334> "
+    028f : fc00 ; -- <0334> "
 -- target's register value is now in peek_data.
--- refill target exr so it can resume seamlessly.
-    0283 : 3415 ; -- <0327> force_opcode = exr_shadow
-    0284 : 4203 ; -- <0328> tg_force = ($hold_state_mask | $force_load_exr_mask)
-    0285 : 4200 ; -- <0329> tg_force = 0
-    0286 : fc00 ; -- <0330> end_func
+    0290 : f808 ; -- <0336> pop rtna -- end_func
+    0291 : fc00 ; -- <0336> end_func
 
 -- show target status display.
--- ######## func dump_target -- = 0x0287
-    0287 : 2002 ; -- <0333> push i -- func dump_target
-    0288 : 2003 ; -- <0333> push j -- "
-    0289 : 2004 ; -- <0333> push x -- "
-    028a : 2005 ; -- <0333> push y -- "
-    028b : 203e ; -- <0333> push rtna -- "
-    028c : 020d ; -- <0334> a = 13 -- puteol
-    028d : fba0 ; -- <0334> puteol
-    028e : 0002 ; -- <0334> "
-    028f : fc00 ; -- <0334> "
-    0290 : 020a ; -- <0334> a = 10 -- puteol
-    0291 : fba0 ; -- <0334> puteol
-    0292 : 0002 ; -- <0334> "
-    0293 : fc00 ; -- <0334> "
-    0294 : 0a00 ; -- <0335> i = 0
--- :next_reg -- = 0x0295
--- fetch register name from table in target program.
--- i = register number.  x = 2-byte word index within each name string.
--- peek is skipped for any reg name starting with 2 slashes (good for read-sensitive regs).
-    0295 : 0220 ; -- <0340> a = 32 -- putasc " "
-    0296 : fba0 ; -- <0340> putasc " "
+-- ######## func dump_target -- = 0x0292
+    0292 : 2002 ; -- <0339> push i -- func dump_target
+    0293 : 2003 ; -- <0339> push j -- "
+    0294 : 203e ; -- <0339> push rtna -- "
+    0295 : 020d ; -- <0340> a = 13 -- puteol
+    0296 : fba0 ; -- <0340> puteol
     0297 : 0002 ; -- <0340> "
     0298 : fc00 ; -- <0340> "
-    0299 : 0220 ; -- <0341> a = 32 -- putasc " "
-    029a : fba0 ; -- <0341> putasc " "
-    029b : 0002 ; -- <0341> "
-    029c : fc00 ; -- <0341> "
-    029d : 1200 ; -- <0342> x = 0
-    029e : 1601 ; -- <0343> y = 1
--- :next_chars -- = 0x029f
-    029f : 0002 ; -- <0345> a = i
-    02a0 : 0351 ; -- <0346> a = a<<1
-    02a1 : 0351 ; -- <0347> a = a<<1
-    02a2 : 0603 ; -- <0348> b = 3
-    02a3 : c800 ; -- <0349> a = a+b
-    02a4 : 0300 ; -- <0349> "
-    02a5 : 0404 ; -- <0350> b = x
-    02a6 : c800 ; -- <0351> m9k_addr = a+b
-    02a7 : 4f00 ; -- <0351> "
-    02a8 : 0014 ; -- <0352> a = m9k_data
-    02a9 : 07a0 ; -- <0353> b = 0x2f2f
-    02aa : 2f2f ; -- <0353> "
-    02ab : e007 ; -- <0354> br eq :no_peek
-    02ac : 02d1 ; -- <0354> "
-    02ad : 0014 ; -- <0355> a = m9k_data -- putchar m9k_data
-    02ae : fba0 ; -- <0355> putchar m9k_data
-    02af : 0002 ; -- <0355> "
-    02b0 : fc00 ; -- <0355> "
-    02b1 : 0014 ; -- <0356> a = m9k_data
-    02b2 : 0353 ; -- <0357> a = a>>4
-    02b3 : 0353 ; -- <0358> a = a>>4
-    02b4 : fba0 ; -- <0359> putchar a
-    02b5 : 0002 ; -- <0359> "
-    02b6 : fc00 ; -- <0359> "
-    02b7 : c800 ; -- <0360> x = x+y
-    02b8 : 1320 ; -- <0360> "
-    02b9 : 0004 ; -- <0361> a = x
-    02ba : 0604 ; -- <0362> b = 4
-    02bb : e407 ; -- <0363> bn eq :next_chars
-    02bc : 029f ; -- <0363> "
-    02bd : 023d ; -- <0364> a = 61 -- putasc "="
-    02be : fba0 ; -- <0364> putasc "="
-    02bf : 0002 ; -- <0364> "
-    02c0 : fc00 ; -- <0364> "
-    02c1 : 0002 ; -- <0365> a = i
-    02c2 : fba0 ; -- <0366> call :peek
-    02c3 : 0276 ; -- <0366> "
-    02c4 : fc00 ; -- <0366> "
-    02c5 : 0017 ; -- <0367> a = peek_data
-    02c6 : fba0 ; -- <0368> call :put4x
-    02c7 : 005d ; -- <0368> "
-    02c8 : fc00 ; -- <0368> "
-    02c9 : 020d ; -- <0369> a = 13 -- puteol
-    02ca : fba0 ; -- <0369> puteol
-    02cb : 0002 ; -- <0369> "
-    02cc : fc00 ; -- <0369> "
-    02cd : 020a ; -- <0369> a = 10 -- puteol
-    02ce : fba0 ; -- <0369> puteol
-    02cf : 0002 ; -- <0369> "
-    02d0 : fc00 ; -- <0369> "
--- :no_peek -- = 0x02d1
-    02d1 : 0e01 ; -- <0371> j = 1
-    02d2 : c800 ; -- <0372> i = i+j
-    02d3 : 0b10 ; -- <0372> "
+    0299 : 020a ; -- <0340> a = 10 -- puteol
+    029a : fba0 ; -- <0340> puteol
+    029b : 0002 ; -- <0340> "
+    029c : fc00 ; -- <0340> "
+    029d : 0a00 ; -- <0341> i = 0
+    029e : 0e01 ; -- <0342> j = 1
+-- :next_reg -- = 0x029f
+-- fetch register name from table in target program.
+-- i = register number.
+-- peek is skipped for any reg name starting with 2 slashes (good for read-sensitive regs).
+    029f : 0002 ; -- <0347> a = i
+    02a0 : 0351 ; -- <0348> a = a<<1
+    02a1 : 0351 ; -- <0349> a = a<<1
+    02a2 : 0603 ; -- <0350> b = 3
+    02a3 : c800 ; -- <0351> a = a+b
+    02a4 : 0300 ; -- <0351> "
+    02a5 : 0404 ; -- <0352> b = x
+    02a6 : c800 ; -- <0353> m9k_addr = a+b
+    02a7 : 4f00 ; -- <0353> "
+    02a8 : 0014 ; -- <0354> a = m9k_data
+    02a9 : 07a0 ; -- <0355> b = 0x2f2f
+    02aa : 2f2f ; -- <0355> "
+    02ab : e007 ; -- <0356> br eq :no_peek
+    02ac : 02ce ; -- <0356> "
+    02ad : 0220 ; -- <0357> a = 32 -- putasc " "
+    02ae : fba0 ; -- <0357> putasc " "
+    02af : 0002 ; -- <0357> "
+    02b0 : fc00 ; -- <0357> "
+    02b1 : 0220 ; -- <0358> a = 32 -- putasc " "
+    02b2 : fba0 ; -- <0358> putasc " "
+    02b3 : 0002 ; -- <0358> "
+    02b4 : fc00 ; -- <0358> "
+    02b5 : 0013 ; -- <0359> a = m9k_addr
+    02b6 : 0608 ; -- <0360> b = 8
+    02b7 : fba0 ; -- <0361> call :print_fixed_target
+    02b8 : 02d9 ; -- <0361> "
+    02b9 : fc00 ; -- <0361> "
+    02ba : 023d ; -- <0362> a = 61 -- putasc "="
+    02bb : fba0 ; -- <0362> putasc "="
+    02bc : 0002 ; -- <0362> "
+    02bd : fc00 ; -- <0362> "
+    02be : 0002 ; -- <0363> a = i
+    02bf : fba0 ; -- <0364> call :peek
+    02c0 : 0284 ; -- <0364> "
+    02c1 : fc00 ; -- <0364> "
+    02c2 : 0017 ; -- <0365> a = peek_data
+    02c3 : fba0 ; -- <0366> call :put4x
+    02c4 : 005d ; -- <0366> "
+    02c5 : fc00 ; -- <0366> "
+    02c6 : 020d ; -- <0367> a = 13 -- puteol
+    02c7 : fba0 ; -- <0367> puteol
+    02c8 : 0002 ; -- <0367> "
+    02c9 : fc00 ; -- <0367> "
+    02ca : 020a ; -- <0367> a = 10 -- puteol
+    02cb : fba0 ; -- <0367> puteol
+    02cc : 0002 ; -- <0367> "
+    02cd : fc00 ; -- <0367> "
+-- :no_peek -- = 0x02ce
+    02ce : c800 ; -- <0369> i = i+j
+    02cf : 0b10 ; -- <0369> "
 -- loop up to the number of registers in the target program's register name table.
-    02d4 : 4e02 ; -- <0374> m9k_addr = 2
-    02d5 : 0414 ; -- <0375> b = m9k_data
-    02d6 : 0002 ; -- <0376> a = i
-    02d7 : e407 ; -- <0377> bn eq :next_reg
-    02d8 : 0295 ; -- <0377> "
-    02d9 : f808 ; -- <0378> pop rtna -- end_func
-    02da : 1408 ; -- <0378> pop y -- "
-    02db : 1008 ; -- <0378> pop x -- "
-    02dc : 0c08 ; -- <0378> pop j -- "
-    02dd : 0808 ; -- <0378> pop i -- "
-    02de : fc00 ; -- <0378> end_func
+    02d0 : 4e02 ; -- <0371> m9k_addr = 2
+    02d1 : 0414 ; -- <0372> b = m9k_data
+    02d2 : 0002 ; -- <0373> a = i
+    02d3 : e407 ; -- <0374> bn eq :next_reg
+    02d4 : 029f ; -- <0374> "
+    02d5 : f808 ; -- <0375> pop rtna -- end_func
+    02d6 : 0c08 ; -- <0375> pop j -- "
+    02d7 : 0808 ; -- <0375> pop i -- "
+    02d8 : fc00 ; -- <0375> end_func
+
+-- print a fixed-length string from packed words in TARGET program space.
+-- pass its word address (not its byte address) in a,  its length (bytes) in b.
+-- string must start on a word boundary.
+-- no newline or other delimiter is added automatically.
+-- ######## func print_fixed_target -- = 0x02d9
+    02d9 : 2002 ; -- <0381> push i -- func print_fixed_target
+    02da : 2003 ; -- <0381> push j -- "
+    02db : 2004 ; -- <0381> push x -- "
+    02dc : 2005 ; -- <0381> push y -- "
+    02dd : 2006 ; -- <0381> push g6 -- "
+    02de : 203e ; -- <0381> push rtna -- "
+    02df : 0800 ; -- <0382> i = a
+    02e0 : 0e01 ; -- <0383> j = 1
+    02e1 : 1001 ; -- <0384> x = b
+    02e2 : 1760 ; -- <0385> y = -1
+-- :next_word -- = 0x02e3
+    02e3 : e002 ; -- <0387> br xz :done
+    02e4 : 02f9 ; -- <0387> "
+    02e5 : 1320 ; -- <0388> x = ad2
+    02e6 : 4c02 ; -- <0389> m9k_addr = i
+    02e7 : 1814 ; -- <0390> g6 = m9k_data
+-- now x = bytes remaining, i = current word address, g6 = data word.
+    02e8 : 0006 ; -- <0392> a = g6 -- putchar g6
+    02e9 : fba0 ; -- <0392> putchar g6
+    02ea : 0002 ; -- <0392> "
+    02eb : fc00 ; -- <0392> "
+    02ec : e002 ; -- <0393> br xz :done
+    02ed : 02f9 ; -- <0393> "
+    02ee : 1320 ; -- <0394> x = ad2
+    02ef : 0006 ; -- <0395> a = g6
+    02f0 : 0353 ; -- <0396> a = a>>4
+    02f1 : 0353 ; -- <0397> a = a>>4
+    02f2 : fba0 ; -- <0398> putchar a
+    02f3 : 0002 ; -- <0398> "
+    02f4 : fc00 ; -- <0398> "
+    02f5 : c800 ; -- <0399> i = i+j
+    02f6 : 0b10 ; -- <0399> "
+    02f7 : e00f ; -- <0400> jmp :next_word
+    02f8 : 02e3 ; -- <0400> "
+-- :done -- = 0x02f9
+    02f9 : f808 ; -- <0402> pop rtna -- end_func
+    02fa : 1808 ; -- <0402> pop g6 -- "
+    02fb : 1408 ; -- <0402> pop y -- "
+    02fc : 1008 ; -- <0402> pop x -- "
+    02fd : 0c08 ; -- <0402> pop j -- "
+    02fe : 0808 ; -- <0402> pop i -- "
+    02ff : fc00 ; -- <0402> end_func
+
+-- ######## func load_program -- = 0x0300
+    0300 : 2002 ; -- <0404> push i -- func load_program
+    0301 : 2003 ; -- <0404> push j -- "
+    0302 : 2004 ; -- <0404> push x -- "
+    0303 : 203e ; -- <0404> push rtna -- "
+-- load target program from UART.
+
+-- length, little-endian.  memorize in x.
+    0304 : 020d ; -- <0408> a = 13 -- puteol
+    0305 : fba0 ; -- <0408> puteol
+    0306 : 0002 ; -- <0408> "
+    0307 : fc00 ; -- <0408> "
+    0308 : 020a ; -- <0408> a = 10 -- puteol
+    0309 : fba0 ; -- <0408> puteol
+    030a : 0002 ; -- <0408> "
+    030b : fc00 ; -- <0408> "
+    030c : 024c ; -- <0409> a = 76 -- putasc L
+    030d : fba0 ; -- <0409> putasc L
+    030e : 0002 ; -- <0409> "
+    030f : fc00 ; -- <0409> "
+    0310 : fba0 ; -- <0410> get16 x
+    0311 : 0011 ; -- <0410> "
+    0312 : fc00 ; -- <0410> "
+    0313 : 2000 ; -- <0410> push a -- "
+    0314 : fba0 ; -- <0410> "
+    0315 : 0011 ; -- <0410> "
+    0316 : fc00 ; -- <0410> "
+    0317 : 0352 ; -- <0410> "
+    0318 : 0352 ; -- <0410> "
+    0319 : 0408 ; -- <0410> pop b -- "
+    031a : c800 ; -- <0410> "
+    031b : 1334 ; -- <0410> "
+    031c : 0004 ; -- <0411> a = x
+    031d : fba0 ; -- <0412> call :put4x
+    031e : 005d ; -- <0412> "
+    031f : fc00 ; -- <0412> "
+    0320 : 020d ; -- <0413> a = 13 -- puteol
+    0321 : fba0 ; -- <0413> puteol
+    0322 : 0002 ; -- <0413> "
+    0323 : fc00 ; -- <0413> "
+    0324 : 020a ; -- <0413> a = 10 -- puteol
+    0325 : fba0 ; -- <0413> puteol
+    0326 : 0002 ; -- <0413> "
+    0327 : fc00 ; -- <0413> "
+
+-- put target into reset again, in case this is a target warm boot.
+    0328 : 3e02 ; -- <0416> bus_ctrl = $tg_reset_mask
+
+-- load opcodes.  count up address in i.
+    0329 : 0a00 ; -- <0419> i = 0
+    032a : 0e01 ; -- <0420> j = 1
+    032b : fba0 ; -- <0421> call :fletcher16_init
+    032c : 011b ; -- <0421> "
+    032d : fc00 ; -- <0421> "
+-- :loadword -- = 0x032e
+-- receive, store in RAM.
+    032e : fba0 ; -- <0424> get16 a
+    032f : 0011 ; -- <0424> "
+    0330 : fc00 ; -- <0424> "
+    0331 : 2000 ; -- <0424> push a -- "
+    0332 : fba0 ; -- <0424> "
+    0333 : 0011 ; -- <0424> "
+    0334 : fc00 ; -- <0424> "
+    0335 : 0352 ; -- <0424> "
+    0336 : 0352 ; -- <0424> "
+    0337 : 0408 ; -- <0424> pop b -- "
+    0338 : c800 ; -- <0424> "
+    0339 : 0334 ; -- <0424> "
+    033a : 4c02 ; -- <0425> m9k_addr = i
+    033b : 5000 ; -- <0426> m9k_data = a
+
+-- read back from RAM and build checksum.
+    033c : 0014 ; -- <0429> a = m9k_data
+    033d : fba0 ; -- <0430> call :fletcher16_input16
+    033e : 013a ; -- <0430> "
+    033f : fc00 ; -- <0430> "
+
+--  show decimated feedback text, for more speed:
+    0340 : 0002 ; -- <0433> a = i
+    0341 : 061f ; -- <0434> b = 0x1f
+    0342 : e403 ; -- <0435> bn and0z :skip_text
+    0343 : 0348 ; -- <0435> "
+    0344 : 022e ; -- <0436> a = 46 -- putasc "."
+    0345 : fba0 ; -- <0436> putasc "."
+    0346 : 0002 ; -- <0436> "
+    0347 : fc00 ; -- <0436> "
+-- :skip_text -- = 0x0348
+
+    0348 : c800 ; -- <0439> i = i+j
+    0349 : 0b10 ; -- <0439> "
+    034a : 0002 ; -- <0440> a = i
+    034b : 0404 ; -- <0441> b = x
+    034c : e407 ; -- <0442> bn eq :loadword
+    034d : 032e ; -- <0442> "
+    034e : 020d ; -- <0443> a = 13 -- puteol
+    034f : fba0 ; -- <0443> puteol
+    0350 : 0002 ; -- <0443> "
+    0351 : fc00 ; -- <0443> "
+    0352 : 020a ; -- <0443> a = 10 -- puteol
+    0353 : fba0 ; -- <0443> puteol
+    0354 : 0002 ; -- <0443> "
+    0355 : fc00 ; -- <0443> "
+    0356 : fba0 ; -- <0444> call :fletcher16_result
+    0357 : 014b ; -- <0444> "
+    0358 : fc00 ; -- <0444> "
+    0359 : fba0 ; -- <0445> call :put4x
+    035a : 005d ; -- <0445> "
+    035b : fc00 ; -- <0445> "
+    035c : 020d ; -- <0446> a = 13 -- puteol
+    035d : fba0 ; -- <0446> puteol
+    035e : 0002 ; -- <0446> "
+    035f : fc00 ; -- <0446> "
+    0360 : 020a ; -- <0446> a = 10 -- puteol
+    0361 : fba0 ; -- <0446> puteol
+    0362 : 0002 ; -- <0446> "
+    0363 : fc00 ; -- <0446> "
+    0364 : f808 ; -- <0447> pop rtna -- end_func
+    0365 : 1008 ; -- <0447> pop x -- "
+    0366 : 0c08 ; -- <0447> pop j -- "
+    0367 : 0808 ; -- <0447> pop i -- "
+    0368 : fc00 ; -- <0447> end_func
+
 
         
         END;
