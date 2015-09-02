@@ -358,19 +358,35 @@ usage_counter usage (
     ,.sample_enable        ( pulse1k )
 );      
 
-// fuel injection circuit.
+// ignition time capture.  synchronize signal, detect rising edge, copy up-counter to capture register then, and reset up-counter.
+wire ign_coil_wht_hi = ! ign_coil_wht_lo;
+wire ign_coil_sync;
+syncer ign_coil_syncer (sysclk, ign_coil_wht_hi, ign_coil_sync);
+reg last_ign_coil = 0;
+wire ignition_capture = ign_coil_sync && ! last_ign_coil;
+reg[`WORD_MSB:0] ign_capture_cnt = 0;
+always_ff @(posedge sysclk) begin
+    last_ign_coil <= ign_coil_sync;  
+    if (ignition_capture)
+        ign_capture_cnt <= 0;
+    else if (pulse50k)
+        ign_capture_cnt <= ign_capture_cnt + `WORD_WIDTH'd1;        
+end
+std_reg ign_capture_jf_reg(sysclk, sysreset, r[`SR_IGN_CAPTURE_JF], ign_capture_cnt, ignition_capture);
+wire ignition_capture_timeout = &ign_capture_cnt;
+
+// fuel injector driver.
 std_reg efi_len_reg(sysclk, sysreset, r[`DR_EFI_LEN_US], r_load_data, r_load[`DR_EFI_LEN_US]);
 std_reg ign_timeout_len_reg(sysclk, sysreset, r[`DR_IGN_TIMEOUT_LEN_20US], r_load_data, r_load[`DR_IGN_TIMEOUT_LEN_20US]);
 wire puff_event1;
 wire inj;
-assign injector1_open = dip_switch[0] ? inj : ign_coil_wht_lo;
-wire ign_coil_wht_hi = ! ign_coil_wht_lo;
+assign injector1_open = dip_switch[0] ? inj : ign_coil_sync;
 efi_timer efi1 (
      .sysclk                (sysclk)
     ,.sysreset              (sysreset)
     ,.pulse50k              (pulse50k)
     ,.pulse1m               (pulse1m)
-    ,.ign_coil              (ign_coil_wht_hi)
+    ,.ign_coil              (ign_coil_sync)
     ,.ign_timeout_len_20us  (r[`DR_IGN_TIMEOUT_LEN_20US])
     ,.efi_len_us            (r[`DR_EFI_LEN_US])
     ,.injector_open         (inj)
@@ -378,13 +394,12 @@ efi_timer efi1 (
     ,.efi_enable            (r[`DR_EFI_LEN_US] != 0)
     ,.leds      (LED)
 );
-wire ignition_captured = 0; //patch
 
 // event controller is listed last to utilize wires from all other parts.
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
 std_reg soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
 assign scope = r[`DR_SOFT_EVENT][14:13]; // copy soft_event_reg to o'scope pins for analysis.
-event_controller #(.NUM_INPUTS(19)) events( 
+event_controller #(.NUM_INPUTS(20)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset || r[`DR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])
     ,.priority_out      (r[`DR_EVENT_PRIORITY])
@@ -394,7 +409,8 @@ event_controller #(.NUM_INPUTS(19)) events(
         // MOST urgent events are listed FIRST.
         1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
         ,power_lost_sync
-        ,ignition_captured
+        ,ignition_capture
+        ,ignition_capture_timeout
         , ! puff_event1 // signal the END of an injector puff, so the pulse length can be adjusted for the next puff.
         ,ustimer0_expired
         , ! spi_busy // signal the END of a SPI transaction.

@@ -124,7 +124,7 @@
         // SETTING efi_len_us NON-ZERO ENABLES FUEL INJECTION!!  zero disables it.
         // MUST SET ign_timeout_len_20us NON-ZERO PRIOR TO ENABLING!
         // otherwise the module latches up in a non-working state.
-    alias_both ign_capture_jf       [incr counter]  "igntmcap"
+    alias_src  ign_capture_jf       [incr counter]  "igntmcap"
         
     // all ignition time vars are expressed in 20us "jiffies" or "jf".
     // 5000 RPM = about 140 jf between rising edges on chevy ignition white wire.
@@ -156,7 +156,7 @@
     setvar num_text_flag_pointers       8
     setvar tfp_mask                     ($num_text_flag_pointers - 1)
     ram_define ram_text_flag_pointers   ($num_text_flag_pointers * 2)
-    ram_define ram_next_tfp
+    ram_define ram_next_tfp_idx
     
     // error code constants.
     setvar err_rx_overflow              0xfffe
@@ -235,7 +235,8 @@
     :event_table    
     ([label :poll_events])
     ([label :power_lost_handler])
-    ([label :ign_captured_handler])
+    ([label :ign_capture_handler])
+    ([label :ign_capture_timeout_handler])
     ([label :puff1_done_handler])
     ([label :ustimer0_handler])
     ([label :spi_done_handler])
@@ -259,8 +260,8 @@
     "ESTP\x0"
     
 func set_engine_stopped
-    ram $ram_rpm_valid = 0
-    ram $ram_ign_history_idx = 0
+    call :clear_ign_history
+
     // for startup, look for RPM between 50 and 1160
     ram $ram_ign_fastest_jf = ([rpm_to_jf 1160])
     ram $ram_ign_slowest_jf = ([rpm_to_jf 50])    
@@ -279,13 +280,19 @@ end_func
     // :done    
 // end_func
     
-event ign_captured_handler
+event ign_capture_handler
     // discard outlier time.
-    a = ign_capture_jf
+    g6 = ign_capture_jf
     ram b = $ram_ign_fastest_jf
-    br lt :done
+    a = g6
+    br gt :fastest_ok
+        g6 = 0
+    :fastest_ok
     ram b = $ram_ign_slowest_jf
-    br gt :done
+    a = g6
+    br lt :slowest_ok
+        g6 = 0
+    :slowest_ok
     
     // increment buffer index and memorize time.
     ram a = $ram_ign_history_idx
@@ -293,12 +300,8 @@ event ign_captured_handler
     a = a+b
     b = $ign_history_idx_mask
     a = and    
-    bn az :no_wrap
-        // history buffer is full now.  average will be valid.
-        ram $ram_rpm_valid = 1
-    :no_wrap
     ram $ram_ign_history_idx = a
-    b = ign_capture_jf
+    b = g6
     struct_write $ram_ign_history_jf 
     
     // ////////// compute new jiffy estimate.
@@ -325,26 +328,69 @@ event ign_captured_handler
     // ram $ram_ign_oldest_avg_jf = a
     
     // average entire history.
-    // x = total, i = index = loop count
+    // x = total, i = index = loop count, g6 = count of invalid samples.
     x = 0
     i = $ign_history_len
     j = -1
+    g6 = 0
     :next_avg
-        a = i
-        struct_read $ram_ign_history_jf
-        a = b
-        y = a>>$ign_history_idx_bits
-        x = x+y
         i = i+j
+        a = i
+        struct_read $ram_ign_history_jf        
+        a = 0
+        bn eq :valid_sample
+            a = g6
+            b = 1
+            g6 = a+b
+            jmp :sample_done
+        :valid_sample
+            a = ($ign_history_len / 2)
+            a = a+b
+            y = a>>$ign_history_idx_bits
+            x = x+y
+        :sample_done
     bn iz :next_avg
     ram $ram_ign_avg_jf = x
+    //patch: dividing before summing (instead of after) is much simpler and faster because it prevents overflow.
+    // but it means we could be reading as much as 16 jf too low (16 = ign_history_len).
+    // that error is way less than 1 RPM on the slow end, 
+    // or about 1,000 RPM too fast on the fast end!
+    // might need to tighten that up.  one simple way might be adding ign_history_len / 2 to each history record prior to dividing.  
+    // that didn't seem to help much in simple testing.
     
-    // convert jiffies b to new RPM estimate.
-    a = x
-    call :jf_to_rpm
-    ram $ram_avg_rpm = a
+    a = g6
+    b = ($ign_history_len / 4)
+    br gt :partial_history
+        // convert jiffies b to new RPM estimate.
+        a = x
+        call :jf_to_rpm
+        ram $ram_avg_rpm = a
+        ram $ram_rpm_valid = 1
+        jmp :done    
+    :partial_history
+        ram $ram_rpm_valid = 0
     
     :done
+end_event
+
+func clear_ign_history
+    // invalidate the RPM estimate.
+    ram $ram_rpm_valid = 0
+    // the last known RPM estimate is retained here, not cleared.
+    // clear the history so it won't be valid again until several more valid samples are collected.
+    i = $ign_history_len
+    j = -1
+    :next
+        a = i
+        b = 0
+        struct_write $ram_ign_history_jf
+        i = i+j
+    bn iz :next
+end_func
+
+event ign_capture_timeout_handler
+    // it's been too long since the last ignition pulse detect.
+    call :clear_ign_history
 end_event
     
 event ustimer0_handler
@@ -482,7 +528,11 @@ func start_daq_pass
 
     a = :rpm_msg
     call :print_nt 
-    ram a = $ram_avg_rpm 
+    a = 0
+    ram x = $ram_rpm_valid
+    br xz :skip_rpm
+        ram a = $ram_avg_rpm 
+    :skip_rpm
     call :put4x
 
     a = :efi_len_msg
@@ -653,14 +703,14 @@ end_func
 
 func set_text_flag
     b = a
-    ram a = $ram_next_tfp
+    ram a = $ram_next_tfp_idx
     push a
     struct_write $ram_text_flag_pointers 
     pop a
     b = -1
     a = a+b
     b = $tfp_mask
-    ram $ram_next_tfp = and
+    ram $ram_next_tfp_idx = and
 end_func
 
 :text_flags_msg
