@@ -363,17 +363,20 @@ wire ign_coil_wht_hi = ! ign_coil_wht_lo;
 wire ign_coil_sync;
 syncer ign_coil_syncer (sysclk, ign_coil_wht_hi, ign_coil_sync);
 reg last_ign_coil = 0;
-wire ignition_capture = ign_coil_sync && ! last_ign_coil;
+wire ignition_edge = ign_coil_sync && ! last_ign_coil;
+wire ignition_capture = ignition_edge && (ign_capture_cnt > `WORD_WIDTH'd80);
+    // noise blanking occurs at 80 jf = 1.6 ms = 8750 RPM.
 reg[`WORD_MSB:0] ign_capture_cnt = 0;
+wire ignition_capture_timeout = ign_capture_cnt[`WORD_MSB];
+    // timeout occurs at 32768 jf = 0.65 seconds = about 22 RPM.
 always_ff @(posedge sysclk) begin
     last_ign_coil <= ign_coil_sync;  
-    if (ignition_capture)
+    if (ignition_capture || ignition_capture_timeout)
         ign_capture_cnt <= 0;
     else if (pulse50k)
         ign_capture_cnt <= ign_capture_cnt + `WORD_WIDTH'd1;        
 end
 std_reg ign_capture_jf_reg(sysclk, sysreset, r[`SR_IGN_CAPTURE_JF], ign_capture_cnt, ignition_capture);
-wire ignition_capture_timeout = &ign_capture_cnt;
 
 // fuel injector driver.
 std_reg efi_len_reg(sysclk, sysreset, r[`DR_EFI_LEN_US], r_load_data, r_load[`DR_EFI_LEN_US]);
