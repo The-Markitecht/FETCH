@@ -173,6 +173,7 @@
     include ../peripheral/driver/event_controller.asm
     include ../peripheral/driver/fduart.asm
     include ../peripheral/driver/anmux.asm
+    include lib/struct.asm
     include lib/console.asm
     include lib/math.asm
     include lib/string.asm
@@ -297,7 +298,8 @@ event ign_captured_handler
         ram $ram_rpm_valid = 1
     :no_wrap
     ram $ram_ign_history_idx = a
-    struct_write $ram_ign_history_jf a = ign_capture_jf
+    b = ign_capture_jf
+    struct_write $ram_ign_history_jf 
     
     // ////////// compute new jiffy estimate.
     
@@ -323,20 +325,22 @@ event ign_captured_handler
     // ram $ram_ign_oldest_avg_jf = a
     
     // average entire history.
-    // b = total, i = index = loop count
-    b = 0
+    // x = total, i = index = loop count
+    x = 0
     i = $ign_history_len
     j = -1
     :next_avg
-        struct_read a = $ram_ign_history_jf i
-        a = a>>$ign_history_idx_bits
-        b = a+b
+        a = i
+        struct_read $ram_ign_history_jf
+        a = b
+        y = a>>$ign_history_idx_bits
+        x = x+y
         i = i+j
     bn iz :next_avg
-    ram $ram_ign_avg_jf = b
+    ram $ram_ign_avg_jf = x
     
     // convert jiffies b to new RPM estimate.
-    a = b
+    a = x
     call :jf_to_rpm
     ram $ram_avg_rpm = a
     
@@ -648,24 +652,36 @@ func ftdi_power_on
 end_func
 
 func set_text_flag
-    ram b = $ram_next_tfp
-    struct_write $ram_text_flag_pointers  b  =  a
-    a = -1
-    b = a+b
-    a = $tfp_mask
+    b = a
+    ram a = $ram_next_tfp
+    push a
+    struct_write $ram_text_flag_pointers 
+    pop a
+    b = -1
+    a = a+b
+    b = $tfp_mask
     ram $ram_next_tfp = and
 end_func
 
+:text_flags_msg
+    " tf=\x0"
+
 func report_text_flags
+    a = :text_flags_msg
+    call :print_nt
     i = $num_text_flag_pointers
     j = -1
     :next_ptr
         i = i+j
-        struct_read a = $ram_text_flag_pointers  i
+        a = i        
+        struct_read $ram_text_flag_pointers
+        a = b
         br az :skip
             call :print_nt
             putasc ","
-            struct_write $ram_text_flag_pointers  i  =  0
+            a = i
+            b = 0
+            struct_write $ram_text_flag_pointers 
         :skip        
     bn iz :next_ptr
 end_func
