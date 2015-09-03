@@ -52,18 +52,18 @@ reg en = 0;
 reg[15:0] len = 0;
 reg[15:0] timeout_len = 0;
 // fuel injection circuit.
-wire puff_event1;
-efi_timer efi1 (
+wire puff1_event;
+puff_timer puff1 (
      .sysclk                (sysclk)
     ,.sysreset              (sysreset)
     ,.pulse50k              (pulse50k)
     ,.pulse1m               (pulse1m)
     ,.ign_coil              (ign_coil_wht)
-    ,.ign_timeout_len_20us  (timeout_len)
-    ,.efi_len_us            (len)
+    ,.ign_timeout_len_jf  (timeout_len)
+    ,.puff_len_us            (len)
     ,.injector_open         (injector1_open)
-    ,.puff_event            (puff_event1)
-    ,.efi_enable            (en)
+    ,.puff_event            (puff1_event)
+    ,.puff_enable            (en)
 );
    
 initial	begin

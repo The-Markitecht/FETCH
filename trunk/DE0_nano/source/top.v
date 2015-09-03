@@ -333,6 +333,16 @@ cdtimer16 mstimer1 (
     ,.counter_event   ( pulse1k )
     ,.expired         ( mstimer1_expired )
 );
+wire mstimer2_expired;
+cdtimer16 mstimer2 (
+     .sysclk          ( sysclk )  
+    ,.sysreset        ( sysreset )  
+    ,.data_out        ( r[`DR_MSTIMER2] )
+    ,.data_in         ( r_load_data )  
+    ,.load            ( r_load[`DR_MSTIMER2] )
+    ,.counter_event   ( pulse1k )
+    ,.expired         ( mstimer2_expired )
+);
 
 // PWM generator to drive the computer's main power relay.  counts microseconds.  count 50 = 20 KHz.
 wire[5:0] power_duty;
@@ -379,22 +389,22 @@ end
 std_reg ign_capture_jf_reg(sysclk, sysreset, r[`SR_IGN_CAPTURE_JF], ign_capture_cnt, ignition_capture);
 
 // fuel injector driver.
-std_reg efi_len_reg(sysclk, sysreset, r[`DR_EFI_LEN_US], r_load_data, r_load[`DR_EFI_LEN_US]);
-std_reg ign_timeout_len_reg(sysclk, sysreset, r[`DR_IGN_TIMEOUT_LEN_20US], r_load_data, r_load[`DR_IGN_TIMEOUT_LEN_20US]);
-wire puff_event1;
+std_reg puff_len_reg(sysclk, sysreset, r[`DR_PUFF_LEN_US], r_load_data, r_load[`DR_PUFF_LEN_US]);
+std_reg ign_timeout_len_reg(sysclk, sysreset, r[`DR_IGN_TIMEOUT_LEN_JF], r_load_data, r_load[`DR_IGN_TIMEOUT_LEN_JF]);
+wire puff1_event;
 wire inj;
 assign injector1_open = dip_switch[0] ? inj : ign_coil_sync;
-efi_timer efi1 (
+puff_timer puff1 (
      .sysclk                (sysclk)
     ,.sysreset              (sysreset)
     ,.pulse50k              (pulse50k)
     ,.pulse1m               (pulse1m)
     ,.ign_coil              (ign_coil_sync)
-    ,.ign_timeout_len_20us  (r[`DR_IGN_TIMEOUT_LEN_20US])
-    ,.efi_len_us            (r[`DR_EFI_LEN_US])
+    ,.ign_timeout_len_jf  (r[`DR_IGN_TIMEOUT_LEN_JF])
+    ,.puff_len_us            (r[`DR_PUFF_LEN_US])
     ,.injector_open         (inj)
-    ,.puff_event            (puff_event1)
-    ,.efi_enable            (r[`DR_EFI_LEN_US] != 0)
+    ,.puff_event            (puff1_event)
+    ,.puff_enable            (r[`DR_PUFF_LEN_US] != 0)
     ,.leds      (LED)
 );
 
@@ -402,7 +412,7 @@ efi_timer efi1 (
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
 std_reg soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
 assign scope = r[`DR_SOFT_EVENT][14:13]; // copy soft_event_reg to o'scope pins for analysis.
-event_controller #(.NUM_INPUTS(20)) events( 
+event_controller #(.NUM_INPUTS(21)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset || r[`DR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])
     ,.priority_out      (r[`DR_EVENT_PRIORITY])
@@ -414,11 +424,12 @@ event_controller #(.NUM_INPUTS(20)) events(
         ,power_lost_sync
         ,ignition_capture
         ,ignition_capture_timeout
-        , ! puff_event1 // signal the END of an injector puff, so the pulse length can be adjusted for the next puff.
+        , ! puff1_event // signal the END of an injector puff, so the pulse length can be adjusted for the next puff.
         ,ustimer0_expired
         , ! spi_busy // signal the END of a SPI transaction.
         ,mstimer0_expired
         ,mstimer1_expired
+        ,mstimer2_expired
         , ! r[`DR_FDUART_STATUS][`ARX_FIFO_EMPTY_BIT]
         , r[`DR_FDUART_STATUS][`ARX_FIFO_FULL_BIT]
         , r[`DR_FDUART_STATUS][`ATX_FIFO_FULL_BIT]

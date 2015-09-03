@@ -98,11 +98,14 @@
     alias_both anmux_ctrl           [incr counter]  "anmux"
         vdefine     anmux_enable_mask       0x0008
         vdefine     anmux_channel_mask      0x0007
+        setvar      anmux_num_channels      8
         setvar      anmux_adc_channel       7
         setvar      anmux_settle_ms         5
         setvar      anmux_num_discards      2
         ram_define  ram_daq_pass_cnt        
         ram_define  ram_daq_discard_cnt     
+        ram_define  ram_last_anmux_data     (anmux_num_channels * 2)
+        setvar      anmux_engine_block_temp 2
     
     alias_both power_duty           [incr counter]  "pwr_duty"
         // power relay duty cycles, in microseconds.  duty cycle time = relay OFF time.
@@ -137,20 +140,16 @@
     setvar err_rx_overflow              0xfffe
     setvar err_tx_overflow              0xfffd
     setvar err_power_down               0xfffc
-    setvar err_power_lost_at_boot       0xfffb
+    setvar err_power_lost_at_boot       0xfffb    
     
-    alias_both efi_len_us           [incr counter]  "efilenus"        
-    alias_both ign_timeout_len_20us [incr counter]  "igntmout"
-        // SETTING efi_len_us NON-ZERO ENABLES FUEL INJECTION!!  zero disables it.
-        // MUST SET ign_timeout_len_20us NON-ZERO PRIOR TO ENABLING!
-        // otherwise the module latches up in a non-working state.
-    alias_src  ign_capture_jf       [incr counter]  "igntmcap"
-        
-    // all ignition time vars are expressed in 20us "jiffies" or "jf".
+    // ignition time capture.        
+    // all ignition time vars are expressed in jf "jiffies" or "jf".
     // 5000 RPM = about 140 jf between rising edges on chevy ignition white wire.
     // 1000 RPM = about 700 jf 
     //  100 RPM = about 7000 jf
     //   22 RPM = about 32000 jf, the slowest figure that's safe for the divide routine.
+    alias_src  ign_capture_jf       [incr counter]  "igntmcap"
+    alias_both ign_timeout_len_jf   [incr counter]  "igntmout"
     setvar ign_history_idx_bits     4
     setvar ign_history_len          (1 << $ign_history_idx_bits)
     setvar ign_history_idx_mask     ($ign_history_len - 1)
@@ -163,9 +162,35 @@
     ram_define ram_ign_avg_jf
     ram_define ram_avg_rpm
     ram_define ram_rpm_valid
+    ram_define ram_ign_bad_samples
     ram_define ram_ign_fastest_jf
     ram_define ram_ign_slowest_jf
 
+    // fuel injection puff driver.
+    alias_both puff_len_us          [incr counter]  "puflenus"            
+        // SETTING puff_len_us NON-ZERO ENABLES FUEL INJECTION!!  zero disables it.
+        // MUST SET ign_timeout_len_jf NON-ZERO PRIOR TO ENABLING!
+        // otherwise the module latches up in a non-working state.
+    ram_define ram_next_puff_len_us
+    
+    // engine state management.  each engine state is called a "plan".    
+    ram_define ram_plan_name
+    ram_define ram_puff_len_func
+    ram_define ram_transition_func
+    ram_define ram_destroy_plan_func
+    setvar plan_tick_ms                 20
+    ram_define ram_next_puff_len_us
+    ram_define ram_puff_count
+    setvar crank_success_rpm            600
+    setvar crank_min_puff_len_us        5000
+    setvar crank_max_puff_len_us        20000
+    setvar crank_incr_us_per_puff       375
+        // escalating puff length by 375 us per puff while cranking slowly at e.g. 80 RPM
+        // on a frozen winter morning will ramp up from 5000 to 20000 us length in about 7 seconds.
+    setvar crank_max_puffs              (($crank_max_puff_len_us - $crank_min_puff_len_us) / $crank_incr_us_per_puff)
+    setvar warmup_success_temp_adc      0x4c0
+        // 0x4c0 = 1216 = 120 degF at the sensor location outside the engine block.
+    
     emit_debugger_register_table  counter
     
     // string resources
@@ -210,9 +235,6 @@
             // :plan_name_run
                 // "RN\x0"
         
-    ram_define ram_plan_name
-    ram_define ram_puff_len_func
-    ram_define ram_transition_func
 
     // libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
     convention_gpx
@@ -243,15 +265,11 @@
         av_write_data = 0
         a = ad0
     bn az :clear_next_word
-
-    // init RAM variables.
-    ram $ram_power_down_at_min = $power_down_never
-    ram $ram_relay_hold_at_pass = $relay_hold_passes
     
     // init fuel injection.
-    ign_timeout_len_20us = 0xfffc
-    efi_len_us = 3000
-    call :set_engine_stopped
+    ign_timeout_len_jf = 0xfffc
+    puff_len_us = 3000
+    call :init_plan_stop    
     
     // power up FTDI USB board, and init any other special board control functions.
     board_ctrl = $ftdi_power_mask
@@ -269,11 +287,14 @@
         power_duty = $power_duty_opening
         error_halt_code $err_power_lost_at_boot    
     :skip_power_lost
+    ram $ram_power_down_at_min = $power_down_never
+    ram $ram_relay_hold_at_pass = $relay_hold_passes
     
     // start handling events.
     soft_event = $event_controller_reset_mask
     soft_event = 0
     mstimer0 = 1000
+    mstimer2 = $plan_tick_ms
     jmp :poll_events
         
     // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.  
@@ -288,6 +309,7 @@
     ([label :spi_done_handler])
     ([label :mstimer0_handler])
     ([label :mstimer1_handler])
+    ([label :mstimer2_handler])
     ([label :uart_rx_handler])
     ([label :uart_rx_overflow_handler])
     ([label :uart_tx_overflow_handler])
@@ -301,65 +323,6 @@
     ([label :softevent0_handler])
     
     // #########################################################################
-
-:plan_name_crank
-    "CR\x0"
-:plan_name_warmup
-    "WM\x0"
-:plan_name_run
-    "RN\x0"
-
-func plan_stop_to_crank
-    // tear down the stop plan.
-    // nothing to do here.
-    
-    // set up the crank plan.
-    // nothing to do here.
-    
-    // memorize state.
-    ram $ram_plan = $plan_crank    
-    ram $ram_plan_name = ([label :plan_name_crank])
-    ram $ram_puff_len_func = ([label :crank_puff_len])
-    ram $ram_transition_func = ([label :crank_transition])
-end_func
-    
-func plan_crank_to_warmup
-    // tear down the crank plan.
-    // nothing to do here.
-    
-    // set up the warmup plan.
-    // nothing to do here.
-    
-    // memorize state.
-    ram $ram_plan = $plan_warmup   
-end_func
-    
-func plan_warmup_to_run
-    // tear down the warmup plan.
-    // nothing to do here.
-    
-    // set up the run plan.
-    // nothing to do here.
-    
-    // memorize state.
-    ram $ram_plan = $plan_run    
-end_func
-    
-func plan_run_to_stop
-    // tear down the run plan.
-    call :clear_ign_history
-
-end_func
-    
-// func wrap_history_idx
-    // :again
-        // b = $ign_history_len
-        // br lt :done
-        // b = ([negate $ign_history_len])
-        // a = a+b
-    // jmp :again
-    // :done    
-// end_func
     
 event ign_capture_handler
     // discard outlier time.
@@ -439,6 +402,7 @@ event ign_capture_handler
     // might need to tighten that up.  one simple way might be adding ign_history_len / 2 to each history record prior to dividing.  
     // that didn't seem to help much in simple testing.
     
+    ram $ram_ign_bad_samples = g6
     a = g6
     b = ($ign_history_len / 4)
     br gt :partial_history
@@ -459,6 +423,7 @@ func clear_ign_history
     ram $ram_rpm_valid = 0
     // the last known RPM estimate is retained here, not cleared.
     // clear the history so it won't be valid again until several more valid samples are collected.
+    ram $ram_ign_bad_samples = $ign_history_len
     i = $ign_history_len
     j = -1
     :next
@@ -492,7 +457,12 @@ event spi_done_handler
     :report
     a = spi_data
     call :put4x 
-
+    
+    // memorize ADC reading.
+    call :anmux_get_chn
+    b = spi_data
+    struct_write $ram_last_anmux_data
+    
     // decrement anmux channel & start waiting again.
     call :anmux_get_chn
     br az :all_done
@@ -550,6 +520,21 @@ event mstimer1_handler
     call :begin_adc_conversion
 end_event
     
+event mstimer2_handler    
+    // restart timer
+    mstimer2 = $plan_tick_ms
+    
+    // poll the engine management plan.
+    // call the transition function for the current plan.
+    // this might perform a transition to some other plan, so it's done first.
+    ram rtna = $ram_transition_func
+    call_indirect
+    // call the puff length function for the current plan.
+    // this is done last, so if a plan transition just happened, its new puff length will init here.
+    ram rtna = $ram_puff_len_func
+    call_indirect
+end_event
+    
 event uart_rx_handler
     :again
         pollchar
@@ -596,7 +581,7 @@ end_event
 :rpm_msg
     ": rpm=\x0"
 
-:efi_len_msg
+:puff_len_msg
     " efi=\x0"
     
 func start_daq_pass
@@ -617,13 +602,13 @@ func start_daq_pass
     :skip_rpm
     call :put4x
 
-    a = :efi_len_msg
+    a = :puff_len_msg
     call :print_nt 
-    a = efi_len_us
+    a = puff_len_us
     call :put4x
     
     // start to acquire & report all anmux channels.
-    a = 7
+    a = ($anmux_num_channels - 1)
     call :anmux_set_chn
     mstimer1 = $anmux_settle_ms
     
@@ -685,14 +670,23 @@ event ign_switch_on_handler
 end_event
 
 event puff1_done_handler
-    ram a = $ram_dial_setting
-    a = a<<1
-    a = a<<1
-    a = a<<1
-    bn az :nonzero
-        a = 1
-    :nonzero
-    efi_len_us = a
+    // puff just finished.  set length of next puff.
+    ram puff_len_us = $ram_next_puff_len_us
+
+    // count puffs.
+    ram a = $ram_puff_count
+    b = 1
+    ram $ram_puff_count = a+b
+    
+    // hack to set puff length strictly by a hard-wired knob.
+    // ram a = $ram_dial_setting
+    // a = a<<1
+    // a = a<<1
+    // a = a<<1
+    // bn az :nonzero
+        // a = 1
+    // :nonzero
+    // puff_len_us = a
 end_event
 
 func minute_events
@@ -839,3 +833,24 @@ func jf_to_rpm
     a = a<<4
     a = a<<1
 end_func
+
+func check_engine_stop
+    // returns a=1 if transitioned to stop, else a=0.
+
+    // transition to plan_stop if ignition switch is turned off AND rpm estimate is invalid.
+    // requiring both conditions prevents spurious noise readings from shutting down the injection.
+    a = power_duty
+    b = $ign_switch_off_mask
+    br and0z :stay
+        ram a = $ram_rpm_valid
+        bn az :stay
+            ram rtna = $ram_destroy_plan_func
+            call_indirect
+            call :init_plan_stop
+            a = 1
+            jmp :done
+    :stay
+    a = 0
+    :done
+end_func
+

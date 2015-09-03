@@ -72,11 +72,11 @@
 // relay actually remains energized for about another 5 us after pwm goes high,
 // due to the optocoupler pullup taking some time to climb through the MOSFET's threshold.
 
-// SETTING efi_len_us NON-ZERO ENABLES FUEL INJECTION!!  zero disables it.
-// MUST SET ign_timeout_len_20us NON-ZERO PRIOR TO ENABLING!
+// SETTING puff_len_us NON-ZERO ENABLES FUEL INJECTION!!  zero disables it.
+// MUST SET ign_timeout_len_jf NON-ZERO PRIOR TO ENABLING!
 // otherwise the module latches up in a non-working state.
 
-// all ignition time vars are expressed in 20us "jiffies" or "jf".
+// all ignition time vars are expressed in jf "jiffies" or "jf".
 // 5000 RPM = about 140 jf between rising edges on chevy ignition white wire.
 // 1000 RPM = about 700 jf
 //  100 RPM = about 7000 jf
@@ -861,9 +861,9 @@ addr == 16'h21a ? 16'h4e0a :  // <0203> ram $ram_relay_hold_at_pass = $relay_hol
 addr == 16'h21b ? 16'h4202 :  // <0203> ram $ram_relay_hold_at_pass = $relay_hold_passes // av_write_data = 2
 
 // init fuel injection.
-addr == 16'h21c ? 16'h6fa0 :  // <0206> ign_timeout_len_20us = 0xfffc
+addr == 16'h21c ? 16'h6fa0 :  // <0206> ign_timeout_len_jf = 0xfffc
 addr == 16'h21d ? 16'hfffc :  // <0206> "
-addr == 16'h21e ? 16'h6ba0 :  // <0207> efi_len_us = 3000
+addr == 16'h21e ? 16'h6ba0 :  // <0207> puff_len_us = 3000
 addr == 16'h21f ? 16'h0bb8 :  // <0207> "
 addr == 16'h220 ? 16'hfba0 :  // <0208> call :set_engine_stopped
 addr == 16'h221 ? 16'h024f :  // <0208> "
@@ -1384,7 +1384,7 @@ addr == 16'h390 ? 16'h7072 :  // <0515> pr
 addr == 16'h391 ? 16'h3d6d :  // <0515> =m
 addr == 16'h392 ? 16'h0000 :  // <0515>   
 
-// :efi_len_msg // = 0x0393
+// :puff_len_msg // = 0x0393
 // " efi=\x0"
 addr == 16'h393 ? 16'h6520 :  // <0518> e 
 addr == 16'h394 ? 16'h6966 :  // <0518> if
@@ -1430,12 +1430,12 @@ addr == 16'h3b6 ? 16'hfba0 :  // <0536> call :put4x
 addr == 16'h3b7 ? 16'h00ac :  // <0536> "
 addr == 16'h3b8 ? 16'hfc00 :  // <0536> "
 
-addr == 16'h3b9 ? 16'h03a0 :  // <0538> a = :efi_len_msg
+addr == 16'h3b9 ? 16'h03a0 :  // <0538> a = :puff_len_msg
 addr == 16'h3ba ? 16'h0393 :  // <0538> "
 addr == 16'h3bb ? 16'hfba0 :  // <0539> call :print_nt
 addr == 16'h3bc ? 16'h0138 :  // <0539> "
 addr == 16'h3bd ? 16'hfc00 :  // <0539> "
-addr == 16'h3be ? 16'h001a :  // <0540> a = efi_len_us
+addr == 16'h3be ? 16'h001a :  // <0540> a = puff_len_us
 addr == 16'h3bf ? 16'hfba0 :  // <0541> call :put4x
 addr == 16'h3c0 ? 16'h00ac :  // <0541> "
 addr == 16'h3c1 ? 16'hfc00 :  // <0541> "
@@ -1549,7 +1549,7 @@ addr == 16'h407 ? 16'he400 :  // <0610> bn az :nonzero
 addr == 16'h408 ? 16'h040a :  // <0610> "
 addr == 16'h409 ? 16'h0201 :  // <0611> a = 1
 // :nonzero // = 0x040a
-addr == 16'h40a ? 16'h6800 :  // <0613> efi_len_us = a
+addr == 16'h40a ? 16'h6800 :  // <0613> puff_len_us = a
 addr == 16'h40b ? 16'he00f :  // <0614> end_event
 addr == 16'h40c ? 16'h0077 :  // <0614> "
 

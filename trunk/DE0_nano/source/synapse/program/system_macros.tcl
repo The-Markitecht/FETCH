@@ -98,15 +98,24 @@ namespace eval ::asm {
 
     # subroutine macros.
     proc call {lin label} {
-        uses_reg rtna
-        emit_word [pack [dest rtna] [src _imm16_]] $lin
-        emit_word [label $label] \"
-        emit_word [pack [dest swapra] [src nop]] \"
+        parse "
+            uses_reg rtna
+            rtna = [label $label]
+            swapra = nop
+        "
     }
 
+    proc call_indirect {lin label} {
+        # call the func whose address is already in rtna register.
+        parse {
+            uses_reg rtna
+            swapra = nop
+        }        
+    }
+    
     proc rtn {lin} {
         auto_pop $lin
-        emit_word [pack [dest swapra] [src nop]] $lin
+        parse {swapra = nop}
     }
 
     proc func {lin label} {
