@@ -1,6 +1,8 @@
 // #########################################################################
 // assembly source code.    
 
+    jmp :main
+
     declare_system_dimensions
     
     // register file configuration.
@@ -119,6 +121,24 @@
         ram_define ram_relay_hold_at_pass       
             setvar relay_hold_passes            2
 
+    // realtime counting.
+    ram_define ram_minutes_cnt              
+    ram_define ram_seconds_cnt              
+    ram_define ram_mcu_usage_cnt             
+    ram_define ram_dial_setting              
+
+    // text flag reporting.
+    setvar num_text_flag_pointers       8
+    setvar tfp_mask                     ($num_text_flag_pointers - 1)
+    ram_define ram_text_flag_pointers   ($num_text_flag_pointers * 2)
+    ram_define ram_next_tfp_idx
+    
+    // error code constants.
+    setvar err_rx_overflow              0xfffe
+    setvar err_tx_overflow              0xfffd
+    setvar err_power_down               0xfffc
+    setvar err_power_lost_at_boot       0xfffb
+    
     alias_both efi_len_us           [incr counter]  "efilenus"        
     alias_both ign_timeout_len_20us [incr counter]  "igntmout"
         // SETTING efi_len_us NON-ZERO ENABLES FUEL INJECTION!!  zero disables it.
@@ -146,28 +166,54 @@
     ram_define ram_ign_fastest_jf
     ram_define ram_ign_slowest_jf
 
-    // realtime counting.
-    ram_define ram_minutes_cnt              
-    ram_define ram_seconds_cnt              
-    ram_define ram_mcu_usage_cnt             
-    ram_define ram_dial_setting              
-
-    // text flag reporting.
-    setvar num_text_flag_pointers       8
-    setvar tfp_mask                     ($num_text_flag_pointers - 1)
-    ram_define ram_text_flag_pointers   ($num_text_flag_pointers * 2)
-    ram_define ram_next_tfp_idx
-    
-    // error code constants.
-    setvar err_rx_overflow              0xfffe
-    setvar err_tx_overflow              0xfffd
-    setvar err_power_down               0xfffc
-    setvar err_power_lost_at_boot       0xfffb
-    
-    jmp :main
-    
     emit_debugger_register_table  counter
     
+    // string resources
+    :boot_msg
+        "TGT\r\n\x0"
+    
+    // engine state management.  each engine state is called a "plan".
+    // ram_define ram_plan
+        // ram_plan should be a pointer to a plan structure instead of an enum.
+        // setvar plan_stop        0
+        // setvar plan_crank       1
+        // setvar plan_warmup      2
+        // setvar plan_run         3
+    // plan definitions
+    // :plans
+        // ([label :plan_stop])
+        // ([label :plan_crank])
+        // ([label :plan_warmup])
+        // ([label :plan_run])
+        // :plan_stop
+            // ([label :plan_name_stop])
+            // ([label :puff_len_stop])
+            // ([label :leave_stop])
+            // :plan_name_stop
+                // "STP\x0"
+        // :plan_crank
+            // ([label :plan_name_crank])
+            // ([label :puff_len_crank])
+            // ([label :leave_crank])
+            // :plan_name_crank
+                // "CR\x0"
+        // :plan_warmup
+            // ([label :plan_name_warmup])
+            // ([label :puff_len_warmup])
+            // ([label :leave_warmup])
+            // :plan_name_warmup
+                // "WM\x0"
+        // :plan_run
+            // ([label :plan_name_run])
+            // ([label :crank_puff_run])
+            // ([label :leave_run])
+            // :plan_name_run
+                // "RN\x0"
+        
+    ram_define ram_plan_name
+    ram_define ram_puff_len_func
+    ram_define ram_transition_func
+
     // libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
     convention_gpx
     include ../peripheral/driver/event_controller.asm
@@ -178,10 +224,10 @@
     include lib/math.asm
     include lib/string.asm
     include lib/time.asm
-
-    // string resources
-    :boot_msg
-        "TGT\r\n\x0"
+    include plan_stop.asm
+    include plan_crank.asm
+    include plan_warmup.asm
+    include plan_run.asm
         
     // #########################################################################
     :main  
@@ -256,20 +302,55 @@
     
     // #########################################################################
 
-:engine_stopped_msg
-    "ESTP\x0"
+:plan_name_crank
+    "CR\x0"
+:plan_name_warmup
+    "WM\x0"
+:plan_name_run
+    "RN\x0"
+
+func plan_stop_to_crank
+    // tear down the stop plan.
+    // nothing to do here.
     
-func set_engine_stopped
+    // set up the crank plan.
+    // nothing to do here.
+    
+    // memorize state.
+    ram $ram_plan = $plan_crank    
+    ram $ram_plan_name = ([label :plan_name_crank])
+    ram $ram_puff_len_func = ([label :crank_puff_len])
+    ram $ram_transition_func = ([label :crank_transition])
+end_func
+    
+func plan_crank_to_warmup
+    // tear down the crank plan.
+    // nothing to do here.
+    
+    // set up the warmup plan.
+    // nothing to do here.
+    
+    // memorize state.
+    ram $ram_plan = $plan_warmup   
+end_func
+    
+func plan_warmup_to_run
+    // tear down the warmup plan.
+    // nothing to do here.
+    
+    // set up the run plan.
+    // nothing to do here.
+    
+    // memorize state.
+    ram $ram_plan = $plan_run    
+end_func
+    
+func plan_run_to_stop
+    // tear down the run plan.
     call :clear_ign_history
 
-    // for startup, look for RPM between 50 and 1160
-    ram $ram_ign_fastest_jf = ([rpm_to_jf 1160])
-    ram $ram_ign_slowest_jf = ([rpm_to_jf 50])    
+end_func
     
-    a = :engine_stopped_msg
-    call :set_text_flag    
-end_func    
-
 // func wrap_history_idx
     // :again
         // b = $ign_history_len
@@ -423,6 +504,7 @@ event spi_done_handler
     
     // end of daq pass.
     :all_done
+    call :report_plan
     call :report_text_flags
     puteol   
     ram $ram_dial_setting = spi_data
@@ -734,6 +816,16 @@ func report_text_flags
             struct_write $ram_text_flag_pointers 
         :skip        
     bn iz :next_ptr
+end_func
+    
+:plan_msg
+    " pl=\x0"
+
+func report_plan
+    a = :plan_msg
+    call :print_nt
+    ram a = $ram_plan_name
+    call :print_nt
 end_func
     
 func jf_to_rpm
