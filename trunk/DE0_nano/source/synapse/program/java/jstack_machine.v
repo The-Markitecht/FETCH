@@ -183,4 +183,14 @@ std_reg #(.WIDTH(`JSTACK_ADDR_WIDTH)) jframe_reg(sysclk, sysreset, r[`DR_JFRAME]
     
 // operators using jop0 thru jop3.
     
+// demo bytecodes
+iadd {
+    jpopwr = jadd
+}    
+
+iload {
+    jfinc = [next]
+    
+}
+    
 endmodule
