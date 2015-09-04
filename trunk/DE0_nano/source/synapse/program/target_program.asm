@@ -27,6 +27,8 @@
         // throttle for each pass of data acquisition.
     alias_both mstimer1             [incr counter]  "mstimer1"
         // delay for anmux settling.
+    alias_both mstimer2             [incr counter]  "mstimer2"
+        // engine plan tick timer.
                 
     alias_both spi_data             [incr counter]  "spi_data"
     
@@ -104,7 +106,7 @@
         setvar      anmux_num_discards      2
         ram_define  ram_daq_pass_cnt        
         ram_define  ram_daq_discard_cnt     
-        ram_define  ram_last_anmux_data     (anmux_num_channels * 2)
+        ram_define  ram_last_anmux_data     ($anmux_num_channels * 2)
         setvar      anmux_engine_block_temp 2
     
     alias_both power_duty           [incr counter]  "pwr_duty"
