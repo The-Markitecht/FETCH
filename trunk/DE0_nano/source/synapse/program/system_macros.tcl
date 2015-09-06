@@ -98,11 +98,12 @@ namespace eval ::asm {
 
     # subroutine macros.
     proc call {lin label} {
+        # this proc can't use parse{}.  that causes 2 words to be emitted instead
+        # of 3 when the destination is short.  then somehow the Synapse goes berserk.
         uses_reg rtna
-        parse "
-            rtna = [label $label]
-            swapra = nop
-        "
+        emit_word [pack [dest rtna] [src _imm16_]] $lin
+        emit_word [label $label] \"
+        emit_word [pack [dest swapra] [src nop]] \"
     }
 
     proc call_indirect {lin} {
