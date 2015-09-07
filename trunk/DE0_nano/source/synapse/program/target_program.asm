@@ -108,6 +108,7 @@
         ram_define  ram_daq_discard_cnt     
         ram_define  ram_last_anmux_data     ($anmux_num_channels * 2)
         setvar      anmux_engine_block_temp 2
+        setvar      temp_ceiling_adc        0xff0
     
     alias_both power_duty           [incr counter]  "pwr_duty"
         // power relay duty cycles, in microseconds.  duty cycle time = relay OFF time.
@@ -286,8 +287,6 @@
 // jmp :main
     
     // init fuel injection.
-    ign_timeout_len_jf = 0xfffc
-    puff_len_us = 3000
     call :init_plan_stop    
     
     // power up FTDI USB board, and init any other special board control functions.
@@ -692,9 +691,6 @@ event ign_switch_on_handler
 end_event
 
 event puff1_done_handler
-//patch: measure with scope.
-    soft_event = (1 << 14)
-
     // puff just finished.  set length of next puff.
     ram puff_len_us = $ram_next_puff_len_us
 
@@ -711,11 +707,7 @@ event puff1_done_handler
     // bn az :nonzero
         // a = 1
     // :nonzero
-    // puff_len_us = a
-    
-    a = 1
-    call :spinwait
-    soft_event = 0
+    // puff_len_us = a    
 end_event
 
 func minute_events

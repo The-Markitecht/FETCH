@@ -4,15 +4,16 @@
 func init_plan_stop
     // set up the stop plan.
     call :clear_ign_history
+    // set noise filter to measure RPM between 50 and 1160 to indicate cranking.
+    ram $ram_ign_fastest_jf = ([rpm_to_jf 1160])
+    ram $ram_ign_slowest_jf = ([rpm_to_jf 50])    
+    ign_timeout_len_jf = ([rpm_to_jf 50])  
     // normally puff length is not touched by an init func.
     // this one does it because it's part of the program boot,
     // and also a good idea whenever stopping the engine.
     // this might interrupt a puff in mid-pulse, but no matter in this case.
     ram $ram_next_puff_len_us = 0
     puff_len_us = 0
-    // set noise filter to measure RPM between 50 and 1160 to indicate cranking.
-    ram $ram_ign_fastest_jf = ([rpm_to_jf 1160])
-    ram $ram_ign_slowest_jf = ([rpm_to_jf 50])    
     
     // memorize state.
     ram $ram_plan_name = :plan_name_stop

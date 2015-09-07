@@ -4,16 +4,15 @@
 func init_plan_crank
     // set up the crank plan.
     ram $ram_puff_count = 0
+    // set noise filter to measure RPM between 50 and 8000 to indicate running.
+    ram $ram_ign_fastest_jf = ([rpm_to_jf 8000])
+    ram $ram_ign_slowest_jf = ([rpm_to_jf 50])        
+    ign_timeout_len_jf = ([rpm_to_jf 50])  
     // normally puff length is not touched by an init func.
     // this one does it because it's the beginning of a crank cycle, and puff length 
     // should be enabled for the first puff.  otherwise the first puff would be missed.
     ram $ram_next_puff_len_us = $crank_min_puff_len_us
     puff_len_us = $crank_min_puff_len_us
-    
-ram a = $ram_puff_count
-br az :pc_ok
-    error_halt_code $err_sdram_data
-:pc_ok    
     
     // memorize state.
     ram $ram_plan_name = :plan_name_crank
@@ -49,12 +48,12 @@ func leave_crank
 
     // transition to warmup if RPM exceeds crank_success_rpm.
     ram a = $ram_rpm_valid
-    bn az :stay
+    br az :stay
         ram a = $ram_avg_rpm
         b = $crank_success_rpm
         br lt :stay
             call :destroy_plan_crank
-            call :init_plan_stop
+            call :init_plan_warmup
     :stay
     
     :done

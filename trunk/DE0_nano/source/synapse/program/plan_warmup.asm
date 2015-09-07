@@ -23,9 +23,12 @@ func leave_warmup
     call :check_engine_stop
     bn az :done
 
-    // transition to plan_run if engine temp exceeds warmup_success_temp_adc.
+    // transition to plan_run if engine block temp sensor is valid, and temp 
+    // exceeds warmup_success_temp_adc.
     a = $anmux_engine_block_temp
     struct_read $ram_last_anmux_data
+    a = $temp_ceiling_adc
+    br lt :stay
     a = $warmup_success_temp_adc
     br gt :stay
         call :destroy_plan_warmup
