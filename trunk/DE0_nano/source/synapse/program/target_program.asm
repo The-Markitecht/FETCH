@@ -143,6 +143,7 @@
     setvar err_tx_overflow              0xfffd
     setvar err_power_down               0xfffc
     setvar err_power_lost_at_boot       0xfffb    
+    setvar err_sdram_data               0xfffa
     
     // ignition time capture.        
     // all ignition time vars are expressed in jf "jiffies" or "jf".
@@ -186,8 +187,8 @@
     setvar crank_success_rpm            600
     setvar crank_min_puff_len_us        5000
     setvar crank_max_puff_len_us        20000
-    setvar crank_incr_us_per_puff       375
-        // escalating puff length by 375 us per puff while cranking slowly at e.g. 80 RPM
+    setvar crank_incr_us_per_puff       1500
+        // escalating puff length by 1500 us per puff while cranking slowly at e.g. 80 RPM
         // on a frozen winter morning will ramp up from 5000 to 20000 us length in about 7 seconds.
     setvar crank_max_puffs              (($crank_max_puff_len_us - $crank_min_puff_len_us) / $crank_incr_us_per_puff)
     setvar warmup_success_temp_adc      0x4c0
@@ -257,7 +258,11 @@
     :main  
     a = :boot_msg
     call :print_nt 
-        
+
+// soft_event = (1 << 14)
+// soft_event = 0
+// jmp :main
+    
     // clear the first 64k of RAM.
     av_ad_hi = 0
     a = 0
@@ -267,6 +272,18 @@
         av_write_data = 0
         a = ad0
     bn az :clear_next_word
+
+// i = 0x80
+// j = -1
+// av_ad_hi = 0
+// :test_next_word
+    // av_ad_lo = i
+    // av_write_data = i
+    // av_ad_lo = 0xff
+    // av_write_data = i
+    // i = i+j
+// bn iz :test_next_word
+// jmp :main
     
     // init fuel injection.
     ign_timeout_len_jf = 0xfffc
@@ -584,7 +601,7 @@ end_event
     ": rpm=\x0"
 
 :puff_len_msg
-    " efi=\x0"
+    " pfl=\x0"
     
 func start_daq_pass
     // daq pass counter in RAM.  
@@ -608,6 +625,9 @@ func start_daq_pass
     call :print_nt 
     a = puff_len_us
     call :put4x
+    putasc ","
+    ram a = $ram_puff_count
+    call :put4x    
     
     // start to acquire & report all anmux channels.
     a = ($anmux_num_channels - 1)
@@ -672,6 +692,9 @@ event ign_switch_on_handler
 end_event
 
 event puff1_done_handler
+//patch: measure with scope.
+    soft_event = (1 << 14)
+
     // puff just finished.  set length of next puff.
     ram puff_len_us = $ram_next_puff_len_us
 
@@ -689,6 +712,10 @@ event puff1_done_handler
         // a = 1
     // :nonzero
     // puff_len_us = a
+    
+    a = 1
+    call :spinwait
+    soft_event = 0
 end_event
 
 func minute_events

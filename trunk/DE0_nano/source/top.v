@@ -400,18 +400,18 @@ puff_timer puff1 (
     ,.pulse50k              (pulse50k)
     ,.pulse1m               (pulse1m)
     ,.ign_coil              (ign_coil_sync)
-    ,.ign_timeout_len_jf  (r[`DR_IGN_TIMEOUT_LEN_JF])
-    ,.puff_len_us            (r[`DR_PUFF_LEN_US])
+    ,.ign_timeout_len_jf    (r[`DR_IGN_TIMEOUT_LEN_JF])
+    ,.puff_len_us           (r[`DR_PUFF_LEN_US])
     ,.injector_open         (inj)
     ,.puff_event            (puff1_event)
-    ,.puff_enable            (r[`DR_PUFF_LEN_US] != 0)
-    ,.leds      (LED)
+    ,.puff_enable           (r[`DR_PUFF_LEN_US] != 0)
+    ,.leds                  (LED)
 );
 
 // event controller is listed last to utilize wires from all other parts.
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
 std_reg soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
-assign scope = r[`DR_SOFT_EVENT][14:13]; // copy soft_event_reg to o'scope pins for analysis.
+assign scope = {ign_coil_sync, r[`DR_SOFT_EVENT][14]}; // copy soft_event_reg to o'scope pins for analysis.
 event_controller #(.NUM_INPUTS(21)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset || r[`DR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])

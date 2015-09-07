@@ -4,6 +4,16 @@
 func init_plan_crank
     // set up the crank plan.
     ram $ram_puff_count = 0
+    // normally puff length is not touched by an init func.
+    // this one does it because it's the beginning of a crank cycle, and puff length 
+    // should be enabled for the first puff.  otherwise the first puff would be missed.
+    ram $ram_next_puff_len_us = $crank_min_puff_len_us
+    puff_len_us = $crank_min_puff_len_us
+    
+ram a = $ram_puff_count
+br az :pc_ok
+    error_halt_code $err_sdram_data
+:pc_ok    
     
     // memorize state.
     ram $ram_plan_name = :plan_name_crank
@@ -24,6 +34,7 @@ func puff_len_crank
         call :multiply
         b = $crank_min_puff_len_us
         ram $ram_next_puff_len_us = a+b
+        jmp :done
     :puff_limit
         // prevent the puff counter from going higher & eventually rolling over.
         ram $ram_puff_count = $crank_max_puffs
