@@ -58,20 +58,6 @@
     alias_both fduart_data          [incr counter]  "//uartdt"
     alias_both fduart_status        [incr counter]  "uartstat"
     
-    // // I/O expansion bus.
-    // alias_both exp                  [incr counter]
-    // alias_both exp_addr             [incr counter]
-    // vdefine exp_num_regs 32
-    // vdefine exp_top_reg ($exp_num_regs - 1)
-    // setvar exp_counter -1
-
-    // alias_src  keys                 [incr exp_counter]@exp
-    // alias_both leds                 [incr exp_counter]@exp
-    
-    // alias_both anmux_ctrl           [incr exp_counter]@exp
-        // vdefine     anmux_enable_mask       0x0008
-        // vdefine     anmux_channel_mask      0x0007
-
     alias_both leds                 [incr counter]  "leds"
     
     alias_both board_ctrl           [incr counter]  "brd_ctrl"
@@ -157,12 +143,8 @@
     setvar ign_history_idx_bits     4
     setvar ign_history_len          (1 << $ign_history_idx_bits)
     setvar ign_history_idx_mask     ($ign_history_len - 1)
-    // setvar ign_history_quarter      ($ign_history_len / 4)
-    // setvar ign_quarter_avg_shift    ($ign_history_idx_bits - 2)
     ram_define ram_ign_history_idx
     ram_define ram_ign_history_jf   ($ign_history_len * 2)
-    // ram_define ram_ign_oldest_avg_jf
-    // ram_define ram_ign_newest_avg_jf
     ram_define ram_ign_avg_jf
     ram_define ram_avg_rpm
     ram_define ram_rpm_valid
@@ -201,45 +183,6 @@
     :boot_msg
         "TGT\r\n\x0"
     
-    // engine state management.  each engine state is called a "plan".
-    // ram_define ram_plan
-        // ram_plan should be a pointer to a plan structure instead of an enum.
-        // setvar plan_stop        0
-        // setvar plan_crank       1
-        // setvar plan_warmup      2
-        // setvar plan_run         3
-    // plan definitions
-    // :plans
-        // ([label :plan_stop])
-        // ([label :plan_crank])
-        // ([label :plan_warmup])
-        // ([label :plan_run])
-        // :plan_stop
-            // ([label :plan_name_stop])
-            // ([label :puff_len_stop])
-            // ([label :leave_stop])
-            // :plan_name_stop
-                // "STP\x0"
-        // :plan_crank
-            // ([label :plan_name_crank])
-            // ([label :puff_len_crank])
-            // ([label :leave_crank])
-            // :plan_name_crank
-                // "CR\x0"
-        // :plan_warmup
-            // ([label :plan_name_warmup])
-            // ([label :puff_len_warmup])
-            // ([label :leave_warmup])
-            // :plan_name_warmup
-                // "WM\x0"
-        // :plan_run
-            // ([label :plan_name_run])
-            // ([label :crank_puff_run])
-            // ([label :leave_run])
-            // :plan_name_run
-                // "RN\x0"
-        
-
     // libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
     convention_gpx
     include ../peripheral/driver/event_controller.asm
@@ -260,10 +203,6 @@
     a = :boot_msg
     call :print_nt 
 
-// soft_event = (1 << 14)
-// soft_event = 0
-// jmp :main
-    
     // clear the first 64k of RAM.
     av_ad_hi = 0
     a = 0
@@ -274,18 +213,6 @@
         a = ad0
     bn az :clear_next_word
 
-// i = 0x80
-// j = -1
-// av_ad_hi = 0
-// :test_next_word
-    // av_ad_lo = i
-    // av_write_data = i
-    // av_ad_lo = 0xff
-    // av_write_data = i
-    // i = i+j
-// bn iz :test_next_word
-// jmp :main
-    
     // init fuel injection.
     call :init_plan_stop    
     
@@ -367,28 +294,6 @@ event ign_capture_handler
     struct_write $ram_ign_history_jf 
     
     // ////////// compute new jiffy estimate.
-    
-    // // first, total up the oldest 25% of the history
-    // // this doesn't work above 2^14 jf.  that's below 44 RPM.
-    // // reg a must be already loaded with the history index most recently written.
-    // // a=index, i=total, x=loop count.
-    // i = 0
-    // x = $ign_history_quarter
-    // y = -1
-    // :next_oldest
-        // b = 1
-        // a = a+b    
-        // b = $ign_history_idx_mask
-        // a = and    
-        // struct_read j = $ram_ign_history_jf a
-        // i = i+j
-        // x = x+y
-    // bn xz :next_oldest
-    // // memorize average.
-    // a = i
-    // << for {set n 0} {$n < $ign_avg_shift} {incr n} {parse3 a = a>>1 {}} >>
-    // ram $ram_ign_oldest_avg_jf = a
-    
     // average entire history.
     // x = total, i = index = loop count, g6 = count of invalid samples.
     x = 0
@@ -419,6 +324,7 @@ event ign_capture_handler
     // or about 1,000 RPM too fast on the fast end!
     // might need to tighten that up.  one simple way might be adding ign_history_len / 2 to each history record prior to dividing.  
     // that didn't seem to help much in simple testing.
+    // probly because jf_to_rpm has only 32 RPM resolution.
     
     ram $ram_ign_bad_samples = g6
     a = g6
