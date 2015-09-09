@@ -80,168 +80,165 @@
 -- otherwise the module latches up in a non-working state.
 
 -- engine state management.  each engine state is called a "plan".
--- escalating puff length by 1500 us per puff while cranking slowly at e.g. 80 RPM
--- on a frozen winter morning will ramp up from 5000 to 20000 us length in about 7 seconds.
--- 0x4c0 = 1216 = 120 degF at the sensor location outside the engine block.
 
-    0002 : 001e ; -- <0180> emit_debugger_register_table  counter
+    0002 : 001e ; -- <0171> emit_debugger_register_table  counter
 -- "       a"
-    0003 : 2020 ; -- <0180>   
-    0004 : 2020 ; -- <0180>   
-    0005 : 2020 ; -- <0180>   
-    0006 : 6120 ; -- <0180> a 
+    0003 : 2020 ; -- <0171>   
+    0004 : 2020 ; -- <0171>   
+    0005 : 2020 ; -- <0171>   
+    0006 : 6120 ; -- <0171> a 
 -- "       b"
-    0007 : 2020 ; -- <0180>   
-    0008 : 2020 ; -- <0180>   
-    0009 : 2020 ; -- <0180>   
-    000a : 6220 ; -- <0180> b 
+    0007 : 2020 ; -- <0171>   
+    0008 : 2020 ; -- <0171>   
+    0009 : 2020 ; -- <0171>   
+    000a : 6220 ; -- <0171> b 
 -- "       i"
-    000b : 2020 ; -- <0180>   
-    000c : 2020 ; -- <0180>   
-    000d : 2020 ; -- <0180>   
-    000e : 6920 ; -- <0180> i 
+    000b : 2020 ; -- <0171>   
+    000c : 2020 ; -- <0171>   
+    000d : 2020 ; -- <0171>   
+    000e : 6920 ; -- <0171> i 
 -- "       j"
-    000f : 2020 ; -- <0180>   
-    0010 : 2020 ; -- <0180>   
-    0011 : 2020 ; -- <0180>   
-    0012 : 6a20 ; -- <0180> j 
+    000f : 2020 ; -- <0171>   
+    0010 : 2020 ; -- <0171>   
+    0011 : 2020 ; -- <0171>   
+    0012 : 6a20 ; -- <0171> j 
 -- "       x"
-    0013 : 2020 ; -- <0180>   
-    0014 : 2020 ; -- <0180>   
-    0015 : 2020 ; -- <0180>   
-    0016 : 7820 ; -- <0180> x 
+    0013 : 2020 ; -- <0171>   
+    0014 : 2020 ; -- <0171>   
+    0015 : 2020 ; -- <0171>   
+    0016 : 7820 ; -- <0171> x 
 -- "       y"
-    0017 : 2020 ; -- <0180>   
-    0018 : 2020 ; -- <0180>   
-    0019 : 2020 ; -- <0180>   
-    001a : 7920 ; -- <0180> y 
+    0017 : 2020 ; -- <0171>   
+    0018 : 2020 ; -- <0171>   
+    0019 : 2020 ; -- <0171>   
+    001a : 7920 ; -- <0171> y 
 -- "      g6"
-    001b : 2020 ; -- <0180>   
-    001c : 2020 ; -- <0180>   
-    001d : 2020 ; -- <0180>   
-    001e : 3667 ; -- <0180> 6g
+    001b : 2020 ; -- <0171>   
+    001c : 2020 ; -- <0171>   
+    001d : 2020 ; -- <0171>   
+    001e : 3667 ; -- <0171> 6g
 -- "      g7"
-    001f : 2020 ; -- <0180>   
-    0020 : 2020 ; -- <0180>   
-    0021 : 2020 ; -- <0180>   
-    0022 : 3767 ; -- <0180> 7g
+    001f : 2020 ; -- <0171>   
+    0020 : 2020 ; -- <0171>   
+    0021 : 2020 ; -- <0171>   
+    0022 : 3767 ; -- <0171> 7g
 -- "--rstk  "
-    0023 : 2f2f ; -- <0180> --
-    0024 : 7372 ; -- <0180> sr
-    0025 : 6b74 ; -- <0180> kt
-    0026 : 2020 ; -- <0180>   
+    0023 : 2f2f ; -- <0171> --
+    0024 : 7372 ; -- <0171> sr
+    0025 : 6b74 ; -- <0171> kt
+    0026 : 2020 ; -- <0171>   
 -- "  ev_pri"
-    0027 : 2020 ; -- <0180>   
-    0028 : 7665 ; -- <0180> ve
-    0029 : 705f ; -- <0180> p_
-    002a : 6972 ; -- <0180> ir
+    0027 : 2020 ; -- <0171>   
+    0028 : 7665 ; -- <0171> ve
+    0029 : 705f ; -- <0171> p_
+    002a : 6972 ; -- <0171> ir
 -- "softevnt"
-    002b : 6f73 ; -- <0180> os
-    002c : 7466 ; -- <0180> tf
-    002d : 7665 ; -- <0180> ve
-    002e : 746e ; -- <0180> tn
+    002b : 6f73 ; -- <0171> os
+    002c : 7466 ; -- <0171> tf
+    002d : 7665 ; -- <0171> ve
+    002e : 746e ; -- <0171> tn
 -- "   usage"
-    002f : 2020 ; -- <0180>   
-    0030 : 7520 ; -- <0180> u 
-    0031 : 6173 ; -- <0180> as
-    0032 : 6567 ; -- <0180> eg
+    002f : 2020 ; -- <0171>   
+    0030 : 7520 ; -- <0171> u 
+    0031 : 6173 ; -- <0171> as
+    0032 : 6567 ; -- <0171> eg
 -- "ustimer0"
-    0033 : 7375 ; -- <0180> su
-    0034 : 6974 ; -- <0180> it
-    0035 : 656d ; -- <0180> em
-    0036 : 3072 ; -- <0180> 0r
+    0033 : 7375 ; -- <0171> su
+    0034 : 6974 ; -- <0171> it
+    0035 : 656d ; -- <0171> em
+    0036 : 3072 ; -- <0171> 0r
 -- "mstimer0"
-    0037 : 736d ; -- <0180> sm
-    0038 : 6974 ; -- <0180> it
-    0039 : 656d ; -- <0180> em
-    003a : 3072 ; -- <0180> 0r
+    0037 : 736d ; -- <0171> sm
+    0038 : 6974 ; -- <0171> it
+    0039 : 656d ; -- <0171> em
+    003a : 3072 ; -- <0171> 0r
 -- "mstimer1"
-    003b : 736d ; -- <0180> sm
-    003c : 6974 ; -- <0180> it
-    003d : 656d ; -- <0180> em
-    003e : 3172 ; -- <0180> 1r
+    003b : 736d ; -- <0171> sm
+    003c : 6974 ; -- <0171> it
+    003d : 656d ; -- <0171> em
+    003e : 3172 ; -- <0171> 1r
 -- "mstimer2"
-    003f : 736d ; -- <0180> sm
-    0040 : 6974 ; -- <0180> it
-    0041 : 656d ; -- <0180> em
-    0042 : 3272 ; -- <0180> 2r
+    003f : 736d ; -- <0171> sm
+    0040 : 6974 ; -- <0171> it
+    0041 : 656d ; -- <0171> em
+    0042 : 3272 ; -- <0171> 2r
 -- "spi_data"
-    0043 : 7073 ; -- <0180> ps
-    0044 : 5f69 ; -- <0180> _i
-    0045 : 6164 ; -- <0180> ad
-    0046 : 6174 ; -- <0180> at
+    0043 : 7073 ; -- <0171> ps
+    0044 : 5f69 ; -- <0171> _i
+    0045 : 6164 ; -- <0171> ad
+    0046 : 6174 ; -- <0171> at
 -- "--avwrdt"
-    0047 : 2f2f ; -- <0180> --
-    0048 : 7661 ; -- <0180> va
-    0049 : 7277 ; -- <0180> rw
-    004a : 7464 ; -- <0180> td
+    0047 : 2f2f ; -- <0171> --
+    0048 : 7661 ; -- <0171> va
+    0049 : 7277 ; -- <0171> rw
+    004a : 7464 ; -- <0171> td
 -- "av_rd_dt"
-    004b : 7661 ; -- <0180> va
-    004c : 725f ; -- <0180> r_
-    004d : 5f64 ; -- <0180> _d
-    004e : 7464 ; -- <0180> td
+    004b : 7661 ; -- <0171> va
+    004c : 725f ; -- <0171> r_
+    004d : 5f64 ; -- <0171> _d
+    004e : 7464 ; -- <0171> td
 -- "av_ad_hi"
-    004f : 7661 ; -- <0180> va
-    0050 : 615f ; -- <0180> a_
-    0051 : 5f64 ; -- <0180> _d
-    0052 : 6968 ; -- <0180> ih
+    004f : 7661 ; -- <0171> va
+    0050 : 615f ; -- <0171> a_
+    0051 : 5f64 ; -- <0171> _d
+    0052 : 6968 ; -- <0171> ih
 -- "av_ad_lo"
-    0053 : 7661 ; -- <0180> va
-    0054 : 615f ; -- <0180> a_
-    0055 : 5f64 ; -- <0180> _d
-    0056 : 6f6c ; -- <0180> ol
+    0053 : 7661 ; -- <0171> va
+    0054 : 615f ; -- <0171> a_
+    0055 : 5f64 ; -- <0171> _d
+    0056 : 6f6c ; -- <0171> ol
 -- "--uartdt"
-    0057 : 2f2f ; -- <0180> --
-    0058 : 6175 ; -- <0180> au
-    0059 : 7472 ; -- <0180> tr
-    005a : 7464 ; -- <0180> td
+    0057 : 2f2f ; -- <0171> --
+    0058 : 6175 ; -- <0171> au
+    0059 : 7472 ; -- <0171> tr
+    005a : 7464 ; -- <0171> td
 -- "uartstat"
-    005b : 6175 ; -- <0180> au
-    005c : 7472 ; -- <0180> tr
-    005d : 7473 ; -- <0180> ts
-    005e : 7461 ; -- <0180> ta
+    005b : 6175 ; -- <0171> au
+    005c : 7472 ; -- <0171> tr
+    005d : 7473 ; -- <0171> ts
+    005e : 7461 ; -- <0171> ta
 -- "    leds"
-    005f : 2020 ; -- <0180>   
-    0060 : 2020 ; -- <0180>   
-    0061 : 656c ; -- <0180> el
-    0062 : 7364 ; -- <0180> sd
+    005f : 2020 ; -- <0171>   
+    0060 : 2020 ; -- <0171>   
+    0061 : 656c ; -- <0171> el
+    0062 : 7364 ; -- <0171> sd
 -- "brd_ctrl"
-    0063 : 7262 ; -- <0180> rb
-    0064 : 5f64 ; -- <0180> _d
-    0065 : 7463 ; -- <0180> tc
-    0066 : 6c72 ; -- <0180> lr
+    0063 : 7262 ; -- <0171> rb
+    0064 : 5f64 ; -- <0171> _d
+    0065 : 7463 ; -- <0171> tc
+    0066 : 6c72 ; -- <0171> lr
 -- "   anmux"
-    0067 : 2020 ; -- <0180>   
-    0068 : 6120 ; -- <0180> a 
-    0069 : 6d6e ; -- <0180> mn
-    006a : 7875 ; -- <0180> xu
+    0067 : 2020 ; -- <0171>   
+    0068 : 6120 ; -- <0171> a 
+    0069 : 6d6e ; -- <0171> mn
+    006a : 7875 ; -- <0171> xu
 -- "pwr_duty"
-    006b : 7770 ; -- <0180> wp
-    006c : 5f72 ; -- <0180> _r
-    006d : 7564 ; -- <0180> ud
-    006e : 7974 ; -- <0180> yt
+    006b : 7770 ; -- <0171> wp
+    006c : 5f72 ; -- <0171> _r
+    006d : 7564 ; -- <0171> ud
+    006e : 7974 ; -- <0171> yt
 -- "igntmcap"
-    006f : 6769 ; -- <0180> gi
-    0070 : 746e ; -- <0180> tn
-    0071 : 636d ; -- <0180> cm
-    0072 : 7061 ; -- <0180> pa
+    006f : 6769 ; -- <0171> gi
+    0070 : 746e ; -- <0171> tn
+    0071 : 636d ; -- <0171> cm
+    0072 : 7061 ; -- <0171> pa
 -- "igntmout"
-    0073 : 6769 ; -- <0180> gi
-    0074 : 746e ; -- <0180> tn
-    0075 : 6f6d ; -- <0180> om
-    0076 : 7475 ; -- <0180> tu
+    0073 : 6769 ; -- <0171> gi
+    0074 : 746e ; -- <0171> tn
+    0075 : 6f6d ; -- <0171> om
+    0076 : 7475 ; -- <0171> tu
 -- "puflenus"
-    0077 : 7570 ; -- <0180> up
-    0078 : 6c66 ; -- <0180> lf
-    0079 : 6e65 ; -- <0180> ne
-    007a : 7375 ; -- <0180> su
+    0077 : 7570 ; -- <0171> up
+    0078 : 6c66 ; -- <0171> lf
+    0079 : 6e65 ; -- <0171> ne
+    007a : 7375 ; -- <0171> su
 
 -- string resources
 -- :boot_msg -- = 0x007b
 -- "TGT\r\n\x0"
-    007b : 4754 ; -- <0184> GT
-    007c : 0d54 ; -- <0184>  T
-    007d : 000a ; -- <0184>   
+    007b : 4754 ; -- <0175> GT
+    007c : 0d54 ; -- <0175>  T
+    007d : 000a ; -- <0175>   
 
 -- libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
 
@@ -912,207 +909,214 @@
     024b : fc00 ; -- <0044> swapra = nop
 
 
+
+-- escalating puff length by 1500 us per puff while cranking slowly at e.g. 80 RPM
+-- on a frozen winter morning will ramp up from 5000 to 20000 us length in about 7 seconds.
+
 -- :plan_name_crank -- = 0x024c
 -- "CR\x0"
-    024c : 5243 ; -- <0002> RC
-    024d : 0000 ; -- <0002>   
+    024c : 5243 ; -- <0011> RC
+    024d : 0000 ; -- <0011>   
 
 -- ######## func init_plan_crank -- = 0x024e
 -- set up the crank plan.
-    024e : 4e00 ; -- <0006> ram $ram_puff_count = 0 -- av_ad_hi = 0
-    024f : 5270 ; -- <0006> ram $ram_puff_count = 0 -- av_ad_lo = 112
-    0250 : 4600 ; -- <0006> ram $ram_puff_count = 0 -- av_write_data = 0
+    024e : 4e00 ; -- <0015> ram $ram_puff_count = 0 -- av_ad_hi = 0
+    024f : 5270 ; -- <0015> ram $ram_puff_count = 0 -- av_ad_lo = 112
+    0250 : 4600 ; -- <0015> ram $ram_puff_count = 0 -- av_write_data = 0
 -- set noise filter to measure RPM between 50 and 8000 to indicate running.
-    0251 : 4e00 ; -- <0008> ram $ram_ign_fastest_jf = ([rpm_to_jf 8000]) -- av_ad_hi = 0
-    0252 : 5260 ; -- <0008> ram $ram_ign_fastest_jf = ([rpm_to_jf 8000]) -- av_ad_lo = 96
-    0253 : 4657 ; -- <0008> ram $ram_ign_fastest_jf = ([rpm_to_jf 8000]) -- av_write_data = 87
-    0254 : 4e00 ; -- <0009> ram $ram_ign_slowest_jf = ([rpm_to_jf 50]) -- av_ad_hi = 0
-    0255 : 5262 ; -- <0009> ram $ram_ign_slowest_jf = ([rpm_to_jf 50]) -- av_ad_lo = 98
-    0256 : 47a0 ; -- <0009> ram $ram_ign_slowest_jf = ([rpm_to_jf 50]) -- av_write_data = 14000
-    0257 : 36b0 ; -- <0009> "
-    0258 : 73a0 ; -- <0010> ign_timeout_len_jf = ([rpm_to_jf 50])
-    0259 : 36b0 ; -- <0010> "
+    0251 : 4e00 ; -- <0017> ram $ram_ign_fastest_jf = ([rpm_to_jf 8000]) -- av_ad_hi = 0
+    0252 : 5260 ; -- <0017> ram $ram_ign_fastest_jf = ([rpm_to_jf 8000]) -- av_ad_lo = 96
+    0253 : 4657 ; -- <0017> ram $ram_ign_fastest_jf = ([rpm_to_jf 8000]) -- av_write_data = 87
+    0254 : 4e00 ; -- <0018> ram $ram_ign_slowest_jf = ([rpm_to_jf 50]) -- av_ad_hi = 0
+    0255 : 5262 ; -- <0018> ram $ram_ign_slowest_jf = ([rpm_to_jf 50]) -- av_ad_lo = 98
+    0256 : 47a0 ; -- <0018> ram $ram_ign_slowest_jf = ([rpm_to_jf 50]) -- av_write_data = 14000
+    0257 : 36b0 ; -- <0018> "
+    0258 : 73a0 ; -- <0019> ign_timeout_len_jf = ([rpm_to_jf 50])
+    0259 : 36b0 ; -- <0019> "
 -- normally puff length is not touched by an init func.
 -- this one does it because it's the beginning of a crank cycle, and puff length
 -- should be enabled for the first puff.  otherwise the first puff would be missed.
-    025a : 4e00 ; -- <0014> ram $ram_next_puff_len_us = $crank_min_puff_len_us -- av_ad_hi = 0
-    025b : 526e ; -- <0014> ram $ram_next_puff_len_us = $crank_min_puff_len_us -- av_ad_lo = 110
-    025c : 47a0 ; -- <0014> ram $ram_next_puff_len_us = $crank_min_puff_len_us -- av_write_data = 5000
-    025d : 1388 ; -- <0014> "
-    025e : 77a0 ; -- <0015> puff_len_us = $crank_min_puff_len_us
-    025f : 1388 ; -- <0015> "
+    025a : 4e00 ; -- <0023> ram $ram_next_puff_len_us = $crank_min_puff_len_us -- av_ad_hi = 0
+    025b : 526e ; -- <0023> ram $ram_next_puff_len_us = $crank_min_puff_len_us -- av_ad_lo = 110
+    025c : 47a0 ; -- <0023> ram $ram_next_puff_len_us = $crank_min_puff_len_us -- av_write_data = 5000
+    025d : 1388 ; -- <0023> "
+    025e : 77a0 ; -- <0024> puff_len_us = $crank_min_puff_len_us
+    025f : 1388 ; -- <0024> "
 
 -- memorize state.
-    0260 : 4e00 ; -- <0018> ram $ram_plan_name = :plan_name_crank -- av_ad_hi = 0
-    0261 : 5266 ; -- <0018> ram $ram_plan_name = :plan_name_crank -- av_ad_lo = 102
-    0262 : 47a0 ; -- <0018> ram $ram_plan_name = :plan_name_crank -- av_write_data = :plan_name_crank
-    0263 : 024c ; -- <0018> "
-    0264 : 4e00 ; -- <0019> ram $ram_puff_len_func = :puff_len_crank -- av_ad_hi = 0
-    0265 : 5268 ; -- <0019> ram $ram_puff_len_func = :puff_len_crank -- av_ad_lo = 104
-    0266 : 47a0 ; -- <0019> ram $ram_puff_len_func = :puff_len_crank -- av_write_data = :puff_len_crank
-    0267 : 0272 ; -- <0019> "
-    0268 : 4e00 ; -- <0020> ram $ram_transition_func = :leave_crank -- av_ad_hi = 0
-    0269 : 526a ; -- <0020> ram $ram_transition_func = :leave_crank -- av_ad_lo = 106
-    026a : 47a0 ; -- <0020> ram $ram_transition_func = :leave_crank -- av_write_data = :leave_crank
-    026b : 0290 ; -- <0020> "
-    026c : 4e00 ; -- <0021> ram $ram_destroy_plan_func = :destroy_plan_crank -- av_ad_hi = 0
-    026d : 526c ; -- <0021> ram $ram_destroy_plan_func = :destroy_plan_crank -- av_ad_lo = 108
-    026e : 47a0 ; -- <0021> ram $ram_destroy_plan_func = :destroy_plan_crank -- av_write_data = :destroy_plan_crank
-    026f : 0271 ; -- <0021> "
-    0270 : fc00 ; -- <0022> swapra = nop
+    0260 : 4e00 ; -- <0027> ram $ram_plan_name = :plan_name_crank -- av_ad_hi = 0
+    0261 : 5266 ; -- <0027> ram $ram_plan_name = :plan_name_crank -- av_ad_lo = 102
+    0262 : 47a0 ; -- <0027> ram $ram_plan_name = :plan_name_crank -- av_write_data = :plan_name_crank
+    0263 : 024c ; -- <0027> "
+    0264 : 4e00 ; -- <0028> ram $ram_puff_len_func = :puff_len_crank -- av_ad_hi = 0
+    0265 : 5268 ; -- <0028> ram $ram_puff_len_func = :puff_len_crank -- av_ad_lo = 104
+    0266 : 47a0 ; -- <0028> ram $ram_puff_len_func = :puff_len_crank -- av_write_data = :puff_len_crank
+    0267 : 0272 ; -- <0028> "
+    0268 : 4e00 ; -- <0029> ram $ram_transition_func = :leave_crank -- av_ad_hi = 0
+    0269 : 526a ; -- <0029> ram $ram_transition_func = :leave_crank -- av_ad_lo = 106
+    026a : 47a0 ; -- <0029> ram $ram_transition_func = :leave_crank -- av_write_data = :leave_crank
+    026b : 0290 ; -- <0029> "
+    026c : 4e00 ; -- <0030> ram $ram_destroy_plan_func = :destroy_plan_crank -- av_ad_hi = 0
+    026d : 526c ; -- <0030> ram $ram_destroy_plan_func = :destroy_plan_crank -- av_ad_lo = 108
+    026e : 47a0 ; -- <0030> ram $ram_destroy_plan_func = :destroy_plan_crank -- av_write_data = :destroy_plan_crank
+    026f : 0271 ; -- <0030> "
+    0270 : fc00 ; -- <0031> swapra = nop
 
 -- ######## func destroy_plan_crank -- = 0x0271
-    0271 : fc00 ; -- <0025> swapra = nop
+    0271 : fc00 ; -- <0034> swapra = nop
 
 -- ######## func puff_len_crank -- = 0x0272
-    0272 : 203e ; -- <0027> push rtna -- func puff_len_crank
-    0273 : 4e00 ; -- <0028> ram a = $ram_puff_count -- av_ad_hi = 0
-    0274 : 5270 ; -- <0028> ram a = $ram_puff_count -- av_ad_lo = 112
-    0275 : 0011 ; -- <0028> ram a = $ram_puff_count -- a = av_write_data -- start read cycle
-    0276 : 0012 ; -- <0028> ram a = $ram_puff_count -- a = av_read_data -- finish read cycle
-    0277 : 060a ; -- <0029> b = $crank_max_puffs
-    0278 : e006 ; -- <0030> br gt :puff_limit
-    0279 : 0287 ; -- <0030> "
+    0272 : 203e ; -- <0036> push rtna -- func puff_len_crank
+    0273 : 4e00 ; -- <0037> ram a = $ram_puff_count -- av_ad_hi = 0
+    0274 : 5270 ; -- <0037> ram a = $ram_puff_count -- av_ad_lo = 112
+    0275 : 0011 ; -- <0037> ram a = $ram_puff_count -- a = av_write_data -- start read cycle
+    0276 : 0012 ; -- <0037> ram a = $ram_puff_count -- a = av_read_data -- finish read cycle
+    0277 : 060a ; -- <0038> b = $crank_max_puffs
+    0278 : e006 ; -- <0039> br gt :puff_limit
+    0279 : 0287 ; -- <0039> "
 -- linear escalation from min to max puff length, at a slope of crank_incr_us_per_puff.
-    027a : 07a0 ; -- <0032> b = $crank_incr_us_per_puff
-    027b : 05dc ; -- <0032> "
-    027c : fba0 ; -- <0033> call :multiply
-    027d : 0160 ; -- <0033> "
-    027e : fc00 ; -- <0033> "
-    027f : 07a0 ; -- <0034> b = $crank_min_puff_len_us
-    0280 : 1388 ; -- <0034> "
-    0281 : 4e00 ; -- <0035> ram $ram_next_puff_len_us = a+b -- av_ad_hi = 0
-    0282 : 526e ; -- <0035> ram $ram_next_puff_len_us = a+b -- av_ad_lo = 110
-    0283 : c800 ; -- <0035> ram $ram_next_puff_len_us = a+b -- av_write_data = a+b
-    0284 : 4700 ; -- <0035> "
-    0285 : e00f ; -- <0036> jmp :done
-    0286 : 028e ; -- <0036> "
+    027a : 07a0 ; -- <0041> b = $crank_incr_us_per_puff
+    027b : 05dc ; -- <0041> "
+    027c : fba0 ; -- <0042> call :multiply
+    027d : 0160 ; -- <0042> "
+    027e : fc00 ; -- <0042> "
+    027f : 07a0 ; -- <0043> b = $crank_min_puff_len_us
+    0280 : 1388 ; -- <0043> "
+    0281 : 4e00 ; -- <0044> ram $ram_next_puff_len_us = a+b -- av_ad_hi = 0
+    0282 : 526e ; -- <0044> ram $ram_next_puff_len_us = a+b -- av_ad_lo = 110
+    0283 : c800 ; -- <0044> ram $ram_next_puff_len_us = a+b -- av_write_data = a+b
+    0284 : 4700 ; -- <0044> "
+    0285 : e00f ; -- <0045> jmp :done
+    0286 : 028e ; -- <0045> "
 -- :puff_limit -- = 0x0287
 -- prevent the puff counter from going higher & eventually rolling over.
-    0287 : 4e00 ; -- <0039> ram $ram_puff_count = $crank_max_puffs -- av_ad_hi = 0
-    0288 : 5270 ; -- <0039> ram $ram_puff_count = $crank_max_puffs -- av_ad_lo = 112
-    0289 : 460a ; -- <0039> ram $ram_puff_count = $crank_max_puffs -- av_write_data = 10
+    0287 : 4e00 ; -- <0048> ram $ram_puff_count = $crank_max_puffs -- av_ad_hi = 0
+    0288 : 5270 ; -- <0048> ram $ram_puff_count = $crank_max_puffs -- av_ad_lo = 112
+    0289 : 460a ; -- <0048> ram $ram_puff_count = $crank_max_puffs -- av_write_data = 10
 -- accept max puff len.
-    028a : 4e00 ; -- <0041> ram $ram_next_puff_len_us = $crank_max_puff_len_us -- av_ad_hi = 0
-    028b : 526e ; -- <0041> ram $ram_next_puff_len_us = $crank_max_puff_len_us -- av_ad_lo = 110
-    028c : 47a0 ; -- <0041> ram $ram_next_puff_len_us = $crank_max_puff_len_us -- av_write_data = 20000
-    028d : 4e20 ; -- <0041> "
+    028a : 4e00 ; -- <0050> ram $ram_next_puff_len_us = $crank_max_puff_len_us -- av_ad_hi = 0
+    028b : 526e ; -- <0050> ram $ram_next_puff_len_us = $crank_max_puff_len_us -- av_ad_lo = 110
+    028c : 47a0 ; -- <0050> ram $ram_next_puff_len_us = $crank_max_puff_len_us -- av_write_data = 20000
+    028d : 4e20 ; -- <0050> "
 -- :done -- = 0x028e
-    028e : f808 ; -- <0043> pop rtna -- end_func
-    028f : fc00 ; -- <0043> swapra = nop
+    028e : f808 ; -- <0052> pop rtna -- end_func
+    028f : fc00 ; -- <0052> swapra = nop
 
 -- ######## func leave_crank -- = 0x0290
-    0290 : 203e ; -- <0045> push rtna -- func leave_crank
-    0291 : fba0 ; -- <0046> call :check_engine_stop
-    0292 : 060c ; -- <0046> "
-    0293 : fc00 ; -- <0046> "
-    0294 : e400 ; -- <0047> bn az :done
-    0295 : 02aa ; -- <0047> "
+    0290 : 203e ; -- <0054> push rtna -- func leave_crank
+    0291 : fba0 ; -- <0055> call :check_engine_stop
+    0292 : 060c ; -- <0055> "
+    0293 : fc00 ; -- <0055> "
+    0294 : e400 ; -- <0056> bn az :done
+    0295 : 02aa ; -- <0056> "
 
 -- transition to warmup if RPM exceeds crank_success_rpm.
-    0296 : 4e00 ; -- <0050> ram a = $ram_rpm_valid -- av_ad_hi = 0
-    0297 : 525c ; -- <0050> ram a = $ram_rpm_valid -- av_ad_lo = 92
-    0298 : 0011 ; -- <0050> ram a = $ram_rpm_valid -- a = av_write_data -- start read cycle
-    0299 : 0012 ; -- <0050> ram a = $ram_rpm_valid -- a = av_read_data -- finish read cycle
-    029a : e000 ; -- <0051> br az :stay
-    029b : 02aa ; -- <0051> "
-    029c : 4e00 ; -- <0052> ram a = $ram_avg_rpm -- av_ad_hi = 0
-    029d : 525a ; -- <0052> ram a = $ram_avg_rpm -- av_ad_lo = 90
-    029e : 0011 ; -- <0052> ram a = $ram_avg_rpm -- a = av_write_data -- start read cycle
-    029f : 0012 ; -- <0052> ram a = $ram_avg_rpm -- a = av_read_data -- finish read cycle
-    02a0 : 07a0 ; -- <0053> b = $crank_success_rpm
-    02a1 : 0258 ; -- <0053> "
-    02a2 : e005 ; -- <0054> br lt :stay
-    02a3 : 02aa ; -- <0054> "
-    02a4 : fba0 ; -- <0055> call :destroy_plan_crank
-    02a5 : 0271 ; -- <0055> "
-    02a6 : fc00 ; -- <0055> "
-    02a7 : fba0 ; -- <0056> call :init_plan_warmup
-    02a8 : 02ae ; -- <0056> "
-    02a9 : fc00 ; -- <0056> "
+    0296 : 4e00 ; -- <0059> ram a = $ram_rpm_valid -- av_ad_hi = 0
+    0297 : 525c ; -- <0059> ram a = $ram_rpm_valid -- av_ad_lo = 92
+    0298 : 0011 ; -- <0059> ram a = $ram_rpm_valid -- a = av_write_data -- start read cycle
+    0299 : 0012 ; -- <0059> ram a = $ram_rpm_valid -- a = av_read_data -- finish read cycle
+    029a : e000 ; -- <0060> br az :stay
+    029b : 02aa ; -- <0060> "
+    029c : 4e00 ; -- <0061> ram a = $ram_avg_rpm -- av_ad_hi = 0
+    029d : 525a ; -- <0061> ram a = $ram_avg_rpm -- av_ad_lo = 90
+    029e : 0011 ; -- <0061> ram a = $ram_avg_rpm -- a = av_write_data -- start read cycle
+    029f : 0012 ; -- <0061> ram a = $ram_avg_rpm -- a = av_read_data -- finish read cycle
+    02a0 : 07a0 ; -- <0062> b = $crank_success_rpm
+    02a1 : 0320 ; -- <0062> "
+    02a2 : e005 ; -- <0063> br lt :stay
+    02a3 : 02aa ; -- <0063> "
+    02a4 : fba0 ; -- <0064> call :destroy_plan_crank
+    02a5 : 0271 ; -- <0064> "
+    02a6 : fc00 ; -- <0064> "
+    02a7 : fba0 ; -- <0065> call :init_plan_warmup
+    02a8 : 02ae ; -- <0065> "
+    02a9 : fc00 ; -- <0065> "
 -- :stay -- = 0x02aa
 
 -- :done -- = 0x02aa
-    02aa : f808 ; -- <0060> pop rtna -- end_func
-    02ab : fc00 ; -- <0060> swapra = nop
+    02aa : f808 ; -- <0069> pop rtna -- end_func
+    02ab : fc00 ; -- <0069> swapra = nop
 
+
+
+-- 0x4c0 = 1216 = 120 degF at the sensor location outside the engine block.
 
 -- :plan_name_warmup -- = 0x02ac
 -- "WM\x0"
-    02ac : 4d57 ; -- <0002> MW
-    02ad : 0000 ; -- <0002>   
+    02ac : 4d57 ; -- <0006> MW
+    02ad : 0000 ; -- <0006>   
 
 -- ######## func init_plan_warmup -- = 0x02ae
 -- set up the warmup plan.
 
 -- memorize state.
-    02ae : 4e00 ; -- <0008> ram $ram_plan_name = :plan_name_warmup -- av_ad_hi = 0
-    02af : 5266 ; -- <0008> ram $ram_plan_name = :plan_name_warmup -- av_ad_lo = 102
-    02b0 : 47a0 ; -- <0008> ram $ram_plan_name = :plan_name_warmup -- av_write_data = :plan_name_warmup
-    02b1 : 02ac ; -- <0008> "
-    02b2 : 4e00 ; -- <0009> ram $ram_puff_len_func = :puff_len_warmup -- av_ad_hi = 0
-    02b3 : 5268 ; -- <0009> ram $ram_puff_len_func = :puff_len_warmup -- av_ad_lo = 104
-    02b4 : 47a0 ; -- <0009> ram $ram_puff_len_func = :puff_len_warmup -- av_write_data = :puff_len_warmup
-    02b5 : 02c0 ; -- <0009> "
-    02b6 : 4e00 ; -- <0010> ram $ram_transition_func = :leave_warmup -- av_ad_hi = 0
-    02b7 : 526a ; -- <0010> ram $ram_transition_func = :leave_warmup -- av_ad_lo = 106
-    02b8 : 47a0 ; -- <0010> ram $ram_transition_func = :leave_warmup -- av_write_data = :leave_warmup
-    02b9 : 02c5 ; -- <0010> "
-    02ba : 4e00 ; -- <0011> ram $ram_destroy_plan_func = :destroy_plan_warmup -- av_ad_hi = 0
-    02bb : 526c ; -- <0011> ram $ram_destroy_plan_func = :destroy_plan_warmup -- av_ad_lo = 108
-    02bc : 47a0 ; -- <0011> ram $ram_destroy_plan_func = :destroy_plan_warmup -- av_write_data = :destroy_plan_warmup
-    02bd : 02bf ; -- <0011> "
-    02be : fc00 ; -- <0012> swapra = nop
+    02ae : 4e00 ; -- <0012> ram $ram_plan_name = :plan_name_warmup -- av_ad_hi = 0
+    02af : 5266 ; -- <0012> ram $ram_plan_name = :plan_name_warmup -- av_ad_lo = 102
+    02b0 : 47a0 ; -- <0012> ram $ram_plan_name = :plan_name_warmup -- av_write_data = :plan_name_warmup
+    02b1 : 02ac ; -- <0012> "
+    02b2 : 4e00 ; -- <0013> ram $ram_puff_len_func = :puff_len_warmup -- av_ad_hi = 0
+    02b3 : 5268 ; -- <0013> ram $ram_puff_len_func = :puff_len_warmup -- av_ad_lo = 104
+    02b4 : 47a0 ; -- <0013> ram $ram_puff_len_func = :puff_len_warmup -- av_write_data = :puff_len_warmup
+    02b5 : 02c0 ; -- <0013> "
+    02b6 : 4e00 ; -- <0014> ram $ram_transition_func = :leave_warmup -- av_ad_hi = 0
+    02b7 : 526a ; -- <0014> ram $ram_transition_func = :leave_warmup -- av_ad_lo = 106
+    02b8 : 47a0 ; -- <0014> ram $ram_transition_func = :leave_warmup -- av_write_data = :leave_warmup
+    02b9 : 02c5 ; -- <0014> "
+    02ba : 4e00 ; -- <0015> ram $ram_destroy_plan_func = :destroy_plan_warmup -- av_ad_hi = 0
+    02bb : 526c ; -- <0015> ram $ram_destroy_plan_func = :destroy_plan_warmup -- av_ad_lo = 108
+    02bc : 47a0 ; -- <0015> ram $ram_destroy_plan_func = :destroy_plan_warmup -- av_write_data = :destroy_plan_warmup
+    02bd : 02bf ; -- <0015> "
+    02be : fc00 ; -- <0016> swapra = nop
 
 -- ######## func destroy_plan_warmup -- = 0x02bf
-    02bf : fc00 ; -- <0015> swapra = nop
+    02bf : fc00 ; -- <0019> swapra = nop
 
 -- ######## func puff_len_warmup -- = 0x02c0
-    02c0 : 4e00 ; -- <0018> ram $ram_next_puff_len_us = 5000 -- av_ad_hi = 0
-    02c1 : 526e ; -- <0018> ram $ram_next_puff_len_us = 5000 -- av_ad_lo = 110
-    02c2 : 47a0 ; -- <0018> ram $ram_next_puff_len_us = 5000 -- av_write_data = 5000
-    02c3 : 1388 ; -- <0018> "
+    02c0 : 4e00 ; -- <0022> ram $ram_next_puff_len_us = 5000 -- av_ad_hi = 0
+    02c1 : 526e ; -- <0022> ram $ram_next_puff_len_us = 5000 -- av_ad_lo = 110
+    02c2 : 47a0 ; -- <0022> ram $ram_next_puff_len_us = 5000 -- av_write_data = 5000
+    02c3 : 1388 ; -- <0022> "
 --patch: add the dial setting to this, for testing.
-    02c4 : fc00 ; -- <0020> swapra = nop
+    02c4 : fc00 ; -- <0024> swapra = nop
 
 -- ######## func leave_warmup -- = 0x02c5
-    02c5 : 203e ; -- <0022> push rtna -- func leave_warmup
-    02c6 : fba0 ; -- <0023> call :check_engine_stop
-    02c7 : 060c ; -- <0023> "
-    02c8 : fc00 ; -- <0023> "
-    02c9 : e400 ; -- <0024> bn az :done
-    02ca : 02e0 ; -- <0024> "
+    02c5 : 203e ; -- <0026> push rtna -- func leave_warmup
+    02c6 : fba0 ; -- <0027> call :check_engine_stop
+    02c7 : 060c ; -- <0027> "
+    02c8 : fc00 ; -- <0027> "
+    02c9 : e400 ; -- <0028> bn az :done
+    02ca : 02e0 ; -- <0028> "
 
 -- transition to plan_run if engine block temp sensor is valid, and temp
 -- exceeds warmup_success_temp_adc.
-    02cb : 0202 ; -- <0028> a = $anmux_engine_block_temp
+    02cb : 0202 ; -- <0032> a = $anmux_engine_block_temp
 
-    02cc : 0351 ; -- <0029> a = a<<1
-    02cd : 0608 ; -- <0029> b = 8
-    02ce : 4e00 ; -- <0029> av_ad_hi = 0
-    02cf : 5300 ; -- <0029> av_ad_lo = ad0
-    02d0 : 0411 ; -- <0029> b = av_write_data
-    02d1 : 0412 ; -- <0029> b = av_read_data
+    02cc : 0351 ; -- <0033> a = a<<1
+    02cd : 0608 ; -- <0033> b = 8
+    02ce : 4e00 ; -- <0033> av_ad_hi = 0
+    02cf : 5300 ; -- <0033> av_ad_lo = ad0
+    02d0 : 0411 ; -- <0033> b = av_write_data
+    02d1 : 0412 ; -- <0033> b = av_read_data
 
-    02d2 : 03a0 ; -- <0030> a = $temp_ceiling_adc
-    02d3 : 0ff0 ; -- <0030> "
-    02d4 : e005 ; -- <0031> br lt :stay
-    02d5 : 02e0 ; -- <0031> "
-    02d6 : 03a0 ; -- <0032> a = $warmup_success_temp_adc
-    02d7 : 04c0 ; -- <0032> "
-    02d8 : e006 ; -- <0033> br gt :stay
-    02d9 : 02e0 ; -- <0033> "
-    02da : fba0 ; -- <0034> call :destroy_plan_warmup
-    02db : 02bf ; -- <0034> "
-    02dc : fc00 ; -- <0034> "
-    02dd : fba0 ; -- <0035> call :init_plan_run
-    02de : 02e4 ; -- <0035> "
-    02df : fc00 ; -- <0035> "
+    02d2 : 03a0 ; -- <0034> a = $temp_ceiling_adc
+    02d3 : 0ff0 ; -- <0034> "
+    02d4 : e005 ; -- <0035> br lt :stay
+    02d5 : 02e0 ; -- <0035> "
+    02d6 : 03a0 ; -- <0036> a = $warmup_success_temp_adc
+    02d7 : 04c0 ; -- <0036> "
+    02d8 : e006 ; -- <0037> br gt :stay
+    02d9 : 02e0 ; -- <0037> "
+    02da : fba0 ; -- <0038> call :destroy_plan_warmup
+    02db : 02bf ; -- <0038> "
+    02dc : fc00 ; -- <0038> "
+    02dd : fba0 ; -- <0039> call :init_plan_run
+    02de : 02e4 ; -- <0039> "
+    02df : fc00 ; -- <0039> "
 -- :stay -- = 0x02e0
 
 -- :done -- = 0x02e0
-    02e0 : f808 ; -- <0039> pop rtna -- end_func
-    02e1 : fc00 ; -- <0039> swapra = nop
+    02e0 : f808 ; -- <0043> pop rtna -- end_func
+    02e1 : fc00 ; -- <0043> swapra = nop
 
 
 -- :plan_name_run -- = 0x02e2
@@ -1169,181 +1173,181 @@
 
 -- #########################################################################
 -- :main -- = 0x0306
-    0306 : 03a0 ; -- <0203> a = :boot_msg
-    0307 : 007b ; -- <0203> "
-    0308 : fba0 ; -- <0204> call :print_nt
-    0309 : 013f ; -- <0204> "
-    030a : fc00 ; -- <0204> "
+    0306 : 03a0 ; -- <0194> a = :boot_msg
+    0307 : 007b ; -- <0194> "
+    0308 : fba0 ; -- <0195> call :print_nt
+    0309 : 013f ; -- <0195> "
+    030a : fc00 ; -- <0195> "
 
 -- clear the first 64k of RAM.
-    030b : 4e00 ; -- <0207> av_ad_hi = 0
-    030c : 0200 ; -- <0208> a = 0
-    030d : 0602 ; -- <0209> b = 2
+    030b : 4e00 ; -- <0198> av_ad_hi = 0
+    030c : 0200 ; -- <0199> a = 0
+    030d : 0602 ; -- <0200> b = 2
 -- :clear_next_word -- = 0x030e
-    030e : 5000 ; -- <0211> av_ad_lo = a
-    030f : 4600 ; -- <0212> av_write_data = 0
-    0310 : 0300 ; -- <0213> a = ad0
-    0311 : e400 ; -- <0214> bn az :clear_next_word
-    0312 : 030e ; -- <0214> "
+    030e : 5000 ; -- <0202> av_ad_lo = a
+    030f : 4600 ; -- <0203> av_write_data = 0
+    0310 : 0300 ; -- <0204> a = ad0
+    0311 : e400 ; -- <0205> bn az :clear_next_word
+    0312 : 030e ; -- <0205> "
 
 -- init fuel injection.
-    0313 : fba0 ; -- <0217> call :init_plan_stop
-    0314 : 020f ; -- <0217> "
-    0315 : fc00 ; -- <0217> "
+    0313 : fba0 ; -- <0208> call :init_plan_stop
+    0314 : 020f ; -- <0208> "
+    0315 : fc00 ; -- <0208> "
 
 -- power up FTDI USB board, and init any other special board control functions.
-    0316 : 6280 ; -- <0220> board_ctrl = $ftdi_power_mask
-    0317 : fba0 ; -- <0221> call :postpone_comm_restart
-    0318 : 0581 ; -- <0221> "
-    0319 : fc00 ; -- <0221> "
+    0316 : 6280 ; -- <0211> board_ctrl = $ftdi_power_mask
+    0317 : fba0 ; -- <0212> call :postpone_comm_restart
+    0318 : 0581 ; -- <0212> "
+    0319 : fc00 ; -- <0212> "
 
 -- check initial state of power management circuits.
 -- if power is lost or ignition switch is off already, open relay & abort run.
 -- that's important because then the event controller booted up too late to
 -- see edges on those 2 signals.  regular system would never shut itself down.
 -- this setup is the last thing done prior to the event handler loop.
-    031a : 6a00 ; -- <0228> power_duty = $power_duty_closing
-    031b : 001a ; -- <0229> a = power_duty
-    031c : 06c0 ; -- <0230> b = ($power_lost_mask | $ign_switch_off_mask)
-    031d : e003 ; -- <0231> br and0z :skip_power_lost
-    031e : 0324 ; -- <0231> "
-    031f : 6a32 ; -- <0232> power_duty = $power_duty_opening
-    0320 : 5fa0 ; -- <0233> error_halt_code $err_power_lost_at_boot -- leds = 0xfffb
-    0321 : fffb ; -- <0233> "
-    0322 : e00f ; -- <0233> error_halt_code $err_power_lost_at_boot
-    0323 : 0322 ; -- <0233> "
+    031a : 6a00 ; -- <0219> power_duty = $power_duty_closing
+    031b : 001a ; -- <0220> a = power_duty
+    031c : 06c0 ; -- <0221> b = ($power_lost_mask | $ign_switch_off_mask)
+    031d : e003 ; -- <0222> br and0z :skip_power_lost
+    031e : 0324 ; -- <0222> "
+    031f : 6a32 ; -- <0223> power_duty = $power_duty_opening
+    0320 : 5fa0 ; -- <0224> error_halt_code $err_power_lost_at_boot -- leds = 0xfffb
+    0321 : fffb ; -- <0224> "
+    0322 : e00f ; -- <0224> error_halt_code $err_power_lost_at_boot
+    0323 : 0322 ; -- <0224> "
 -- :skip_power_lost -- = 0x0324
-    0324 : 4e00 ; -- <0235> ram $ram_power_down_at_min = $power_down_never -- av_ad_hi = 0
-    0325 : 5218 ; -- <0235> ram $ram_power_down_at_min = $power_down_never -- av_ad_lo = 24
-    0326 : 4760 ; -- <0235> ram $ram_power_down_at_min = $power_down_never -- av_write_data = 0xffff
-    0327 : 4e00 ; -- <0236> ram $ram_relay_hold_at_pass = $relay_hold_passes -- av_ad_hi = 0
-    0328 : 521a ; -- <0236> ram $ram_relay_hold_at_pass = $relay_hold_passes -- av_ad_lo = 26
-    0329 : 4602 ; -- <0236> ram $ram_relay_hold_at_pass = $relay_hold_passes -- av_write_data = 2
+    0324 : 4e00 ; -- <0226> ram $ram_power_down_at_min = $power_down_never -- av_ad_hi = 0
+    0325 : 5218 ; -- <0226> ram $ram_power_down_at_min = $power_down_never -- av_ad_lo = 24
+    0326 : 4760 ; -- <0226> ram $ram_power_down_at_min = $power_down_never -- av_write_data = 0xffff
+    0327 : 4e00 ; -- <0227> ram $ram_relay_hold_at_pass = $relay_hold_passes -- av_ad_hi = 0
+    0328 : 521a ; -- <0227> ram $ram_relay_hold_at_pass = $relay_hold_passes -- av_ad_lo = 26
+    0329 : 4602 ; -- <0227> ram $ram_relay_hold_at_pass = $relay_hold_passes -- av_write_data = 2
 
 -- start handling events.
-    032a : 2ba0 ; -- <0239> soft_event = $event_controller_reset_mask
-    032b : 8000 ; -- <0239> "
-    032c : 2a00 ; -- <0240> soft_event = 0
-    032d : 37a0 ; -- <0241> mstimer0 = 1000
-    032e : 03e8 ; -- <0241> "
-    032f : 3e14 ; -- <0242> mstimer2 = $plan_tick_ms
-    0330 : e00f ; -- <0243> jmp :poll_events
-    0331 : 007e ; -- <0243> "
+    032a : 2ba0 ; -- <0230> soft_event = $event_controller_reset_mask
+    032b : 8000 ; -- <0230> "
+    032c : 2a00 ; -- <0231> soft_event = 0
+    032d : 37a0 ; -- <0232> mstimer0 = 1000
+    032e : 03e8 ; -- <0232> "
+    032f : 3e14 ; -- <0233> mstimer2 = $plan_tick_ms
+    0330 : e00f ; -- <0234> jmp :poll_events
+    0331 : 007e ; -- <0234> "
 
 -- event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.
 -- event 0 not used in this app anyway.
 -- :event_table -- = 0x0332
-    0332 : 007e ; -- <0248> ([label :poll_events])
-    0333 : 04e1 ; -- <0249> ([label :power_lost_handler])
-    0334 : 0347 ; -- <0250> ([label :ign_capture_handler])
-    0335 : 03be ; -- <0251> ([label :ign_capture_timeout_handler])
-    0336 : 0510 ; -- <0252> ([label :puff1_done_handler])
-    0337 : 03c3 ; -- <0253> ([label :ustimer0_handler])
-    0338 : 03c5 ; -- <0254> ([label :spi_done_handler])
-    0339 : 0406 ; -- <0255> ([label :mstimer0_handler])
-    033a : 0431 ; -- <0256> ([label :mstimer1_handler])
-    033b : 044f ; -- <0257> ([label :mstimer2_handler])
-    033c : 045c ; -- <0258> ([label :uart_rx_handler])
-    033d : 046c ; -- <0259> ([label :uart_rx_overflow_handler])
-    033e : 0472 ; -- <0260> ([label :uart_tx_overflow_handler])
-    033f : 0478 ; -- <0261> ([label :key0_handler])
-    0340 : 0482 ; -- <0262> ([label :key1_handler])
-    0341 : 04f3 ; -- <0263> ([label :ign_switch_off_handler])
-    0342 : 0506 ; -- <0264> ([label :ign_switch_on_handler])
-    0343 : 048c ; -- <0265> ([label :softevent3_handler])
-    0344 : 048e ; -- <0266> ([label :softevent2_handler])
-    0345 : 0490 ; -- <0267> ([label :softevent1_handler])
-    0346 : 0492 ; -- <0268> ([label :softevent0_handler])
+    0332 : 007e ; -- <0239> ([label :poll_events])
+    0333 : 04e1 ; -- <0240> ([label :power_lost_handler])
+    0334 : 0347 ; -- <0241> ([label :ign_capture_handler])
+    0335 : 03be ; -- <0242> ([label :ign_capture_timeout_handler])
+    0336 : 0510 ; -- <0243> ([label :puff1_done_handler])
+    0337 : 03c3 ; -- <0244> ([label :ustimer0_handler])
+    0338 : 03c5 ; -- <0245> ([label :spi_done_handler])
+    0339 : 0406 ; -- <0246> ([label :mstimer0_handler])
+    033a : 0431 ; -- <0247> ([label :mstimer1_handler])
+    033b : 044f ; -- <0248> ([label :mstimer2_handler])
+    033c : 045c ; -- <0249> ([label :uart_rx_handler])
+    033d : 046c ; -- <0250> ([label :uart_rx_overflow_handler])
+    033e : 0472 ; -- <0251> ([label :uart_tx_overflow_handler])
+    033f : 0478 ; -- <0252> ([label :key0_handler])
+    0340 : 0482 ; -- <0253> ([label :key1_handler])
+    0341 : 04f3 ; -- <0254> ([label :ign_switch_off_handler])
+    0342 : 0506 ; -- <0255> ([label :ign_switch_on_handler])
+    0343 : 048c ; -- <0256> ([label :softevent3_handler])
+    0344 : 048e ; -- <0257> ([label :softevent2_handler])
+    0345 : 0490 ; -- <0258> ([label :softevent1_handler])
+    0346 : 0492 ; -- <0259> ([label :softevent0_handler])
 
 -- #########################################################################
 
 -- ######## event ign_capture_handler -- = 0x0347
 -- discard outlier time.
-    0347 : 181b ; -- <0274> g6 = ign_capture_jf
-    0348 : 4e00 ; -- <0275> ram b = $ram_ign_fastest_jf -- av_ad_hi = 0
-    0349 : 5260 ; -- <0275> ram b = $ram_ign_fastest_jf -- av_ad_lo = 96
-    034a : 0411 ; -- <0275> ram b = $ram_ign_fastest_jf -- b = av_write_data -- start read cycle
-    034b : 0412 ; -- <0275> ram b = $ram_ign_fastest_jf -- b = av_read_data -- finish read cycle
-    034c : 0006 ; -- <0276> a = g6
-    034d : e006 ; -- <0277> br gt :fastest_ok
-    034e : 0350 ; -- <0277> "
-    034f : 1a00 ; -- <0278> g6 = 0
+    0347 : 181b ; -- <0265> g6 = ign_capture_jf
+    0348 : 4e00 ; -- <0266> ram b = $ram_ign_fastest_jf -- av_ad_hi = 0
+    0349 : 5260 ; -- <0266> ram b = $ram_ign_fastest_jf -- av_ad_lo = 96
+    034a : 0411 ; -- <0266> ram b = $ram_ign_fastest_jf -- b = av_write_data -- start read cycle
+    034b : 0412 ; -- <0266> ram b = $ram_ign_fastest_jf -- b = av_read_data -- finish read cycle
+    034c : 0006 ; -- <0267> a = g6
+    034d : e006 ; -- <0268> br gt :fastest_ok
+    034e : 0350 ; -- <0268> "
+    034f : 1a00 ; -- <0269> g6 = 0
 -- :fastest_ok -- = 0x0350
-    0350 : 4e00 ; -- <0280> ram b = $ram_ign_slowest_jf -- av_ad_hi = 0
-    0351 : 5262 ; -- <0280> ram b = $ram_ign_slowest_jf -- av_ad_lo = 98
-    0352 : 0411 ; -- <0280> ram b = $ram_ign_slowest_jf -- b = av_write_data -- start read cycle
-    0353 : 0412 ; -- <0280> ram b = $ram_ign_slowest_jf -- b = av_read_data -- finish read cycle
-    0354 : 0006 ; -- <0281> a = g6
-    0355 : e005 ; -- <0282> br lt :slowest_ok
-    0356 : 0358 ; -- <0282> "
-    0357 : 1a00 ; -- <0283> g6 = 0
+    0350 : 4e00 ; -- <0271> ram b = $ram_ign_slowest_jf -- av_ad_hi = 0
+    0351 : 5262 ; -- <0271> ram b = $ram_ign_slowest_jf -- av_ad_lo = 98
+    0352 : 0411 ; -- <0271> ram b = $ram_ign_slowest_jf -- b = av_write_data -- start read cycle
+    0353 : 0412 ; -- <0271> ram b = $ram_ign_slowest_jf -- b = av_read_data -- finish read cycle
+    0354 : 0006 ; -- <0272> a = g6
+    0355 : e005 ; -- <0273> br lt :slowest_ok
+    0356 : 0358 ; -- <0273> "
+    0357 : 1a00 ; -- <0274> g6 = 0
 -- :slowest_ok -- = 0x0358
 
 -- increment buffer index and memorize time.
-    0358 : 4e00 ; -- <0287> ram a = $ram_ign_history_idx -- av_ad_hi = 0
-    0359 : 5236 ; -- <0287> ram a = $ram_ign_history_idx -- av_ad_lo = 54
-    035a : 0011 ; -- <0287> ram a = $ram_ign_history_idx -- a = av_write_data -- start read cycle
-    035b : 0012 ; -- <0287> ram a = $ram_ign_history_idx -- a = av_read_data -- finish read cycle
-    035c : 0601 ; -- <0288> b = 1
-    035d : c800 ; -- <0289> a = a+b
-    035e : 0300 ; -- <0289> "
-    035f : 060f ; -- <0290> b = $ign_history_idx_mask
-    0360 : c800 ; -- <0291> a = and
-    0361 : 0330 ; -- <0291> "
-    0362 : 4e00 ; -- <0292> ram $ram_ign_history_idx = a -- av_ad_hi = 0
-    0363 : 5236 ; -- <0292> ram $ram_ign_history_idx = a -- av_ad_lo = 54
-    0364 : 4400 ; -- <0292> ram $ram_ign_history_idx = a -- av_write_data = a
-    0365 : 0406 ; -- <0293> b = g6
+    0358 : 4e00 ; -- <0278> ram a = $ram_ign_history_idx -- av_ad_hi = 0
+    0359 : 5236 ; -- <0278> ram a = $ram_ign_history_idx -- av_ad_lo = 54
+    035a : 0011 ; -- <0278> ram a = $ram_ign_history_idx -- a = av_write_data -- start read cycle
+    035b : 0012 ; -- <0278> ram a = $ram_ign_history_idx -- a = av_read_data -- finish read cycle
+    035c : 0601 ; -- <0279> b = 1
+    035d : c800 ; -- <0280> a = a+b
+    035e : 0300 ; -- <0280> "
+    035f : 060f ; -- <0281> b = $ign_history_idx_mask
+    0360 : c800 ; -- <0282> a = and
+    0361 : 0330 ; -- <0282> "
+    0362 : 4e00 ; -- <0283> ram $ram_ign_history_idx = a -- av_ad_hi = 0
+    0363 : 5236 ; -- <0283> ram $ram_ign_history_idx = a -- av_ad_lo = 54
+    0364 : 4400 ; -- <0283> ram $ram_ign_history_idx = a -- av_write_data = a
+    0365 : 0406 ; -- <0284> b = g6
 
-    0366 : 0351 ; -- <0294> a = a<<1
-    0367 : 2001 ; -- <0294> push b -- push b
-    0368 : 0638 ; -- <0294> b = 56
-    0369 : 4e00 ; -- <0294> av_ad_hi = 0
-    036a : 5300 ; -- <0294> av_ad_lo = ad0
-    036b : 4408 ; -- <0294> pop av_write_data -- pop av_write_data
+    0366 : 0351 ; -- <0285> a = a<<1
+    0367 : 2001 ; -- <0285> push b -- push b
+    0368 : 0638 ; -- <0285> b = 56
+    0369 : 4e00 ; -- <0285> av_ad_hi = 0
+    036a : 5300 ; -- <0285> av_ad_lo = ad0
+    036b : 4408 ; -- <0285> pop av_write_data -- pop av_write_data
 
 
 -- ---------- compute new jiffy estimate.
 -- average entire history.
 -- x = total, i = index = loop count, g6 = count of invalid samples.
-    036c : 1200 ; -- <0299> x = 0
-    036d : 0a10 ; -- <0300> i = $ign_history_len
-    036e : 0f60 ; -- <0301> j = -1
-    036f : 1a00 ; -- <0302> g6 = 0
+    036c : 1200 ; -- <0290> x = 0
+    036d : 0a10 ; -- <0291> i = $ign_history_len
+    036e : 0f60 ; -- <0292> j = -1
+    036f : 1a00 ; -- <0293> g6 = 0
 -- :next_avg -- = 0x0370
-    0370 : c800 ; -- <0304> i = i+j
-    0371 : 0b10 ; -- <0304> "
-    0372 : 0002 ; -- <0305> a = i
+    0370 : c800 ; -- <0295> i = i+j
+    0371 : 0b10 ; -- <0295> "
+    0372 : 0002 ; -- <0296> a = i
 
-    0373 : 0351 ; -- <0306> a = a<<1
-    0374 : 0638 ; -- <0306> b = 56
-    0375 : 4e00 ; -- <0306> av_ad_hi = 0
-    0376 : 5300 ; -- <0306> av_ad_lo = ad0
-    0377 : 0411 ; -- <0306> b = av_write_data
-    0378 : 0412 ; -- <0306> b = av_read_data
+    0373 : 0351 ; -- <0297> a = a<<1
+    0374 : 0638 ; -- <0297> b = 56
+    0375 : 4e00 ; -- <0297> av_ad_hi = 0
+    0376 : 5300 ; -- <0297> av_ad_lo = ad0
+    0377 : 0411 ; -- <0297> b = av_write_data
+    0378 : 0412 ; -- <0297> b = av_read_data
 
-    0379 : 0200 ; -- <0307> a = 0
-    037a : e407 ; -- <0308> bn eq :valid_sample
-    037b : 0382 ; -- <0308> "
-    037c : 0006 ; -- <0309> a = g6
-    037d : 0601 ; -- <0310> b = 1
-    037e : c800 ; -- <0311> g6 = a+b
-    037f : 1b00 ; -- <0311> "
-    0380 : e00f ; -- <0312> jmp :sample_done
-    0381 : 0388 ; -- <0312> "
+    0379 : 0200 ; -- <0298> a = 0
+    037a : e407 ; -- <0299> bn eq :valid_sample
+    037b : 0382 ; -- <0299> "
+    037c : 0006 ; -- <0300> a = g6
+    037d : 0601 ; -- <0301> b = 1
+    037e : c800 ; -- <0302> g6 = a+b
+    037f : 1b00 ; -- <0302> "
+    0380 : e00f ; -- <0303> jmp :sample_done
+    0381 : 0388 ; -- <0303> "
 -- :valid_sample -- = 0x0382
-    0382 : 0208 ; -- <0314> a = ($ign_history_len / 2)
-    0383 : c800 ; -- <0315> a = a+b
-    0384 : 0300 ; -- <0315> "
-    0385 : 1753 ; -- <0316> y = a>>$ign_history_idx_bits
-    0386 : c800 ; -- <0317> x = x+y
-    0387 : 1320 ; -- <0317> "
+    0382 : 0208 ; -- <0305> a = ($ign_history_len / 2)
+    0383 : c800 ; -- <0306> a = a+b
+    0384 : 0300 ; -- <0306> "
+    0385 : 1753 ; -- <0307> y = a>>$ign_history_idx_bits
+    0386 : c800 ; -- <0308> x = x+y
+    0387 : 1320 ; -- <0308> "
 -- :sample_done -- = 0x0388
-    0388 : e401 ; -- <0319> bn iz :next_avg
-    0389 : 0370 ; -- <0319> "
-    038a : 4e00 ; -- <0320> ram $ram_ign_avg_jf = x -- av_ad_hi = 0
-    038b : 5258 ; -- <0320> ram $ram_ign_avg_jf = x -- av_ad_lo = 88
-    038c : 4404 ; -- <0320> ram $ram_ign_avg_jf = x -- av_write_data = x
+    0388 : e401 ; -- <0310> bn iz :next_avg
+    0389 : 0370 ; -- <0310> "
+    038a : 4e00 ; -- <0311> ram $ram_ign_avg_jf = x -- av_ad_hi = 0
+    038b : 5258 ; -- <0311> ram $ram_ign_avg_jf = x -- av_ad_lo = 88
+    038c : 4404 ; -- <0311> ram $ram_ign_avg_jf = x -- av_write_data = x
 --patch: dividing before summing (instead of after) is much simpler and faster because it prevents overflow.
 -- but it means we could be reading as much as 16 jf too low (16 = ign_history_len).
 -- that error is way less than 1 RPM on the slow end,
@@ -1352,445 +1356,445 @@
 -- that didn't seem to help much in simple testing.
 -- probly because jf_to_rpm has only 32 RPM resolution.
 
-    038d : 4e00 ; -- <0329> ram $ram_ign_bad_samples = g6 -- av_ad_hi = 0
-    038e : 525e ; -- <0329> ram $ram_ign_bad_samples = g6 -- av_ad_lo = 94
-    038f : 4406 ; -- <0329> ram $ram_ign_bad_samples = g6 -- av_write_data = g6
-    0390 : 0006 ; -- <0330> a = g6
-    0391 : 0604 ; -- <0331> b = ($ign_history_len / 4)
-    0392 : e006 ; -- <0332> br gt :partial_history
-    0393 : 03a0 ; -- <0332> "
+    038d : 4e00 ; -- <0320> ram $ram_ign_bad_samples = g6 -- av_ad_hi = 0
+    038e : 525e ; -- <0320> ram $ram_ign_bad_samples = g6 -- av_ad_lo = 94
+    038f : 4406 ; -- <0320> ram $ram_ign_bad_samples = g6 -- av_write_data = g6
+    0390 : 0006 ; -- <0321> a = g6
+    0391 : 0604 ; -- <0322> b = ($ign_history_len / 4)
+    0392 : e006 ; -- <0323> br gt :partial_history
+    0393 : 03a0 ; -- <0323> "
 -- convert jiffies b to new RPM estimate.
-    0394 : 0004 ; -- <0334> a = x
-    0395 : fba0 ; -- <0335> call :jf_to_rpm
-    0396 : 0600 ; -- <0335> "
-    0397 : fc00 ; -- <0335> "
-    0398 : 4e00 ; -- <0336> ram $ram_avg_rpm = a -- av_ad_hi = 0
-    0399 : 525a ; -- <0336> ram $ram_avg_rpm = a -- av_ad_lo = 90
-    039a : 4400 ; -- <0336> ram $ram_avg_rpm = a -- av_write_data = a
-    039b : 4e00 ; -- <0337> ram $ram_rpm_valid = 1 -- av_ad_hi = 0
-    039c : 525c ; -- <0337> ram $ram_rpm_valid = 1 -- av_ad_lo = 92
-    039d : 4601 ; -- <0337> ram $ram_rpm_valid = 1 -- av_write_data = 1
-    039e : e00f ; -- <0338> jmp :done
-    039f : 046a ; -- <0338> "
+    0394 : 0004 ; -- <0325> a = x
+    0395 : fba0 ; -- <0326> call :jf_to_rpm
+    0396 : 0600 ; -- <0326> "
+    0397 : fc00 ; -- <0326> "
+    0398 : 4e00 ; -- <0327> ram $ram_avg_rpm = a -- av_ad_hi = 0
+    0399 : 525a ; -- <0327> ram $ram_avg_rpm = a -- av_ad_lo = 90
+    039a : 4400 ; -- <0327> ram $ram_avg_rpm = a -- av_write_data = a
+    039b : 4e00 ; -- <0328> ram $ram_rpm_valid = 1 -- av_ad_hi = 0
+    039c : 525c ; -- <0328> ram $ram_rpm_valid = 1 -- av_ad_lo = 92
+    039d : 4601 ; -- <0328> ram $ram_rpm_valid = 1 -- av_write_data = 1
+    039e : e00f ; -- <0329> jmp :done
+    039f : 046a ; -- <0329> "
 -- :partial_history -- = 0x03a0
-    03a0 : 4e00 ; -- <0340> ram $ram_rpm_valid = 0 -- av_ad_hi = 0
-    03a1 : 525c ; -- <0340> ram $ram_rpm_valid = 0 -- av_ad_lo = 92
-    03a2 : 4600 ; -- <0340> ram $ram_rpm_valid = 0 -- av_write_data = 0
+    03a0 : 4e00 ; -- <0331> ram $ram_rpm_valid = 0 -- av_ad_hi = 0
+    03a1 : 525c ; -- <0331> ram $ram_rpm_valid = 0 -- av_ad_lo = 92
+    03a2 : 4600 ; -- <0331> ram $ram_rpm_valid = 0 -- av_write_data = 0
 
 -- :done -- = 0x03a3
-    03a3 : e00f ; -- <0343> end_event
-    03a4 : 007e ; -- <0343> "
+    03a3 : e00f ; -- <0334> end_event
+    03a4 : 007e ; -- <0334> "
 
 -- ######## func clear_ign_history -- = 0x03a5
-    03a5 : 2002 ; -- <0345> push i -- func clear_ign_history
-    03a6 : 2003 ; -- <0345> push j -- "
+    03a5 : 2002 ; -- <0336> push i -- func clear_ign_history
+    03a6 : 2003 ; -- <0336> push j -- "
 -- invalidate the RPM estimate.
-    03a7 : 4e00 ; -- <0347> ram $ram_rpm_valid = 0 -- av_ad_hi = 0
-    03a8 : 525c ; -- <0347> ram $ram_rpm_valid = 0 -- av_ad_lo = 92
-    03a9 : 4600 ; -- <0347> ram $ram_rpm_valid = 0 -- av_write_data = 0
+    03a7 : 4e00 ; -- <0338> ram $ram_rpm_valid = 0 -- av_ad_hi = 0
+    03a8 : 525c ; -- <0338> ram $ram_rpm_valid = 0 -- av_ad_lo = 92
+    03a9 : 4600 ; -- <0338> ram $ram_rpm_valid = 0 -- av_write_data = 0
 -- the last known RPM estimate is retained here, not cleared.
 -- clear the history so it won't be valid again until several more valid samples are collected.
-    03aa : 4e00 ; -- <0350> ram $ram_ign_bad_samples = $ign_history_len -- av_ad_hi = 0
-    03ab : 525e ; -- <0350> ram $ram_ign_bad_samples = $ign_history_len -- av_ad_lo = 94
-    03ac : 4610 ; -- <0350> ram $ram_ign_bad_samples = $ign_history_len -- av_write_data = 16
-    03ad : 0a10 ; -- <0351> i = $ign_history_len
-    03ae : 0f60 ; -- <0352> j = -1
+    03aa : 4e00 ; -- <0341> ram $ram_ign_bad_samples = $ign_history_len -- av_ad_hi = 0
+    03ab : 525e ; -- <0341> ram $ram_ign_bad_samples = $ign_history_len -- av_ad_lo = 94
+    03ac : 4610 ; -- <0341> ram $ram_ign_bad_samples = $ign_history_len -- av_write_data = 16
+    03ad : 0a10 ; -- <0342> i = $ign_history_len
+    03ae : 0f60 ; -- <0343> j = -1
 -- :next -- = 0x03af
-    03af : 0002 ; -- <0354> a = i
-    03b0 : 0600 ; -- <0355> b = 0
+    03af : 0002 ; -- <0345> a = i
+    03b0 : 0600 ; -- <0346> b = 0
 
-    03b1 : 0351 ; -- <0356> a = a<<1
-    03b2 : 2001 ; -- <0356> push b -- push b
-    03b3 : 0638 ; -- <0356> b = 56
-    03b4 : 4e00 ; -- <0356> av_ad_hi = 0
-    03b5 : 5300 ; -- <0356> av_ad_lo = ad0
-    03b6 : 4408 ; -- <0356> pop av_write_data -- pop av_write_data
+    03b1 : 0351 ; -- <0347> a = a<<1
+    03b2 : 2001 ; -- <0347> push b -- push b
+    03b3 : 0638 ; -- <0347> b = 56
+    03b4 : 4e00 ; -- <0347> av_ad_hi = 0
+    03b5 : 5300 ; -- <0347> av_ad_lo = ad0
+    03b6 : 4408 ; -- <0347> pop av_write_data -- pop av_write_data
 
-    03b7 : c800 ; -- <0357> i = i+j
-    03b8 : 0b10 ; -- <0357> "
-    03b9 : e401 ; -- <0358> bn iz :next
-    03ba : 03af ; -- <0358> "
-    03bb : 0c08 ; -- <0359> pop j -- end_func
-    03bc : 0808 ; -- <0359> pop i -- "
-    03bd : fc00 ; -- <0359> swapra = nop
+    03b7 : c800 ; -- <0348> i = i+j
+    03b8 : 0b10 ; -- <0348> "
+    03b9 : e401 ; -- <0349> bn iz :next
+    03ba : 03af ; -- <0349> "
+    03bb : 0c08 ; -- <0350> pop j -- end_func
+    03bc : 0808 ; -- <0350> pop i -- "
+    03bd : fc00 ; -- <0350> swapra = nop
 
 -- ######## event ign_capture_timeout_handler -- = 0x03be
 -- it's been too long since the last ignition pulse detect.
-    03be : fba0 ; -- <0363> call :clear_ign_history
-    03bf : 03a5 ; -- <0363> "
-    03c0 : fc00 ; -- <0363> "
-    03c1 : e00f ; -- <0364> end_event
-    03c2 : 007e ; -- <0364> "
+    03be : fba0 ; -- <0354> call :clear_ign_history
+    03bf : 03a5 ; -- <0354> "
+    03c0 : fc00 ; -- <0354> "
+    03c1 : e00f ; -- <0355> end_event
+    03c2 : 007e ; -- <0355> "
 
 -- ######## event ustimer0_handler -- = 0x03c3
-    03c3 : e00f ; -- <0367> end_event
-    03c4 : 007e ; -- <0367> "
+    03c3 : e00f ; -- <0358> end_event
+    03c4 : 007e ; -- <0358> "
 
 -- ######## event spi_done_handler -- = 0x03c5
 -- discard-counter in RAM.
-    03c5 : 4e00 ; -- <0371> ram a = $ram_daq_discard_cnt -- av_ad_hi = 0
-    03c6 : 5206 ; -- <0371> ram a = $ram_daq_discard_cnt -- av_ad_lo = 6
-    03c7 : 0011 ; -- <0371> ram a = $ram_daq_discard_cnt -- a = av_write_data -- start read cycle
-    03c8 : 0012 ; -- <0371> ram a = $ram_daq_discard_cnt -- a = av_read_data -- finish read cycle
-    03c9 : e000 ; -- <0372> br az :report
-    03ca : 03d7 ; -- <0372> "
-    03cb : 0760 ; -- <0373> b = -1
-    03cc : c800 ; -- <0374> a = a+b
-    03cd : 0300 ; -- <0374> "
-    03ce : 4e00 ; -- <0375> ram $ram_daq_discard_cnt = a -- av_ad_hi = 0
-    03cf : 5206 ; -- <0375> ram $ram_daq_discard_cnt = a -- av_ad_lo = 6
-    03d0 : 4400 ; -- <0375> ram $ram_daq_discard_cnt = a -- av_write_data = a
-    03d1 : 0207 ; -- <0376> a = $anmux_adc_channel
-    03d2 : fba0 ; -- <0377> call :begin_adc_conversion
-    03d3 : 04da ; -- <0377> "
-    03d4 : fc00 ; -- <0377> "
-    03d5 : e00f ; -- <0378> event_return
-    03d6 : 007e ; -- <0378> "
+    03c5 : 4e00 ; -- <0362> ram a = $ram_daq_discard_cnt -- av_ad_hi = 0
+    03c6 : 5206 ; -- <0362> ram a = $ram_daq_discard_cnt -- av_ad_lo = 6
+    03c7 : 0011 ; -- <0362> ram a = $ram_daq_discard_cnt -- a = av_write_data -- start read cycle
+    03c8 : 0012 ; -- <0362> ram a = $ram_daq_discard_cnt -- a = av_read_data -- finish read cycle
+    03c9 : e000 ; -- <0363> br az :report
+    03ca : 03d7 ; -- <0363> "
+    03cb : 0760 ; -- <0364> b = -1
+    03cc : c800 ; -- <0365> a = a+b
+    03cd : 0300 ; -- <0365> "
+    03ce : 4e00 ; -- <0366> ram $ram_daq_discard_cnt = a -- av_ad_hi = 0
+    03cf : 5206 ; -- <0366> ram $ram_daq_discard_cnt = a -- av_ad_lo = 6
+    03d0 : 4400 ; -- <0366> ram $ram_daq_discard_cnt = a -- av_write_data = a
+    03d1 : 0207 ; -- <0367> a = $anmux_adc_channel
+    03d2 : fba0 ; -- <0368> call :begin_adc_conversion
+    03d3 : 04da ; -- <0368> "
+    03d4 : fc00 ; -- <0368> "
+    03d5 : e00f ; -- <0369> event_return
+    03d6 : 007e ; -- <0369> "
 
 -- report ADC reading.
 -- :report -- = 0x03d7
-    03d7 : 0010 ; -- <0382> a = spi_data
-    03d8 : fba0 ; -- <0383> call :put4x
-    03d9 : 00b3 ; -- <0383> "
-    03da : fc00 ; -- <0383> "
+    03d7 : 0010 ; -- <0373> a = spi_data
+    03d8 : fba0 ; -- <0374> call :put4x
+    03d9 : 00b3 ; -- <0374> "
+    03da : fc00 ; -- <0374> "
 
 -- memorize ADC reading.
-    03db : fba0 ; -- <0386> call :anmux_get_chn
-    03dc : 00a6 ; -- <0386> "
-    03dd : fc00 ; -- <0386> "
-    03de : 0410 ; -- <0387> b = spi_data
+    03db : fba0 ; -- <0377> call :anmux_get_chn
+    03dc : 00a6 ; -- <0377> "
+    03dd : fc00 ; -- <0377> "
+    03de : 0410 ; -- <0378> b = spi_data
 
-    03df : 0351 ; -- <0388> a = a<<1
-    03e0 : 2001 ; -- <0388> push b -- push b
-    03e1 : 0608 ; -- <0388> b = 8
-    03e2 : 4e00 ; -- <0388> av_ad_hi = 0
-    03e3 : 5300 ; -- <0388> av_ad_lo = ad0
-    03e4 : 4408 ; -- <0388> pop av_write_data -- pop av_write_data
+    03df : 0351 ; -- <0379> a = a<<1
+    03e0 : 2001 ; -- <0379> push b -- push b
+    03e1 : 0608 ; -- <0379> b = 8
+    03e2 : 4e00 ; -- <0379> av_ad_hi = 0
+    03e3 : 5300 ; -- <0379> av_ad_lo = ad0
+    03e4 : 4408 ; -- <0379> pop av_write_data -- pop av_write_data
 
 
 -- decrement anmux channel & start waiting again.
-    03e5 : fba0 ; -- <0391> call :anmux_get_chn
-    03e6 : 00a6 ; -- <0391> "
-    03e7 : fc00 ; -- <0391> "
-    03e8 : e000 ; -- <0392> br az :all_done
-    03e9 : 03f3 ; -- <0392> "
-    03ea : 0760 ; -- <0393> b = -1
-    03eb : c800 ; -- <0394> a = a+b
-    03ec : 0300 ; -- <0394> "
-    03ed : fba0 ; -- <0395> call :anmux_set_chn
-    03ee : 00a2 ; -- <0395> "
-    03ef : fc00 ; -- <0395> "
-    03f0 : 3a05 ; -- <0396> mstimer1 = $anmux_settle_ms
-    03f1 : e00f ; -- <0397> event_return
-    03f2 : 007e ; -- <0397> "
+    03e5 : fba0 ; -- <0382> call :anmux_get_chn
+    03e6 : 00a6 ; -- <0382> "
+    03e7 : fc00 ; -- <0382> "
+    03e8 : e000 ; -- <0383> br az :all_done
+    03e9 : 03f3 ; -- <0383> "
+    03ea : 0760 ; -- <0384> b = -1
+    03eb : c800 ; -- <0385> a = a+b
+    03ec : 0300 ; -- <0385> "
+    03ed : fba0 ; -- <0386> call :anmux_set_chn
+    03ee : 00a2 ; -- <0386> "
+    03ef : fc00 ; -- <0386> "
+    03f0 : 3a05 ; -- <0387> mstimer1 = $anmux_settle_ms
+    03f1 : e00f ; -- <0388> event_return
+    03f2 : 007e ; -- <0388> "
 
 -- end of daq pass.
 -- :all_done -- = 0x03f3
-    03f3 : fba0 ; -- <0401> call :report_plan
-    03f4 : 05f1 ; -- <0401> "
-    03f5 : fc00 ; -- <0401> "
-    03f6 : fba0 ; -- <0402> call :report_text_flags
-    03f7 : 05c3 ; -- <0402> "
-    03f8 : fc00 ; -- <0402> "
-    03f9 : 020d ; -- <0403> a = 13 -- puteol
-    03fa : fba0 ; -- <0403> puteol
-    03fb : 008b ; -- <0403> "
-    03fc : fc00 ; -- <0403> "
-    03fd : 020a ; -- <0403> a = 10 -- puteol
-    03fe : fba0 ; -- <0403> puteol
-    03ff : 008b ; -- <0403> "
-    0400 : fc00 ; -- <0403> "
-    0401 : 4e00 ; -- <0404> ram $ram_dial_setting = spi_data -- av_ad_hi = 0
-    0402 : 5222 ; -- <0404> ram $ram_dial_setting = spi_data -- av_ad_lo = 34
-    0403 : 4410 ; -- <0404> ram $ram_dial_setting = spi_data -- av_write_data = spi_data
-    0404 : e00f ; -- <0405> end_event
-    0405 : 007e ; -- <0405> "
+    03f3 : fba0 ; -- <0392> call :report_plan
+    03f4 : 05f1 ; -- <0392> "
+    03f5 : fc00 ; -- <0392> "
+    03f6 : fba0 ; -- <0393> call :report_text_flags
+    03f7 : 05c3 ; -- <0393> "
+    03f8 : fc00 ; -- <0393> "
+    03f9 : 020d ; -- <0394> a = 13 -- puteol
+    03fa : fba0 ; -- <0394> puteol
+    03fb : 008b ; -- <0394> "
+    03fc : fc00 ; -- <0394> "
+    03fd : 020a ; -- <0394> a = 10 -- puteol
+    03fe : fba0 ; -- <0394> puteol
+    03ff : 008b ; -- <0394> "
+    0400 : fc00 ; -- <0394> "
+    0401 : 4e00 ; -- <0395> ram $ram_dial_setting = spi_data -- av_ad_hi = 0
+    0402 : 5222 ; -- <0395> ram $ram_dial_setting = spi_data -- av_ad_lo = 34
+    0403 : 4410 ; -- <0395> ram $ram_dial_setting = spi_data -- av_write_data = spi_data
+    0404 : e00f ; -- <0396> end_event
+    0405 : 007e ; -- <0396> "
 
 -- ######## event mstimer0_handler -- = 0x0406
 -- unified 1-second periodic timer for all low-resolution tasks.
 
 -- start timer again.
-    0406 : 37a0 ; -- <0411> mstimer0 = 1000
-    0407 : 03e8 ; -- <0411> "
+    0406 : 37a0 ; -- <0402> mstimer0 = 1000
+    0407 : 03e8 ; -- <0402> "
 
 -- realtime counters in RAM.
-    0408 : 4e00 ; -- <0414> ram a = $ram_seconds_cnt -- av_ad_hi = 0
-    0409 : 521e ; -- <0414> ram a = $ram_seconds_cnt -- av_ad_lo = 30
-    040a : 0011 ; -- <0414> ram a = $ram_seconds_cnt -- a = av_write_data -- start read cycle
-    040b : 0012 ; -- <0414> ram a = $ram_seconds_cnt -- a = av_read_data -- finish read cycle
-    040c : 0601 ; -- <0415> b = 1
-    040d : c800 ; -- <0416> a = a+b
-    040e : 0300 ; -- <0416> "
-    040f : 063c ; -- <0417> b = 60
-    0410 : e407 ; -- <0418> bn eq :same_minute
-    0411 : 0423 ; -- <0418> "
-    0412 : 4e00 ; -- <0419> ram $ram_seconds_cnt = 0 -- av_ad_hi = 0
-    0413 : 521e ; -- <0419> ram $ram_seconds_cnt = 0 -- av_ad_lo = 30
-    0414 : 4600 ; -- <0419> ram $ram_seconds_cnt = 0 -- av_write_data = 0
-    0415 : 4e00 ; -- <0420> ram a = $ram_minutes_cnt -- av_ad_hi = 0
-    0416 : 521c ; -- <0420> ram a = $ram_minutes_cnt -- av_ad_lo = 28
-    0417 : 0011 ; -- <0420> ram a = $ram_minutes_cnt -- a = av_write_data -- start read cycle
-    0418 : 0012 ; -- <0420> ram a = $ram_minutes_cnt -- a = av_read_data -- finish read cycle
-    0419 : 0601 ; -- <0421> b = 1
-    041a : 4e00 ; -- <0422> ram $ram_minutes_cnt = a+b -- av_ad_hi = 0
-    041b : 521c ; -- <0422> ram $ram_minutes_cnt = a+b -- av_ad_lo = 28
-    041c : c800 ; -- <0422> ram $ram_minutes_cnt = a+b -- av_write_data = a+b
-    041d : 4700 ; -- <0422> "
-    041e : fba0 ; -- <0423> call :minute_events
-    041f : 051f ; -- <0423> "
-    0420 : fc00 ; -- <0423> "
-    0421 : e00f ; -- <0424> jmp :minutes_done
-    0422 : 0426 ; -- <0424> "
+    0408 : 4e00 ; -- <0405> ram a = $ram_seconds_cnt -- av_ad_hi = 0
+    0409 : 521e ; -- <0405> ram a = $ram_seconds_cnt -- av_ad_lo = 30
+    040a : 0011 ; -- <0405> ram a = $ram_seconds_cnt -- a = av_write_data -- start read cycle
+    040b : 0012 ; -- <0405> ram a = $ram_seconds_cnt -- a = av_read_data -- finish read cycle
+    040c : 0601 ; -- <0406> b = 1
+    040d : c800 ; -- <0407> a = a+b
+    040e : 0300 ; -- <0407> "
+    040f : 063c ; -- <0408> b = 60
+    0410 : e407 ; -- <0409> bn eq :same_minute
+    0411 : 0423 ; -- <0409> "
+    0412 : 4e00 ; -- <0410> ram $ram_seconds_cnt = 0 -- av_ad_hi = 0
+    0413 : 521e ; -- <0410> ram $ram_seconds_cnt = 0 -- av_ad_lo = 30
+    0414 : 4600 ; -- <0410> ram $ram_seconds_cnt = 0 -- av_write_data = 0
+    0415 : 4e00 ; -- <0411> ram a = $ram_minutes_cnt -- av_ad_hi = 0
+    0416 : 521c ; -- <0411> ram a = $ram_minutes_cnt -- av_ad_lo = 28
+    0417 : 0011 ; -- <0411> ram a = $ram_minutes_cnt -- a = av_write_data -- start read cycle
+    0418 : 0012 ; -- <0411> ram a = $ram_minutes_cnt -- a = av_read_data -- finish read cycle
+    0419 : 0601 ; -- <0412> b = 1
+    041a : 4e00 ; -- <0413> ram $ram_minutes_cnt = a+b -- av_ad_hi = 0
+    041b : 521c ; -- <0413> ram $ram_minutes_cnt = a+b -- av_ad_lo = 28
+    041c : c800 ; -- <0413> ram $ram_minutes_cnt = a+b -- av_write_data = a+b
+    041d : 4700 ; -- <0413> "
+    041e : fba0 ; -- <0414> call :minute_events
+    041f : 051f ; -- <0414> "
+    0420 : fc00 ; -- <0414> "
+    0421 : e00f ; -- <0415> jmp :minutes_done
+    0422 : 0426 ; -- <0415> "
 -- :same_minute -- = 0x0423
-    0423 : 4e00 ; -- <0426> ram $ram_seconds_cnt = a -- av_ad_hi = 0
-    0424 : 521e ; -- <0426> ram $ram_seconds_cnt = a -- av_ad_lo = 30
-    0425 : 4400 ; -- <0426> ram $ram_seconds_cnt = a -- av_write_data = a
+    0423 : 4e00 ; -- <0417> ram $ram_seconds_cnt = a -- av_ad_hi = 0
+    0424 : 521e ; -- <0417> ram $ram_seconds_cnt = a -- av_ad_lo = 30
+    0425 : 4400 ; -- <0417> ram $ram_seconds_cnt = a -- av_write_data = a
 -- :minutes_done -- = 0x0426
 
-    0426 : fba0 ; -- <0429> call :check_power_relay
-    0427 : 0527 ; -- <0429> "
-    0428 : fc00 ; -- <0429> "
-    0429 : fba0 ; -- <0430> call :check_communication
-    042a : 0556 ; -- <0430> "
-    042b : fc00 ; -- <0430> "
-    042c : fba0 ; -- <0431> call :start_daq_pass
-    042d : 049b ; -- <0431> "
-    042e : fc00 ; -- <0431> "
-    042f : e00f ; -- <0432> end_event
-    0430 : 007e ; -- <0432> "
+    0426 : fba0 ; -- <0420> call :check_power_relay
+    0427 : 0527 ; -- <0420> "
+    0428 : fc00 ; -- <0420> "
+    0429 : fba0 ; -- <0421> call :check_communication
+    042a : 0556 ; -- <0421> "
+    042b : fc00 ; -- <0421> "
+    042c : fba0 ; -- <0422> call :start_daq_pass
+    042d : 049b ; -- <0422> "
+    042e : fc00 ; -- <0422> "
+    042f : e00f ; -- <0423> end_event
+    0430 : 007e ; -- <0423> "
 
 -- ######## event mstimer1_handler -- = 0x0431
 -- start a reading from the current anmux channel.
-    0431 : 4e00 ; -- <0436> ram $ram_daq_discard_cnt = $anmux_num_discards -- av_ad_hi = 0
-    0432 : 5206 ; -- <0436> ram $ram_daq_discard_cnt = $anmux_num_discards -- av_ad_lo = 6
-    0433 : 4602 ; -- <0436> ram $ram_daq_discard_cnt = $anmux_num_discards -- av_write_data = 2
-    0434 : 0220 ; -- <0437> a = 32 -- putasc " "
-    0435 : fba0 ; -- <0437> putasc " "
-    0436 : 008b ; -- <0437> "
-    0437 : fc00 ; -- <0437> "
-    0438 : 0273 ; -- <0438> a = 115 -- putasc "s"
-    0439 : fba0 ; -- <0438> putasc "s"
-    043a : 008b ; -- <0438> "
-    043b : fc00 ; -- <0438> "
-    043c : fba0 ; -- <0439> call :anmux_get_chn
-    043d : 00a6 ; -- <0439> "
-    043e : fc00 ; -- <0439> "
-    043f : 0630 ; -- <0440> b = 48 -- asc b = "0"
-    0440 : c800 ; -- <0441> a = a+b -- putchar a+b
-    0441 : 0300 ; -- <0441> "
-    0442 : fba0 ; -- <0441> putchar a+b
-    0443 : 008b ; -- <0441> "
-    0444 : fc00 ; -- <0441> "
-    0445 : 023d ; -- <0442> a = 61 -- putasc "="
-    0446 : fba0 ; -- <0442> putasc "="
-    0447 : 008b ; -- <0442> "
-    0448 : fc00 ; -- <0442> "
-    0449 : 0207 ; -- <0443> a = $anmux_adc_channel
-    044a : fba0 ; -- <0444> call :begin_adc_conversion
-    044b : 04da ; -- <0444> "
-    044c : fc00 ; -- <0444> "
-    044d : e00f ; -- <0445> end_event
-    044e : 007e ; -- <0445> "
+    0431 : 4e00 ; -- <0427> ram $ram_daq_discard_cnt = $anmux_num_discards -- av_ad_hi = 0
+    0432 : 5206 ; -- <0427> ram $ram_daq_discard_cnt = $anmux_num_discards -- av_ad_lo = 6
+    0433 : 4602 ; -- <0427> ram $ram_daq_discard_cnt = $anmux_num_discards -- av_write_data = 2
+    0434 : 0220 ; -- <0428> a = 32 -- putasc " "
+    0435 : fba0 ; -- <0428> putasc " "
+    0436 : 008b ; -- <0428> "
+    0437 : fc00 ; -- <0428> "
+    0438 : 0273 ; -- <0429> a = 115 -- putasc "s"
+    0439 : fba0 ; -- <0429> putasc "s"
+    043a : 008b ; -- <0429> "
+    043b : fc00 ; -- <0429> "
+    043c : fba0 ; -- <0430> call :anmux_get_chn
+    043d : 00a6 ; -- <0430> "
+    043e : fc00 ; -- <0430> "
+    043f : 0630 ; -- <0431> b = 48 -- asc b = "0"
+    0440 : c800 ; -- <0432> a = a+b -- putchar a+b
+    0441 : 0300 ; -- <0432> "
+    0442 : fba0 ; -- <0432> putchar a+b
+    0443 : 008b ; -- <0432> "
+    0444 : fc00 ; -- <0432> "
+    0445 : 023d ; -- <0433> a = 61 -- putasc "="
+    0446 : fba0 ; -- <0433> putasc "="
+    0447 : 008b ; -- <0433> "
+    0448 : fc00 ; -- <0433> "
+    0449 : 0207 ; -- <0434> a = $anmux_adc_channel
+    044a : fba0 ; -- <0435> call :begin_adc_conversion
+    044b : 04da ; -- <0435> "
+    044c : fc00 ; -- <0435> "
+    044d : e00f ; -- <0436> end_event
+    044e : 007e ; -- <0436> "
 
 -- ######## event mstimer2_handler -- = 0x044f
 -- restart timer
-    044f : 3e14 ; -- <0449> mstimer2 = $plan_tick_ms
+    044f : 3e14 ; -- <0440> mstimer2 = $plan_tick_ms
 
 -- poll the engine management plan.
 -- call the transition function for the current plan.
 -- this might perform a transition to some other plan, so it's done first.
-    0450 : 4e00 ; -- <0454> ram rtna = $ram_transition_func -- av_ad_hi = 0
-    0451 : 526a ; -- <0454> ram rtna = $ram_transition_func -- av_ad_lo = 106
-    0452 : f811 ; -- <0454> ram rtna = $ram_transition_func -- rtna = av_write_data -- start read cycle
-    0453 : f812 ; -- <0454> ram rtna = $ram_transition_func -- rtna = av_read_data -- finish read cycle
-    0454 : fc00 ; -- <0455> swapra = nop
+    0450 : 4e00 ; -- <0445> ram rtna = $ram_transition_func -- av_ad_hi = 0
+    0451 : 526a ; -- <0445> ram rtna = $ram_transition_func -- av_ad_lo = 106
+    0452 : f811 ; -- <0445> ram rtna = $ram_transition_func -- rtna = av_write_data -- start read cycle
+    0453 : f812 ; -- <0445> ram rtna = $ram_transition_func -- rtna = av_read_data -- finish read cycle
+    0454 : fc00 ; -- <0446> swapra = nop
 -- call the puff length function for the current plan.
 -- this is done last, so if a plan transition just happened, its new puff length will init here.
-    0455 : 4e00 ; -- <0458> ram rtna = $ram_puff_len_func -- av_ad_hi = 0
-    0456 : 5268 ; -- <0458> ram rtna = $ram_puff_len_func -- av_ad_lo = 104
-    0457 : f811 ; -- <0458> ram rtna = $ram_puff_len_func -- rtna = av_write_data -- start read cycle
-    0458 : f812 ; -- <0458> ram rtna = $ram_puff_len_func -- rtna = av_read_data -- finish read cycle
-    0459 : fc00 ; -- <0459> swapra = nop
-    045a : e00f ; -- <0460> end_event
-    045b : 007e ; -- <0460> "
+    0455 : 4e00 ; -- <0449> ram rtna = $ram_puff_len_func -- av_ad_hi = 0
+    0456 : 5268 ; -- <0449> ram rtna = $ram_puff_len_func -- av_ad_lo = 104
+    0457 : f811 ; -- <0449> ram rtna = $ram_puff_len_func -- rtna = av_write_data -- start read cycle
+    0458 : f812 ; -- <0449> ram rtna = $ram_puff_len_func -- rtna = av_read_data -- finish read cycle
+    0459 : fc00 ; -- <0450> swapra = nop
+    045a : e00f ; -- <0451> end_event
+    045b : 007e ; -- <0451> "
 
 -- ######## event uart_rx_handler -- = 0x045c
 -- :again -- = 0x045c
-    045c : fba0 ; -- <0464> pollchar
-    045d : 009a ; -- <0464> "
-    045e : fc00 ; -- <0464> "
-    045f : 0760 ; -- <0465> b = -1
-    0460 : e007 ; -- <0466> br eq :done
-    0461 : 03a3 ; -- <0466> "
-    0462 : 060a ; -- <0467> b = 10
-    0463 : e407 ; -- <0468> bn eq :skip_lf
-    0464 : 0468 ; -- <0468> "
-    0465 : fba0 ; -- <0469> call :postpone_comm_restart
-    0466 : 0581 ; -- <0469> "
-    0467 : fc00 ; -- <0469> "
+    045c : fba0 ; -- <0455> pollchar
+    045d : 009a ; -- <0455> "
+    045e : fc00 ; -- <0455> "
+    045f : 0760 ; -- <0456> b = -1
+    0460 : e007 ; -- <0457> br eq :done
+    0461 : 03a3 ; -- <0457> "
+    0462 : 060a ; -- <0458> b = 10
+    0463 : e407 ; -- <0459> bn eq :skip_lf
+    0464 : 0468 ; -- <0459> "
+    0465 : fba0 ; -- <0460> call :postpone_comm_restart
+    0466 : 0581 ; -- <0460> "
+    0467 : fc00 ; -- <0460> "
 -- :skip_lf -- = 0x0468
-    0468 : e00f ; -- <0471> jmp :again
-    0469 : 045c ; -- <0471> "
+    0468 : e00f ; -- <0462> jmp :again
+    0469 : 045c ; -- <0462> "
 -- :done -- = 0x046a
-    046a : e00f ; -- <0473> end_event
-    046b : 007e ; -- <0473> "
+    046a : e00f ; -- <0464> end_event
+    046b : 007e ; -- <0464> "
 
 -- ######## event uart_rx_overflow_handler -- = 0x046c
-    046c : 5fa0 ; -- <0476> error_halt_code $err_rx_overflow -- leds = 0xfffe
-    046d : fffe ; -- <0476> "
-    046e : e00f ; -- <0476> error_halt_code $err_rx_overflow
-    046f : 046e ; -- <0476> "
-    0470 : e00f ; -- <0477> end_event
-    0471 : 007e ; -- <0477> "
+    046c : 5fa0 ; -- <0467> error_halt_code $err_rx_overflow -- leds = 0xfffe
+    046d : fffe ; -- <0467> "
+    046e : e00f ; -- <0467> error_halt_code $err_rx_overflow
+    046f : 046e ; -- <0467> "
+    0470 : e00f ; -- <0468> end_event
+    0471 : 007e ; -- <0468> "
 
 -- ######## event uart_tx_overflow_handler -- = 0x0472
-    0472 : 5fa0 ; -- <0480> error_halt_code $err_tx_overflow -- leds = 0xfffd
-    0473 : fffd ; -- <0480> "
-    0474 : e00f ; -- <0480> error_halt_code $err_tx_overflow
-    0475 : 0474 ; -- <0480> "
-    0476 : e00f ; -- <0481> end_event
-    0477 : 007e ; -- <0481> "
+    0472 : 5fa0 ; -- <0471> error_halt_code $err_tx_overflow -- leds = 0xfffd
+    0473 : fffd ; -- <0471> "
+    0474 : e00f ; -- <0471> error_halt_code $err_tx_overflow
+    0475 : 0474 ; -- <0471> "
+    0476 : e00f ; -- <0472> end_event
+    0477 : 007e ; -- <0472> "
 
 -- ######## event key0_handler -- = 0x0478
-    0478 : 026b ; -- <0484> a = 107 -- putasc "k"
-    0479 : fba0 ; -- <0484> putasc "k"
-    047a : 008b ; -- <0484> "
-    047b : fc00 ; -- <0484> "
-    047c : 0230 ; -- <0485> a = 48 -- putasc "0"
-    047d : fba0 ; -- <0485> putasc "0"
-    047e : 008b ; -- <0485> "
-    047f : fc00 ; -- <0485> "
-    0480 : e00f ; -- <0486> end_event
-    0481 : 007e ; -- <0486> "
+    0478 : 026b ; -- <0475> a = 107 -- putasc "k"
+    0479 : fba0 ; -- <0475> putasc "k"
+    047a : 008b ; -- <0475> "
+    047b : fc00 ; -- <0475> "
+    047c : 0230 ; -- <0476> a = 48 -- putasc "0"
+    047d : fba0 ; -- <0476> putasc "0"
+    047e : 008b ; -- <0476> "
+    047f : fc00 ; -- <0476> "
+    0480 : e00f ; -- <0477> end_event
+    0481 : 007e ; -- <0477> "
 
 -- ######## event key1_handler -- = 0x0482
-    0482 : 026b ; -- <0489> a = 107 -- putasc "k"
-    0483 : fba0 ; -- <0489> putasc "k"
-    0484 : 008b ; -- <0489> "
-    0485 : fc00 ; -- <0489> "
-    0486 : 0231 ; -- <0490> a = 49 -- putasc "1"
-    0487 : fba0 ; -- <0490> putasc "1"
-    0488 : 008b ; -- <0490> "
-    0489 : fc00 ; -- <0490> "
-    048a : e00f ; -- <0491> end_event
-    048b : 007e ; -- <0491> "
+    0482 : 026b ; -- <0480> a = 107 -- putasc "k"
+    0483 : fba0 ; -- <0480> putasc "k"
+    0484 : 008b ; -- <0480> "
+    0485 : fc00 ; -- <0480> "
+    0486 : 0231 ; -- <0481> a = 49 -- putasc "1"
+    0487 : fba0 ; -- <0481> putasc "1"
+    0488 : 008b ; -- <0481> "
+    0489 : fc00 ; -- <0481> "
+    048a : e00f ; -- <0482> end_event
+    048b : 007e ; -- <0482> "
 
 -- ######## event softevent3_handler -- = 0x048c
-    048c : e00f ; -- <0494> end_event
-    048d : 007e ; -- <0494> "
+    048c : e00f ; -- <0485> end_event
+    048d : 007e ; -- <0485> "
 
 -- ######## event softevent2_handler -- = 0x048e
-    048e : e00f ; -- <0497> end_event
-    048f : 007e ; -- <0497> "
+    048e : e00f ; -- <0488> end_event
+    048f : 007e ; -- <0488> "
 
 -- ######## event softevent1_handler -- = 0x0490
-    0490 : e00f ; -- <0500> end_event
-    0491 : 007e ; -- <0500> "
+    0490 : e00f ; -- <0491> end_event
+    0491 : 007e ; -- <0491> "
 
 -- ######## event softevent0_handler -- = 0x0492
-    0492 : e00f ; -- <0503> end_event
-    0493 : 007e ; -- <0503> "
+    0492 : e00f ; -- <0494> end_event
+    0493 : 007e ; -- <0494> "
 
 -- :rpm_msg -- = 0x0494
 -- ": rpm=\x0"
-    0494 : 203a ; -- <0506>  :
-    0495 : 7072 ; -- <0506> pr
-    0496 : 3d6d ; -- <0506> =m
-    0497 : 0000 ; -- <0506>   
+    0494 : 203a ; -- <0497>  :
+    0495 : 7072 ; -- <0497> pr
+    0496 : 3d6d ; -- <0497> =m
+    0497 : 0000 ; -- <0497>   
 
 -- :puff_len_msg -- = 0x0498
 -- " pfl=\x0"
-    0498 : 7020 ; -- <0509> p 
-    0499 : 6c66 ; -- <0509> lf
-    049a : 003d ; -- <0509>  =
+    0498 : 7020 ; -- <0500> p 
+    0499 : 6c66 ; -- <0500> lf
+    049a : 003d ; -- <0500>  =
 
 -- ######## func start_daq_pass -- = 0x049b
-    049b : 2004 ; -- <0511> push x -- func start_daq_pass
-    049c : 203e ; -- <0511> push rtna -- "
+    049b : 2004 ; -- <0502> push x -- func start_daq_pass
+    049c : 203e ; -- <0502> push rtna -- "
 -- daq pass counter in RAM.
-    049d : 4e00 ; -- <0513> ram a = $ram_daq_pass_cnt -- av_ad_hi = 0
-    049e : 5204 ; -- <0513> ram a = $ram_daq_pass_cnt -- av_ad_lo = 4
-    049f : 0011 ; -- <0513> ram a = $ram_daq_pass_cnt -- a = av_write_data -- start read cycle
-    04a0 : 0012 ; -- <0513> ram a = $ram_daq_pass_cnt -- a = av_read_data -- finish read cycle
-    04a1 : 0601 ; -- <0514> b = 1
-    04a2 : c800 ; -- <0515> a = a+b
-    04a3 : 0300 ; -- <0515> "
-    04a4 : 5c00 ; -- <0516> leds = a
-    04a5 : 4e00 ; -- <0517> ram $ram_daq_pass_cnt = a -- av_ad_hi = 0
-    04a6 : 5204 ; -- <0517> ram $ram_daq_pass_cnt = a -- av_ad_lo = 4
-    04a7 : 4400 ; -- <0517> ram $ram_daq_pass_cnt = a -- av_write_data = a
-    04a8 : fba0 ; -- <0518> call :put4x
-    04a9 : 00b3 ; -- <0518> "
-    04aa : fc00 ; -- <0518> "
+    049d : 4e00 ; -- <0504> ram a = $ram_daq_pass_cnt -- av_ad_hi = 0
+    049e : 5204 ; -- <0504> ram a = $ram_daq_pass_cnt -- av_ad_lo = 4
+    049f : 0011 ; -- <0504> ram a = $ram_daq_pass_cnt -- a = av_write_data -- start read cycle
+    04a0 : 0012 ; -- <0504> ram a = $ram_daq_pass_cnt -- a = av_read_data -- finish read cycle
+    04a1 : 0601 ; -- <0505> b = 1
+    04a2 : c800 ; -- <0506> a = a+b
+    04a3 : 0300 ; -- <0506> "
+    04a4 : 5c00 ; -- <0507> leds = a
+    04a5 : 4e00 ; -- <0508> ram $ram_daq_pass_cnt = a -- av_ad_hi = 0
+    04a6 : 5204 ; -- <0508> ram $ram_daq_pass_cnt = a -- av_ad_lo = 4
+    04a7 : 4400 ; -- <0508> ram $ram_daq_pass_cnt = a -- av_write_data = a
+    04a8 : fba0 ; -- <0509> call :put4x
+    04a9 : 00b3 ; -- <0509> "
+    04aa : fc00 ; -- <0509> "
 
-    04ab : 03a0 ; -- <0520> a = :rpm_msg
-    04ac : 0494 ; -- <0520> "
-    04ad : fba0 ; -- <0521> call :print_nt
-    04ae : 013f ; -- <0521> "
-    04af : fc00 ; -- <0521> "
-    04b0 : 0200 ; -- <0522> a = 0
-    04b1 : 4e00 ; -- <0523> ram x = $ram_rpm_valid -- av_ad_hi = 0
-    04b2 : 525c ; -- <0523> ram x = $ram_rpm_valid -- av_ad_lo = 92
-    04b3 : 1011 ; -- <0523> ram x = $ram_rpm_valid -- x = av_write_data -- start read cycle
-    04b4 : 1012 ; -- <0523> ram x = $ram_rpm_valid -- x = av_read_data -- finish read cycle
-    04b5 : e002 ; -- <0524> br xz :skip_rpm
-    04b6 : 04bb ; -- <0524> "
-    04b7 : 4e00 ; -- <0525> ram a = $ram_avg_rpm -- av_ad_hi = 0
-    04b8 : 525a ; -- <0525> ram a = $ram_avg_rpm -- av_ad_lo = 90
-    04b9 : 0011 ; -- <0525> ram a = $ram_avg_rpm -- a = av_write_data -- start read cycle
-    04ba : 0012 ; -- <0525> ram a = $ram_avg_rpm -- a = av_read_data -- finish read cycle
+    04ab : 03a0 ; -- <0511> a = :rpm_msg
+    04ac : 0494 ; -- <0511> "
+    04ad : fba0 ; -- <0512> call :print_nt
+    04ae : 013f ; -- <0512> "
+    04af : fc00 ; -- <0512> "
+    04b0 : 0200 ; -- <0513> a = 0
+    04b1 : 4e00 ; -- <0514> ram x = $ram_rpm_valid -- av_ad_hi = 0
+    04b2 : 525c ; -- <0514> ram x = $ram_rpm_valid -- av_ad_lo = 92
+    04b3 : 1011 ; -- <0514> ram x = $ram_rpm_valid -- x = av_write_data -- start read cycle
+    04b4 : 1012 ; -- <0514> ram x = $ram_rpm_valid -- x = av_read_data -- finish read cycle
+    04b5 : e002 ; -- <0515> br xz :skip_rpm
+    04b6 : 04bb ; -- <0515> "
+    04b7 : 4e00 ; -- <0516> ram a = $ram_avg_rpm -- av_ad_hi = 0
+    04b8 : 525a ; -- <0516> ram a = $ram_avg_rpm -- av_ad_lo = 90
+    04b9 : 0011 ; -- <0516> ram a = $ram_avg_rpm -- a = av_write_data -- start read cycle
+    04ba : 0012 ; -- <0516> ram a = $ram_avg_rpm -- a = av_read_data -- finish read cycle
 -- :skip_rpm -- = 0x04bb
-    04bb : fba0 ; -- <0527> call :put4x
-    04bc : 00b3 ; -- <0527> "
-    04bd : fc00 ; -- <0527> "
+    04bb : fba0 ; -- <0518> call :put4x
+    04bc : 00b3 ; -- <0518> "
+    04bd : fc00 ; -- <0518> "
 
-    04be : 03a0 ; -- <0529> a = :puff_len_msg
-    04bf : 0498 ; -- <0529> "
-    04c0 : fba0 ; -- <0530> call :print_nt
-    04c1 : 013f ; -- <0530> "
-    04c2 : fc00 ; -- <0530> "
-    04c3 : 001d ; -- <0531> a = puff_len_us
-    04c4 : fba0 ; -- <0532> call :put4x
-    04c5 : 00b3 ; -- <0532> "
-    04c6 : fc00 ; -- <0532> "
-    04c7 : 022c ; -- <0533> a = 44 -- putasc ","
-    04c8 : fba0 ; -- <0533> putasc ","
-    04c9 : 008b ; -- <0533> "
-    04ca : fc00 ; -- <0533> "
-    04cb : 4e00 ; -- <0534> ram a = $ram_puff_count -- av_ad_hi = 0
-    04cc : 5270 ; -- <0534> ram a = $ram_puff_count -- av_ad_lo = 112
-    04cd : 0011 ; -- <0534> ram a = $ram_puff_count -- a = av_write_data -- start read cycle
-    04ce : 0012 ; -- <0534> ram a = $ram_puff_count -- a = av_read_data -- finish read cycle
-    04cf : fba0 ; -- <0535> call :put4x
-    04d0 : 00b3 ; -- <0535> "
-    04d1 : fc00 ; -- <0535> "
+    04be : 03a0 ; -- <0520> a = :puff_len_msg
+    04bf : 0498 ; -- <0520> "
+    04c0 : fba0 ; -- <0521> call :print_nt
+    04c1 : 013f ; -- <0521> "
+    04c2 : fc00 ; -- <0521> "
+    04c3 : 001d ; -- <0522> a = puff_len_us
+    04c4 : fba0 ; -- <0523> call :put4x
+    04c5 : 00b3 ; -- <0523> "
+    04c6 : fc00 ; -- <0523> "
+    04c7 : 022c ; -- <0524> a = 44 -- putasc ","
+    04c8 : fba0 ; -- <0524> putasc ","
+    04c9 : 008b ; -- <0524> "
+    04ca : fc00 ; -- <0524> "
+    04cb : 4e00 ; -- <0525> ram a = $ram_puff_count -- av_ad_hi = 0
+    04cc : 5270 ; -- <0525> ram a = $ram_puff_count -- av_ad_lo = 112
+    04cd : 0011 ; -- <0525> ram a = $ram_puff_count -- a = av_write_data -- start read cycle
+    04ce : 0012 ; -- <0525> ram a = $ram_puff_count -- a = av_read_data -- finish read cycle
+    04cf : fba0 ; -- <0526> call :put4x
+    04d0 : 00b3 ; -- <0526> "
+    04d1 : fc00 ; -- <0526> "
 
 -- start to acquire & report all anmux channels.
-    04d2 : 0207 ; -- <0538> a = ($anmux_num_channels - 1)
-    04d3 : fba0 ; -- <0539> call :anmux_set_chn
-    04d4 : 00a2 ; -- <0539> "
-    04d5 : fc00 ; -- <0539> "
-    04d6 : 3a05 ; -- <0540> mstimer1 = $anmux_settle_ms
+    04d2 : 0207 ; -- <0529> a = ($anmux_num_channels - 1)
+    04d3 : fba0 ; -- <0530> call :anmux_set_chn
+    04d4 : 00a2 ; -- <0530> "
+    04d5 : fc00 ; -- <0530> "
+    04d6 : 3a05 ; -- <0531> mstimer1 = $anmux_settle_ms
 
 -- -- observe MCU utilization.
 -- a = usage_count
 -- call :put4x
 -- usage_count = 0
-    04d7 : f808 ; -- <0546> pop rtna -- end_func
-    04d8 : 1008 ; -- <0546> pop x -- "
-    04d9 : fc00 ; -- <0546> swapra = nop
+    04d7 : f808 ; -- <0537> pop rtna -- end_func
+    04d8 : 1008 ; -- <0537> pop x -- "
+    04d9 : fc00 ; -- <0537> swapra = nop
 
 -- ######## func begin_adc_conversion -- = 0x04da
 -- begin SPI transaction, specifying Nano ADC channel to take effect NEXT
 -- conversion after this one.  pass that in a.
 
-    04da : 0352 ; -- <0552> a = a<<4
-    04db : 0352 ; -- <0553> a = a<<4
-    04dc : 0351 ; -- <0554> a = a<<1
-    04dd : 0351 ; -- <0555> a = a<<1
-    04de : 0351 ; -- <0556> a = a<<1
-    04df : 4000 ; -- <0557> spi_data = a
-    04e0 : fc00 ; -- <0558> swapra = nop
+    04da : 0352 ; -- <0543> a = a<<4
+    04db : 0352 ; -- <0544> a = a<<4
+    04dc : 0351 ; -- <0545> a = a<<1
+    04dd : 0351 ; -- <0546> a = a<<1
+    04de : 0351 ; -- <0547> a = a<<1
+    04df : 4000 ; -- <0548> spi_data = a
+    04e0 : fc00 ; -- <0549> swapra = nop
 
 -- ######## event power_lost_handler -- = 0x04e1
 -- at this time we have less than 2 ms of usable run time left.
@@ -1799,86 +1803,86 @@
 -- no more events would be handled; this event handler wouldn't have a chance to run.
 -- immediately set the power relay PWM to full power for a few seconds,
 -- in case the power relay opened accidentally e.g. due to a hard pothole.
-    04e1 : 6a00 ; -- <0567> power_duty = $power_duty_closing
-    04e2 : 4e00 ; -- <0568> ram a = $ram_daq_pass_cnt -- av_ad_hi = 0
-    04e3 : 5204 ; -- <0568> ram a = $ram_daq_pass_cnt -- av_ad_lo = 4
-    04e4 : 0011 ; -- <0568> ram a = $ram_daq_pass_cnt -- a = av_write_data -- start read cycle
-    04e5 : 0012 ; -- <0568> ram a = $ram_daq_pass_cnt -- a = av_read_data -- finish read cycle
-    04e6 : 0602 ; -- <0569> b = $relay_hold_passes
-    04e7 : 4e00 ; -- <0570> ram $ram_relay_hold_at_pass = a+b -- av_ad_hi = 0
-    04e8 : 521a ; -- <0570> ram $ram_relay_hold_at_pass = a+b -- av_ad_lo = 26
-    04e9 : c800 ; -- <0570> ram $ram_relay_hold_at_pass = a+b -- av_write_data = a+b
-    04ea : 4700 ; -- <0570> "
+    04e1 : 6a00 ; -- <0558> power_duty = $power_duty_closing
+    04e2 : 4e00 ; -- <0559> ram a = $ram_daq_pass_cnt -- av_ad_hi = 0
+    04e3 : 5204 ; -- <0559> ram a = $ram_daq_pass_cnt -- av_ad_lo = 4
+    04e4 : 0011 ; -- <0559> ram a = $ram_daq_pass_cnt -- a = av_write_data -- start read cycle
+    04e5 : 0012 ; -- <0559> ram a = $ram_daq_pass_cnt -- a = av_read_data -- finish read cycle
+    04e6 : 0602 ; -- <0560> b = $relay_hold_passes
+    04e7 : 4e00 ; -- <0561> ram $ram_relay_hold_at_pass = a+b -- av_ad_hi = 0
+    04e8 : 521a ; -- <0561> ram $ram_relay_hold_at_pass = a+b -- av_ad_lo = 26
+    04e9 : c800 ; -- <0561> ram $ram_relay_hold_at_pass = a+b -- av_write_data = a+b
+    04ea : 4700 ; -- <0561> "
 
 -- pause any non-vital power-hogging operations, to conserve power for the EEPROM write.
 
 -- save persistent data in case the power remains down e.g. due to battery disconnect.
-    04eb : fba0 ; -- <0575> call :save_persistent_data
-    04ec : 0555 ; -- <0575> "
-    04ed : fc00 ; -- <0575> "
-    04ee : e00f ; -- <0576> end_event
-    04ef : 007e ; -- <0576> "
+    04eb : fba0 ; -- <0566> call :save_persistent_data
+    04ec : 0555 ; -- <0566> "
+    04ed : fc00 ; -- <0566> "
+    04ee : e00f ; -- <0567> end_event
+    04ef : 007e ; -- <0567> "
 
 -- :ign_off_msg -- = 0x04f0
 -- "IGOF\x0"
-    04f0 : 4749 ; -- <0579> GI
-    04f1 : 464f ; -- <0579> FO
-    04f2 : 0000 ; -- <0579>   
+    04f0 : 4749 ; -- <0570> GI
+    04f1 : 464f ; -- <0570> FO
+    04f2 : 0000 ; -- <0570>   
 
 -- ######## event ign_switch_off_handler -- = 0x04f3
 -- set power-down deadline in RAM.  this makes the system remain powered for several more minutes, for cooldown data logging.
-    04f3 : 4e00 ; -- <0583> ram a = $ram_minutes_cnt -- av_ad_hi = 0
-    04f4 : 521c ; -- <0583> ram a = $ram_minutes_cnt -- av_ad_lo = 28
-    04f5 : 0011 ; -- <0583> ram a = $ram_minutes_cnt -- a = av_write_data -- start read cycle
-    04f6 : 0012 ; -- <0583> ram a = $ram_minutes_cnt -- a = av_read_data -- finish read cycle
-    04f7 : 060a ; -- <0584> b = $power_extend_minutes
-    04f8 : 4e00 ; -- <0585> ram $ram_power_down_at_min = a+b -- av_ad_hi = 0
-    04f9 : 5218 ; -- <0585> ram $ram_power_down_at_min = a+b -- av_ad_lo = 24
-    04fa : c800 ; -- <0585> ram $ram_power_down_at_min = a+b -- av_write_data = a+b
-    04fb : 4700 ; -- <0585> "
-    04fc : 03a0 ; -- <0586> a = :ign_off_msg
-    04fd : 04f0 ; -- <0586> "
-    04fe : fba0 ; -- <0587> call :set_text_flag
-    04ff : 05aa ; -- <0587> "
-    0500 : fc00 ; -- <0587> "
-    0501 : e00f ; -- <0588> end_event
-    0502 : 007e ; -- <0588> "
+    04f3 : 4e00 ; -- <0574> ram a = $ram_minutes_cnt -- av_ad_hi = 0
+    04f4 : 521c ; -- <0574> ram a = $ram_minutes_cnt -- av_ad_lo = 28
+    04f5 : 0011 ; -- <0574> ram a = $ram_minutes_cnt -- a = av_write_data -- start read cycle
+    04f6 : 0012 ; -- <0574> ram a = $ram_minutes_cnt -- a = av_read_data -- finish read cycle
+    04f7 : 060a ; -- <0575> b = $power_extend_minutes
+    04f8 : 4e00 ; -- <0576> ram $ram_power_down_at_min = a+b -- av_ad_hi = 0
+    04f9 : 5218 ; -- <0576> ram $ram_power_down_at_min = a+b -- av_ad_lo = 24
+    04fa : c800 ; -- <0576> ram $ram_power_down_at_min = a+b -- av_write_data = a+b
+    04fb : 4700 ; -- <0576> "
+    04fc : 03a0 ; -- <0577> a = :ign_off_msg
+    04fd : 04f0 ; -- <0577> "
+    04fe : fba0 ; -- <0578> call :set_text_flag
+    04ff : 05aa ; -- <0578> "
+    0500 : fc00 ; -- <0578> "
+    0501 : e00f ; -- <0579> end_event
+    0502 : 007e ; -- <0579> "
 
 -- :ign_on_msg -- = 0x0503
 -- "IGON\x0"
-    0503 : 4749 ; -- <0591> GI
-    0504 : 4e4f ; -- <0591> NO
-    0505 : 0000 ; -- <0591>   
+    0503 : 4749 ; -- <0582> GI
+    0504 : 4e4f ; -- <0582> NO
+    0505 : 0000 ; -- <0582>   
 
 -- ######## event ign_switch_on_handler -- = 0x0506
-    0506 : 4e00 ; -- <0594> ram $ram_power_down_at_min = $power_down_never -- av_ad_hi = 0
-    0507 : 5218 ; -- <0594> ram $ram_power_down_at_min = $power_down_never -- av_ad_lo = 24
-    0508 : 4760 ; -- <0594> ram $ram_power_down_at_min = $power_down_never -- av_write_data = 0xffff
-    0509 : 03a0 ; -- <0595> a = :ign_on_msg
-    050a : 0503 ; -- <0595> "
-    050b : fba0 ; -- <0596> call :set_text_flag
-    050c : 05aa ; -- <0596> "
-    050d : fc00 ; -- <0596> "
-    050e : e00f ; -- <0597> end_event
-    050f : 007e ; -- <0597> "
+    0506 : 4e00 ; -- <0585> ram $ram_power_down_at_min = $power_down_never -- av_ad_hi = 0
+    0507 : 5218 ; -- <0585> ram $ram_power_down_at_min = $power_down_never -- av_ad_lo = 24
+    0508 : 4760 ; -- <0585> ram $ram_power_down_at_min = $power_down_never -- av_write_data = 0xffff
+    0509 : 03a0 ; -- <0586> a = :ign_on_msg
+    050a : 0503 ; -- <0586> "
+    050b : fba0 ; -- <0587> call :set_text_flag
+    050c : 05aa ; -- <0587> "
+    050d : fc00 ; -- <0587> "
+    050e : e00f ; -- <0588> end_event
+    050f : 007e ; -- <0588> "
 
 -- ######## event puff1_done_handler -- = 0x0510
 -- puff just finished.  set length of next puff.
-    0510 : 4e00 ; -- <0601> ram puff_len_us = $ram_next_puff_len_us -- av_ad_hi = 0
-    0511 : 526e ; -- <0601> ram puff_len_us = $ram_next_puff_len_us -- av_ad_lo = 110
-    0512 : 7411 ; -- <0601> ram puff_len_us = $ram_next_puff_len_us -- puff_len_us = av_write_data -- start read cycle
-    0513 : 7412 ; -- <0601> ram puff_len_us = $ram_next_puff_len_us -- puff_len_us = av_read_data -- finish read cycle
+    0510 : 4e00 ; -- <0592> ram puff_len_us = $ram_next_puff_len_us -- av_ad_hi = 0
+    0511 : 526e ; -- <0592> ram puff_len_us = $ram_next_puff_len_us -- av_ad_lo = 110
+    0512 : 7411 ; -- <0592> ram puff_len_us = $ram_next_puff_len_us -- puff_len_us = av_write_data -- start read cycle
+    0513 : 7412 ; -- <0592> ram puff_len_us = $ram_next_puff_len_us -- puff_len_us = av_read_data -- finish read cycle
 
 -- count puffs.
-    0514 : 4e00 ; -- <0604> ram a = $ram_puff_count -- av_ad_hi = 0
-    0515 : 5270 ; -- <0604> ram a = $ram_puff_count -- av_ad_lo = 112
-    0516 : 0011 ; -- <0604> ram a = $ram_puff_count -- a = av_write_data -- start read cycle
-    0517 : 0012 ; -- <0604> ram a = $ram_puff_count -- a = av_read_data -- finish read cycle
-    0518 : 0601 ; -- <0605> b = 1
-    0519 : 4e00 ; -- <0606> ram $ram_puff_count = a+b -- av_ad_hi = 0
-    051a : 5270 ; -- <0606> ram $ram_puff_count = a+b -- av_ad_lo = 112
-    051b : c800 ; -- <0606> ram $ram_puff_count = a+b -- av_write_data = a+b
-    051c : 4700 ; -- <0606> "
+    0514 : 4e00 ; -- <0595> ram a = $ram_puff_count -- av_ad_hi = 0
+    0515 : 5270 ; -- <0595> ram a = $ram_puff_count -- av_ad_lo = 112
+    0516 : 0011 ; -- <0595> ram a = $ram_puff_count -- a = av_write_data -- start read cycle
+    0517 : 0012 ; -- <0595> ram a = $ram_puff_count -- a = av_read_data -- finish read cycle
+    0518 : 0601 ; -- <0596> b = 1
+    0519 : 4e00 ; -- <0597> ram $ram_puff_count = a+b -- av_ad_hi = 0
+    051a : 5270 ; -- <0597> ram $ram_puff_count = a+b -- av_ad_lo = 112
+    051b : c800 ; -- <0597> ram $ram_puff_count = a+b -- av_write_data = a+b
+    051c : 4700 ; -- <0597> "
 
 -- hack to set puff length strictly by a hard-wired knob.
 -- ram a = $ram_dial_setting
@@ -1889,340 +1893,340 @@
 -- a = 1
 -- :nonzero
 -- puff_len_us = a
-    051d : e00f ; -- <0617> end_event
-    051e : 007e ; -- <0617> "
+    051d : e00f ; -- <0608> end_event
+    051e : 007e ; -- <0608> "
 
 -- ######## func minute_events -- = 0x051f
-    051f : 203e ; -- <0619> push rtna -- func minute_events
-    0520 : fba0 ; -- <0620> call :check_power_down
-    0521 : 053a ; -- <0620> "
-    0522 : fc00 ; -- <0620> "
-    0523 : f808 ; -- <0621> pop rtna -- end_func
-    0524 : fc00 ; -- <0621> swapra = nop
+    051f : 203e ; -- <0610> push rtna -- func minute_events
+    0520 : fba0 ; -- <0611> call :check_power_down
+    0521 : 053a ; -- <0611> "
+    0522 : fc00 ; -- <0611> "
+    0523 : f808 ; -- <0612> pop rtna -- end_func
+    0524 : fc00 ; -- <0612> swapra = nop
 
 -- :power_hold_msg -- = 0x0525
 -- "PWH\x0"
-    0525 : 5750 ; -- <0624> WP
-    0526 : 0048 ; -- <0624>  H
+    0525 : 5750 ; -- <0615> WP
+    0526 : 0048 ; -- <0615>  H
 
 -- ######## func check_power_relay -- = 0x0527
-    0527 : 203e ; -- <0626> push rtna -- func check_power_relay
-    0528 : 4e00 ; -- <0627> ram a = $ram_daq_pass_cnt -- av_ad_hi = 0
-    0529 : 5204 ; -- <0627> ram a = $ram_daq_pass_cnt -- av_ad_lo = 4
-    052a : 0011 ; -- <0627> ram a = $ram_daq_pass_cnt -- a = av_write_data -- start read cycle
-    052b : 0012 ; -- <0627> ram a = $ram_daq_pass_cnt -- a = av_read_data -- finish read cycle
-    052c : 4e00 ; -- <0628> ram b = $ram_relay_hold_at_pass -- av_ad_hi = 0
-    052d : 521a ; -- <0628> ram b = $ram_relay_hold_at_pass -- av_ad_lo = 26
-    052e : 0411 ; -- <0628> ram b = $ram_relay_hold_at_pass -- b = av_write_data -- start read cycle
-    052f : 0412 ; -- <0628> ram b = $ram_relay_hold_at_pass -- b = av_read_data -- finish read cycle
-    0530 : e407 ; -- <0629> bn eq :done
-    0531 : 0538 ; -- <0629> "
+    0527 : 203e ; -- <0617> push rtna -- func check_power_relay
+    0528 : 4e00 ; -- <0618> ram a = $ram_daq_pass_cnt -- av_ad_hi = 0
+    0529 : 5204 ; -- <0618> ram a = $ram_daq_pass_cnt -- av_ad_lo = 4
+    052a : 0011 ; -- <0618> ram a = $ram_daq_pass_cnt -- a = av_write_data -- start read cycle
+    052b : 0012 ; -- <0618> ram a = $ram_daq_pass_cnt -- a = av_read_data -- finish read cycle
+    052c : 4e00 ; -- <0619> ram b = $ram_relay_hold_at_pass -- av_ad_hi = 0
+    052d : 521a ; -- <0619> ram b = $ram_relay_hold_at_pass -- av_ad_lo = 26
+    052e : 0411 ; -- <0619> ram b = $ram_relay_hold_at_pass -- b = av_write_data -- start read cycle
+    052f : 0412 ; -- <0619> ram b = $ram_relay_hold_at_pass -- b = av_read_data -- finish read cycle
+    0530 : e407 ; -- <0620> bn eq :done
+    0531 : 0538 ; -- <0620> "
 -- time to begin "solenoid saver" coil power reduction by PWM.
-    0532 : 6a19 ; -- <0631> power_duty = $power_duty_holding
-    0533 : 03a0 ; -- <0632> a = :power_hold_msg
-    0534 : 0525 ; -- <0632> "
-    0535 : fba0 ; -- <0633> call :set_text_flag
-    0536 : 05aa ; -- <0633> "
-    0537 : fc00 ; -- <0633> "
+    0532 : 6a19 ; -- <0622> power_duty = $power_duty_holding
+    0533 : 03a0 ; -- <0623> a = :power_hold_msg
+    0534 : 0525 ; -- <0623> "
+    0535 : fba0 ; -- <0624> call :set_text_flag
+    0536 : 05aa ; -- <0624> "
+    0537 : fc00 ; -- <0624> "
 -- :done -- = 0x0538
-    0538 : f808 ; -- <0635> pop rtna -- end_func
-    0539 : fc00 ; -- <0635> swapra = nop
+    0538 : f808 ; -- <0626> pop rtna -- end_func
+    0539 : fc00 ; -- <0626> swapra = nop
 
 -- ######## func check_power_down -- = 0x053a
-    053a : 203e ; -- <0637> push rtna -- func check_power_down
+    053a : 203e ; -- <0628> push rtna -- func check_power_down
 -- check power-down deadline in RAM.
-    053b : 4e00 ; -- <0639> ram a = $ram_minutes_cnt -- av_ad_hi = 0
-    053c : 521c ; -- <0639> ram a = $ram_minutes_cnt -- av_ad_lo = 28
-    053d : 0011 ; -- <0639> ram a = $ram_minutes_cnt -- a = av_write_data -- start read cycle
-    053e : 0012 ; -- <0639> ram a = $ram_minutes_cnt -- a = av_read_data -- finish read cycle
-    053f : 4e00 ; -- <0640> ram b = $ram_power_down_at_min -- av_ad_hi = 0
-    0540 : 5218 ; -- <0640> ram b = $ram_power_down_at_min -- av_ad_lo = 24
-    0541 : 0411 ; -- <0640> ram b = $ram_power_down_at_min -- b = av_write_data -- start read cycle
-    0542 : 0412 ; -- <0640> ram b = $ram_power_down_at_min -- b = av_read_data -- finish read cycle
-    0543 : e407 ; -- <0641> bn eq :done
-    0544 : 0548 ; -- <0641> "
-    0545 : fba0 ; -- <0642> call :power_down
-    0546 : 054a ; -- <0642> "
-    0547 : fc00 ; -- <0642> "
+    053b : 4e00 ; -- <0630> ram a = $ram_minutes_cnt -- av_ad_hi = 0
+    053c : 521c ; -- <0630> ram a = $ram_minutes_cnt -- av_ad_lo = 28
+    053d : 0011 ; -- <0630> ram a = $ram_minutes_cnt -- a = av_write_data -- start read cycle
+    053e : 0012 ; -- <0630> ram a = $ram_minutes_cnt -- a = av_read_data -- finish read cycle
+    053f : 4e00 ; -- <0631> ram b = $ram_power_down_at_min -- av_ad_hi = 0
+    0540 : 5218 ; -- <0631> ram b = $ram_power_down_at_min -- av_ad_lo = 24
+    0541 : 0411 ; -- <0631> ram b = $ram_power_down_at_min -- b = av_write_data -- start read cycle
+    0542 : 0412 ; -- <0631> ram b = $ram_power_down_at_min -- b = av_read_data -- finish read cycle
+    0543 : e407 ; -- <0632> bn eq :done
+    0544 : 0548 ; -- <0632> "
+    0545 : fba0 ; -- <0633> call :power_down
+    0546 : 054a ; -- <0633> "
+    0547 : fc00 ; -- <0633> "
 -- :done -- = 0x0548
-    0548 : f808 ; -- <0644> pop rtna -- end_func
-    0549 : fc00 ; -- <0644> swapra = nop
+    0548 : f808 ; -- <0635> pop rtna -- end_func
+    0549 : fc00 ; -- <0635> swapra = nop
 
 -- ######## func power_down -- = 0x054a
-    054a : 203e ; -- <0646> push rtna -- func power_down
+    054a : 203e ; -- <0637> push rtna -- func power_down
 -- this function never returns.
-    054b : fba0 ; -- <0648> call :save_persistent_data
-    054c : 0555 ; -- <0648> "
-    054d : fc00 ; -- <0648> "
-    054e : 6a32 ; -- <0649> power_duty = $power_duty_opening
-    054f : 5fa0 ; -- <0650> error_halt_code $err_power_down -- leds = 0xfffc
-    0550 : fffc ; -- <0650> "
-    0551 : e00f ; -- <0650> error_halt_code $err_power_down
-    0552 : 0551 ; -- <0650> "
-    0553 : f808 ; -- <0651> pop rtna -- end_func
-    0554 : fc00 ; -- <0651> swapra = nop
+    054b : fba0 ; -- <0639> call :save_persistent_data
+    054c : 0555 ; -- <0639> "
+    054d : fc00 ; -- <0639> "
+    054e : 6a32 ; -- <0640> power_duty = $power_duty_opening
+    054f : 5fa0 ; -- <0641> error_halt_code $err_power_down -- leds = 0xfffc
+    0550 : fffc ; -- <0641> "
+    0551 : e00f ; -- <0641> error_halt_code $err_power_down
+    0552 : 0551 ; -- <0641> "
+    0553 : f808 ; -- <0642> pop rtna -- end_func
+    0554 : fc00 ; -- <0642> swapra = nop
 
 -- ######## func save_persistent_data -- = 0x0555
-    0555 : fc00 ; -- <0654> swapra = nop
+    0555 : fc00 ; -- <0645> swapra = nop
 
 -- ######## func check_communication -- = 0x0556
-    0556 : 203e ; -- <0656> push rtna -- func check_communication
-    0557 : 4e00 ; -- <0657> ram a = $ram_ftdi_downtime_remain_sec -- av_ad_hi = 0
-    0558 : 5202 ; -- <0657> ram a = $ram_ftdi_downtime_remain_sec -- av_ad_lo = 2
-    0559 : 0011 ; -- <0657> ram a = $ram_ftdi_downtime_remain_sec -- a = av_write_data -- start read cycle
-    055a : 0012 ; -- <0657> ram a = $ram_ftdi_downtime_remain_sec -- a = av_read_data -- finish read cycle
-    055b : e000 ; -- <0658> br az :skip_ftdi_powerup
-    055c : 056c ; -- <0658> "
-    055d : 0760 ; -- <0659> b = -1
-    055e : c800 ; -- <0660> a = a+b
-    055f : 0300 ; -- <0660> "
-    0560 : 4e00 ; -- <0661> ram $ram_ftdi_downtime_remain_sec = a -- av_ad_hi = 0
-    0561 : 5202 ; -- <0661> ram $ram_ftdi_downtime_remain_sec = a -- av_ad_lo = 2
-    0562 : 4400 ; -- <0661> ram $ram_ftdi_downtime_remain_sec = a -- av_write_data = a
-    0563 : e000 ; -- <0662> br az :do_power_on
-    0564 : 0567 ; -- <0662> "
-    0565 : f808 ; -- <0663> pop rtna -- rtn
-    0566 : fc00 ; -- <0663> swapra = nop
+    0556 : 203e ; -- <0647> push rtna -- func check_communication
+    0557 : 4e00 ; -- <0648> ram a = $ram_ftdi_downtime_remain_sec -- av_ad_hi = 0
+    0558 : 5202 ; -- <0648> ram a = $ram_ftdi_downtime_remain_sec -- av_ad_lo = 2
+    0559 : 0011 ; -- <0648> ram a = $ram_ftdi_downtime_remain_sec -- a = av_write_data -- start read cycle
+    055a : 0012 ; -- <0648> ram a = $ram_ftdi_downtime_remain_sec -- a = av_read_data -- finish read cycle
+    055b : e000 ; -- <0649> br az :skip_ftdi_powerup
+    055c : 056c ; -- <0649> "
+    055d : 0760 ; -- <0650> b = -1
+    055e : c800 ; -- <0651> a = a+b
+    055f : 0300 ; -- <0651> "
+    0560 : 4e00 ; -- <0652> ram $ram_ftdi_downtime_remain_sec = a -- av_ad_hi = 0
+    0561 : 5202 ; -- <0652> ram $ram_ftdi_downtime_remain_sec = a -- av_ad_lo = 2
+    0562 : 4400 ; -- <0652> ram $ram_ftdi_downtime_remain_sec = a -- av_write_data = a
+    0563 : e000 ; -- <0653> br az :do_power_on
+    0564 : 0567 ; -- <0653> "
+    0565 : f808 ; -- <0654> pop rtna -- rtn
+    0566 : fc00 ; -- <0654> swapra = nop
 -- :do_power_on -- = 0x0567
-    0567 : fba0 ; -- <0665> call :ftdi_power_on
-    0568 : 059e ; -- <0665> "
-    0569 : fc00 ; -- <0665> "
-    056a : f808 ; -- <0666> pop rtna -- rtn
-    056b : fc00 ; -- <0666> swapra = nop
+    0567 : fba0 ; -- <0656> call :ftdi_power_on
+    0568 : 059e ; -- <0656> "
+    0569 : fc00 ; -- <0656> "
+    056a : f808 ; -- <0657> pop rtna -- rtn
+    056b : fc00 ; -- <0657> swapra = nop
 -- :skip_ftdi_powerup -- = 0x056c
 
-    056c : 4e00 ; -- <0669> ram a = $ram_minutes_cnt -- av_ad_hi = 0
-    056d : 521c ; -- <0669> ram a = $ram_minutes_cnt -- av_ad_lo = 28
-    056e : 0011 ; -- <0669> ram a = $ram_minutes_cnt -- a = av_write_data -- start read cycle
-    056f : 0012 ; -- <0669> ram a = $ram_minutes_cnt -- a = av_read_data -- finish read cycle
-    0570 : 4e00 ; -- <0670> ram b = $ram_comm_restart_at_min -- av_ad_hi = 0
-    0571 : 5200 ; -- <0670> ram b = $ram_comm_restart_at_min -- av_ad_lo = 0
-    0572 : 0411 ; -- <0670> ram b = $ram_comm_restart_at_min -- b = av_write_data -- start read cycle
-    0573 : 0412 ; -- <0670> ram b = $ram_comm_restart_at_min -- b = av_read_data -- finish read cycle
-    0574 : e407 ; -- <0671> bn eq :done
-    0575 : 057f ; -- <0671> "
+    056c : 4e00 ; -- <0660> ram a = $ram_minutes_cnt -- av_ad_hi = 0
+    056d : 521c ; -- <0660> ram a = $ram_minutes_cnt -- av_ad_lo = 28
+    056e : 0011 ; -- <0660> ram a = $ram_minutes_cnt -- a = av_write_data -- start read cycle
+    056f : 0012 ; -- <0660> ram a = $ram_minutes_cnt -- a = av_read_data -- finish read cycle
+    0570 : 4e00 ; -- <0661> ram b = $ram_comm_restart_at_min -- av_ad_hi = 0
+    0571 : 5200 ; -- <0661> ram b = $ram_comm_restart_at_min -- av_ad_lo = 0
+    0572 : 0411 ; -- <0661> ram b = $ram_comm_restart_at_min -- b = av_write_data -- start read cycle
+    0573 : 0412 ; -- <0661> ram b = $ram_comm_restart_at_min -- b = av_read_data -- finish read cycle
+    0574 : e407 ; -- <0662> bn eq :done
+    0575 : 057f ; -- <0662> "
 -- comm restart is required.
-    0576 : fba0 ; -- <0673> call :postpone_comm_restart
-    0577 : 0581 ; -- <0673> "
-    0578 : fc00 ; -- <0673> "
-    0579 : 4e00 ; -- <0674> ram $ram_ftdi_downtime_remain_sec = $ftdi_down_period_sec -- av_ad_hi = 0
-    057a : 5202 ; -- <0674> ram $ram_ftdi_downtime_remain_sec = $ftdi_down_period_sec -- av_ad_lo = 2
-    057b : 4605 ; -- <0674> ram $ram_ftdi_downtime_remain_sec = $ftdi_down_period_sec -- av_write_data = 5
-    057c : fba0 ; -- <0675> call :ftdi_power_off
-    057d : 058e ; -- <0675> "
-    057e : fc00 ; -- <0675> "
+    0576 : fba0 ; -- <0664> call :postpone_comm_restart
+    0577 : 0581 ; -- <0664> "
+    0578 : fc00 ; -- <0664> "
+    0579 : 4e00 ; -- <0665> ram $ram_ftdi_downtime_remain_sec = $ftdi_down_period_sec -- av_ad_hi = 0
+    057a : 5202 ; -- <0665> ram $ram_ftdi_downtime_remain_sec = $ftdi_down_period_sec -- av_ad_lo = 2
+    057b : 4605 ; -- <0665> ram $ram_ftdi_downtime_remain_sec = $ftdi_down_period_sec -- av_write_data = 5
+    057c : fba0 ; -- <0666> call :ftdi_power_off
+    057d : 058e ; -- <0666> "
+    057e : fc00 ; -- <0666> "
 -- :done -- = 0x057f
-    057f : f808 ; -- <0677> pop rtna -- end_func
-    0580 : fc00 ; -- <0677> swapra = nop
+    057f : f808 ; -- <0668> pop rtna -- end_func
+    0580 : fc00 ; -- <0668> swapra = nop
 
 -- ######## func postpone_comm_restart -- = 0x0581
-    0581 : 4e00 ; -- <0680> ram a = $ram_minutes_cnt -- av_ad_hi = 0
-    0582 : 521c ; -- <0680> ram a = $ram_minutes_cnt -- av_ad_lo = 28
-    0583 : 0011 ; -- <0680> ram a = $ram_minutes_cnt -- a = av_write_data -- start read cycle
-    0584 : 0012 ; -- <0680> ram a = $ram_minutes_cnt -- a = av_read_data -- finish read cycle
-    0585 : 0602 ; -- <0681> b = $comm_grace_period_min
-    0586 : 4e00 ; -- <0682> ram $ram_comm_restart_at_min = a+b -- av_ad_hi = 0
-    0587 : 5200 ; -- <0682> ram $ram_comm_restart_at_min = a+b -- av_ad_lo = 0
-    0588 : c800 ; -- <0682> ram $ram_comm_restart_at_min = a+b -- av_write_data = a+b
-    0589 : 4700 ; -- <0682> "
-    058a : fc00 ; -- <0683> swapra = nop
+    0581 : 4e00 ; -- <0671> ram a = $ram_minutes_cnt -- av_ad_hi = 0
+    0582 : 521c ; -- <0671> ram a = $ram_minutes_cnt -- av_ad_lo = 28
+    0583 : 0011 ; -- <0671> ram a = $ram_minutes_cnt -- a = av_write_data -- start read cycle
+    0584 : 0012 ; -- <0671> ram a = $ram_minutes_cnt -- a = av_read_data -- finish read cycle
+    0585 : 0602 ; -- <0672> b = $comm_grace_period_min
+    0586 : 4e00 ; -- <0673> ram $ram_comm_restart_at_min = a+b -- av_ad_hi = 0
+    0587 : 5200 ; -- <0673> ram $ram_comm_restart_at_min = a+b -- av_ad_lo = 0
+    0588 : c800 ; -- <0673> ram $ram_comm_restart_at_min = a+b -- av_write_data = a+b
+    0589 : 4700 ; -- <0673> "
+    058a : fc00 ; -- <0674> swapra = nop
 
 -- :ftdi_off_msg -- = 0x058b
 -- "FTOF\x0"
-    058b : 5446 ; -- <0686> TF
-    058c : 464f ; -- <0686> FO
-    058d : 0000 ; -- <0686>   
+    058b : 5446 ; -- <0677> TF
+    058c : 464f ; -- <0677> FO
+    058d : 0000 ; -- <0677>   
 
 -- ######## func ftdi_power_off -- = 0x058e
-    058e : 203e ; -- <0688> push rtna -- func ftdi_power_off
-    058f : 0018 ; -- <0689> a = board_ctrl
-    0590 : 07a0 ; -- <0690> b = $not_ftdi_power_mask
-    0591 : ff7f ; -- <0690> "
-    0592 : c800 ; -- <0691> board_ctrl = and
-    0593 : 6330 ; -- <0691> "
-    0594 : 03a0 ; -- <0692> a = :ftdi_off_msg
-    0595 : 058b ; -- <0692> "
-    0596 : fba0 ; -- <0693> call :set_text_flag
-    0597 : 05aa ; -- <0693> "
-    0598 : fc00 ; -- <0693> "
-    0599 : f808 ; -- <0694> pop rtna -- end_func
-    059a : fc00 ; -- <0694> swapra = nop
+    058e : 203e ; -- <0679> push rtna -- func ftdi_power_off
+    058f : 0018 ; -- <0680> a = board_ctrl
+    0590 : 07a0 ; -- <0681> b = $not_ftdi_power_mask
+    0591 : ff7f ; -- <0681> "
+    0592 : c800 ; -- <0682> board_ctrl = and
+    0593 : 6330 ; -- <0682> "
+    0594 : 03a0 ; -- <0683> a = :ftdi_off_msg
+    0595 : 058b ; -- <0683> "
+    0596 : fba0 ; -- <0684> call :set_text_flag
+    0597 : 05aa ; -- <0684> "
+    0598 : fc00 ; -- <0684> "
+    0599 : f808 ; -- <0685> pop rtna -- end_func
+    059a : fc00 ; -- <0685> swapra = nop
 
 -- :ftdi_on_msg -- = 0x059b
 -- "FTON\x0"
-    059b : 5446 ; -- <0697> TF
-    059c : 4e4f ; -- <0697> NO
-    059d : 0000 ; -- <0697>   
+    059b : 5446 ; -- <0688> TF
+    059c : 4e4f ; -- <0688> NO
+    059d : 0000 ; -- <0688>   
 
 -- ######## func ftdi_power_on -- = 0x059e
-    059e : 203e ; -- <0699> push rtna -- func ftdi_power_on
-    059f : 0018 ; -- <0700> a = board_ctrl
-    05a0 : 0680 ; -- <0701> b = $ftdi_power_mask
-    05a1 : c800 ; -- <0702> board_ctrl = or
-    05a2 : 6334 ; -- <0702> "
-    05a3 : 03a0 ; -- <0703> a = :ftdi_on_msg
-    05a4 : 059b ; -- <0703> "
-    05a5 : fba0 ; -- <0704> call :set_text_flag
-    05a6 : 05aa ; -- <0704> "
-    05a7 : fc00 ; -- <0704> "
-    05a8 : f808 ; -- <0705> pop rtna -- end_func
-    05a9 : fc00 ; -- <0705> swapra = nop
+    059e : 203e ; -- <0690> push rtna -- func ftdi_power_on
+    059f : 0018 ; -- <0691> a = board_ctrl
+    05a0 : 0680 ; -- <0692> b = $ftdi_power_mask
+    05a1 : c800 ; -- <0693> board_ctrl = or
+    05a2 : 6334 ; -- <0693> "
+    05a3 : 03a0 ; -- <0694> a = :ftdi_on_msg
+    05a4 : 059b ; -- <0694> "
+    05a5 : fba0 ; -- <0695> call :set_text_flag
+    05a6 : 05aa ; -- <0695> "
+    05a7 : fc00 ; -- <0695> "
+    05a8 : f808 ; -- <0696> pop rtna -- end_func
+    05a9 : fc00 ; -- <0696> swapra = nop
 
 -- ######## func set_text_flag -- = 0x05aa
-    05aa : 0400 ; -- <0708> b = a
-    05ab : 4e00 ; -- <0709> ram a = $ram_next_tfp_idx -- av_ad_hi = 0
-    05ac : 5234 ; -- <0709> ram a = $ram_next_tfp_idx -- av_ad_lo = 52
-    05ad : 0011 ; -- <0709> ram a = $ram_next_tfp_idx -- a = av_write_data -- start read cycle
-    05ae : 0012 ; -- <0709> ram a = $ram_next_tfp_idx -- a = av_read_data -- finish read cycle
-    05af : 2000 ; -- <0710> push a -- push a
+    05aa : 0400 ; -- <0699> b = a
+    05ab : 4e00 ; -- <0700> ram a = $ram_next_tfp_idx -- av_ad_hi = 0
+    05ac : 5234 ; -- <0700> ram a = $ram_next_tfp_idx -- av_ad_lo = 52
+    05ad : 0011 ; -- <0700> ram a = $ram_next_tfp_idx -- a = av_write_data -- start read cycle
+    05ae : 0012 ; -- <0700> ram a = $ram_next_tfp_idx -- a = av_read_data -- finish read cycle
+    05af : 2000 ; -- <0701> push a -- push a
 
-    05b0 : 0351 ; -- <0711> a = a<<1
-    05b1 : 2001 ; -- <0711> push b -- push b
-    05b2 : 0624 ; -- <0711> b = 36
-    05b3 : 4e00 ; -- <0711> av_ad_hi = 0
-    05b4 : 5300 ; -- <0711> av_ad_lo = ad0
-    05b5 : 4408 ; -- <0711> pop av_write_data -- pop av_write_data
+    05b0 : 0351 ; -- <0702> a = a<<1
+    05b1 : 2001 ; -- <0702> push b -- push b
+    05b2 : 0624 ; -- <0702> b = 36
+    05b3 : 4e00 ; -- <0702> av_ad_hi = 0
+    05b4 : 5300 ; -- <0702> av_ad_lo = ad0
+    05b5 : 4408 ; -- <0702> pop av_write_data -- pop av_write_data
 
-    05b6 : 0008 ; -- <0712> pop a -- pop a
-    05b7 : 0760 ; -- <0713> b = -1
-    05b8 : c800 ; -- <0714> a = a+b
-    05b9 : 0300 ; -- <0714> "
-    05ba : 0607 ; -- <0715> b = $tfp_mask
-    05bb : 4e00 ; -- <0716> ram $ram_next_tfp_idx = and -- av_ad_hi = 0
-    05bc : 5234 ; -- <0716> ram $ram_next_tfp_idx = and -- av_ad_lo = 52
-    05bd : c800 ; -- <0716> ram $ram_next_tfp_idx = and -- av_write_data = and
-    05be : 4730 ; -- <0716> "
-    05bf : fc00 ; -- <0717> swapra = nop
+    05b6 : 0008 ; -- <0703> pop a -- pop a
+    05b7 : 0760 ; -- <0704> b = -1
+    05b8 : c800 ; -- <0705> a = a+b
+    05b9 : 0300 ; -- <0705> "
+    05ba : 0607 ; -- <0706> b = $tfp_mask
+    05bb : 4e00 ; -- <0707> ram $ram_next_tfp_idx = and -- av_ad_hi = 0
+    05bc : 5234 ; -- <0707> ram $ram_next_tfp_idx = and -- av_ad_lo = 52
+    05bd : c800 ; -- <0707> ram $ram_next_tfp_idx = and -- av_write_data = and
+    05be : 4730 ; -- <0707> "
+    05bf : fc00 ; -- <0708> swapra = nop
 
 -- :text_flags_msg -- = 0x05c0
 -- " tf=\x0"
-    05c0 : 7420 ; -- <0720> t 
-    05c1 : 3d66 ; -- <0720> =f
-    05c2 : 0000 ; -- <0720>   
+    05c0 : 7420 ; -- <0711> t 
+    05c1 : 3d66 ; -- <0711> =f
+    05c2 : 0000 ; -- <0711>   
 
 -- ######## func report_text_flags -- = 0x05c3
-    05c3 : 2002 ; -- <0722> push i -- func report_text_flags
-    05c4 : 2003 ; -- <0722> push j -- "
-    05c5 : 203e ; -- <0722> push rtna -- "
-    05c6 : 03a0 ; -- <0723> a = :text_flags_msg
-    05c7 : 05c0 ; -- <0723> "
-    05c8 : fba0 ; -- <0724> call :print_nt
-    05c9 : 013f ; -- <0724> "
-    05ca : fc00 ; -- <0724> "
-    05cb : 0a08 ; -- <0725> i = $num_text_flag_pointers
-    05cc : 0f60 ; -- <0726> j = -1
+    05c3 : 2002 ; -- <0713> push i -- func report_text_flags
+    05c4 : 2003 ; -- <0713> push j -- "
+    05c5 : 203e ; -- <0713> push rtna -- "
+    05c6 : 03a0 ; -- <0714> a = :text_flags_msg
+    05c7 : 05c0 ; -- <0714> "
+    05c8 : fba0 ; -- <0715> call :print_nt
+    05c9 : 013f ; -- <0715> "
+    05ca : fc00 ; -- <0715> "
+    05cb : 0a08 ; -- <0716> i = $num_text_flag_pointers
+    05cc : 0f60 ; -- <0717> j = -1
 -- :next_ptr -- = 0x05cd
-    05cd : c800 ; -- <0728> i = i+j
-    05ce : 0b10 ; -- <0728> "
-    05cf : 0002 ; -- <0729> a = i
+    05cd : c800 ; -- <0719> i = i+j
+    05ce : 0b10 ; -- <0719> "
+    05cf : 0002 ; -- <0720> a = i
 
-    05d0 : 0351 ; -- <0730> a = a<<1
-    05d1 : 0624 ; -- <0730> b = 36
-    05d2 : 4e00 ; -- <0730> av_ad_hi = 0
-    05d3 : 5300 ; -- <0730> av_ad_lo = ad0
-    05d4 : 0411 ; -- <0730> b = av_write_data
-    05d5 : 0412 ; -- <0730> b = av_read_data
+    05d0 : 0351 ; -- <0721> a = a<<1
+    05d1 : 0624 ; -- <0721> b = 36
+    05d2 : 4e00 ; -- <0721> av_ad_hi = 0
+    05d3 : 5300 ; -- <0721> av_ad_lo = ad0
+    05d4 : 0411 ; -- <0721> b = av_write_data
+    05d5 : 0412 ; -- <0721> b = av_read_data
 
-    05d6 : 0001 ; -- <0731> a = b
-    05d7 : e000 ; -- <0732> br az :skip
-    05d8 : 05e8 ; -- <0732> "
-    05d9 : fba0 ; -- <0733> call :print_nt
-    05da : 013f ; -- <0733> "
-    05db : fc00 ; -- <0733> "
-    05dc : 022c ; -- <0734> a = 44 -- putasc ","
-    05dd : fba0 ; -- <0734> putasc ","
-    05de : 008b ; -- <0734> "
-    05df : fc00 ; -- <0734> "
-    05e0 : 0002 ; -- <0735> a = i
-    05e1 : 0600 ; -- <0736> b = 0
+    05d6 : 0001 ; -- <0722> a = b
+    05d7 : e000 ; -- <0723> br az :skip
+    05d8 : 05e8 ; -- <0723> "
+    05d9 : fba0 ; -- <0724> call :print_nt
+    05da : 013f ; -- <0724> "
+    05db : fc00 ; -- <0724> "
+    05dc : 022c ; -- <0725> a = 44 -- putasc ","
+    05dd : fba0 ; -- <0725> putasc ","
+    05de : 008b ; -- <0725> "
+    05df : fc00 ; -- <0725> "
+    05e0 : 0002 ; -- <0726> a = i
+    05e1 : 0600 ; -- <0727> b = 0
 
-    05e2 : 0351 ; -- <0737> a = a<<1
-    05e3 : 2001 ; -- <0737> push b -- push b
-    05e4 : 0624 ; -- <0737> b = 36
-    05e5 : 4e00 ; -- <0737> av_ad_hi = 0
-    05e6 : 5300 ; -- <0737> av_ad_lo = ad0
-    05e7 : 4408 ; -- <0737> pop av_write_data -- pop av_write_data
+    05e2 : 0351 ; -- <0728> a = a<<1
+    05e3 : 2001 ; -- <0728> push b -- push b
+    05e4 : 0624 ; -- <0728> b = 36
+    05e5 : 4e00 ; -- <0728> av_ad_hi = 0
+    05e6 : 5300 ; -- <0728> av_ad_lo = ad0
+    05e7 : 4408 ; -- <0728> pop av_write_data -- pop av_write_data
 
 -- :skip -- = 0x05e8
-    05e8 : e401 ; -- <0739> bn iz :next_ptr
-    05e9 : 05cd ; -- <0739> "
-    05ea : f808 ; -- <0740> pop rtna -- end_func
-    05eb : 0c08 ; -- <0740> pop j -- "
-    05ec : 0808 ; -- <0740> pop i -- "
-    05ed : fc00 ; -- <0740> swapra = nop
+    05e8 : e401 ; -- <0730> bn iz :next_ptr
+    05e9 : 05cd ; -- <0730> "
+    05ea : f808 ; -- <0731> pop rtna -- end_func
+    05eb : 0c08 ; -- <0731> pop j -- "
+    05ec : 0808 ; -- <0731> pop i -- "
+    05ed : fc00 ; -- <0731> swapra = nop
 
 -- :plan_msg -- = 0x05ee
 -- " pl=\x0"
-    05ee : 7020 ; -- <0743> p 
-    05ef : 3d6c ; -- <0743> =l
-    05f0 : 0000 ; -- <0743>   
+    05ee : 7020 ; -- <0734> p 
+    05ef : 3d6c ; -- <0734> =l
+    05f0 : 0000 ; -- <0734>   
 
 -- ######## func report_plan -- = 0x05f1
-    05f1 : 203e ; -- <0745> push rtna -- func report_plan
-    05f2 : 03a0 ; -- <0746> a = :plan_msg
-    05f3 : 05ee ; -- <0746> "
-    05f4 : fba0 ; -- <0747> call :print_nt
-    05f5 : 013f ; -- <0747> "
-    05f6 : fc00 ; -- <0747> "
-    05f7 : 4e00 ; -- <0748> ram a = $ram_plan_name -- av_ad_hi = 0
-    05f8 : 5266 ; -- <0748> ram a = $ram_plan_name -- av_ad_lo = 102
-    05f9 : 0011 ; -- <0748> ram a = $ram_plan_name -- a = av_write_data -- start read cycle
-    05fa : 0012 ; -- <0748> ram a = $ram_plan_name -- a = av_read_data -- finish read cycle
-    05fb : fba0 ; -- <0749> call :print_nt
-    05fc : 013f ; -- <0749> "
-    05fd : fc00 ; -- <0749> "
-    05fe : f808 ; -- <0750> pop rtna -- end_func
-    05ff : fc00 ; -- <0750> swapra = nop
+    05f1 : 203e ; -- <0736> push rtna -- func report_plan
+    05f2 : 03a0 ; -- <0737> a = :plan_msg
+    05f3 : 05ee ; -- <0737> "
+    05f4 : fba0 ; -- <0738> call :print_nt
+    05f5 : 013f ; -- <0738> "
+    05f6 : fc00 ; -- <0738> "
+    05f7 : 4e00 ; -- <0739> ram a = $ram_plan_name -- av_ad_hi = 0
+    05f8 : 5266 ; -- <0739> ram a = $ram_plan_name -- av_ad_lo = 102
+    05f9 : 0011 ; -- <0739> ram a = $ram_plan_name -- a = av_write_data -- start read cycle
+    05fa : 0012 ; -- <0739> ram a = $ram_plan_name -- a = av_read_data -- finish read cycle
+    05fb : fba0 ; -- <0740> call :print_nt
+    05fc : 013f ; -- <0740> "
+    05fd : fc00 ; -- <0740> "
+    05fe : f808 ; -- <0741> pop rtna -- end_func
+    05ff : fc00 ; -- <0741> swapra = nop
 
 -- ######## func jf_to_rpm -- = 0x0600
-    0600 : 203e ; -- <0752> push rtna -- func jf_to_rpm
+    0600 : 203e ; -- <0743> push rtna -- func jf_to_rpm
 -- pass jiffies in a.  return rpm in a.
 -- resolution = 32 rpm.
-    0601 : 0400 ; -- <0755> b = a
-    0602 : 03a0 ; -- <0756> a = 0x5573
-    0603 : 5573 ; -- <0756> "
+    0601 : 0400 ; -- <0746> b = a
+    0602 : 03a0 ; -- <0747> a = 0x5573
+    0603 : 5573 ; -- <0747> "
 -- = 700000 >> 5
-    0604 : fba0 ; -- <0758> call :divide
-    0605 : 017c ; -- <0758> "
-    0606 : fc00 ; -- <0758> "
-    0607 : 0001 ; -- <0759> a = b
-    0608 : 0352 ; -- <0760> a = a<<4
-    0609 : 0351 ; -- <0761> a = a<<1
-    060a : f808 ; -- <0762> pop rtna -- end_func
-    060b : fc00 ; -- <0762> swapra = nop
+    0604 : fba0 ; -- <0749> call :divide
+    0605 : 017c ; -- <0749> "
+    0606 : fc00 ; -- <0749> "
+    0607 : 0001 ; -- <0750> a = b
+    0608 : 0352 ; -- <0751> a = a<<4
+    0609 : 0351 ; -- <0752> a = a<<1
+    060a : f808 ; -- <0753> pop rtna -- end_func
+    060b : fc00 ; -- <0753> swapra = nop
 
 -- ######## func check_engine_stop -- = 0x060c
-    060c : 203e ; -- <0764> push rtna -- func check_engine_stop
+    060c : 203e ; -- <0755> push rtna -- func check_engine_stop
 -- returns a=1 if transitioned to stop, else a=0.
 
 -- transition to plan_stop if ignition switch is turned off AND rpm estimate is invalid.
 -- requiring both conditions prevents spurious noise readings from shutting down the injection.
-    060d : 001a ; -- <0769> a = power_duty
-    060e : 0680 ; -- <0770> b = $ign_switch_off_mask
-    060f : e003 ; -- <0771> br and0z :stay
-    0610 : 0622 ; -- <0771> "
-    0611 : 4e00 ; -- <0772> ram a = $ram_rpm_valid -- av_ad_hi = 0
-    0612 : 525c ; -- <0772> ram a = $ram_rpm_valid -- av_ad_lo = 92
-    0613 : 0011 ; -- <0772> ram a = $ram_rpm_valid -- a = av_write_data -- start read cycle
-    0614 : 0012 ; -- <0772> ram a = $ram_rpm_valid -- a = av_read_data -- finish read cycle
-    0615 : e400 ; -- <0773> bn az :stay
-    0616 : 0622 ; -- <0773> "
-    0617 : 4e00 ; -- <0774> ram rtna = $ram_destroy_plan_func -- av_ad_hi = 0
-    0618 : 526c ; -- <0774> ram rtna = $ram_destroy_plan_func -- av_ad_lo = 108
-    0619 : f811 ; -- <0774> ram rtna = $ram_destroy_plan_func -- rtna = av_write_data -- start read cycle
-    061a : f812 ; -- <0774> ram rtna = $ram_destroy_plan_func -- rtna = av_read_data -- finish read cycle
-    061b : fc00 ; -- <0775> swapra = nop
-    061c : fba0 ; -- <0776> call :init_plan_stop
-    061d : 020f ; -- <0776> "
-    061e : fc00 ; -- <0776> "
-    061f : 0201 ; -- <0777> a = 1
-    0620 : e00f ; -- <0778> jmp :done
-    0621 : 0623 ; -- <0778> "
+    060d : 001a ; -- <0760> a = power_duty
+    060e : 0680 ; -- <0761> b = $ign_switch_off_mask
+    060f : e003 ; -- <0762> br and0z :stay
+    0610 : 0622 ; -- <0762> "
+    0611 : 4e00 ; -- <0763> ram a = $ram_rpm_valid -- av_ad_hi = 0
+    0612 : 525c ; -- <0763> ram a = $ram_rpm_valid -- av_ad_lo = 92
+    0613 : 0011 ; -- <0763> ram a = $ram_rpm_valid -- a = av_write_data -- start read cycle
+    0614 : 0012 ; -- <0763> ram a = $ram_rpm_valid -- a = av_read_data -- finish read cycle
+    0615 : e400 ; -- <0764> bn az :stay
+    0616 : 0622 ; -- <0764> "
+    0617 : 4e00 ; -- <0765> ram rtna = $ram_destroy_plan_func -- av_ad_hi = 0
+    0618 : 526c ; -- <0765> ram rtna = $ram_destroy_plan_func -- av_ad_lo = 108
+    0619 : f811 ; -- <0765> ram rtna = $ram_destroy_plan_func -- rtna = av_write_data -- start read cycle
+    061a : f812 ; -- <0765> ram rtna = $ram_destroy_plan_func -- rtna = av_read_data -- finish read cycle
+    061b : fc00 ; -- <0766> swapra = nop
+    061c : fba0 ; -- <0767> call :init_plan_stop
+    061d : 020f ; -- <0767> "
+    061e : fc00 ; -- <0767> "
+    061f : 0201 ; -- <0768> a = 1
+    0620 : e00f ; -- <0769> jmp :done
+    0621 : 0623 ; -- <0769> "
 -- :stay -- = 0x0622
-    0622 : 0200 ; -- <0780> a = 0
+    0622 : 0200 ; -- <0771> a = 0
 -- :done -- = 0x0623
-    0623 : f808 ; -- <0782> pop rtna -- end_func
-    0624 : fc00 ; -- <0782> swapra = nop
+    0623 : f808 ; -- <0773> pop rtna -- end_func
+    0624 : fc00 ; -- <0773> swapra = nop
 
 
 -- src reg 0000 a

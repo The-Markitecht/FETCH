@@ -1,3 +1,7 @@
+
+setvar warmup_success_temp_adc      0x4c0
+    // 0x4c0 = 1216 = 120 degF at the sensor location outside the engine block.
+
 :plan_name_warmup
     "WM\x0"
 

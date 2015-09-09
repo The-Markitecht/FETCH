@@ -11,6 +11,7 @@ module puff_timer (
     ,output reg         injector_open  // to injector solenoid driver.
     ,output wire        puff_event // to MCU for coordination.  rising and falling edges signal start and end of injection time.
     ,input wire         puff_enable // from MCU for coordination.  rising edge is required for initialization.  low level prevents further triggering.
+    ,input wire         puff_on_timeout // from MCU.
     ,output wire[7:0]   leds
 );
     // fuel injection timing circuit.
@@ -26,6 +27,8 @@ module puff_timer (
     // there MUST be a sensor on the camshaft etc..
     // maybe it doesn't matter.  each bank has 4 injectors in parallel anyway.
         
+    //patch: split this into 2 modules: puff_timer and ignition_capture.
+        
     wire[31:0] junk;
     wire[7:0] capdata;
         
@@ -33,7 +36,7 @@ module puff_timer (
     wire ign_coil_debounced;
     wire ign_4th_rise;
     wire ign_timeout;
-    wire puff_trigger_comb = ign_4th_rise || ign_timeout;
+    wire puff_trigger_comb = ign_4th_rise || (ign_timeout && puff_on_timeout);
     reg puff_trigger_last = 0;
     always_ff @(posedge sysclk)
         puff_trigger_last <= puff_trigger_comb; 

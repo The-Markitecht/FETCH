@@ -1,3 +1,12 @@
+
+setvar crank_success_rpm            800
+setvar crank_min_puff_len_us        5000
+setvar crank_max_puff_len_us        20000
+setvar crank_incr_us_per_puff       1500
+    // escalating puff length by 1500 us per puff while cranking slowly at e.g. 80 RPM
+    // on a frozen winter morning will ramp up from 5000 to 20000 us length in about 7 seconds.
+setvar crank_max_puffs              (($crank_max_puff_len_us - $crank_min_puff_len_us) / $crank_incr_us_per_puff)
+
 :plan_name_crank
     "CR\x0"
 

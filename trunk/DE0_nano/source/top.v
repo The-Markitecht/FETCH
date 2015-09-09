@@ -405,6 +405,7 @@ puff_timer puff1 (
     ,.injector_open         (inj)
     ,.puff_event            (puff1_event)
     ,.puff_enable           (r[`DR_PUFF_LEN_US] != 0)
+    ,.puff_on_timeout       (0)
     ,.leds                  (LED)
 );
 
