@@ -7,6 +7,8 @@ setvar warmup_max_enrichment_us     6000
 setvar warmup_us_per_cold_adc       (int($warmup_max_enrichment_us / ($warmup_success_temp_adc - $warmup_min_temp_adc)))
 setvar warmup_min_puff_len_us       4500
     // max 6000 & min 4500 over a temp range 750 to 0x4c0 gives 6900 us puff at 74 deg F.  program rev 594.
+setvar warmup_limping_enrichment_us 2000
+    // this is used if the engine temp is unavailable.
     
 :plan_name_warmup
     "WM\x0"
@@ -26,7 +28,7 @@ end_func
 
 func puff_len_warmup
     // x = enrichment us.
-    x = 0
+    x = $warmup_limping_enrichment_us
     
     // check engine block temp sensor.  if valid, enrich by a linear function:
     // {warmup_min_temp_adc...warmup_success_temp_adc} -> {$warmup_max_enrichment_us...0}
