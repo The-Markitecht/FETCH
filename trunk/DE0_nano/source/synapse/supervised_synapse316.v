@@ -19,10 +19,10 @@ module supervised_synapse316 (
     
     // register file, for any combination of general-purpose registers and i/o addressing.
     // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
-    ,input wire[`WORD_MSB:0]          r[`TOP_REG:0]
+    ,input wire[`WMSB:0]          r[`TOP_REG:0]
     ,output wire[`TOP_REG:0]          r_read    
     ,output wire[`TOP_REG:0]          r_load
-    ,output wire[`WORD_MSB:0]         r_load_data    
+    ,output wire[`WMSB:0]         r_load_data    
 
     // visor async interface.
     ,input wire                       dbg_async_rx_line
@@ -31,8 +31,8 @@ module supervised_synapse316 (
 
 // ################################ target Synapse316.
 
-wire[`WORD_MSB:0]          tg_code_addr;
-wire[`WORD_MSB:0]          tg_code_in;
+wire[`WMSB:0]          tg_code_addr;
+wire[`WMSB:0]          tg_code_in;
 wire                       tg_code_ready;
 wire                       tg_reset;
 wire[`DEBUG_IN_WIDTH-1:0]  tg_debug_in;
@@ -54,12 +54,12 @@ synapse316 target (
 // ############################## supervisor Synapse316 
 // with its own code ROM.  totally independent of the target MCU.
 
-wire[`WORD_MSB:0] code_addr;
-wire[`WORD_MSB:0] code_fetched;
-wire[`WORD_MSB:0] vr[`VISOR_TOP_REG:0];
+wire[`WMSB:0] code_addr;
+wire[`WMSB:0] code_fetched;
+wire[`WMSB:0] vr[`VISOR_TOP_REG:0];
 wire[`VISOR_TOP_REG:0]    vr_read;  
 wire[`VISOR_TOP_REG:0]    vr_load;
-wire[`WORD_MSB:0]         vr_load_data;  
+wire[`WMSB:0]         vr_load_data;  
 visor_pgm visor_rom(
     .clock(clk_progmem),
     .address(code_addr[`VISOR_CODE_ADDR_TOP:0]),
@@ -92,7 +92,7 @@ wire divert_code_bus = vr[`DR_BUS_CTRL][`DIVERT_CODE_BUS_BIT];
 assign tg_reset      =  sysreset || vr[`DR_BUS_CTRL][`TG_RESET_BIT];
 assign tg_code_ready = divert_code_bus ? vr[`DR_BUS_CTRL][`TG_CODE_READY_BIT] : ! (mcu_wait_in || bp_hit);
 assign visor_break_mode = ! tg_code_ready;
-wire[`WORD_MSB:0]                 rom_code_in;
+wire[`WMSB:0]                 rom_code_in;
 assign tg_code_in = divert_code_bus ? vr[`DR_FORCE_OPCODE] : rom_code_in;
 
 // forced operation logic.
@@ -102,25 +102,25 @@ std_reg force_opcode_reg(sysclk, sysreset, vr[`DR_FORCE_OPCODE], vr_load_data, v
 // peek data register.  loads its data only from the TARGET but is readable only by the VISOR.
 reg do_peek = 0;
 always_ff @(posedge sysclk)
-    do_peek <= vr[`DR_TG_FORCE][`FORCE_EXEC_BIT] && (vr[`DR_FORCE_OPCODE][`WORD_MSB:`DEST_LSB] == `DEST_NOP); 
+    do_peek <= vr[`DR_TG_FORCE][`FORCE_EXEC_BIT] && (vr[`DR_FORCE_OPCODE][`WMSB:`DEST_LSB] == `DEST_NOP); 
 std_reg peek_data_reg (sysclk, sysreset, vr[`SR_PEEK_DATA], r_load_data, do_peek);    
 
 // poke data register.  loads its data only from the VISOR but is also visible to the TARGET.
 std_reg poke_data_reg(sysclk, sysreset, vr[`DR_POKE_DATA], vr_load_data, vr_load[`DR_POKE_DATA]);
-assign tg_debug_in   = { vr[`DR_TG_FORCE][2:0], vr[`DR_POKE_DATA][`WORD_MSB:0]};
+assign tg_debug_in   = { vr[`DR_TG_FORCE][2:0], vr[`DR_POKE_DATA][`WMSB:0]};
 
 // shadow copy of target's EXR register.
-reg[`WORD_MSB:0] exr_shadow = 0;    
+reg[`WMSB:0] exr_shadow = 0;    
 assign vr[`SR_EXR_SHADOW] = exr_shadow; 
 assign vr[`SR_TG_CODE_ADDR] = tg_code_addr; 
 
 // hardware breakpoints.
-assign vr[`SR_BP_STATUS] = {`WORD_MSB'h0, bp_hit}; 
+assign vr[`SR_BP_STATUS] = {`WMSB'h0, bp_hit}; 
 std_reg bp_reg[3:0](sysclk, sysreset, vr[`DR_BP3_ADDR:`DR_BP0_ADDR], vr_load_data, vr_load[`DR_BP3_ADDR:`DR_BP0_ADDR]);
 wire tg_debug_loading_exr = tg_debug_out[`DEBUG_LOAD_EXR_BIT];
 wire tg_debug_enable_exec = tg_debug_out[`DEBUG_ENABLE_EXEC_BIT];
 wire program_break = tg_debug_out[`DEBUG_PRG_BREAK_OP_BIT];
-assign vr[`SR_BOOT_BREAK] = {`WORD_MSB'h0, boot_break}; 
+assign vr[`SR_BOOT_BREAK] = {`WMSB'h0, boot_break}; 
 wire bp_matched_comb =   tg_code_addr == vr[`DR_BP0_ADDR] 
                       || tg_code_addr == vr[`DR_BP1_ADDR] 
                       || tg_code_addr == vr[`DR_BP2_ADDR] 
@@ -157,12 +157,12 @@ always_ff @(posedge sysreset, posedge sysclk) begin
 end    
 
 // debugger UART
-wire[`WORD_MSB:0] atxd;
+wire[`WMSB:0] atxd;
 std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, atxd, vr_load_data[7:0], vr_load[`DR_ATX_DATA]);
-wire[`WORD_MSB:0] atxc;
+wire[`WMSB:0] atxc;
 wire txbsy;
 wire rxbsy;
-assign vr[`DR_ATX_CTRL] = {atxc[`WORD_MSB:3], rxbsy, txbsy, atxc[0]};
+assign vr[`DR_ATX_CTRL] = {atxc[`WMSB:3], rxbsy, txbsy, atxc[0]};
 std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, atxc, vr_load_data[0], vr_load[`DR_ATX_CTRL]);
 uart_v2_tx utx (
      .uart_sample_clk(clk_async) // clocked at 4x bit rate.
@@ -177,12 +177,12 @@ uart_v2_rx urx (
     ,.rx_busy        (rxbsy)
     ,.parallel_out   (vr[`DR_ATX_DATA][7:0])
 );
-assign vr[`DR_ATX_DATA][`WORD_MSB:8] = 8'd0;
+assign vr[`DR_ATX_DATA][`WMSB:8] = 8'd0;
 
 
 // on-chip M9K RAM for target MCU program.  dual-ported.
 std_reg #(.WIDTH(`CODE_ADDR_WIDTH)) m9k_addr_reg(sysclk, sysreset, vr[`DR_M9K_ADDR], vr_load_data[`CODE_ADDR_TOP:0], vr_load[`DR_M9K_ADDR]);
-wire[`WORD_MSB:0] m9k_data;
+wire[`WMSB:0] m9k_data;
 std_reg m9k_data_reg(sysclk, sysreset, m9k_data, vr_load_data, vr_load[`DR_M9K_DATA]);
 reg m9k_wren = 0;
 always_ff @(posedge sysreset, posedge sysclk) begin
@@ -197,7 +197,7 @@ ram2port	target_program (
 	.clock_a ( clk_progmem ),
 	.clock_b ( clk_progmem ),
 	.data_a ( m9k_data ),
-	.data_b ( `WORD_WIDTH'd0 ),
+	.data_b ( `WW'd0 ),
 	.wren_a ( m9k_wren ),
 	.wren_b ( 1'd0 ),
 	.q_a ( vr[`DR_M9K_DATA] ),

@@ -15,7 +15,7 @@ module synapse316 #(
     ,input wire                  sysreset          
 
     ,output wire[IPR_TOP:0]      code_addr         
-    ,input wire[`WORD_MSB:0]     code_in     
+    ,input wire[`WMSB:0]     code_in     
     ,input wire                  code_ready
 
     // signals for use only by a debugging supervisor.
@@ -24,27 +24,27 @@ module synapse316 #(
     
     // register file, for any combination of general-purpose registers and i/o addressing.
     // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
-    ,input  wire[`WORD_MSB:0]         r[TOP_REG:0]
+    ,input  wire[`WMSB:0]         r[TOP_REG:0]
     ,output wire[TOP_REG:0]           r_read    
     ,output wire[TOP_REG:0]           r_load
-    ,output wire[`WORD_MSB:0]         r_load_data    
+    ,output wire[`WMSB:0]         r_load_data    
 ); 
     // see Zim notes for Synapse316 MCU.
 
     // declarations & wires
-    wire[`WORD_MSB:0] muxa_comb;      
-    reg[`WORD_MSB:0] exr; // executing instruction register
+    wire[`WMSB:0] muxa_comb;      
+    reg[`WMSB:0] exr; // executing instruction register
         
     // debugger input flattener.
     wire debug_force_exec = debug_in[`DEBUG_FORCE_EXEC_BIT];
     wire debug_force_load_exr = debug_in[`DEBUG_FORCE_LOAD_EXR_BIT];
     wire debug_hold_state = debug_in[`DEBUG_FORCE_HOLD_STATE_BIT];
-    wire[`WORD_MSB:0] debug_poke_data = debug_in[`WORD_MSB:0];
+    wire[`WMSB:0] debug_poke_data = debug_in[`WMSB:0];
     
     // instruction decoder.
-    wire[5:0] muxa_dest_addr = exr[`WORD_MSB:`DEST_LSB];
+    wire[5:0] muxa_dest_addr = exr[`WMSB:`DEST_LSB];
     wire[9:0] muxa_src_addr = exr[`SRC_MSB:0];
-    wire[`WORD_MSB:0] small_constant = {8'h0, exr[7:0]};
+    wire[`WMSB:0] small_constant = {8'h0, exr[7:0]};
     wire[3:0] selected_flag_addr = muxa_src_addr[3:0];
     //reg code_ready_cycle = 1'b0;
     reg branching_cycle = 1'b0; // exr contains the wrong opcode on this cycle.  skip it.
@@ -69,8 +69,8 @@ module synapse316 #(
     // instruction pointer, executing instruction register, and more control logic.
     reg[IPR_TOP:0] ipr = 0;
     reg[IPR_TOP:0] return_addr = 0;
-    reg[`WORD_MSB:0] random_fetch_addr = 0; // this can temporarily override ipr to assert a different code_addr to the code memory.
-    reg[`WORD_MSB:0] random_fetch_result = 0;
+    reg[`WMSB:0] random_fetch_addr = 0; // this can temporarily override ipr to assert a different code_addr to the code memory.
+    reg[`WMSB:0] random_fetch_result = 0;
     wire branch_accept;
     wire load_ipr = code_ready && branch_accept; 
     wire hold_ipr = random_fetch_cycle1 || ! code_ready;
@@ -133,7 +133,7 @@ module synapse316 #(
     // plumbing for register file r.  for operands, general use, and i/o.
     // registers r0 and r1 are the operands for ad0 and certain other binary operators.
     assign r_load_data = muxa_comb;
-    wire[`WORD_MSB:0] r_full[`MAX_NUM_REGS-1:0]; // a fully populated register space.  some portion of this will be fake registers, unconnected.
+    wire[`WMSB:0] r_full[`MAX_NUM_REGS-1:0]; // a fully populated register space.  some portion of this will be fake registers, unconnected.
     genvar i;
     generate  
         for (i=0; i < NUM_REGS; i=i+1) begin: reg_ctrl_decoder
@@ -142,17 +142,17 @@ module synapse316 #(
             assign r_full[i] = r[i];
         end  
         for (i=NUM_REGS; i < `MAX_NUM_REGS; i=i+1) begin: fake_reg
-            assign r_full[i] = `WORD_WIDTH'hxxxx;
+            assign r_full[i] = `WW'hxxxx;
         end  
     endgenerate     
     
     // adder #0 with carry support
-    reg[`WORD_MSB:0] ad0; // result register
-    wire[`WORD_WIDTH:0] ad0_comb;
+    reg[`WMSB:0] ad0; // result register
+    wire[`WW:0] ad0_comb;
     reg ad0_cout_flag = 0;
     reg ad0_cin_flag = 0;
-    assign ad0_comb = {1'd0, r_full[0]} + {1'd0, r_full[1]} + {`WORD_MSB'd0, ad0_cin_flag};
-    wire ad0_cout_comb = ad0_comb[`WORD_WIDTH];
+    assign ad0_comb = {1'd0, r_full[0]} + {1'd0, r_full[1]} + {`WMSB'd0, ad0_cin_flag};
+    wire ad0_cout_comb = ad0_comb[`WW];
     always_ff @(posedge sysreset , posedge sysclk) begin
         if (sysreset) begin
             ad0 <= 0;
@@ -163,14 +163,14 @@ module synapse316 #(
                 ad0_cin_flag <= ad0_cin_flag || muxa_comb[0];
             if (clrf_operator)
                 ad0_cin_flag <= ad0_cin_flag && ! muxa_comb[0];
-            ad0 <= ad0_comb[`WORD_MSB:0];    
+            ad0 <= ad0_comb[`WMSB:0];    
             ad0_cout_flag <= ad0_cout_comb;
         end
     end
 
     // adder #1 with NO carry support.
-    reg[`WORD_MSB:0] ad1; // result register
-    wire[`WORD_MSB:0] ad1_comb = r_full[2] + r_full[3];
+    reg[`WMSB:0] ad1; // result register
+    wire[`WMSB:0] ad1_comb = r_full[2] + r_full[3];
     always_ff @(posedge sysreset , posedge sysclk) begin
         if (sysreset) begin
             ad1 <= 0;
@@ -180,8 +180,8 @@ module synapse316 #(
     end
 
     // adder #2 with NO carry support.
-    reg[`WORD_MSB:0] ad2; // result register
-    wire[`WORD_MSB:0] ad2_comb = r_full[4] + r_full[5];
+    reg[`WMSB:0] ad2; // result register
+    wire[`WMSB:0] ad2_comb = r_full[4] + r_full[5];
     always_ff @(posedge sysreset , posedge sysclk) begin
         if (sysreset) begin
             ad2 <= 0;
@@ -191,8 +191,8 @@ module synapse316 #(
     end
 
     // // 2's complement operator neg0
-    // reg[`WORD_MSB:0] neg0 = 0; // result register
-    // wire[`WORD_MSB:0] neg0_comb = ( ~ b[0] ) + `WORD_WIDTH'd1;
+    // reg[`WMSB:0] neg0 = 0; // result register
+    // wire[`WMSB:0] neg0_comb = ( ~ b[0] ) + `WW'd1;
     // always_ff @(sysreset or sysclk) begin
         // if (sysreset) begin
             // neg0 <= 0;
@@ -202,12 +202,12 @@ module synapse316 #(
     // end
 
     // bitwise operators and0, or0, xor0
-    reg[`WORD_MSB:0] and0 = 0; // result register
-    wire[`WORD_MSB:0] and0_comb = r_full[0] & r_full[1];
-    reg[`WORD_MSB:0] or0 = 0; // result register
-    wire[`WORD_MSB:0] or0_comb = r_full[0] | r_full[1];
-    reg[`WORD_MSB:0] xor0 = 0; // result register
-    wire[`WORD_MSB:0] xor0_comb = r_full[0] ^ r_full[1];
+    reg[`WMSB:0] and0 = 0; // result register
+    wire[`WMSB:0] and0_comb = r_full[0] & r_full[1];
+    reg[`WMSB:0] or0 = 0; // result register
+    wire[`WMSB:0] or0_comb = r_full[0] | r_full[1];
+    reg[`WMSB:0] xor0 = 0; // result register
+    wire[`WMSB:0] xor0_comb = r_full[0] ^ r_full[1];
     always_ff @(posedge sysreset , posedge sysclk) begin
         if (sysreset) begin
             and0 <= 0;
@@ -230,17 +230,17 @@ module synapse316 #(
     wire and0_zero_comb = ! ( | and0_comb );
     
     // shifter unit
-    wire[`WORD_MSB:0] rf0 = r_full[0];
-    wire[`WORD_MSB:0] sh1l0 = {rf0[14:0], 1'b0};
-    wire[`WORD_MSB:0] sh4l0 = {rf0[11:0], 4'b0};  
-    wire[`WORD_MSB:0] sh1r0 = {1'b0, rf0[`WORD_MSB:1]};  
-    wire[`WORD_MSB:0] sh4r0 = {4'b0, rf0[`WORD_MSB:4]};
+    wire[`WMSB:0] rf0 = r_full[0];
+    wire[`WMSB:0] sh1l0 = {rf0[14:0], 1'b0};
+    wire[`WMSB:0] sh4l0 = {rf0[11:0], 4'b0};  
+    wire[`WMSB:0] sh1r0 = {1'b0, rf0[`WMSB:1]};  
+    wire[`WMSB:0] sh4r0 = {4'b0, rf0[`WMSB:4]};
     
     // constants unit.
-    wire[`WORD_MSB:0] const_neg1 = `WORD_WIDTH'hffff;
+    wire[`WMSB:0] const_neg1 = `WW'hffff;
     
     // branch unit
-    wire[`WORD_MSB:0] flags = { {8{1'b1}}, eq0_comb, gt0_comb, lt0_comb, ad0_cout_flag, and0_zero_comb, z4_comb, z2_comb, z0_comb};
+    wire[`WMSB:0] flags = { {8{1'b1}}, eq0_comb, gt0_comb, lt0_comb, ad0_cout_flag, and0_zero_comb, z4_comb, z2_comb, z0_comb};
     wire selected_flag = flags[selected_flag_addr];
     assign branch_accept = 
         br_operator ? selected_flag :
@@ -339,7 +339,7 @@ module synapse316 #(
         muxa_src_addr == `SRC_WIDTH'h3c0 ? debug_poke_data :
             
         // there are many more spare addresses down here too
-        `WORD_WIDTH'hxxxx;
+        `WW'hxxxx;
         
     
 endmodule

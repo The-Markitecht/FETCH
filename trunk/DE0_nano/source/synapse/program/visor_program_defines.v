@@ -1,7 +1,9 @@
 `define MIN_NUM_REGS  2
 `define MAX_NUM_REGS  48
 `define WORD_WIDTH  16
+`define WW  16
 `define WORD_MSB  15
+`define WMSB  15
 `define DEST_LSB  10
 `define DEST_WIDTH  6
 `define SRC_MSB  9

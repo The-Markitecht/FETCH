@@ -30,7 +30,9 @@ namespace eval ::asm {
 
             // Synapse instruction set architecture constants.
             vdefine word_width              16
+            vdefine ww                      $word_width
             vdefine word_msb                15
+            vdefine wmsb                    $word_msb
             vdefine dest_lsb                $::dest_shift
             vdefine dest_width              ($word_width - $dest_lsb)
             vdefine src_msb                 9
