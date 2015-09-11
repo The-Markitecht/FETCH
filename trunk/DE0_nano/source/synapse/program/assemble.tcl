@@ -237,15 +237,36 @@ proc parse_expressions {lin} {
 proc parse_line {lin} {
     # parse a whole line of assembler file as input.  emit any resulting bytes into the ROM file.
     set lin [string trim $lin]
-    console "<[format %04d ${::lnum}]> $lin"
-    if {$::ml_state == {tcl}} {
-        # continuing a Tcl block.
-        if {[string equal [string range $lin end-1 end] {>>} ]} {
+    console "<[format %04d ${::lnum}]> <${::ml_state}> $lin"
+    set open_brace  [expr {[string index $lin end] eq "\{" }]
+    set close_brace [expr {[string index $lin   0] eq "\}" }]
+    if {$::ml_state eq {tcl}} {
+        # continuing a Tcl block in angle brackets.
+        if {[string range $lin end-1 end] eq {>>} } {
             set ::ml_state {}
             append ::multi_line [string range $lin 0 end-2] \n
             namespace eval ::asm $::multi_line
         } else {
             append ::multi_line $lin \n
+        }
+    } elseif {[string is integer -strict $::ml_state]} {
+        # continuing a braced Tcl block.
+        append ::multi_line $lin \n
+        if {$close_brace && ! $open_brace} {
+            incr ::ml_state -1 ;# reduce nesting of braces.
+            if {$::ml_state == 0} {
+                set ::ml_state {}
+                set tokens [regexp -all -inline -nocase {\S+} $::multi_line]
+                set cmd "[lindex $tokens 0]_" ;# append an underscore to the name to prevent clashes with Tcl keywords.
+                if {[llength [info commands "::asm::$cmd"]] > 0} {
+                    # run tcl command, like a super-powered macro.  insert the whole source line as the first argument.
+                    namespace eval ::asm "$cmd {} [string range $::multi_line [string length $cmd] end]"
+                } else {
+                    error "macro not found: $cmd"
+                }
+            }
+        } elseif {$open_brace && ! $close_brace} {
+            incr ::ml_state ;# nested open brace.
         }
     } elseif {[string length $lin] == 0} {
         emit_comment $lin ;# blank line for readability.
@@ -273,14 +294,18 @@ proc parse_line {lin} {
         # label line
         set_label "${::func}/[string trim $lin {: }]"
         emit_comment "// $lin // = 0x[format %04x $::ipr]"
-    } elseif {[string equal -length 2 $lin {<<}]} {
-        # explicit Tcl line in angle brackets.  return value is discarded.
-        if {[string equal [string range $lin end-1 end] {>>} ]} {
-            namespace eval ::asm [string range $lin 2 end-2]
+    } elseif {[string equal -length 2 $lin {<<} ]} {
+        # explicit Tcl line (or block of lines) in angle brackets.  return value is discarded.
+        if {[string range $lin end-1 end] eq {>>} } {
+            namespace eval ::asm [string range $lin 2 end-2] ;# ended on same line.
         } else {
             set ::multi_line [string range $lin 2 end]
             set ::ml_state tcl
         }
+    } elseif {$open_brace && ! $close_brace} {
+        # line ends in an opening curly brace; keep accumulating a Tcl block until a line ends in a closing curly brace.
+        set ::multi_line $lin
+        set ::ml_state 1
     } else {
         set sublin [string trim [parse_expressions $lin]] ;# parse any parenthesized arithmetic.
         set sublin [string trim [namespace eval ::asm "subst -nocommands {$sublin}"]] ;# fetches Tcl vars into the line.
