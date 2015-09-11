@@ -176,7 +176,6 @@
     
     // libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
     convention_gpx
-    include lib/structured_branching.asm
     include ../peripheral/driver/event_controller.asm
     include ../peripheral/driver/fduart.asm
     include ../peripheral/driver/anmux.asm

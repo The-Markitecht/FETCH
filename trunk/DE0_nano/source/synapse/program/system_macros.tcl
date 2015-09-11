@@ -1,5 +1,7 @@
 # #########################################################################
-# macro functions for calling in assembly source code.
+# macro routines for calling in assembly source code.
+
+source structured_control_macros.tcl
 
 namespace eval ::asm {
 

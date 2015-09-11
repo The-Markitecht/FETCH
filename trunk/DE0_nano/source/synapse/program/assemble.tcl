@@ -299,12 +299,12 @@ proc parse_line {lin} {
         if {[string range $lin end-1 end] eq {>>} } {
             namespace eval ::asm [string range $lin 2 end-2] ;# ended on same line.
         } else {
-            set ::multi_line [string range $lin 2 end]
+            set ::multi_line "[string range $lin 2 end]\n"
             set ::ml_state tcl
         }
     } elseif {$open_brace && ! $close_brace} {
         # line ends in an opening curly brace; keep accumulating a Tcl block until a line ends in a closing curly brace.
-        set ::multi_line $lin
+        set ::multi_line "$lin\n"
         set ::ml_state 1
     } else {
         set sublin [string trim [parse_expressions $lin]] ;# parse any parenthesized arithmetic.
