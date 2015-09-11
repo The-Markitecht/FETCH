@@ -196,13 +196,7 @@
     
     // clear the first 64k of RAM.
     av_ad_hi = 0
-    a = 0
-    b = 2
-    :clear_next_word
-        av_ad_lo = a
-        av_write_data = 0
-        a = ad0
-    bn az :clear_next_word
+    call :clear_ram_page
 
     // init fuel injection.
     call :init_plan_stop    
@@ -217,12 +211,10 @@
     // see edges on those 2 signals.  regular system would never shut itself down.
     // this setup is the last thing done prior to the event handler loop.
     power_duty = $power_duty_closing
-    a = power_duty
-    b = ($power_lost_mask | $ign_switch_off_mask)
-    br and0z :skip_power_lost
+    if_any_set  power_duty  {$power_lost_mask | $ign_switch_off_mask} {
         power_duty = $power_duty_opening
         error_halt_code $err_power_lost_at_boot    
-    :skip_power_lost
+    }
     ram $ram_power_down_at_min = $power_down_never
     ram $ram_relay_hold_at_pass = $relay_hold_passes
     
@@ -264,15 +256,13 @@ event ign_capture_handler
     // discard outlier time.
     g6 = ign_capture_jf
     ram b = $ram_ign_fastest_jf
-    a = g6
-    br gt :fastest_ok
+    if g6 lt b {
         g6 = 0
-    :fastest_ok
+    }
     ram b = $ram_ign_slowest_jf
-    a = g6
-    br lt :slowest_ok
+    if g6 gt b {
         g6 = 0
-    :slowest_ok
+    }
     
     // increment buffer index and memorize time.
     ram a = $ram_ign_history_idx
@@ -286,29 +276,27 @@ event ign_capture_handler
     
     // ////////// compute new jiffy estimate.
     // average entire history.
-    // x = total, i = index = loop count, g6 = count of invalid samples.
+    // x = total, y = sample, i = index = loop count, g6 = count of invalid samples.
     x = 0
-    i = $ign_history_len
-    j = -1
     g6 = 0
-    :next_avg
-        i = i+j
+    for {i = 0} {i lt $ign_history_len} step j = 1 {
         a = i
-        struct_read $ram_ign_history_jf        
-        a = 0
-        bn eq :valid_sample
+        struct_read $ram_ign_history_jf  
+        y = b
+        if y eq 0 {
             a = g6
             b = 1
             g6 = a+b
-            jmp :sample_done
-        :valid_sample
+        } else {
             a = ($ign_history_len / 2)
+            b = y
             a = a+b
             y = a>>$ign_history_idx_bits
             x = x+y
-        :sample_done
-    bn iz :next_avg
+        }
+    }
     ram $ram_ign_avg_jf = x
+    ram $ram_ign_bad_samples = g6
     //patch: dividing before summing (instead of after) is much simpler and faster because it prevents overflow.
     // but it means we could be reading as much as 16 jf too low (16 = ign_history_len).
     // that error is way less than 1 RPM on the slow end, 
@@ -317,20 +305,15 @@ event ign_capture_handler
     // that didn't seem to help much in simple testing.
     // probly because jf_to_rpm has only 32 RPM resolution.
     
-    ram $ram_ign_bad_samples = g6
-    a = g6
-    b = ($ign_history_len / 4)
-    br gt :partial_history
+    if g6 gt {$ign_history_len / 4} {
+        ram $ram_rpm_valid = 0
+    } else {
         // convert jiffies b to new RPM estimate.
         a = x
         call :jf_to_rpm
         ram $ram_avg_rpm = a
         ram $ram_rpm_valid = 1
-        jmp :done    
-    :partial_history
-        ram $ram_rpm_valid = 0
-    
-    :done
+    }
 end_event
 
 func clear_ign_history
@@ -339,14 +322,11 @@ func clear_ign_history
     // the last known RPM estimate is retained here, not cleared.
     // clear the history so it won't be valid again until several more valid samples are collected.
     ram $ram_ign_bad_samples = $ign_history_len
-    i = $ign_history_len
-    j = -1
-    :next
+    for {i = 0} {i lt $ign_history_len} step j = 1 {
         a = i
         b = 0
         struct_write $ram_ign_history_jf
-        i = i+j
-    bn iz :next
+    }
 end_func
 
 event ign_capture_timeout_handler
@@ -360,16 +340,16 @@ end_event
 event spi_done_handler
     // discard-counter in RAM.  
     ram a = $ram_daq_discard_cnt
-    br az :report
+    if a ne 0 {
         b = -1
         a = a+b
         ram $ram_daq_discard_cnt = a
         a = $anmux_adc_channel
         call :begin_adc_conversion
         event_return
-
+    }
+    
     // report ADC reading.
-    :report
     a = spi_data
     call :put4x 
     
@@ -380,15 +360,15 @@ event spi_done_handler
     
     // decrement anmux channel & start waiting again.
     call :anmux_get_chn
-    br az :all_done
+    if a ne 0 {
         b = -1
         a = a+b
         call :anmux_set_chn
         mstimer1 = $anmux_settle_ms
         event_return
+    }
     
     // end of daq pass.
-    :all_done
     call :report_plan
     call :report_text_flags
     puteol   
@@ -405,18 +385,17 @@ event mstimer0_handler
     ram a = $ram_seconds_cnt
     b = 1
     a = a+b
-    b = 60
-    bn eq :same_minute
+    if a eq 60 {
         ram $ram_seconds_cnt = 0
         ram a = $ram_minutes_cnt
         b = 1
         ram $ram_minutes_cnt = a+b
         call :minute_events
-        jmp :minutes_done
-    :same_minute
+    } else {
         ram $ram_seconds_cnt = a
-    :minutes_done
-    
+    }
+
+    // all 1-second functions here.
     call :check_power_relay
     call :check_communication
     call :start_daq_pass    
@@ -453,14 +432,13 @@ end_event
 event uart_rx_handler
     :again
         pollchar
-        b = -1
-        br eq :done
-        b = 10
-        bn eq :skip_lf
+        if a eq -1 {
+            event_return
+        }
+        if a eq 10 {
             call :postpone_comm_restart
-        :skip_lf
+        }
     jmp :again
-    :done
 end_event
 
 event uart_rx_overflow_handler
@@ -512,9 +490,9 @@ func start_daq_pass
     call :print_nt 
     a = 0
     ram x = $ram_rpm_valid
-    br xz :skip_rpm
+    if x ne 0 {
         ram a = $ram_avg_rpm 
-    :skip_rpm
+    }
     call :put4x
 
     a = :puff_len_msg
@@ -617,21 +595,21 @@ end_func
 func check_power_relay
     ram a = $ram_daq_pass_cnt    
     ram b = $ram_relay_hold_at_pass
-    bn eq :done
+    if a eq b {
         // time to begin "solenoid saver" coil power reduction by PWM.
         power_duty = $power_duty_holding
         a = :power_hold_msg
         call :set_text_flag
-    :done
+    }
 end_func
 
 func check_power_down
     // check power-down deadline in RAM.    
     ram a = $ram_minutes_cnt
     ram b = $ram_power_down_at_min
-    bn eq :done
+    if a eq b {
         call :power_down
-    :done
+    }
 end_func
 
 func power_down
@@ -646,25 +624,23 @@ end_func
 
 func check_communication
     ram a = $ram_ftdi_downtime_remain_sec
-    br az :skip_ftdi_powerup
+    if a ne 0 {
         b = -1
         a = a+b
         ram $ram_ftdi_downtime_remain_sec = a
-        br az :do_power_on
-            rtn
-        :do_power_on
-        call :ftdi_power_on
-        rtn
-    :skip_ftdi_powerup
+        if a eq 0 {
+            call :ftdi_power_on
+        }
+    }
 
     ram a = $ram_minutes_cnt
     ram b = $ram_comm_restart_at_min 
-    bn eq :done
+    if a eq b {
         // comm restart is required.
         call :postpone_comm_restart
         ram $ram_ftdi_downtime_remain_sec = $ftdi_down_period_sec
         call :ftdi_power_off
-    :done
+    }
 end_func
 
 func postpone_comm_restart
@@ -695,6 +671,17 @@ func ftdi_power_on
     call :set_text_flag
 end_func
 
+func clear_ram_page
+    // pass the page to be cleared in av_ad_hi.
+    a = 0
+    b = 2
+    :clear_next_word
+        av_ad_lo = a
+        av_write_data = 0
+        a = ad0
+    bn az :clear_next_word
+end_func
+
 func set_text_flag
     b = a
     ram a = $ram_next_tfp_idx
@@ -713,21 +700,17 @@ end_func
 func report_text_flags
     a = :text_flags_msg
     call :print_nt
-    i = $num_text_flag_pointers
-    j = -1
-    :next_ptr
-        i = i+j
+    for {i = 0} {i lt $num_text_flag_pointers} step 1 {
         a = i        
         struct_read $ram_text_flag_pointers
-        a = b
-        br az :skip
+        if b ne 0 {
             call :print_nt
             putasc ","
             a = i
             b = 0
             struct_write $ram_text_flag_pointers 
-        :skip        
-    bn iz :next_ptr
+        }  
+    }
 end_func
     
 :plan_msg
@@ -757,18 +740,16 @@ func check_engine_stop
 
     // transition to plan_stop if ignition switch is turned off AND rpm estimate is invalid.
     // requiring both conditions prevents spurious noise readings from shutting down the injection.
-    a = power_duty
-    b = $ign_switch_off_mask
-    br and0z :stay
+    if_any_set power_duty $ign_switch_off_mask {
         ram a = $ram_rpm_valid
-        bn az :stay
+        if a eq 0 {
             ram rtna = $ram_destroy_plan_func
             call_indirect
             call :init_plan_stop
             a = 1
-            jmp :done
-    :stay
+            rtn
+        }
+    }
     a = 0
-    :done
 end_func
 

@@ -3,26 +3,74 @@
 
 namespace eval ::asm {
 
-    proc if_ {lin  a  operator  b  if_block  {else_word {}}  {else_block {}} } {
-        # structured branching implemented by 'if' macro.
+    # proc read_expression_arg {lin  reg  valu} {
+        # if {[llength $valu] > 1} {
+            # # parenthesized expression.  wrap it for evaluation later.
+            # set a "( $a )"
+        # }
+    # }
+
+    proc if_core {lin  positive  condition  if_block  else_word  else_block} {
+        # low-level implementation of structured branching implemented by 'if' macros.
+        # this proc is not normally called directly from assembly code.
+        # pass positive = 1 to execute the if_block when the condition succeeds.
         
         set serial $::ipr
         if {$else_word ne {} && $else_word ne {else}} {
             error "syntax error in if/else block"
         }
-        # patch: need optimizations.
+        if {$condition eq {ne}} {
+            # synthetic not-equal comparison operator.
+            set positive [expr { ! $positive }]
+            set condition eq
+        }
+        #patch: optimize for empty if_block but non_empty else_block.  swap them and reverse the branch.
+        set branch br
+        if {$positive} {set branch bn}
+        set end_jmp "jmp :end_$serial"
+        if {$else_block eq {}} {set end_jmp {}}        
         parse "
-            a = $a
-            b = $b
-            bn $operator :else_$serial
+            $branch $condition :else_$serial
                 $if_block
-                jmp :done_$serial
+                $end_jmp
             :else_$serial
                 $else_block
-            :done_$serial
+            :end_$serial
         "
     }
 
+    proc if_ {lin  a  operator  b  if_block  {else_word {}}  {else_block {}} } {
+        if {[llength $a] > 1} {set a "( $a )"}
+        if {[llength $b] > 1} {set b "( $b )"}
+        parse "
+            a = $a
+            b = $b
+        "
+        #patch: optimize for a=a already or b=b already.  a=b with b=a is the same case, but with opposite directional operators.
+        #patch: optimize for zero comparison on a, i, x in either position.
+        if_core  $lin  1  $operator  $if_block  $else_word  $else_block  
+    }
+    
+    proc if_all_clear_ {lin  reg  mask  if_block  {else_word {}}  {else_block {}} } {
+        # execute the if_block if all bits are zero in the given register,
+        # masked by the given mask.
+        parse "
+            a = $reg
+            b = ( $mask )
+        "
+        if_core  $lin  1  and0z  $if_block  $else_word  $else_block  
+    }
+
+    proc if_any_set_ {lin  reg  mask  if_block  {else_word {}}  {else_block {}} } {
+        # execute the if_block if any bits are one in the given register,
+        # masked by the given mask.
+        parse "
+            a = $reg
+            b = ( $mask )
+        "
+        if_core  $lin  0  and0z  $if_block  $else_word  $else_block  
+    }
+    
     proc for_ {lin  initialization  continuation  step_word  step_size  body  args} {        
         # structured looping implemented by 'for' macro.
         
@@ -46,7 +94,8 @@ namespace eval ::asm {
         parse_line $initialization
         parse_line ":loop_$serial"
         parse $body
-        # patch: need optimizations.
+        # patch: optimize for zero comparison on counter a, i, x.
+        # patch: other optimizations.
         # patch: need implement step_cache_reg
         if {$comparison eq {le} || $comparison eq {ge}} {
             # synthetic directional comparison operator.  
@@ -54,7 +103,7 @@ namespace eval ::asm {
             parse "
                 a = $counter
                 b = $bound
-                br eq :done_$serial
+                br eq :end_$serial
             "
         }
         parse "
@@ -91,7 +140,7 @@ namespace eval ::asm {
                 br $comparison :loop_$serial
             "
         }
-        parse ":done_$serial"
+        parse ":end_$serial"
     }
 
     # patch: need to test source file line numbering subsequent to 'if' and 'for' blocks, and nested ones.

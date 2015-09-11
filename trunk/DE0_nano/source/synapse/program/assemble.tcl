@@ -423,6 +423,12 @@ proc parse_pass {asm_lines pass_num} {
     ::asm::start_file_handler
     parse_lines $asm_lines 
     ::asm::end_file_handler
+    if {$::ml_state eq {tcl}} {
+        error "file contains an unmatched '<<'"
+    }
+    if {$::ml_state ne {}} {
+        error "file contains an unmatched '\{'"
+    }
 }
 
 proc assemble_file {src_fn rom_fn} {
