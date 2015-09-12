@@ -288,9 +288,11 @@ assign anmux_ctrl = exp_r[`EDR_ANMUX_CTRL][3:0];
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
 //assign LED = { ! ignition_switch_off_sync, r[`DR_LEDS][6:0]};
 
+wire[14:0] ftdi_junk;
+wire[14:0] beep_junk;
 assign r[`DR_BOARD_CTRL] = {8'h0, ftdi_power, beeper_enable, KEY[1:0], dip_switch[3:0]}; 
-std_reg #(.WIDTH(1)) beep_en_reg(sysclk, sysreset, beeper_enable, r_load_data[`BEEPER_ENABLE_BIT], r_load[`DR_BOARD_CTRL]);
-std_reg #(.WIDTH(1)) ftdi_power_reg(sysclk, sysreset, ftdi_power, r_load_data[`FTDI_POWER_BIT], r_load[`DR_BOARD_CTRL]);
+std_reg #(.WIDTH(1)) beep_en_reg(sysclk, sysreset, {beep_junk[14:0], beeper_enable}, r_load_data[`BEEPER_ENABLE_BIT], r_load[`DR_BOARD_CTRL]);
+std_reg #(.WIDTH(1)) ftdi_power_reg(sysclk, sysreset, {ftdi_junk[14:0], ftdi_power}, r_load_data[`FTDI_POWER_BIT], r_load[`DR_BOARD_CTRL]);
 
 std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, r[`DR_ANMUX_CTRL], r_load_data[3:0], r_load[`DR_ANMUX_CTRL]);
 assign anmux_ctrl = r[`DR_ANMUX_CTRL][3:0];
@@ -405,7 +407,7 @@ puff_timer puff1 (
     ,.injector_open         (inj)
     ,.puff_event            (puff1_event)
     ,.puff_enable           (r[`DR_PUFF_LEN_US] != 0)
-    ,.puff_on_timeout       (0)
+    ,.puff_on_timeout       (1'd0)
     ,.leds                  (LED)
 );
 

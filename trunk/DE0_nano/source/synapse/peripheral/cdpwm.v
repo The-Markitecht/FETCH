@@ -53,7 +53,7 @@ module cdpwm #(
     end
     
     // duty cycle register & signal generator.
-    std_reg duty_reg(sysclk, sysreset, duty, data_in, duty_load);
+    std_reg #(.WIDTH(WIDTH)) duty_reg(sysclk, sysreset, duty, data_in, duty_load);
     wire pwm_comb = cnt < duty;
     reg pwm_reg = 0;
     always_ff @(posedge sysclk)
