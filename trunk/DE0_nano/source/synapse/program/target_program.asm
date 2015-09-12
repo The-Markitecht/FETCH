@@ -87,14 +87,21 @@
         vdefine     anmux_enable_mask       0x0008
         vdefine     anmux_channel_mask      0x0007
         setvar      anmux_num_channels      8
-        setvar      anmux_adc_channel       7
         setvar      anmux_settle_ms         5
-        setvar      anmux_num_discards      2
+        setvar      anmux_retry_ms          2
         ram_define  ram_daq_pass_cnt        
         ram_define  ram_daq_discard_cnt     
         ram_define  ram_last_anmux_data     ($anmux_num_channels * 2)
         setvar      anmux_engine_block_temp 2
         setvar      temp_ceiling_adc        0xff0
+
+    // ADC handling.
+    setvar      adc_num_channels        8
+    ram_define  ram_last_adc_data       ($adc_num_channels * 2)
+    ram_define  ram_adc_chn_pending
+    ram_define  ram_adc_junk
+    setvar      anmux_adc_channel       7
+    setvar      o2_adc_channel          5
     
     alias_both power_duty           [incr counter]  "pwr_duty"
         // power relay duty cycles, in microseconds.  duty cycle time = relay OFF time.
@@ -337,44 +344,6 @@ end_event
 event ustimer0_handler
 end_event
 
-event spi_done_handler
-    // discard-counter in RAM.  
-    ram a = $ram_daq_discard_cnt
-    if a ne 0 {
-        b = -1
-        a = a+b
-        ram $ram_daq_discard_cnt = a
-        a = $anmux_adc_channel
-        call :begin_adc_conversion
-        event_return
-    }
-    
-    // report ADC reading.
-    a = spi_data
-    call :put4x 
-    
-    // memorize ADC reading.
-    call :anmux_get_chn
-    b = spi_data
-    struct_write $ram_last_anmux_data
-    
-    // decrement anmux channel & start waiting again.
-    call :anmux_get_chn
-    if a ne 0 {
-        b = -1
-        a = a+b
-        call :anmux_set_chn
-        mstimer1 = $anmux_settle_ms
-        event_return
-    }
-    
-    // end of daq pass.
-    call :report_plan
-    call :report_text_flags
-    puteol   
-    ram $ram_dial_setting = spi_data
-end_event
-
 event mstimer0_handler
     // unified 1-second periodic timer for all low-resolution tasks.
 
@@ -401,21 +370,10 @@ event mstimer0_handler
     call :start_daq_pass    
 end_event
 
-event mstimer1_handler    
-    // start a reading from the current anmux channel.
-    ram $ram_daq_discard_cnt = $anmux_num_discards
-    putasc " "
-    putasc "s"
-    call :anmux_get_chn
-    asc b = "0"
-    putchar a+b
-    putasc "="    
-    a = $anmux_adc_channel
-    call :begin_adc_conversion
-end_event
-    
 event mstimer2_handler    
-    // restart timer
+    // engine management plan tick timer.
+
+    // restart timer.
     mstimer2 = $plan_tick_ms
     
     // poll the engine management plan.
@@ -477,6 +435,9 @@ end_event
 :puff_len_msg
     " pfl=\x0"
     
+:o2_msg
+    " o2=\x0"
+    
 func start_daq_pass
     // daq pass counter in RAM.  
     ram a = $ram_daq_pass_cnt
@@ -503,28 +464,111 @@ func start_daq_pass
     ram a = $ram_puff_count
     call :put4x    
     
+    a = :o2_msg
+    call :print_nt 
+    a = $o2_adc_channel
+    struct_read $ram_last_adc_data
+    a = b
+    call :put4x    
+    
     // start to acquire & report all anmux channels.
     a = ($anmux_num_channels - 1)
     call :anmux_set_chn
     mstimer1 = $anmux_settle_ms
     
-    // // observe MCU utilization.
-    // a = usage_count
-    // call :put4x
-    // usage_count = 0    
+    // // observe MCU utilization.  this RAM variable can be seen by the debugger.
+    ram $ram_mcu_usage_cnt = usage_count
+    usage_count = 0    
 end_func
+
+event mstimer1_handler    
+    // anmux signal has settled.
     
+    ram a = $ram_adc_chn_pending
+    if a ne 0 {
+        // ADC is busy right now.  wait a while & try again.
+        mstimer1 = $anmux_retry_ms
+        event_return
+    }
+    
+    // start a reading from the current anmux channel.
+    putasc " "
+    putasc "s"
+    call :anmux_get_chn
+    asc b = "0"
+    putchar a+b
+    putasc "="    
+    a = $anmux_adc_channel
+    call :begin_adc_conversion
+end_event
+        
 func begin_adc_conversion
     // begin SPI transaction, specifying Nano ADC channel to take effect NEXT 
     // conversion after this one.  pass that in a.
     
+    ram $ram_adc_chn_pending = a
     a = a<<4
     a = a<<4
     a = a<<1
     a = a<<1
     a = a<<1    
     spi_data = a
+    ram $ram_adc_junk = 1
 end_func    
+
+event spi_done_handler
+    // discard the results of the first SPI exchange with the ADC.  that's only for writing the channel num out to the ADC.
+    ram a = $ram_adc_junk
+    if a ne 0 {
+        // start another SPI exchange to retrieve the actual reading.
+        ram a = $ram_adc_chn_pending
+        a = a<<4
+        a = a<<4
+        a = a<<1
+        a = a<<1
+        a = a<<1    
+        spi_data = a
+        ram $ram_adc_junk = 0
+        event_return
+    }
+    
+    // memorize an actual ADC reading.
+    ram i = $ram_adc_chn_pending
+    ram $ram_adc_chn_pending = 0
+    a = i
+    b = spi_data
+    struct_write $ram_last_adc_data
+    if i eq $o2_adc_channel {
+        event_return
+    }
+    if i eq $anmux_adc_channel {        
+        // report anmux reading.
+        a = spi_data
+        call :put4x 
+        
+        // memorize anmux reading.
+        call :anmux_get_chn
+        b = spi_data
+        struct_write $ram_last_anmux_data
+        
+        // decrement anmux channel & start waiting again.
+        call :anmux_get_chn
+        if a ne 0 {
+            b = -1
+            a = a+b
+            call :anmux_set_chn
+            mstimer1 = $anmux_settle_ms
+            event_return
+        }
+        
+        // end of temperature daq pass.
+        call :report_plan
+        call :report_text_flags
+        puteol   
+        ram $ram_dial_setting = spi_data
+        event_return
+    } 
+end_event
 
 event power_lost_handler
     // at this time we have less than 2 ms of usable run time left.
