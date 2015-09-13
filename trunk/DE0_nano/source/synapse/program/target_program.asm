@@ -105,6 +105,7 @@
     ram_define  ram_adc_junk
     setvar      anmux_adc_channel       7
     setvar      o2_adc_channel          5
+    ram_define  ram_dial_setting              
     
     alias_both power_duty           [incr counter]  "pwr_duty"
         // power relay duty cycles, in microseconds.  duty cycle time = relay OFF time.
@@ -127,7 +128,6 @@
     ram_define ram_minutes_cnt              
     ram_define ram_seconds_cnt              
     ram_define ram_mcu_usage_cnt             
-    ram_define ram_dial_setting              
 
     // text flag reporting.
     setvar num_text_flag_pointers       8
@@ -399,6 +399,13 @@ event mstimer2_handler
     // this is done last, so if a plan transition just happened, its new puff length will init here.
     ram rtna = $ram_puff_len_func
     call_indirect
+    
+    // start another o2 reading every plan tick.
+    ram a = $ram_adc_chn_pending
+    if a eq 0 {
+        a = $o2_adc_channel
+        call :begin_adc_conversion
+    }        
 end_event
     
 event uart_rx_handler
@@ -587,6 +594,9 @@ event spi_done_handler
     } 
 end_event
 
+:power_lost_msg
+    "PWL\x0"
+
 event power_lost_handler
     // at this time we have less than 2 ms of usable run time left.
 
@@ -603,6 +613,9 @@ event power_lost_handler
     
     // save persistent data in case the power remains down e.g. due to battery disconnect.
     call :save_persistent_data
+    
+    a = :power_lost_msg
+    call :set_text_flag
 end_event
 
 :ign_off_msg

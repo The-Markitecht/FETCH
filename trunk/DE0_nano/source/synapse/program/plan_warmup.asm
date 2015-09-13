@@ -1,13 +1,15 @@
 
-setvar warmup_success_temp_adc      0x4c0
+setvar      warmup_timeout_sec           60
+ram_define  ram_warmup_timeout_at_pass      
+setvar      warmup_success_temp_adc      0x4c0
     // 0x4c0 = 1216 = 120 degF at the sensor location outside the engine block.
-setvar warmup_min_temp_adc          750
+setvar      warmup_min_temp_adc          750
     // 750 = 0 degF.
-setvar warmup_max_enrichment_us     6000
-setvar warmup_us_per_cold_adc       (int($warmup_max_enrichment_us / ($warmup_success_temp_adc - $warmup_min_temp_adc)))
-setvar warmup_min_puff_len_us       4500
+setvar      warmup_max_enrichment_us     6000
+setvar      warmup_us_per_cold_adc       (int($warmup_max_enrichment_us / ($warmup_success_temp_adc - $warmup_min_temp_adc)))
+setvar      warmup_min_puff_len_us       2500
     // max 6000 & min 4500 over a temp range 750 to 0x4c0 gives 6900 us puff at 74 deg F.  program rev 594.
-setvar warmup_limping_enrichment_us 2000
+setvar      warmup_limping_enrichment_us 2000
     // this is used if the engine temp is unavailable.
     
 :plan_name_warmup
@@ -15,6 +17,9 @@ setvar warmup_limping_enrichment_us 2000
 
 func init_plan_warmup
     // set up the warmup plan.
+    ram a = $ram_daq_pass_cnt
+    b = $warmup_timeout_sec
+    ram $ram_warmup_timeout_at_pass = a+b
     
     // memorize state.
     ram $ram_plan_name = :plan_name_warmup
@@ -68,17 +73,27 @@ func leave_warmup
     call :check_engine_stop
     bn az :done
 
+    // transition to plan_run if warmup has expired.
+    ram a = $ram_daq_pass_cnt
+    ram b = $ram_warmup_timeout_at_pass
+    if a gt b {
+        call :destroy_plan_warmup
+        call :init_plan_run
+        jmp :done
+    }
+    
     // transition to plan_run if engine block temp sensor is valid, and temp 
     // exceeds warmup_success_temp_adc.
     a = $anmux_engine_block_temp
     struct_read $ram_last_anmux_data
     a = $temp_ceiling_adc
-    br lt :stay
+    if a gt b {
         a = $warmup_success_temp_adc
-        br gt :stay
+        if a lt b {
             call :destroy_plan_warmup
             call :init_plan_run
-    :stay
+        }
+    }
     
     :done
 end_func

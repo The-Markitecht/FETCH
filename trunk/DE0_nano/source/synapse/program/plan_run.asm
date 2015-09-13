@@ -52,13 +52,6 @@ func puff_len_run
             }
         }
         ram $ram_next_puff_len_us = i+j
-    }
-    
-    // start another o2 reading every plan tick.
-    ram a = $ram_adc_chn_pending
-    if a eq 0 {
-        a = $o2_adc_channel
-        call :begin_adc_conversion
     }    
 end_func
 
