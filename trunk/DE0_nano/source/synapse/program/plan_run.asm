@@ -25,7 +25,6 @@ func init_plan_run
 end_func
 
 func destroy_plan_run
-    call :clear_ign_history
 end_func
 
 func puff_len_run

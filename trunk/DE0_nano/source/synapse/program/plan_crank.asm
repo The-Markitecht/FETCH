@@ -22,6 +22,8 @@ func init_plan_crank
     // should be enabled for the first puff.  otherwise the first puff would be missed.
     ram $ram_next_puff_len_us = $crank_min_puff_len_us
     puff_len_us = $crank_min_puff_len_us
+    // clear ignition history again to eliminate samples where the motor kept spinning after switching from plan_run to plan_stop.
+    call :clear_ign_history
     
     // memorize state.
     ram $ram_plan_name = :plan_name_crank

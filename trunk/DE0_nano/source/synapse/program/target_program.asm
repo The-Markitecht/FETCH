@@ -57,6 +57,9 @@
 
     alias_both fduart_data          [incr counter]  "//uartdt"
     alias_both fduart_status        [incr counter]  "uartstat"
+        setvar      key_buf_len             8
+        setvar      key_buf_max             ($key_buf_len - 1)
+        ram_define  ram_key_buf             ($key_buf_len * 2)
     
     alias_both leds                 [incr counter]  "leds"
     
@@ -191,10 +194,12 @@
     include lib/math.asm
     include lib/string.asm
     include lib/time.asm
+    include terminal_commands.asm
     include plan_stop.asm
     include plan_crank.asm
     include plan_warmup.asm
     include plan_run.asm
+    include plan_learn_stoich.asm
         
     // #########################################################################
     :main  
@@ -370,17 +375,26 @@ event mstimer0_handler
     call :start_daq_pass    
 end_event
 
+:plan_transition_msg
+    "PLAN\x0"
+
 event mstimer2_handler    
     // engine management plan tick timer.
 
     // restart timer.
     mstimer2 = $plan_tick_ms
-    
+        
     // poll the engine management plan.
     // call the transition function for the current plan.
     // this might perform a transition to some other plan, so it's done first.
     ram rtna = $ram_transition_func
+    x = rtna
     call_indirect
+    ram b = $ram_transition_func
+    if x ne b {
+        a = :plan_transition_msg
+        call :set_text_flag        
+    }
     // call the puff length function for the current plan.
     // this is done last, so if a plan transition just happened, its new puff length will init here.
     ram rtna = $ram_puff_len_func
@@ -390,12 +404,15 @@ end_event
 event uart_rx_handler
     :again
         pollchar
-        if a eq -1 {
+        x = a
+        if x eq -1 {
             event_return
-        }
-        if a eq 10 {
+        }                        
+        if x eq 10 {
             call :postpone_comm_restart
-        }
+        }        
+        a = x
+        call :parse_key
     jmp :again
 end_event
 
@@ -405,7 +422,7 @@ end_event
     
 event uart_tx_overflow_handler
     error_halt_code $err_tx_overflow
-end_event
+end_event    
     
 event key0_handler
     putasc "k"
