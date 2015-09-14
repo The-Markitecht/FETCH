@@ -14,6 +14,8 @@ ram_define      ram_terminal_connected
         ([label set_plan_run_cmd])
     "   plln"
         ([label set_plan_learn_cmd])
+    "clstmap"
+        ([label clear_stoich_map_cmd])
     "\x0\x0"
 
 
