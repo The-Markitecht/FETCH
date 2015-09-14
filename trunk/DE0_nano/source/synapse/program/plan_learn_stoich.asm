@@ -16,7 +16,7 @@ setvar      num_rpm_cells           13
     7276
     0xffff
 
-ram_define  stoich_map              ($num_rpm_cells * 2)
+ram_define  smap              ($num_rpm_cells * 2)
     
 func find_rpm_cell
     y = a
@@ -85,7 +85,7 @@ func puff_len_learn_stoich
             }
             if g6 eq $o2_state_rich {
                 // o2 state just switched to lean.  adjust map.
-                call :learn_stoich_map
+                call :learn_smap
             }
         } else {
             // sensing a rich condition.  trim down to lean it out.
@@ -97,13 +97,39 @@ func puff_len_learn_stoich
     }        
 end_func
 
-func learn_stoich_map
+:lrns_enrich_msg
+    "lrnR\x0"
+:lrns_lean_msg
+    "lrnL\x0"
+
+func learn_smap
     ram a = $ram_rpm_valid
     if a eq 1 {
-stopped here
-        ram i = $ram_next_puff_len_us
-        a = 
+        // let g6 = map cell num.  x = map puff len.  i = observed stoich puff len.
+        ram a = $ram_avg_rpm
         call :find_rpm_cell
+        g6 = a
+        struct_read $smap
+        x = b
+        ram i = $ram_next_puff_len_us
+        y = (0xffff - $lrns_step + 1)
+        if x+y gt i {
+            // map is richer than observed shoich.  lean the map 1 step.
+            a = g6
+            b = x+y
+            struct_write $smap
+            a = :lrns_enrich_msg
+            call :set_text_flag
+        }
+        y = $lrns_step
+        if x+y lt i {
+            // map is leaner than observed shoich.  rich the map 1 step.
+            a = g6
+            b = x+y
+            struct_write $smap
+            a = :lrns_lean_msg
+            call :set_text_flag
+        }
     }
 end_func
 
@@ -150,10 +176,10 @@ func leave_learn_stoich
     call :check_engine_stop
 end_func
 
-func clear_stoich_map_cmd
+func clear_smap_cmd
     for {i = 0} {i lt $num_rpm_cells} step j = 1 {
         a = i
         b = 3000
-        struct_write $stoich_map
+        struct_write $smap
     }
 end_func
