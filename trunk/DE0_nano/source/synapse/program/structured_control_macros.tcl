@@ -235,4 +235,109 @@ namespace eval ::asm {
         
     }
 
+    set func_test_cases {
+        alias_both pa 6
+        alias_both pb 7
+        func struct_read {base_addr in const} {index in pa} {valu out pb}
+        func struct_write {base_addr in const} {index in pa} {valu in pb}
+        func find_cell_test {rpm in pa} {tps in pb} {cell out pa} {
+        }
+        func multiply_test {in pa} {in pb} {product out pa} {
+        }
+        func square_root_test {valu in pa} {root out pa} {
+            for {i = 0} {i lt 0xff} step j = 1 {
+                call multiply_test i i {product out x}
+                if x ge valu {
+                    rtn i
+                }
+            }
+            rtn 0
+        }
+        call find_cell_test {rpm in x} {tps in j} {b = cell}
+        call find_cell_test {rpm = j} {tps = x} b
+        call find_cell_test j x b
+        
+        design rules:
+        note the new aliases pa, pb for g6, g7.  eliminates dependence on the number of operators
+        and operand registers in the core.  might add more "p" parameter regs later.
+        
+        declarations:
+        formal parms consist of 2 or 3 words.  last word is register name or "const".
+        if it's "const" then it must have all 3 words, so every constant has a name.
+        if it's a register then don't bother stacking it.
+        middle word must be "in" or "out" for data direction.
+        first word (of 3) is a new alias for that register, local to the function.
+        conventionally all "in" parms should be listed first before any "out" parms.
+        a register may appear twice:  once "in" and once "out".
+        final braced word of definition is the func body block.
+        "func" macro can thunk to old informal parm design if no formal parms or body are found. 
+
+        calls:
+        "call" then bare name of func, no colon.  then actual args.  each is 1 word or 3.
+        final word must be a register name (or a literal value for "const" parms).
+        generate wrapper code AT THE CALL SITE to copy that arg reg to the formal parm reg, 
+        or back from it for "out" parms. 
+        if there's only 1 arg word, then the actual arg is in position order, not named.
+        if there are 3 arg words, the first 2 words must match the formal parm.
+        that arg is identified by name, not position.   the first named one requires 
+        all following ones to also be named.
+
+        this call syntax makes it easy to paste in a declaration as a template for your call.
+
+        the design requires a few changes to stacking strategy:
+        func should not stack the reg of an "out" parm.  the auto-pop would destroy it.
+        call wrapper should stack each reg that the function declares for parm passing,
+        but the caller does not specify as an arg.  meaning every reg that the wrapper 
+        implicitly destroys to set up the call.
+
+        non-stackable regs never have to be stacked.  might want some more of those in
+        the core to reduce speed hit from call wrappers.  i.e. add "pc" "pd" etc. explicitly
+        for parm passing.  make all "p" series non-stackable.  so the stackable regs are
+        computational operand regs like i, j, x, y, and rtna.  those are for looping and branching.
+        the caller is already using them for its looping/branching, but the func wants to use
+        them for its own looping/branching.  adding more "p" regs means operand regs don't usually
+        have to be used for parms, and don't usually have to be stacked in the wrapper.
+        that makes the core more suitable for complex programs like the camaro ECM.
+
+        non-stackable "p" regs means a wrapper often spend 1 cycle copying each parm into
+        position to set up the call.  then the func uses those in-place.  then the wrapper
+        often spends 1 cycle copying each output word to the reg specified by the caller for
+        the caller's use.  (because the caller can't use them in-place, because they're about to 
+        be destroyed by the next call wrapper.)  that's just as many cycles as if the parms were passed on a stack.
+        it only saves cycles if some parms can be kept in the same regs in both contexts.
+        so the "p" regs provide functionality similar to a stack, except the "p" regs probably 
+        hold fewer words, and are not as easily expanded as a stack.
+        
+        computational operand registers (i,j,x,y) and rtna are stackable by functions because the
+        function knows which ones it will be destroying.  
+        so what if all "p" regs are stackable by wrappers?  because the wrapper knows which ones it
+        will destroy?  that means both sets are usable in-place in both contexts.
+        would it save any cycles?  it's really hard to imagine without trying.
+        
+        but instead passing all parameters in and out on a stack only would surely work, and be simple.
+        that stack can be the same one as the call return stack, like the stack i already have.
+        it could be completely managed by generated code, both within the func and the wrapper.
+        the generator is fairly simple, and integrates well with existing paradigm.  
+        the generated code is predictable, reasonably quick, and also integrates well with existing paradigm.
+        it would fulfill the desired syntax in the test cases above.  
+        except it would have no "p" regs.  use "g" regs instead.  they're stackable, very much like
+        g6 is now, but permanently renamed "ga" "gb" etc. to avoid dependence on their register address.
+        that design stays truer to the original Synapse paradigm and scope.
+        it also scales up and down easier to meet the project needs.  meaning it's easy to change the
+        register file size, stack size, or eliminate the stack entirely for small programs.
+        it might even be able to use the existing convention_gpx instead of a new convention.
+        using the existing convention_gpx the func would waste cycles auto-pushing & auto-popping
+        computational regs that the call specified as out regs because the wrapper would destroy those right away. 
+        avoiding that would mean all auto stacking must be done by the wrapper not the func.
+        speed at the expense of code size.  might be fine for Synapse.
+        OR the call specifies non-stackable out reg like a.  or better yet, a non-stackable "g" reg,
+        because those aren't operands for branching/looping.  that's the best idea all day.  then
+        the auto stacking can be done in func much like it is already.
+        call those "o" regs: oa, ob.  stands for "out reg".
+        so in an optimal case, both func and caller could specify the same o reg, typically oa.
+        if the caller is simple it might not have to copy that to another reg.  value might flow into
+        the next call wrapper, or just be used briefly and discarded.  if value does need to get copied
+        to another reg the wrapper can do that conveniently if the caller specifies it.
+    }
+    
 }
