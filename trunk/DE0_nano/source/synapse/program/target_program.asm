@@ -8,12 +8,17 @@
     // register file configuration.
     vdefine num_regs 32
     vdefine top_reg ($num_regs - 1)
-    vdefine num_gp 8
+    vdefine num_gp 10
     vdefine top_gp ($num_gp - 1)
 
     // application-specific register aliases.    
     alias_both g6                   6               "g6"
     alias_both g7                   7               "g7"
+        // patch: g6, g7 obsolete.
+    alias_both ga                   6               "ga"
+    alias_both gb                   7               "gb"
+    alias_both pa                   8               "pa"
+    alias_both pb                   9               "pb"
     setvar counter $top_gp    
     alias_both rstk                 [incr counter]  "//rstk"
     alias_both event_priority       [incr counter]  "ev_pri"
@@ -210,6 +215,8 @@
     av_ad_hi = 0
     call :clear_ram_page
 
+formal_parms_test_cases    
+    
     // init fuel injection.
     call :init_plan_stop    
     

@@ -17,7 +17,28 @@ setvar      num_rpm_cells           13
     0xffff
 
 ram_define  smap              ($num_rpm_cells * 2)
+setvar      lrns_map_step     200      
     
+// trim puff length by o2 sensor every 200 ms.
+setvar      lrns_ticks_per_o2_trim   (int(200 / $plan_tick_ms))
+ram_define  ram_lrns_ticks_remain
+    
+// trim puff length as needed.
+setvar      lrns_puff_step_up_us     1000
+setvar      lrns_puff_step_down_us   (0xffff - 100)
+setvar      lrns_puff_max_us         10000
+setvar      lrns_puff_min_us         2000
+
+// o2 sensor interpetation & state machine.
+ram_define  ram_o2_state
+    setvar  o2_state_init           0
+    setvar  o2_state_lean           1
+    setvar  o2_state_rich           2
+ram_define  ram_o2_been_rich
+ram_define  ram_o2_been_lean
+setvar      o2_lean_thresh_adc      450
+setvar      o2_rich_thresh_adc      700
+
 func find_rpm_cell
     y = a
     i = 1
@@ -51,17 +72,6 @@ end_func
 
 func destroy_plan_learn_stoich
 end_func
-
-// trim puff length by o2 sensor every 200 ms.
-setvar      lrns_ticks_per_o2_trim   (int(200 / $plan_tick_ms))
-ram_define  ram_lrns_ticks_remain
-    
-// trim puff length as needed.
-setvar      lrns_puff_step_up_us     1000
-setvar      lrns_puff_step_down_us   (0xffff - 100)
-setvar      lrns_puff_max_us         10000
-setvar      lrns_puff_min_us         2000
-
         
 
 func puff_len_learn_stoich
@@ -112,18 +122,18 @@ func learn_smap
         struct_read $smap
         x = b
         ram i = $ram_next_puff_len_us
-        y = (0xffff - $lrns_step + 1)
+        y = (0xffff - $lrns_map_step + 1)
         if x+y gt i {
-            // map is richer than observed shoich.  lean the map 1 step.
+            // map is richer than observed stoich.  lean the map 1 step.
             a = g6
             b = x+y
             struct_write $smap
             a = :lrns_enrich_msg
             call :set_text_flag
         }
-        y = $lrns_step
+        y = $lrns_map_step
         if x+y lt i {
-            // map is leaner than observed shoich.  rich the map 1 step.
+            // map is leaner than observed stoich.  rich the map 1 step.
             a = g6
             b = x+y
             struct_write $smap
@@ -132,15 +142,6 @@ func learn_smap
         }
     }
 end_func
-
-ram_define  ram_o2_state
-    setvar  o2_state_init           0
-    setvar  o2_state_lean           1
-    setvar  o2_state_rich           2
-ram_define  ram_o2_been_rich
-ram_define  ram_o2_been_lean
-setvar      o2_lean_thresh_adc      450
-setvar      o2_rich_thresh_adc      700
 
 func interpret_o2
     ram a = $ram_o2_state

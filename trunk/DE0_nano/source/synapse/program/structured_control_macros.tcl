@@ -235,7 +235,7 @@ namespace eval ::asm {
         
     }
 
-    proc formal_func {lin label args} {
+    proc func_ {lin label args} {
         set label [string trim $label {: }]
         set_label $label
         set parms [lrange $args 0 end-1]
@@ -254,8 +254,8 @@ namespace eval ::asm {
             if {$dir ne {in} && $dir ne {out}} {
                 error "parameter direction must be 'in' or 'out'"
             }
-            dict set ::asrc $name $addr
-            dict set ::adest $name $addr
+            dict set ::asrc $name $reg
+            dict set ::adest $name $reg
         }
         set body [lindex $args end]
         parse $body
@@ -263,8 +263,8 @@ namespace eval ::asm {
         set ::func {}
         foreach parm $parms {
             lassign $parm name dir reg
-            dict remove ::asrc $name
-            dict remove ::adest $name
+            dict unset ::asrc $name
+            dict unset ::adest $name
         }
     }
 
@@ -275,25 +275,25 @@ namespace eval ::asm {
         rtn $lin
     }
     
-    proc formal_call {lin label args} {
+    proc callx {lin label args} {
         # generate wrapper for 'in' parms.
         foreach arg $args {
-            lassign $parm aname adir areg
-            if {$dir eq {in}} {
+            lassign $arg aname adir areg
+            if {$adir eq {in}} {
                 set found 0
                 foreach fparm $::fparms($label) {
-                    lassign $parm fname fdir freg
+                    lassign $fparm fname fdir freg
                     if {$aname eq $fname && $adir eq $fdir} {
                         set found 1
                         if {[src $areg] != [dest $freg]} {
-                            parse3 $lin $freg = $areg
+                            parse "$freg = $areg"
                         }
                     }
                 }
                 if { ! $found} {
                     error "argument does not match any formal parameter: $aname"
                 }
-            } elseif {$dir eq {out}} {
+            } elseif {$adir eq {out}} {
             } else {
                 error "parameter direction must be 'in' or 'out'"
             }
@@ -304,15 +304,15 @@ namespace eval ::asm {
         
         # generate wrapper for 'out' parms.
         foreach arg $args {
-            lassign $parm aname adir areg
-            if {$dir eq {out}} {
+            lassign $arg aname adir areg
+            if {$adir eq {out}} {
                 set found 0
                 foreach fparm $::fparms($label) {
-                    lassign $parm fname fdir freg
+                    lassign $fparm fname fdir freg
                     if {$aname eq $fname && $adir eq $fdir} {
                         set found 1
                         if {[dest $areg] != [src $freg]} {
-                            parse3 $lin $areg = $freg
+                            parse "$areg = $freg"
                         }
                     }
                 }
@@ -321,6 +321,37 @@ namespace eval ::asm {
                 }
             }
         }
+    }
+    
+    proc formal_parms_test_cases {lin} {
+        parse {
+            func struct_read {base_addr in const} {index in pa} {valu out pa} {
+                putasc "a"
+            }
+            func struct_write {base_addr in const} {index in pa} {valu in pb} {
+                putasc "b"
+            }
+            func find_cell_test {rpm in pa} {tps in pb} {cell out pa} {
+                putasc "c"
+            }
+            callx find_cell_test {rpm in x} {tps in j} {cell out i}
+        }
+        set unimplemented {
+            func multiply_test {in pa} {in pb} {product out pa} {
+            }
+            func square_root_test {valu in pa} {root out pa} {
+                for {i = 0} {i lt 0xff} step j = 1 {
+                    callx multiply_test i i {product out x}
+                    if x ge valu {
+                        rtn i
+                    }
+                }
+                rtn 0
+            }
+            callx find_cell_test {rpm = j} {tps = x} b
+            callx find_cell_test j x b
+        }
+        
     }
     
 }
