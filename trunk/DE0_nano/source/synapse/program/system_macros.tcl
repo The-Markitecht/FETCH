@@ -202,7 +202,7 @@ namespace eval ::asm {
             }
             lappend ::stackable [string tolower [string trim $reg]]
         }
-        # console "all stackable regs: $::stackable"
+        console "all stackable regs: $::stackable"
     }
 
     proc nonstackable {lin args} {
@@ -211,12 +211,12 @@ namespace eval ::asm {
                 set ::stackable [lreplace $::stackable $i $i]
             }
         }
-        # console "all stackable regs: $::stackable"
+        console "all stackable regs: $::stackable"
     }
 
     proc convention_gp {lin} {
         # set up Calling Convention "GP".  stackable = all gp regs beyond y.
-        # does not include operand regs (a to y), i/o regs (beyond num_gp), or result regs.
+        # does not include operand regs (a to y), i/o regs (beyond num_gp), or operator result regs.
         if {[llength $::stackable] > 0} {
             error "calling convention specified more than once in same program: $lin"
         }
@@ -231,11 +231,33 @@ namespace eval ::asm {
 
     proc convention_gpx {lin} {
         # set up Calling Convention "GP eXtended".  stackable = all gp and operand regs beyond b.
-        # includes operand regs (i, j, x, y), but not i/o regs (beyond num_gp), or result regs.
+        # includes operand regs (i, j, x, y), but not i/o regs (beyond num_gp), or operator result regs.
         convention_gp $lin
         stackable $lin i j x y
     }
 
+    proc convention_formal {lin} {
+        # set up Calling Convention "formal".  stackable = all gp and operand regs beyond b.
+        # includes operand regs (i, j, x, y), but not i/o regs (beyond num_gp), or operator result regs,
+        # or parameter regs (pX).
+        if {[llength $::stackable] > 0} {
+            error "calling convention specified more than once in same program: $lin"
+        }
+        if { ! [dict exists $::adest rstk]} {
+            error "calling convention requires a return stack 'rstk': $lin"
+        }    
+        stackable $lin rtna
+        stackable $lin i
+        stackable $lin j
+        stackable $lin x
+        stackable $lin y
+        dict for {name addr} $::asrc {
+            if {[string match g? $name]} {
+                stackable $lin $name
+            }
+        }
+    }
+    
     # branching macros.
     proc jmp {lin label} {
         parse3 br always $label $lin

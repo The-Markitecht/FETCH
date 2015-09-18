@@ -6,9 +6,9 @@
     declare_system_dimensions
     
     // register file configuration.
-    vdefine num_regs 32
+    vdefine num_regs 48
     vdefine top_reg ($num_regs - 1)
-    vdefine num_gp 10
+    vdefine num_gp 12
     vdefine top_gp ($num_gp - 1)
 
     // application-specific register aliases.    
@@ -19,6 +19,8 @@
     alias_both gb                   7               "gb"
     alias_both pa                   8               "pa"
     alias_both pb                   9               "pb"
+    alias_both pc                   10              "pc"
+    alias_both pd                   11              "pd"
     setvar counter $top_gp    
     alias_both rstk                 [incr counter]  "//rstk"
     alias_both event_priority       [incr counter]  "ev_pri"
@@ -190,7 +192,7 @@
         "TGT\r\n\x0"
     
     // libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
-    convention_gpx
+    convention_formal
     include ../peripheral/driver/event_controller.asm
     include ../peripheral/driver/fduart.asm
     include ../peripheral/driver/anmux.asm
