@@ -239,7 +239,6 @@ namespace eval ::asm {
         set label [string trim $label {: }]
         set_label $label
         set parms [lrange $args 0 end-1]
-        set ::fparms($label) $parms
         emit_comment "// ######## $lin // = 0x[format %04x $::ipr]"
         set ::func $label
         if { $::asm_pass == $::pass(func) } {
@@ -247,6 +246,7 @@ namespace eval ::asm {
         }
         auto_push $lin
         set temp_aliases [list]
+        set ::fparms($label) [list]
         foreach parm $parms {
             if {[llength $parm] == 3} {
                 lassign $parm name dir reg
@@ -255,18 +255,20 @@ namespace eval ::asm {
                 }
             } elseif {[llength $parm] == 2} {
                 lassign $parm dir reg
-                set name $reg
+                set name {}
             } else {
                 error "invalid formal parameter"
             }
             if {$dir ne {in} && $dir ne {out}} {
                 error "formal parameter direction must be 'in' or 'out'"
             }
-            if {$name ne $reg} {
+            if {$name ne {}} {
                 dict set ::asrc $name [src $reg]
                 dict set ::adest $name [dest $reg]
                 lappend temp_aliases $name
             }
+            lappend ::fparms($label) [list $name $dir $reg]
+            console "parm '$parm' name '$name' dir '$dir' reg '$reg' fp '$::fparms($label)'"
         }
         set body [lindex $args end]
         parse $body
@@ -278,7 +280,7 @@ namespace eval ::asm {
         }
     }
 
-    proc formal_rtn {lin {return_value {}}} {
+    proc rtnx {lin {return_value {}}} {
         if {$return_value ne {}} {
             parse "pa = $return_value"
         }        
@@ -300,6 +302,7 @@ namespace eval ::asm {
                 set found 0
                 foreach fparm $::fparms($label) {
                     lassign $fparm fname fdir freg
+                    console "p '$fparm' a '$aname' '$adir' =? f '$fname' '$fdir'" 
                     if {$aname eq $fname && $adir eq $fdir} {
                         set found 1
                         break
@@ -318,18 +321,14 @@ namespace eval ::asm {
                 set areg $arg
                 set aname $fname
                 set adir $fdir
+                console "$position fdir $fdir adir $adir"
                 incr position
             } else {
                 error "syntax error in argument"
             }
             # generate wrapper for 'in' parms.
             if {$adir eq {in}} {
-                if {$fname eq {const}} {
-                    if { ! [string is integer -strict $areg]} {
-                        error "expected integer argument for 'const' parameter"
-                    }
-                    parse "$freg = $areg"
-                } elseif {[src $areg] != [dest $freg]} {
+                if {[src $areg] != [dest $freg]} {
                     parse "$freg = $areg"
                 } else {
                     # nothing to do.  argument is already in the correct register.
@@ -363,15 +362,16 @@ namespace eval ::asm {
             func square_root_test {valu in pa} {root out pa} {
                 for {i = 0} {i lt 0xff} step j = 1 {
                     callx multiply_test i i {product out x}
-                    if x ge valu {
-                        rtn i
+                    if x lt valu {
+                    } else {
+                        rtnx i
                     }
                 }
-                rtn 0
+                rtnx 0
             }
             callx find_cell_test j x b
             // next one should throw an error:
-            callx find_cell_test {rpm = j} {tps = x} b
+            //callx find_cell_test {rpm in j} {tps in x} b
         }
         set unimplemented {
             func struct_read {base_addr const pb} {index in pa} {valu out pa} {
