@@ -250,22 +250,17 @@ namespace eval ::asm {
         foreach parm $parms {
             if {[llength $parm] == 3} {
                 lassign $parm name dir reg
+                if {[dict exists $::asrc $name] || [dict exists $::adest $name]} {
+                    error "invalid name of formal parameter: $name"
+                }
             } elseif {[llength $parm] == 2} {
                 lassign $parm dir reg
                 set name $reg
             } else {
                 error "invalid formal parameter"
             }
-            if {$reg eq {const}} {
-                if {$dir ne {in}} {
-                    error "'const' parameter must be 'in'"
-                }
-            }
-            if {[dict exists $::asrc $name] || [dict exists $::adest $name]} {
-                error "invalid name of formal parameter: $name"
-            }
             if {$dir ne {in} && $dir ne {out}} {
-                error "parameter direction must be 'in' or 'out'"
+                error "formal parameter direction must be 'in' or 'out'"
             }
             if {$name ne $reg} {
                 dict set ::asrc $name [src $reg]
@@ -292,6 +287,9 @@ namespace eval ::asm {
     
     proc callx {lin label args} {
         # parse actual arguments & match to formal parameters.
+        if {[llength $args] != [llength $::fparms($label)]} {
+            error "wrong number of arguments"
+        }
         set position 0
         set out_parms [list]
         foreach arg $args {
@@ -313,7 +311,7 @@ namespace eval ::asm {
             } elseif {[llength $arg] == 1} {
                 # positional argument.  copy some info from the formal parameter appearing in the same position.
                 if {$position == -1} {
-                    error "positional parameter appears after a named parameter"
+                    error "positional argument appears after a named argument"
                 }
                 set fparm [lindex $::fparms($label)  $position]
                 lassign $fparm fname fdir freg
@@ -321,6 +319,8 @@ namespace eval ::asm {
                 set aname $fname
                 set adir $fdir
                 incr position
+            } else {
+                error "syntax error in argument"
             }
             # generate wrapper for 'in' parms.
             if {$adir eq {in}} {
@@ -337,7 +337,7 @@ namespace eval ::asm {
             } elseif {$adir eq {out}} {
                 lappend out_parms $fname $fdir $freg $aname $adir $areg
             } else {
-                error "parameter direction must be 'in' or 'out'"
+                error "argument direction must be 'in' or 'out'"
             }
         }
         
@@ -354,15 +354,6 @@ namespace eval ::asm {
     
     proc formal_parms_test_cases {lin} {
         parse {
-            there's a serious problem with the const syntax.
-            it has to be implemented at run-time, not compile time.
-            that means a formal register has to be named, so it can be set to the constant value at run time. 
-            func struct_read {base_addr in const} {index in pa} {valu out pa} {
-                putasc "a"
-            }
-            func struct_write {base_addr in const} {index in pa} {valu in pb} {
-                putasc "b"
-            }
             func find_cell_test {rpm in pa} {tps in pb} {cell out pa} {
                 putasc "c"
             }
@@ -383,6 +374,12 @@ namespace eval ::asm {
             callx find_cell_test {rpm = j} {tps = x} b
         }
         set unimplemented {
+            func struct_read {base_addr const pb} {index in pa} {valu out pa} {
+                putasc "a"
+            }
+            func struct_write {base_addr const pb} {index in pa} {valu in pb} {
+                putasc "b"
+            }
         }
         
     }
