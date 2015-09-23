@@ -273,6 +273,7 @@ namespace eval ::asm {
         set body [lindex $args end]
         parse $body
         rtn $lin
+#patch: need to avoid the implicit rtn at the end of a function if it was the last line of the body.  that often happens when rtn accepts a value.  the rule must be sensitive to labels too, since they'd often appear at the end, and would cause bugs if not honored with their own rtn.
         set ::func {}
         foreach name $temp_aliases {
             dict unset ::asrc $name
@@ -280,9 +281,17 @@ namespace eval ::asm {
         }
     }
 
-    proc rtnx {lin {return_value {}}} {
+    proc rtn {lin {return_value {}}} {
         if {$return_value ne {}} {
-            parse "pa = $return_value"
+            foreach fparm $::fparms($label) {
+                lassign $fparm fname fdir freg
+                if {$fdir eq {out}} {
+                    parse "$fname = $return_value"
+                    rtn $lin
+                    return
+                }
+            }
+            error "no 'out' parameter declared for the given return value"
         }        
         rtn $lin
     }
@@ -328,7 +337,8 @@ namespace eval ::asm {
             }
             # generate wrapper for 'in' parms.
             if {$adir eq {in}} {
-                if {[src $areg] != [dest $freg]} {
+                # this has to be a string comparison for now, not a [src] [dest] comparison, because constants, labels, etc. are passed in areg.
+                if {$areg ne $freg} {
                     parse "$freg = $areg"
                 } else {
                     # nothing to do.  argument is already in the correct register.

@@ -348,7 +348,7 @@ func clear_ign_history
         b = 0
         struct_write $ram_ign_history_jf
     }
-end_func
+}
 
 event ign_capture_timeout_handler
     // it's been too long since the last ignition pulse detect.
@@ -512,7 +512,7 @@ func start_daq_pass
     // // observe MCU utilization.  this RAM variable can be seen by the debugger.
     ram $ram_mcu_usage_cnt = usage_count
     usage_count = 0    
-end_func
+}
 
 event mstimer1_handler    
     // anmux signal has settled.
@@ -547,7 +547,7 @@ func begin_adc_conversion
     a = a<<1    
     spi_data = a
     ram $ram_adc_junk = 1
-end_func    
+}    
 
 event spi_done_handler
     // discard the results of the first SPI exchange with the ADC.  that's only for writing the channel num out to the ADC.
@@ -670,7 +670,7 @@ end_event
 
 func minute_events
     call :check_power_down    
-end_func
+}
 
 :power_hold_msg
     "PWH\x0"
@@ -684,7 +684,7 @@ func check_power_relay
         a = :power_hold_msg
         call :set_text_flag
     }
-end_func
+}
 
 func check_power_down
     // check power-down deadline in RAM.    
@@ -693,17 +693,17 @@ func check_power_down
     if a eq b {
         call :power_down
     }
-end_func
+}
 
 func power_down
     // this function never returns.
     call :save_persistent_data
     power_duty = $power_duty_opening
     error_halt_code $err_power_down
-end_func
+}
 
 func save_persistent_data
-end_func
+}
 
 func check_communication
     ram a = $ram_ftdi_downtime_remain_sec
@@ -724,13 +724,13 @@ func check_communication
         ram $ram_ftdi_downtime_remain_sec = $ftdi_down_period_sec
         call :ftdi_power_off
     }
-end_func
+}
 
 func postpone_comm_restart
     ram a = $ram_minutes_cnt
     b = $comm_grace_period_min
     ram $ram_comm_restart_at_min = a+b
-end_func
+}
     
 :ftdi_off_msg
     "FTOF\x0"
@@ -741,21 +741,19 @@ func ftdi_power_off
     board_ctrl = and
     a = :ftdi_off_msg
     call :set_text_flag
-end_func
+}
     
 :ftdi_on_msg
     "FTON\x0"
     
-func ftdi_power_on
+func ftdi_power_on {
     a = board_ctrl
     b = $ftdi_power_mask
     board_ctrl = or
-    a = :ftdi_on_msg
-    call :set_text_flag
-end_func
+    callx  set_text_flag  :ftdi_on_msg 
+}
 
-func clear_ram_page
-    // pass the page to be cleared in av_ad_hi.
+func clear_ram_page {page in av_ad_hi} {
     a = 0
     b = 2
     :clear_next_word
@@ -763,24 +761,23 @@ func clear_ram_page
         av_write_data = 0
         a = ad0
     bn az :clear_next_word
-end_func
+}
 
-func set_text_flag
-    b = a
+func set_text_flag {flag_addr in pa} {
+    b = flag_addr
     ram a = $ram_next_tfp_idx
-    push a
     struct_write $ram_text_flag_pointers 
-    pop a
+    a = flag_addr
     b = -1
     a = a+b
     b = $tfp_mask
     ram $ram_next_tfp_idx = and
-end_func
+}
 
 :text_flags_msg
     " tf=\x0"
 
-func report_text_flags
+func report_text_flags {
     a = :text_flags_msg
     call :print_nt
     for {i = 0} {i lt $num_text_flag_pointers} step 1 {
@@ -794,32 +791,31 @@ func report_text_flags
             struct_write $ram_text_flag_pointers 
         }  
     }
-end_func
+}
     
 :plan_msg
     " pl=\x0"
 
-func report_plan
+func report_plan {
     a = :plan_msg
     call :print_nt
     ram a = $ram_plan_name
     call :print_nt
-end_func
+}
     
-func jf_to_rpm
-    // pass jiffies in a.  return rpm in a.
+func jf_to_rpm {jiffies in pa} {rpm out pa} {
     // resolution = 32 rpm.
-    b = a
+    b = jiffies
     a = 0x5573 
     // = 700000 >> 5
     call :divide
     a = b
     a = a<<4
-    a = a<<1
-end_func
+    rpm = a<<1
+}
 
-func check_engine_stop
-    // returns a=1 if transitioned to stop, else a=0.
+func check_engine_stop {did_stop out pa} {
+    // returns 1 if transitioned to stop, else 0.
 
     // transition to plan_stop if ignition switch is turned off AND rpm estimate is invalid.
     // requiring both conditions prevents spurious noise readings from shutting down the injection.
@@ -829,10 +825,9 @@ func check_engine_stop
             ram rtna = $ram_destroy_plan_func
             call_indirect
             call :init_plan_stop
-            a = 1
-            rtn
+            rtn 1
         }
     }
-    a = 0
-end_func
+    rtn 0
+}
 
