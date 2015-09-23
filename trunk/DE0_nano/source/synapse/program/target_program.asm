@@ -535,10 +535,10 @@ event mstimer1_handler
     call :begin_adc_conversion
 end_event
         
-func begin_adc_conversion
+func begin_adc_conversion {next_channel in pa} {
     // begin SPI transaction, specifying Nano ADC channel to take effect NEXT 
-    // conversion after this one.  pass that in a.
-    
+    // conversion after this one.  
+ stopped here
     ram $ram_adc_chn_pending = a
     a = a<<4
     a = a<<4
@@ -595,8 +595,8 @@ event spi_done_handler
         }
         
         // end of temperature daq pass.
-        call :report_plan
-        call :report_text_flags
+        callx  report_plan
+        callx  report_text_flags
         puteol   
         ram $ram_dial_setting = spi_data
         event_return
@@ -621,10 +621,9 @@ event power_lost_handler
     // pause any non-vital power-hogging operations, to conserve power for the EEPROM write.
     
     // save persistent data in case the power remains down e.g. due to battery disconnect.
-    call :save_persistent_data
+    callx  save_persistent_data
     
-    a = :power_lost_msg
-    call :set_text_flag
+    callx  set_text_flag  :power_lost_msg
 end_event
 
 :ign_off_msg
@@ -635,8 +634,7 @@ event ign_switch_off_handler
     ram a = $ram_minutes_cnt
     b = $power_extend_minutes
     ram $ram_power_down_at_min = a+b
-    a = :ign_off_msg
-    call :set_text_flag    
+    callx  set_text_flag   :ign_off_msg
 end_event
 
 :ign_on_msg
@@ -644,8 +642,7 @@ end_event
 
 event ign_switch_on_handler
     ram $ram_power_down_at_min = $power_down_never
-    a = :ign_on_msg
-    call :set_text_flag    
+    callx  set_text_flag   :ign_on_msg
 end_event
 
 event puff1_done_handler
@@ -668,44 +665,42 @@ event puff1_done_handler
     // puff_len_us = a    
 end_event
 
-func minute_events
-    call :check_power_down    
+func minute_events {
+    callx  check_power_down    
 }
 
 :power_hold_msg
     "PWH\x0"
 
-func check_power_relay
+func check_power_relay {
     ram a = $ram_daq_pass_cnt    
     ram b = $ram_relay_hold_at_pass
     if a eq b {
         // time to begin "solenoid saver" coil power reduction by PWM.
         power_duty = $power_duty_holding
-        a = :power_hold_msg
-        call :set_text_flag
+        callx  set_text_flag  :power_hold_msg
     }
 }
 
-func check_power_down
+func check_power_down {
     // check power-down deadline in RAM.    
     ram a = $ram_minutes_cnt
     ram b = $ram_power_down_at_min
     if a eq b {
-        call :power_down
+        jmp :power_down
     }
 }
 
-func power_down
-    // this function never returns.
+:power_down 
+    // this code never returns.
     call :save_persistent_data
     power_duty = $power_duty_opening
     error_halt_code $err_power_down
+
+func save_persistent_data {
 }
 
-func save_persistent_data
-}
-
-func check_communication
+func check_communication {
     ram a = $ram_ftdi_downtime_remain_sec
     if a ne 0 {
         b = -1
@@ -726,7 +721,7 @@ func check_communication
     }
 }
 
-func postpone_comm_restart
+func postpone_comm_restart {
     ram a = $ram_minutes_cnt
     b = $comm_grace_period_min
     ram $ram_comm_restart_at_min = a+b
@@ -735,12 +730,11 @@ func postpone_comm_restart
 :ftdi_off_msg
     "FTOF\x0"
 
-func ftdi_power_off
+func ftdi_power_off {
     a = board_ctrl
     b = $not_ftdi_power_mask
     board_ctrl = and
-    a = :ftdi_off_msg
-    call :set_text_flag
+    callx  set_text_flag  :ftdi_off_msg
 }
     
 :ftdi_on_msg
