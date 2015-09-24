@@ -113,12 +113,12 @@ namespace eval ::asm {
         uses_reg rtna
         parse {swapra = nop}        
     }
-    
+set obsolete {    
     proc rtn {lin} {
         auto_pop $lin
         parse {swapra = nop}
     }
-
+}
     proc func {lin label} {
         verify_func_closure
         set label [string trim $label {: }]

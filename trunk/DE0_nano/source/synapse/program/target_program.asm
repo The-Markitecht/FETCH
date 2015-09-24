@@ -214,8 +214,7 @@
     call :print_nt 
     
     // clear the first 64k of RAM.
-    av_ad_hi = 0
-    call :clear_ram_page
+    callx  clear_ram_page  0
 
 formal_parms_test_cases    
     
@@ -224,7 +223,7 @@ formal_parms_test_cases
     
     // power up FTDI USB board, and init any other special board control functions.
     board_ctrl = $ftdi_power_mask
-    call :postpone_comm_restart
+    callx postpone_comm_restart
     
     // check initial state of power management circuits.
     // if power is lost or ignition switch is off already, open relay & abort run.
@@ -330,14 +329,13 @@ event ign_capture_handler
         ram $ram_rpm_valid = 0
     } else {
         // convert jiffies b to new RPM estimate.
-        a = x
-        call :jf_to_rpm
-        ram $ram_avg_rpm = a
+        callx  jf_to_rpm  x  pa
+        ram $ram_avg_rpm = pa
         ram $ram_rpm_valid = 1
     }
 end_event
 
-func clear_ign_history
+func clear_ign_history {
     // invalidate the RPM estimate.
     ram $ram_rpm_valid = 0
     // the last known RPM estimate is retained here, not cleared.
@@ -352,7 +350,7 @@ func clear_ign_history
 
 event ign_capture_timeout_handler
     // it's been too long since the last ignition pulse detect.
-    call :clear_ign_history
+    callx clear_ign_history
 end_event
     
 event ustimer0_handler
@@ -373,15 +371,15 @@ event mstimer0_handler
         ram a = $ram_minutes_cnt
         b = 1
         ram $ram_minutes_cnt = a+b
-        call :minute_events
+        callx minute_events
     } else {
         ram $ram_seconds_cnt = a
     }
 
     // all 1-second functions here.
-    call :check_power_relay
-    call :check_communication
-    call :start_daq_pass    
+    callx check_power_relay
+    callx check_communication
+    callx start_daq_pass    
 end_event
 
 :plan_transition_msg
@@ -471,7 +469,7 @@ end_event
 :o2_msg
     " o2=\x0"
     
-func start_daq_pass
+func start_daq_pass {
     // daq pass counter in RAM.  
     ram a = $ram_daq_pass_cnt
     b = 1
@@ -531,15 +529,15 @@ event mstimer1_handler
     asc b = "0"
     putchar a+b
     putasc "="    
-    a = $anmux_adc_channel
-    call :begin_adc_conversion
+    callx  begin_adc_conversion  $anmux_adc_channel 
 end_event
         
 func begin_adc_conversion {next_channel in pa} {
     // begin SPI transaction, specifying Nano ADC channel to take effect NEXT 
     // conversion after this one.  
- stopped here
-    ram $ram_adc_chn_pending = a
+
+    ram $ram_adc_chn_pending = next_channel
+    a = next_channel
     a = a<<4
     a = a<<4
     a = a<<1

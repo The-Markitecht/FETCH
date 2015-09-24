@@ -283,20 +283,24 @@ namespace eval ::asm {
 
     proc rtn {lin {return_value {}}} {
         if {$return_value ne {}} {
-            foreach fparm $::fparms($label) {
+            foreach fparm $::fparms($::func) {
                 lassign $fparm fname fdir freg
                 if {$fdir eq {out}} {
                     parse "$fname = $return_value"
-                    rtn $lin
+                    auto_pop $lin
+                    parse {swapra = nop}
                     return
                 }
             }
             error "no 'out' parameter declared for the given return value"
         }        
-        rtn $lin
+        auto_pop $lin
+        parse {swapra = nop}
     }
     
     proc callx {lin label args} {
+        if {$::asm_pass < $::pass(calls)} return
+        
         # parse actual arguments & match to formal parameters.
         if {[llength $args] != [llength $::fparms($label)]} {
             error "wrong number of arguments"
@@ -374,10 +378,10 @@ namespace eval ::asm {
                     callx multiply_test i i {product out x}
                     if x lt valu {
                     } else {
-                        rtnx i
+                        rtn i
                     }
                 }
-                rtnx 0
+                rtn 0
             }
             callx find_cell_test j x b
             // next one should throw an error:

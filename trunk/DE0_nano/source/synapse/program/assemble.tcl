@@ -449,8 +449,9 @@ proc assemble_file {src_fn rom_fn} {
 
     # catalog of assembler loop passes.
     set ::pass(func)        1 ;# determine regs used by functions (affects ipr), and print the echo text to console. 
-    set ::pass(label)       2 ;# compute label addresses using accurate ipr.
-    set ::pass(emit)        3 ;# emit opcodes into ROM file using real label addresses.
+    set ::pass(calls)       2 ;# determine regs used by call wrappers (affects ipr) (uses data from pass(func))
+    set ::pass(label)       3 ;# compute label addresses using accurate ipr.
+    set ::pass(emit)        4 ;# emit opcodes into ROM file using real label addresses.
     set ::pass(first)       $::pass(func)
     set ::pass(final)       $::pass(emit)
     
@@ -461,6 +462,8 @@ proc assemble_file {src_fn rom_fn} {
 
     set ::func_regs [dict create]
     parse_pass $asm_lines $::pass(func) 
+
+    parse_pass $asm_lines $::pass(calls) 
     
     parse_pass $asm_lines $::pass(label)
     set len_words $::ipr
