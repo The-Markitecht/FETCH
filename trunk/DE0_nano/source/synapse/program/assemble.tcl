@@ -335,11 +335,11 @@ proc emit_word {w comment} {
     incr ::ipr
 }
 
-proc console {args} {
-    # "puts" given args on the console.
-#    if {$::asm_pass == $::pass(first)} {
-        eval puts $args
-#    }
+proc console {txt} {
+    # "puts" given text on the console.
+    if {$::asm_pass == $::pass(first)} {
+        puts $txt
+    }
 }
 
 proc emit_comment {txt} {
@@ -349,17 +349,17 @@ proc emit_comment {txt} {
     emit_mif $txt
 }
 
-proc emit {args} {
-    # "puts" given args into the ROM description file.
+proc emit {txt} {
+    # "puts" given text into the ROM description file.
     if {$::asm_pass == $::pass(emit)} {
-        eval puts $::rom_file $args
+        puts $::rom_file $txt
     }
 }
 
-proc emit_mif {args} {
-    # "puts" given args into the MIF memory initialization file.
+proc emit_mif {txt} {
+    # "puts" given text into the MIF memory initialization file.
     if {$::asm_pass == $::pass(emit)} {
-        eval puts $::mif_file [string map {{//} {--}} $args]
+        puts $::mif_file [string map {{//} {--}} $txt]
     }
 }
 

@@ -236,22 +236,22 @@ namespace eval ::asm {
     }
 
     proc func_ {lin label args} {
+        # memorize function's label
         set label [string trim $label {: }]
         set_label $label
-        set parms [lrange $args 0 end-1]
         emit_comment "// ######## $lin // = 0x[format %04x $::ipr]"
         set ::func $label
-        if { $::asm_pass == $::pass(func) } {
-            dict set ::func_regs $label [list]
-        }
-        auto_push $lin
+
+        # scan the function's formal parameters
+        set parms [lrange $args 0 end-1]
         set temp_aliases [list]
         set ::fparms($label) [list]
         foreach parm $parms {
+            # check syntax
             if {[llength $parm] == 3} {
                 lassign $parm name dir reg
                 if {[dict exists $::asrc $name] || [dict exists $::adest $name]} {
-                    error "invalid name of formal parameter: $name"
+                    error "formal parameter name conflicts with an existing register name: $name"
                 }
             } elseif {[llength $parm] == 2} {
                 lassign $parm dir reg
@@ -262,19 +262,29 @@ namespace eval ::asm {
             if {$dir ne {in} && $dir ne {out}} {
                 error "formal parameter direction must be 'in' or 'out'"
             }
+            # memorize in ::fparms
+            lappend ::fparms($label) [list $name $dir $reg]
+            console "parm '$parm' name '$name' dir '$dir' reg '$reg' fp '$::fparms($label)'"
+            # set temporary alias for parm.
             if {$name ne {}} {
                 dict set ::asrc $name [src $reg]
                 dict set ::adest $name [dest $reg]
                 lappend temp_aliases $name
             }
-            lappend ::fparms($label) [list $name $dir $reg]
-            console "parm '$parm' name '$name' dir '$dir' reg '$reg' fp '$::fparms($label)'"
         }
+
+        # assemble function body including auto-stacking code.
+        if { $::asm_pass == $::pass(func) } {
+            dict set ::func_regs $label [list]
+        }
+        auto_push $lin
         set body [lindex $args end]
         parse $body
         rtn $lin
-#patch: need to avoid the implicit rtn at the end of a function if it was the last line of the body.  that often happens when rtn accepts a value.  the rule must be sensitive to labels too, since they'd often appear at the end, and would cause bugs if not honored with their own rtn.
+#patch: avoid the implicit rtn at the end of a function if it was the last line of the body.  that often happens when rtn accepts a value.  the rule must be sensitive to labels too, since they'd often appear at the end, and would cause bugs if not honored with their own rtn.
         set ::func {}
+        
+        # forget temporary aliases.  they are now out-of-scope.
         foreach name $temp_aliases {
             dict unset ::asrc $name
             dict unset ::adest $name
@@ -283,6 +293,7 @@ namespace eval ::asm {
 
     proc rtn {lin {return_value {}}} {
         if {$return_value ne {}} {
+            # assign the given return value to the first formal 'out' parm.
             foreach fparm $::fparms($::func) {
                 lassign $fparm fname fdir freg
                 if {$fdir eq {out}} {
@@ -294,6 +305,7 @@ namespace eval ::asm {
             }
             error "no 'out' parameter declared for the given return value"
         }        
+        # no return value given
         auto_pop $lin
         parse {swapra = nop}
     }

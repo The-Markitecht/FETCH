@@ -5,13 +5,13 @@ proc assemble_with_macros {src_fn rom_fn} {
     source program_macros.tcl
     
     set vdfn "[file rootname $src_fn]_defines.v"
-    console "writing $vdfn"
+    puts "writing $vdfn"
     set ::vdefines [open $vdfn w]
     
     assemble_file  $src_fn "[file rootname $src_fn].v"
     
     # puts $::f [verilog_define_labels * asm_]
-    console "closing $vdfn"
+    puts "closing $vdfn"
     close $::vdefines
     
     #file rename -force "[file rootname $src_fn].mif" ../
