@@ -10,7 +10,7 @@ setvar crank_max_puffs              (($crank_max_puff_len_us - $crank_min_puff_l
 :plan_name_crank
     "CR\x0"
 
-func init_plan_crank
+func init_plan_crank {
     // set up the crank plan.
     ram $ram_puff_count = 0
     // set noise filter to measure RPM between 50 and 8000 to indicate running.
@@ -23,19 +23,19 @@ func init_plan_crank
     ram $ram_next_puff_len_us = $crank_min_puff_len_us
     puff_len_us = $crank_min_puff_len_us
     // clear ignition history again to eliminate samples where the motor kept spinning after switching from plan_run to plan_stop.
-    call :clear_ign_history
+    callx  clear_ign_history
     
     // memorize state.
     ram $ram_plan_name = :plan_name_crank
     ram $ram_puff_len_func = :puff_len_crank
     ram $ram_transition_func = :leave_crank
     ram $ram_destroy_plan_func = :destroy_plan_crank
-end_func
+}
 
-func destroy_plan_crank
-end_func
+func destroy_plan_crank {
+}
 
-func puff_len_crank
+func puff_len_crank {
     ram a = $ram_puff_count
     b = $crank_max_puffs
     br gt :puff_limit
@@ -51,10 +51,10 @@ func puff_len_crank
         // accept max puff len.
         ram $ram_next_puff_len_us = $crank_max_puff_len_us
     :done    
-end_func
+}
 
-func leave_crank
-    call :check_engine_stop
+func leave_crank {
+    callx  check_engine_stop  a
     bn az :done
 
     // transition to warmup if RPM exceeds crank_success_rpm.
@@ -63,10 +63,10 @@ func leave_crank
         ram a = $ram_avg_rpm
         b = $crank_success_rpm
         br lt :stay
-            call :destroy_plan_crank
-            call :init_plan_warmup
+            callx  destroy_plan_crank
+            callx  init_plan_warmup
     :stay
     
     :done
-end_func
+}
 

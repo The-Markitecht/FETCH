@@ -19,10 +19,9 @@ ram_define      ram_terminal_connected
     "\x0\x0"
 
 
-func parse_key
+func parse_key {key in pa} {
     // memorize into ram_key_buf, pushing down existing content.
-    push a
-    x = a
+    x = key
     for {i = $key_buf_max} {i ge 0} step j = -1 {
         a = i
         struct_read $ram_key_buf
@@ -32,16 +31,15 @@ func parse_key
         struct_write $ram_key_buf                        
         x = y
     }
-    pop a
-    if a eq 13 {
-        call :parse_command
+    if key eq 13 {
+        callx  parse_command
     }
-end_func
+}
 
 :cmd_ack_msg
     "OK\x0"
 
-func parse_command
+func parse_command {
     x = :cmd_table    
     :next_cmd
         fetch a from x
@@ -65,8 +63,7 @@ func parse_command
         
         // at this point we have a match on the record beginning at x.
         :matched
-        a = :cmd_ack_msg
-        call :set_text_flag        
+        callx  set_text_flag  :cmd_ack_msg
         y = ($key_buf_len / 2)
         fetch rtna from x+y
         call_indirect
@@ -81,39 +78,39 @@ func parse_command
         x = x+y
     jmp :next_cmd
     :done
-end_func
+}
 
-func hello_cmd
+func hello_cmd {
     ram $ram_terminal_connected = 1
-end_func
+}
     
-func set_plan_stop_cmd
+func set_plan_stop_cmd {
     ram rtna = $ram_destroy_plan_func
     call_indirect
-    call :init_plan_stop
-end_func
+    callx  init_plan_stop
+}
     
-func set_plan_crank_cmd
+func set_plan_crank_cmd {
     ram rtna = $ram_destroy_plan_func
     call_indirect
-    call :init_plan_crank
-end_func
+    callx  init_plan_crank
+}
     
-func set_plan_warmup_cmd
+func set_plan_warmup_cmd {
     ram rtna = $ram_destroy_plan_func
     call_indirect
-    call :init_plan_warmup
-end_func
+    callx  init_plan_warmup
+}
     
-func set_plan_run_cmd
+func set_plan_run_cmd {
     ram rtna = $ram_destroy_plan_func
     call_indirect
-    call :init_plan_run
-end_func
+    callx  init_plan_run
+}
     
-func set_plan_learn_cmd
+func set_plan_learn_cmd {
     ram rtna = $ram_destroy_plan_func
     call_indirect
-    call :init_plan_learn_stoich
-end_func
+    callx  init_plan_learn_stoich
+}
     

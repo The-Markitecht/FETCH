@@ -15,7 +15,7 @@ setvar      warmup_limping_enrichment_us 2000
 :plan_name_warmup
     "WM\x0"
 
-func init_plan_warmup
+func init_plan_warmup {
     // set up the warmup plan.
     ram a = $ram_daq_pass_cnt
     b = $warmup_timeout_sec
@@ -26,12 +26,12 @@ func init_plan_warmup
     ram $ram_puff_len_func = :puff_len_warmup
     ram $ram_transition_func = :leave_warmup
     ram $ram_destroy_plan_func = :destroy_plan_warmup
-end_func
+}
 
-func destroy_plan_warmup
-end_func
+func destroy_plan_warmup {
+}
 
-func puff_len_warmup
+func puff_len_warmup {
     // x = enrichment us.
     x = $warmup_limping_enrichment_us
     
@@ -67,18 +67,18 @@ func puff_len_warmup
     a = $warmup_min_puff_len_us
     b = x
     ram $ram_next_puff_len_us = a+b
-end_func
+}
 
-func leave_warmup
-    call :check_engine_stop
+func leave_warmup {
+    callx  check_engine_stop  a
     bn az :done
 
     // transition to plan_run if warmup has expired.
     ram a = $ram_daq_pass_cnt
     ram b = $ram_warmup_timeout_at_pass
     if a gt b {
-        call :destroy_plan_warmup
-        call :init_plan_run
+        callx  destroy_plan_warmup
+        callx  init_plan_run
         jmp :done
     }
     
@@ -90,11 +90,11 @@ func leave_warmup
     if a gt b {
         a = $warmup_success_temp_adc
         if a lt b {
-            call :destroy_plan_warmup
-            call :init_plan_run
+            callx  destroy_plan_warmup
+            callx  init_plan_run
         }
     }
     
     :done
-end_func
+}
 

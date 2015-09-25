@@ -14,7 +14,7 @@ setvar      run_puff_min_us         2000
 setvar      o2_lean_thresh_adc      588
         
         
-func init_plan_run
+func init_plan_run {
     // set up the run plan.
     
     // memorize state.
@@ -22,12 +22,12 @@ func init_plan_run
     ram $ram_puff_len_func = :puff_len_run
     ram $ram_transition_func = :leave_run
     ram $ram_destroy_plan_func = :destroy_plan_run
-end_func
+}
 
-func destroy_plan_run
-end_func
+func destroy_plan_run {
+}
 
-func puff_len_run
+func puff_len_run {
     ram i = $ram_run_ticks_remain
     if i gt 0 {
         j = -1
@@ -53,9 +53,9 @@ func puff_len_run
         }
         ram $ram_next_puff_len_us = i+j
     }    
-end_func
+}
 
-func leave_run
-    call :check_engine_stop
-end_func
+func leave_run {
+    callx  check_engine_stop
+}
 

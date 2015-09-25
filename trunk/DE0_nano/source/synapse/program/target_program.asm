@@ -423,10 +423,9 @@ event uart_rx_handler
             event_return
         }                        
         if x eq 10 {
-            call :postpone_comm_restart
+            callx  postpone_comm_restart
         }        
-        a = x
-        call :parse_key
+        callx  parse_key  x
     jmp :again
 end_event
 

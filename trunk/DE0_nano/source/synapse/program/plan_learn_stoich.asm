@@ -39,28 +39,27 @@ ram_define  ram_o2_been_lean
 setvar      o2_lean_thresh_adc      450
 setvar      o2_rich_thresh_adc      700
 
-func find_rpm_cell
-    y = a
+func find_rpm_cell {rpm in pa} {cell out pa} {
     i = 1
     b = 0xffff
     br eq :found
     :next_cell
         j = :rpm_cells
         fetch a from i+j
-        b = y
+        b = rpm
         br gt :found
         j = 1
         i = i+j
     jmp :next_cell
     :found
     j = -1
-    a = i+j
-end_func    
+    rtn i+j
+}
     
 :plan_name_learn_stoich
     "LN\x0"
         
-func init_plan_learn_stoich
+func init_plan_learn_stoich {
     // set up the learn_stoich plan.
     
     // memorize state.
@@ -68,13 +67,13 @@ func init_plan_learn_stoich
     ram $ram_puff_len_func = :puff_len_learn_stoich
     ram $ram_transition_func = :leave_learn_stoich
     ram $ram_destroy_plan_func = :destroy_plan_learn_stoich
-end_func
+}
 
-func destroy_plan_learn_stoich
-end_func
+func destroy_plan_learn_stoich {
+}
         
 
-func puff_len_learn_stoich
+func puff_len_learn_stoich {
     ram i = $ram_lrns_ticks_remain
     if i gt 0 {
         j = -1
@@ -95,7 +94,7 @@ func puff_len_learn_stoich
             }
             if g6 eq $o2_state_rich {
                 // o2 state just switched to lean.  adjust map.
-                call :learn_smap
+                callx  learn_smap
             }
         } else {
             // sensing a rich condition.  trim down to lean it out.
@@ -105,14 +104,14 @@ func puff_len_learn_stoich
         }
         ram $ram_next_puff_len_us = i+j
     }        
-end_func
+}
 
 :lrns_enrich_msg
     "lrnR\x0"
 :lrns_lean_msg
     "lrnL\x0"
 
-func learn_smap
+func learn_smap {
     ram a = $ram_rpm_valid
     if a eq 1 {
         // let g6 = map cell num.  x = map puff len.  i = observed stoich puff len.
@@ -137,13 +136,12 @@ func learn_smap
             a = g6
             b = x+y
             struct_write $smap
-            a = :lrns_lean_msg
-            call :set_text_flag
+            callx  set_text_flag  :lrns_lean_msg
         }
     }
-end_func
+}
 
-func interpret_o2
+func interpret_o2 {
     ram a = $ram_o2_state
     if a ne $o2_state_lean {
         // check sensor for lean state.
@@ -165,22 +163,22 @@ func interpret_o2
             ram $ram_o2_been_rich = 1
         }
     }
-end_func
+}
 
-func init_o2_state
+func init_o2_state {
     ram $ram_o2_state = $o2_state_init
     ram $ram_o2_been_lean = 0
     ram $ram_o2_been_rich = 0
-end_func
+}
 
-func leave_learn_stoich
-    call :check_engine_stop
-end_func
+func leave_learn_stoich {
+    callx  check_engine_stop
+}
 
-func clear_smap_cmd
+func clear_smap_cmd {
     for {i = 0} {i lt $num_rpm_cells} step j = 1 {
         a = i
         b = 3000
         struct_write $smap
     }
-end_func
+}
