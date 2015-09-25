@@ -24,19 +24,17 @@ namespace eval ::asm {
             set positive [expr { ! $positive }]
             set condition eq
         }
-        #patch: optimize for empty if_block but non_empty else_block.  swap them and reverse the branch.
+        #patch: optimize for empty if_block but non-empty else_block.  swap them and reverse the branch.
         set branch br
         if {$positive} {set branch bn}
         set end_jmp "jmp :end_$serial"
         if {$else_block eq {}} {set end_jmp {}}        
-        parse "
-            $branch $condition :else_$serial
-                $if_block
-                $end_jmp
-            :else_$serial
-                $else_block
-            :end_$serial
-        "
+        parse_count "$branch $condition :else_$serial"
+        parse_count_retreat $if_block
+        parse $end_jmp
+        set_label else_$serial
+        parse_count_retreat $else_block
+        set_label end_$serial
     }
 
     proc if_ {lin  a  operator  b  if_block  {else_word {}}  {else_block {}} } {
@@ -93,7 +91,7 @@ namespace eval ::asm {
         lassign  $continuation  counter  comparison  bound
         parse_line $initialization
         parse_line ":loop_$serial"
-        parse $body
+        parse_count_retreat $body
         # patch: optimize for zero comparison on counter a, i, x.
         # patch: other optimizations.
         # patch: need implement step_cache_reg
@@ -279,7 +277,7 @@ namespace eval ::asm {
         }
         auto_push $lin
         set body [lindex $args end]
-        parse $body
+        parse_count_retreat $body
         rtn $lin
 #patch: avoid the implicit rtn at the end of a function if it was the last line of the body.  that often happens when rtn accepts a value.  the rule must be sensitive to labels too, since they'd often appear at the end, and would cause bugs if not honored with their own rtn.
         set ::func {}
@@ -299,7 +297,7 @@ namespace eval ::asm {
                 if {$fdir eq {out}} {
                     parse "$fname = $return_value"
                     auto_pop $lin
-                    parse {swapra = nop}
+                    parse_count {swapra = nop}
                     return
                 }
             }
@@ -307,7 +305,7 @@ namespace eval ::asm {
         }        
         # no return value given
         auto_pop $lin
-        parse {swapra = nop}
+        parse_count {swapra = nop}
     }
     
     proc callx {lin label args} {

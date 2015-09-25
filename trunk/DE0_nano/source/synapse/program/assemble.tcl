@@ -337,9 +337,9 @@ proc emit_word {w comment} {
 
 proc console {txt} {
     # "puts" given text on the console.
-    if {$::asm_pass == $::pass(first)} {
-        puts $txt
-    }
+    #if {$::asm_pass == $::pass(first)} {
+    #    puts $txt
+    #}
 }
 
 proc emit_comment {txt} {
@@ -399,18 +399,54 @@ proc parse {assembly_text} {
     }
 }
 
-proc parse_lines {asm_lines} {
+proc parse_count {assembly_text} {
+    # call e.g. from a macro, to easily switch back to an assembly context, passing a block of assembly text.
+    parse_count_list [split $assembly_text \n]
+}
+
+proc parse_count_retreat {assembly_text} {
+    # call e.g. from a macro, to easily switch back to an assembly context, passing a block of assembly text.
+    # line numbering is retreated back in this case, to maintain sync with the source file,
+    # because some of its lines are about to be counted again, e.g. after already being
+    # counted once when they were accumulated into a multi-line block.
+    set lines [split $assembly_text \n]
+    incr ::lnum -[llength $lines]
+    parse_count_list $lines
+}
+
+proc parse_count_list {asm_lines} {
     foreach lin $asm_lines {
-        incr ::lnum
+        puts "$::lnum : $lin"
+        set ::asm_line $lin
         parse_line $lin
+        incr ::lnum
     }
+}
+
+proc handle_assembly_error {msg} {
+    set fn [file join [pwd] $::src_fn]
+    
+    # use puts, not console.
+    puts stderr "\nError: $msg"
+    puts stderr "On pass $::asm_pass, line $::lnum of $fn"
+    puts stderr "On source line:\n$::asm_line"
+
+    puts stderr "\nStack trace:"
+    puts stderr $::errorInfo
+
+    # repeat this again so it's the last thing in the output.
+    puts stderr "\nError: $msg"
+    puts stderr "On pass $::asm_pass, line $::lnum of $fn"
+    puts stderr "On source line:\n$::asm_line"
+    
+    exit 1
 }
 
 proc parse_pass {asm_lines pass_num} {
     set ::asm_pass $pass_num
     console "####################   PASS $::asm_pass  ####################"
     set ::ipr 0
-    set ::lnum 0
+    set ::lnum 1
     set ::ml_state {}
     set ::multi_line {}
     set ::func {}
@@ -420,9 +456,13 @@ proc parse_pass {asm_lines pass_num} {
         unset $vn
     }
     namespace eval ::asm {}
-    ::asm::start_file_handler
-    parse_lines $asm_lines 
-    ::asm::end_file_handler
+    if {[catch {
+        ::asm::start_file_handler
+        parse_count_list $asm_lines 
+        ::asm::end_file_handler
+    } err]} {
+        handle_assembly_error $err
+    }
     if {$::ml_state eq {tcl}} {
         error "file contains an unmatched '<<'"
     }

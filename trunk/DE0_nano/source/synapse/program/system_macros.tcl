@@ -111,12 +111,12 @@ namespace eval ::asm {
     proc call_indirect {lin} {
         # call the func whose address is already in rtna register.
         uses_reg rtna
-        parse {swapra = nop}        
+        parse_count {swapra = nop}        
     }
 set obsolete {    
     proc rtn {lin} {
         auto_pop $lin
-        parse {swapra = nop}
+        parse_count {swapra = nop}
     }
 }
     proc func {lin label} {
@@ -294,15 +294,18 @@ set obsolete {
         set ::multi_line {}
         set ::func {}
         set parent_lnum $::lnum
-        set ::lnum 0
+        set ::lnum 1
+        set parent_fn $::src_fn
+        set ::src_fn $fn
         start_file_handler
-        parse_lines $asm_lines 
+        parse_count_list $asm_lines 
         end_file_handler
         cd $parent_dir
         set ::ml_state {}
         set ::multi_line {}
         set ::func {}
         set ::lnum $parent_lnum
+        set ::src_fn $parent_fn
     }
 
     proc start_file_handler {} {

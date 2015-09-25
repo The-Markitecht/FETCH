@@ -42,7 +42,7 @@ proc compile_class {class_fn} {
         set bc [next]
         set dic [dict get $::java::bytecodes $bc]
         console [format %04x=%02x=%s $::java::jip $bc [dict get $dic name]]
-        parse_lines [dict get $dic body] 
+        parse_count_list [dict get $dic body] 
     }
     close $::java::class_file
 }
