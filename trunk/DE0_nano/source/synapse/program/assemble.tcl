@@ -260,7 +260,7 @@ proc parse_line {lin} {
                 set cmd "[lindex $tokens 0]_" ;# append an underscore to the name to prevent clashes with Tcl keywords.
                 if {[llength [info commands "::asm::$cmd"]] > 0} {
                     # run tcl command, like a super-powered macro.  insert the whole source line as the first argument.
-                    namespace eval ::asm "$cmd {} [string range $::multi_line [string length $cmd] end]"
+                    namespace eval ::asm "$cmd {$::multi_line} [string range $::multi_line [string length $cmd] end]"
                 } else {
                     error "macro not found: $cmd"
                 }

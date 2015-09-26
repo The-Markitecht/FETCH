@@ -3,18 +3,12 @@
 
 namespace eval ::asm {
 
-    # proc read_expression_arg {lin  reg  valu} {
-        # if {[llength $valu] > 1} {
-            # # parenthesized expression.  wrap it for evaluation later.
-            # set a "( $a )"
-        # }
-    # }
-
-    proc if_core {lin  positive  condition  if_block  else_word  else_block} {
+    proc if_core {block  positive  condition  if_block  else_word  else_block} {
         # low-level implementation of structured branching implemented by 'if' macros.
         # this proc is not normally called directly from assembly code.
         # pass positive = 1 to execute the if_block when the condition succeeds.
         
+        # interpret branching conditions.
         set serial $::ipr
         if {$else_word ne {} && $else_word ne {else}} {
             error "syntax error in if/else block"
@@ -28,17 +22,30 @@ namespace eval ::asm {
         set branch br
         if {$positive} {set branch bn}
         set end_jmp "jmp :end_$serial"
-        if {$else_block eq {}} {set end_jmp {}}        
-#patch: somehow line numbering is wrong here.  e.g. plan_run.asm 48 to 50 region.        
+        if {$else_block eq {}} {set end_jmp {}}  
+        
+        # retreat line numbers to the start of the if block.
+        set if_block_lines [split $block \n]
+        set if_block_line_cnt [llength $if_block_lines]
+        set old_lnum $::lnum
+        incr ::lnum -$if_block_line_cnt
+        incr ::lnum 2 ;# allow for the extra newline at the end of block.
+
+        # parse conditional blocks, adjusting line numbers as needed.
         parse_count "$branch $condition :else_$serial"
-        parse_count_retreat $if_block
-        parse $end_jmp
+        incr ::lnum -1 ;# allow for the newline at the start of if_block.
+        parse_count $if_block
+        parse_count $end_jmp
         set_label else_$serial
-        parse_count_retreat $else_block
+        incr ::lnum -1 ;# allow for the newline at the start of else_block.
+        parse_count $else_block
         set_label end_$serial
+        
+        # restore old line numbering, to contain the damage in case the arithmetic here is off.
+        set ::lnum $old_lnum
     }
 
-    proc if_ {lin  a  operator  b  if_block  {else_word {}}  {else_block {}} } {
+    proc if_ {block  a  operator  b  if_block  {else_word {}}  {else_block {}} } {
         if {[llength $a] > 1} {set a "( $a )"}
         if {[llength $b] > 1} {set b "( $b )"}
         parse "
@@ -47,30 +54,48 @@ namespace eval ::asm {
         "
         #patch: optimize for a=a already or b=b already.  a=b with b=a is the same case, but with opposite directional operators.
         #patch: optimize for zero comparison on a, i, x in either position.
-        if_core  $lin  1  $operator  $if_block  $else_word  $else_block  
+        if_core  $block  1  $operator  $if_block  $else_word  $else_block  
     }
     
-    proc if_all_clear_ {lin  reg  mask  if_block  {else_word {}}  {else_block {}} } {
+    proc if_all_clear_ {block  reg  mask  if_block  {else_word {}}  {else_block {}} } {
         # execute the if_block if all bits are zero in the given register,
         # masked by the given mask.
         parse "
             a = $reg
             b = ( $mask )
         "
-        if_core  $lin  1  and0z  $if_block  $else_word  $else_block  
+        if_core  $block  1  and0z  $if_block  $else_word  $else_block  
     }
 
-    proc if_any_set_ {lin  reg  mask  if_block  {else_word {}}  {else_block {}} } {
+    proc if_any_set_ {block  reg  mask  if_block  {else_word {}}  {else_block {}} } {
         # execute the if_block if any bits are one in the given register,
         # masked by the given mask.
         parse "
             a = $reg
             b = ( $mask )
         "
-        if_core  $lin  0  and0z  $if_block  $else_word  $else_block  
+        if_core  $block  0  and0z  $if_block  $else_word  $else_block  
     }
     
-    proc for_ {lin  initialization  continuation  step_word  step_size  body  args} {        
+    proc if_test_cases {lin} {
+        parse {
+            if 2 lt 4 {
+                putasc "1"
+            }    
+            if 2 gt 4 {
+                putasc "?"
+            } else {
+                putasc "2"
+                if 5 gt 4 {
+                    putasc "3"
+                } else {
+                    putasc "?"
+                }
+            }    
+        }
+    }
+    
+    proc for_ {block  initialization  continuation  step_word  step_size  body  args} {        
         # structured looping implemented by 'for' macro.
         
         set serial $::ipr
@@ -142,27 +167,6 @@ namespace eval ::asm {
         parse ":end_$serial"
     }
 
-    # patch: need to test source file line numbering subsequent to 'if' and 'for' blocks, and nested ones.
-    # patch: might need to reduce ::lnum back to the start of the block prior to parse_lines for a block body.  that way the block body itself outputs accurate line numbers.
-
-    proc if_test_cases {lin} {
-        parse {
-            if 2 lt 4 {
-                putasc "1"
-            }    
-            if 2 gt 4 {
-                putasc "?"
-            } else {
-                putasc "2"
-                if 5 gt 4 {
-                    putasc "3"
-                } else {
-                    putasc "?"
-                }
-            }    
-        }
-    }
-    
     proc for_test_cases {lin} {
         parse {
             // best design.
@@ -234,11 +238,11 @@ namespace eval ::asm {
         
     }
 
-    proc func_ {lin label args} {
+    proc func_ {block label args} {
         # memorize function's label
         set label [string trim $label {: }]
         set_label $label
-        emit_comment "// ######## $lin // = 0x[format %04x $::ipr]"
+        emit_comment "// ######## func $label // = 0x[format %04x $::ipr]"
         set ::func $label
 
         # scan the function's formal parameters
@@ -276,11 +280,11 @@ namespace eval ::asm {
         if { $::asm_pass == $::pass(func) } {
             dict set ::func_regs $label [list]
         }
-        auto_push $lin
+        auto_push "func $label"
         incr ::lnum ;# account for the line occupied by func header.
         set body [lindex $args end]
         parse_count_retreat $body
-        auto_pop $lin
+        auto_pop "func $label"
         parse {swapra = nop}
 #patch: avoid the implicit rtn at the end of a function if it was the last line of the body.  that often happens when rtn accepts a value.  the rule must be sensitive to labels too, since they'd often appear at the end, and would cause bugs if not honored with their own rtn.
         incr ::lnum -1
