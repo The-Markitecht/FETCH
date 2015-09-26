@@ -29,6 +29,7 @@ namespace eval ::asm {
         if {$positive} {set branch bn}
         set end_jmp "jmp :end_$serial"
         if {$else_block eq {}} {set end_jmp {}}        
+#patch: somehow line numbering is wrong here.  e.g. plan_run.asm 48 to 50 region.        
         parse_count "$branch $condition :else_$serial"
         parse_count_retreat $if_block
         parse $end_jmp
@@ -276,10 +277,13 @@ namespace eval ::asm {
             dict set ::func_regs $label [list]
         }
         auto_push $lin
+        incr ::lnum ;# account for the line occupied by func header.
         set body [lindex $args end]
         parse_count_retreat $body
-        rtn $lin
+        auto_pop $lin
+        parse {swapra = nop}
 #patch: avoid the implicit rtn at the end of a function if it was the last line of the body.  that often happens when rtn accepts a value.  the rule must be sensitive to labels too, since they'd often appear at the end, and would cause bugs if not honored with their own rtn.
+        incr ::lnum -1
         set ::func {}
         
         # forget temporary aliases.  they are now out-of-scope.
@@ -297,7 +301,7 @@ namespace eval ::asm {
                 if {$fdir eq {out}} {
                     parse "$fname = $return_value"
                     auto_pop $lin
-                    parse_count {swapra = nop}
+                    parse_count_retreat {swapra = nop}
                     return
                 }
             }
@@ -305,7 +309,7 @@ namespace eval ::asm {
         }        
         # no return value given
         auto_pop $lin
-        parse_count {swapra = nop}
+        parse_count_retreat {swapra = nop}
     }
     
     proc callx {lin label args} {
