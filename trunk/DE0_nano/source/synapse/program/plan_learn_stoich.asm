@@ -26,8 +26,8 @@ setvar      lrns_ticks_per_o2_trim   (int(200 / $plan_tick_ms))
 ram_define  ram_lrns_ticks_remain
     
 // trim puff length as needed.
-setvar      lrns_puff_step_up_us     1000
-setvar      lrns_puff_step_down_us   (0xffff - 100)
+setvar      lrns_puff_step_up_us     600
+setvar      lrns_puff_step_down_us   (0xffff - 32)
 setvar      lrns_puff_max_us         10000
 setvar      lrns_puff_min_us         2000
 

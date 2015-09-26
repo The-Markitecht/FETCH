@@ -1873,7 +1873,7 @@ addr == 16'h4ce ? 16'he405 :  // <0083> bn lt :else_1230
 addr == 16'h4cf ? 16'h04d2 :  // <0083> "
 
 addr == 16'h4d0 ? 16'h0fa0 :  // <0084> j = $lrns_puff_step_up_us
-addr == 16'h4d1 ? 16'h03e8 :  // <0084> "
+addr == 16'h4d1 ? 16'h0258 :  // <0084> "
 
 addr == 16'h4d2 ? 16'h23a0 :  // <0086> pa = :lrns_trim_up_msg
 addr == 16'h4d3 ? 16'h049c :  // <0086> "
@@ -1906,7 +1906,7 @@ addr == 16'h4e3 ? 16'he406 :  // <0094> bn gt :else_1251
 addr == 16'h4e4 ? 16'h04e7 :  // <0094> "
 
 addr == 16'h4e5 ? 16'h0fa0 :  // <0095> j = $lrns_puff_step_down_us
-addr == 16'h4e6 ? 16'hff9b :  // <0095> "
+addr == 16'h4e6 ? 16'hffdf :  // <0095> "
 
 addr == 16'h4e7 ? 16'h23a0 :  // <0097> pa = :lrns_trim_down_msg
 addr == 16'h4e8 ? 16'h049e :  // <0097> "
@@ -2287,8 +2287,8 @@ addr == 16'h5f3 ? 16'h0a00 :  // <0222> i = 0
 // :loop_1523 // = 0x05f4
 
 addr == 16'h5f4 ? 16'h0002 :  // <0218> a = i
-addr == 16'h5f5 ? 16'h07a0 :  // <0219> b = 3000
-addr == 16'h5f6 ? 16'h0bb8 :  // <0219> "
+addr == 16'h5f5 ? 16'h07a0 :  // <0219> b = 0x960
+addr == 16'h5f6 ? 16'h0960 :  // <0219> "
 
 addr == 16'h5f7 ? 16'h0351 :  // <0220> a = a<<1
 addr == 16'h5f8 ? 16'h3001 :  // <0220> push b // push b
