@@ -18,6 +18,8 @@ setvar      num_rpm_cells           13
 
 ram_define  ram_smap          ($num_rpm_cells * 2)
 setvar      lrns_map_step     200      
+
+ram_define  ram_last_learn_second
     
 // trim puff length by o2 sensor every 200 ms.
 setvar      lrns_ticks_per_o2_trim   (int(200 / $plan_tick_ms))
@@ -39,28 +41,12 @@ ram_define  ram_o2_been_lean
 setvar      o2_lean_thresh_adc      450
 setvar      o2_rich_thresh_adc      700
 
-func find_rpm_cell {rpm in pa} {cell out pa} {
-    i = 1
-    b = 0xffff
-    br eq :found
-    :next_cell
-        j = :rpm_cells
-        fetch a from i+j
-        b = rpm
-        br gt :found
-        j = 1
-        i = i+j
-    jmp :next_cell
-    :found
-    j = -1
-    rtn i+j
-}
-    
 :plan_name_learn_stoich
     "LN\x0"
         
 func init_plan_learn_stoich {
     // set up the learn_stoich plan.
+    ram $ram_lrns_ticks_remain = $lrns_ticks_per_o2_trim
     
     // memorize state.
     ram $ram_plan_name = :plan_name_learn_stoich
@@ -72,6 +58,10 @@ func init_plan_learn_stoich {
 func destroy_plan_learn_stoich {
 }
         
+:lrns_trim_up_msg
+    "trR\x0"
+:lrns_trim_down_msg
+    "trL\x0"
 
 func puff_len_learn_stoich {
     ram i = $ram_lrns_ticks_remain
@@ -92,6 +82,7 @@ func puff_len_learn_stoich {
             if i lt $lrns_puff_max_us {
                 j = $lrns_puff_step_up_us
             }
+            callx  set_text_flag  :lrns_trim_up_msg
             if g6 eq $o2_state_rich {
                 // o2 state just switched to lean.  adjust map.
                 callx  learn_smap
@@ -101,6 +92,7 @@ func puff_len_learn_stoich {
             if i gt $lrns_puff_min_us {
                 j = $lrns_puff_step_down_us
             }
+            callx  set_text_flag  :lrns_trim_down_msg
         }
         ram $ram_next_puff_len_us = i+j
     }        
@@ -117,6 +109,7 @@ func learn_smap {
         // let g6 = map cell num.  x = map puff len.  i = observed stoich puff len.
         ram pa = $ram_avg_rpm
         callx  find_rpm_cell  pa  g6
+        a = g6
         struct_read $ram_smap
         x = b
         ram i = $ram_next_puff_len_us
@@ -126,7 +119,7 @@ func learn_smap {
             a = g6
             b = x+y
             struct_write $ram_smap
-            callx  set_text_flag  :lrns_enrich_msg
+            callx  set_text_flag  :lrns_lean_msg
         }
         y = $lrns_map_step
         if x+y lt i {
@@ -134,10 +127,22 @@ func learn_smap {
             a = g6
             b = x+y
             struct_write $ram_smap
-            callx  set_text_flag  :lrns_lean_msg
+            callx  set_text_flag  :lrns_enrich_msg
+        }
+        
+        // dump smap if we haven't done so lately.
+        ram a = $ram_last_learn_second
+        ram b = $ram_seconds_cnt
+        if a ne b {
+            callx  dump_smap_cmd
         }
     }
 }
+
+:o2_rich_msg
+    "o2R\x0"
+:o2_lean_msg
+    "o2L\x0"
 
 func interpret_o2 {
     ram a = $ram_o2_state
@@ -149,6 +154,7 @@ func interpret_o2 {
         if a gt b {
             ram $ram_o2_state = $o2_state_lean
             ram $ram_o2_been_lean = 1
+            // callx  set_text_flag  :o2_lean_msg            
         }
     }
     if a ne $o2_state_rich {
@@ -156,9 +162,10 @@ func interpret_o2 {
         a = $o2_adc_channel
         struct_read $ram_last_adc_data
         a = $o2_rich_thresh_adc
-        if a gt b {
+        if a lt b {
             ram $ram_o2_state = $o2_state_rich
             ram $ram_o2_been_rich = 1
+            // callx  set_text_flag  :o2_rich_msg            
         }
     }
 }
@@ -173,6 +180,40 @@ func leave_learn_stoich {
     callx  check_engine_stop  pa
 }
 
+func find_rpm_cell {rpm in pa} {cell out pa} {
+    i = 1
+    a = rpm
+    b = 0xffff
+    br eq :found
+    :next_cell
+        j = :rpm_cells
+        fetch a from i+j
+        b = rpm
+        br gt :found
+        j = 1
+        i = i+j
+    jmp :next_cell
+    :found
+    j = -1
+    rtn i+j
+}
+    
+func dump_smap_cmd {
+    ram pa = $ram_avg_rpm
+    callx  find_rpm_cell  pa  y
+    for {x = 0} {x lt $num_rpm_cells} step 1 {
+        a = x
+        struct_read $ram_smap
+        a = b
+        call put4x
+        if x eq y {
+            putasc "<"
+        }
+        putasc " "
+    }
+    puteol
+}
+    
 func clear_smap_cmd {
     for {i = 0} {i lt $num_rpm_cells} step j = 1 {
         a = i

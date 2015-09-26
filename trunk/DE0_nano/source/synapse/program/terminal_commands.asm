@@ -14,8 +14,10 @@ ram_define      ram_terminal_connected
         ([label set_plan_run_cmd])
     "   plln"
         ([label set_plan_learn_cmd])
-    "clstmap"
+    " clsmap"
         ([label clear_smap_cmd])
+    "   smap"
+        ([label dump_smap_cmd])
     "\x0\x0"
 
 
