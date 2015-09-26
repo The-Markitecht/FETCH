@@ -125,12 +125,13 @@ proc set_label {name} {
 
 proc uses_reg {reg} {
     # memorize use of a given register by the current function.
+    #puts "uses_reg $reg"
     if { ! [dict exists $::adest rstk]} return ;# only memorize if program includes a return stack.
     if { $::asm_pass != $::pass(func) } return ;# only memorize on function examination pass.
     if {[string length $::func] > 0} {
         set reg [string trim $reg]
         if {[lsearch -exact [dict get $::func_regs $::func] $reg] >= 0} return ;# already memorized.
-        console "func $::func uses_reg $reg"
+        #puts "func $::func uses_reg $reg"
         dict lappend ::func_regs $::func $reg
     }
 }
@@ -416,7 +417,7 @@ proc parse_count_retreat {assembly_text} {
 
 proc parse_count_list {asm_lines} {
     foreach lin $asm_lines {
-        puts "$::lnum : $lin"
+        #puts "$::lnum : $lin"
         set ::asm_line $lin
         parse_line $lin
         incr ::lnum

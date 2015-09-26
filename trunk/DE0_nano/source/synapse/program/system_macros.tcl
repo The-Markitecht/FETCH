@@ -102,6 +102,7 @@ namespace eval ::asm {
     proc call {lin label} {
         # this proc can't use parse{}.  that causes 2 words to be emitted instead
         # of 3 when the destination is short.  then somehow the Synapse goes berserk.
+
         uses_reg rtna
         emit_word [pack [dest rtna] [src _imm16_]] $lin
         emit_word [label $label] \"
@@ -175,7 +176,7 @@ set obsolete {
                 }
             }
         }
-        console "stackable $::stackable addresses $sa used $used intersection $r"
+        #puts "pass $::asm_pass func $func_name stackable $::stackable addresses $sa used $used intersection $r"
         return [lsort -unique $order -command push_order $r]
     }
 

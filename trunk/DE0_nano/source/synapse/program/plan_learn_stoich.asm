@@ -16,7 +16,7 @@ setvar      num_rpm_cells           13
     7276
     0xffff
 
-ram_define  smap              ($num_rpm_cells * 2)
+ram_define  ram_smap          ($num_rpm_cells * 2)
 setvar      lrns_map_step     200      
     
 // trim puff length by o2 sensor every 200 ms.
@@ -85,7 +85,7 @@ func puff_len_learn_stoich {
         ram i = $ram_next_puff_len_us
         j = 0
         ram g6 = $ram_o2_state
-        call :interpret_o2
+        callx  interpret_o2
         ram g7 = $ram_o2_state        
         if g7 eq $o2_state_lean {
             // sensing a lean condition.  trim up to enrich.
@@ -115,10 +115,9 @@ func learn_smap {
     ram a = $ram_rpm_valid
     if a eq 1 {
         // let g6 = map cell num.  x = map puff len.  i = observed stoich puff len.
-        ram a = $ram_avg_rpm
-        call :find_rpm_cell
-        g6 = a
-        struct_read $smap
+        ram pa = $ram_avg_rpm
+        callx  find_rpm_cell  pa  g6
+        struct_read $ram_smap
         x = b
         ram i = $ram_next_puff_len_us
         y = (0xffff - $lrns_map_step + 1)
@@ -126,16 +125,15 @@ func learn_smap {
             // map is richer than observed stoich.  lean the map 1 step.
             a = g6
             b = x+y
-            struct_write $smap
-            a = :lrns_enrich_msg
-            call :set_text_flag
+            struct_write $ram_smap
+            callx  set_text_flag  :lrns_enrich_msg
         }
         y = $lrns_map_step
         if x+y lt i {
             // map is leaner than observed stoich.  rich the map 1 step.
             a = g6
             b = x+y
-            struct_write $smap
+            struct_write $ram_smap
             callx  set_text_flag  :lrns_lean_msg
         }
     }
@@ -172,13 +170,13 @@ func init_o2_state {
 }
 
 func leave_learn_stoich {
-    callx  check_engine_stop
+    callx  check_engine_stop  pa
 }
 
 func clear_smap_cmd {
     for {i = 0} {i lt $num_rpm_cells} step j = 1 {
         a = i
         b = 3000
-        struct_write $smap
+        struct_write $ram_smap
     }
 }

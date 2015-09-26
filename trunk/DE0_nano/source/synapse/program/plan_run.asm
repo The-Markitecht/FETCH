@@ -56,6 +56,6 @@ func puff_len_run {
 }
 
 func leave_run {
-    callx  check_engine_stop
+    callx  check_engine_stop  pa
 }
 

@@ -216,10 +216,8 @@
     // clear the first 64k of RAM.
     callx  clear_ram_page  0
 
-formal_parms_test_cases    
-    
     // init fuel injection.
-    call :init_plan_stop    
+    callx  init_plan_stop    
     
     // power up FTDI USB board, and init any other special board control functions.
     board_ctrl = $ftdi_power_mask
@@ -399,8 +397,7 @@ event mstimer2_handler
     call_indirect
     ram b = $ram_transition_func
     if x ne b {
-        a = :plan_transition_msg
-        call :set_text_flag        
+        callx  set_text_flag  :plan_transition_msg
     }
     // call the puff length function for the current plan.
     // this is done last, so if a plan transition just happened, its new puff length will init here.
@@ -410,8 +407,7 @@ event mstimer2_handler
     // start another o2 reading every plan tick.
     ram a = $ram_adc_chn_pending
     if a eq 0 {
-        a = $o2_adc_channel
-        call :begin_adc_conversion
+        callx  begin_adc_conversion  $o2_adc_channel
     }        
 end_event
     
@@ -690,7 +686,7 @@ func check_power_down {
 
 :power_down 
     // this code never returns.
-    call :save_persistent_data
+    callx  save_persistent_data
     power_duty = $power_duty_opening
     error_halt_code $err_power_down
 
@@ -704,7 +700,7 @@ func check_communication {
         a = a+b
         ram $ram_ftdi_downtime_remain_sec = a
         if a eq 0 {
-            call :ftdi_power_on
+            callx  ftdi_power_on
         }
     }
 
@@ -712,9 +708,9 @@ func check_communication {
     ram b = $ram_comm_restart_at_min 
     if a eq b {
         // comm restart is required.
-        call :postpone_comm_restart
+        callx  postpone_comm_restart
         ram $ram_ftdi_downtime_remain_sec = $ftdi_down_period_sec
-        call :ftdi_power_off
+        callx  ftdi_power_off
     }
 }
 
@@ -815,7 +811,7 @@ func check_engine_stop {did_stop out pa} {
         if a eq 0 {
             ram rtna = $ram_destroy_plan_func
             call_indirect
-            call :init_plan_stop
+            callx  init_plan_stop
             rtn 1
         }
     }

@@ -317,7 +317,12 @@ namespace eval ::asm {
     }
     
     proc callx {lin label args} {
-        if {$::asm_pass < $::pass(calls)} return
+        if {$::asm_pass < $::pass(calls)} {
+            # do only the old-style call on the earliest passes.  that includes a "uses_reg rtna" which is important
+            # because the earliest passes are where the used registers are memorized.
+            call $lin $label
+            return
+        }
         
         # parse actual arguments & match to formal parameters.
         if {[llength $args] != [llength $::fparms($label)]} {
