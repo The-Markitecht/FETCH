@@ -112,7 +112,7 @@ namespace CVtool
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            port = new SerialPort("COM21", 115200, Parity.None, 8, StopBits.One);
+            port = new SerialPort("COM" + Environment.GetCommandLineArgs()[1], 115200, Parity.None, 8, StopBits.One);
             port.WriteTimeout = 500;
             port.ReadTimeout = 1;
             port.ReadBufferSize = 128;
@@ -136,6 +136,16 @@ namespace CVtool
             {
                 //src_txt.ScrollToVerticalOffset()
                 //src_txt.BringIntoView()
+/*patch
+rename line_nums to mif_line_nums.
+populate it with a line (document block) counter instead of the <> source line markers.
+instead memorize those in one field of a new collection of source reference objects.
+each ref includes a pointer to the file.
+populate refs according to a table of source files used, which is dumped at the bottom of the mif.
+number each of those.  mention one of those file numbers with every <> source line number.                
+use refs to open & show actual source in another pane next to the mif.
+rename some uses of "src" as "mif" instead.
+*/
                 UInt16 lnum = line_nums[addr];
                 Paragraph lin = lines[lnum];
                 src_txt.Focus();
