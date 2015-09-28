@@ -18,6 +18,14 @@ ram_define      ram_terminal_connected
         ([label clear_smap_cmd])
     "   smap"
         ([label dump_smap_cmd])
+    "      ,"
+        ([label trim_lean_cmd])
+    "      ."
+        ([label trim_rich_cmd])
+    "      \["
+        ([label trim_2lean_cmd])
+    "      \]"
+        ([label trim_2rich_cmd])
     "\x0\x0"
 
 

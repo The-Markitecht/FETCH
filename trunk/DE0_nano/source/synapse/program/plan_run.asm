@@ -1,21 +1,56 @@
 :plan_name_run
     "RN\x0"
 
-// trim puff length by o2 sensor every 200 ms.
-setvar      run_ticks_per_o2_trim   (int(200 / $plan_tick_ms))
-ram_define  ram_run_ticks_remain
-    
-// trim puff length as needed, by about 1000 us per second.
-setvar      run_puff_step_up_us     200
-setvar      run_puff_step_down_us   (0xffff - 100)
 setvar      run_puff_max_us         10000
 setvar      run_puff_min_us         2000
+        
+ram_define  run_manual_trim_thou         
+    // max trim is about 200 thou prior to multiplier overflow.
+    // or more if the smap puff is below 8000.
+    // trim resolution is 4 thou due to multiplier.
+    // smap resolution for trimming is 16 us.
+    // final trim enrichment us resolution is 16 us.
+setvar      run_manual_trim_step_thou   4
+    
+func trim_lean_cmd {
+    ram a = $run_manual_trim_thou
+    if a = 0 {
+    } else {
+        b = ($run_manual_trim_step_thou ^ 0xffff + 1)
+        ram $run_manual_trim_thou = a+b
+    }
+}
 
-setvar      o2_lean_thresh_adc      588
-        
-        
+func trim_rich_cmd {
+    ram a = $run_manual_trim_thou
+    if a gt 800 {
+    } else {
+        b = $run_manual_trim_step_thou
+        ram $run_manual_trim_thou = a+b
+    }
+}
+
+func trim_2lean_cmd {
+    ram a = $run_manual_trim_thou
+    if a = 0 {
+    } else {
+        b = (($run_manual_trim_step_thou << 3) ^ 0xffff + 1)
+        ram $run_manual_trim_thou = a+b
+    }
+}
+
+func trim_2rich_cmd {
+    ram a = $run_manual_trim_thou
+    if a gt 800 {
+    } else {
+        b = ($run_manual_trim_step_thou << 3)
+        ram $run_manual_trim_thou = a+b
+    }
+}
+
 func init_plan_run {
     // set up the run plan.
+    ram $run_manual_trim_thou = 0
     
     // memorize state.
     ram $ram_plan_name = :plan_name_run
@@ -28,31 +63,27 @@ func destroy_plan_run {
 }
 
 func puff_len_run {
-    ram i = $ram_run_ticks_remain
-    if i gt 0 {
-        j = -1
-        ram $ram_run_ticks_remain = i+j
-    } else {
-        ram $ram_run_ticks_remain = $run_ticks_per_o2_trim
+    ram a = $ram_rpm_valid
+    if a eq 1 {
+        // read smap puff into ga
+        ram pa = $ram_avg_rpm
+        callx  find_rpm_cell  pa  a
+        struct_read $ram_smap
+        ga = b
         
-        // i = old puff length, j = puff length increment.
-        ram i = $ram_next_puff_len_us
-        j = 0
-        a = $o2_adc_channel
-        struct_read $ram_last_adc_data
-        if b lt $o2_lean_thresh_adc {
-            // sensing a lean condition.  trim up to enrich.
-            if i lt $run_puff_max_us {
-                j = $run_puff_step_up_us
-            }
-        } else {
-            // sensing a rich condition.  trim down to lean it out.
-            if i gt $run_puff_min_us {
-                j = $run_puff_step_down_us
-            }
-        }
-        ram $ram_next_puff_len_us = i+j
-    }    
+        // calculate manual enrichment in us.  apply a total of 10 bits of right-shift to prevent overflow.
+        ram a = $run_manual_trim_thou
+        a = a>>1
+        b = a>>1
+        a = ga
+        a = a>>4
+        call  multiply        
+        a = a>>4
+        
+        // add enrichment to smap puff.
+        b = ga
+        ram $ram_next_puff_len_us = a+b
+    }
 }
 
 func leave_run {

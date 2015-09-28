@@ -206,8 +206,8 @@
     include plan_stop.asm
     include plan_crank.asm
     include plan_warmup.asm
-    include plan_run.asm
     include plan_learn_stoich.asm
+    include plan_run.asm
         
     // #########################################################################
     :main  
@@ -783,12 +783,19 @@ func report_text_flags {
     
 :plan_msg
     " pl=\x0"
+:manual_trim_msg
+    " mt=\x0"
 
 func report_plan {
     a = :plan_msg
     call :print_nt
     ram a = $ram_plan_name
     call :print_nt
+    
+    a = :manual_trim_msg
+    call :print_nt
+    ram a = $run_manual_trim_thou
+    call :put4x
 }
     
 func jf_to_rpm {jiffies in pa} {rpm out pa} {
