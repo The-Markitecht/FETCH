@@ -214,6 +214,16 @@ func dump_smap_cmd {
     puteol
 }
     
+func load_smap_cmd {
+    for {i = 0} {i lt $num_rpm_cells} step j = 1 {
+        call  get4x
+        b = a
+        a = i
+        struct_write $ram_smap
+        getchar
+    }
+}
+
 func clear_smap_cmd {
     for {i = 0} {i lt $num_rpm_cells} step j = 1 {
         a = i
