@@ -111,6 +111,7 @@
     ram_define  ram_adc_chn_pending
     ram_define  ram_adc_junk
     setvar      anmux_adc_channel       7
+    setvar      tps_adc_channel         6
     setvar      o2_adc_channel          5
     ram_define  ram_dial_setting              
     
@@ -390,6 +391,16 @@ event mstimer2_handler
     // restart timer.
     mstimer2 = $plan_tick_ms
         
+    // start another TPS reading prior to every plan tick.
+    // this will also invoke a o2 reading.  that's done last of all prior to plan_tick,
+    // so there's minimal latency between that and the plan_tick utilizing it.
+    ram a = $ram_adc_chn_pending
+    if a eq 0 {
+        callx  begin_adc_conversion  $tps_adc_channel
+    }        
+end_event
+
+func plan_tick {
     // poll the engine management plan.
     // call the transition function for the current plan.
     // this might perform a transition to some other plan, so it's done first.
@@ -404,13 +415,7 @@ event mstimer2_handler
     // this is done last, so if a plan transition just happened, its new puff length will init here.
     ram rtna = $ram_puff_len_func
     call_indirect
-    
-    // start another o2 reading every plan tick.
-    ram a = $ram_adc_chn_pending
-    if a eq 0 {
-        callx  begin_adc_conversion  $o2_adc_channel
-    }        
-end_event
+}
     
 event uart_rx_handler
     :again
@@ -465,6 +470,9 @@ end_event
 :o2_msg
     " o2=\x0"
     
+:tps_msg
+    " tp=\x0"
+    
 func start_daq_pass {
     // daq pass counter in RAM.  
     ram a = $ram_daq_pass_cnt
@@ -498,12 +506,19 @@ func start_daq_pass {
     a = b
     call :put4x    
     
+    a = :tps_msg
+    call :print_nt 
+    a = $tps_adc_channel
+    struct_read $ram_last_adc_data
+    a = b
+    call :put4x    
+    
     // start to acquire & report all anmux channels.
     a = ($anmux_num_channels - 1)
     call :anmux_set_chn
     mstimer1 = $anmux_settle_ms
     
-    // // observe MCU utilization.  this RAM variable can be seen by the debugger.
+    // observe MCU utilization.  this RAM variable can be seen by the debugger.
     ram $ram_mcu_usage_cnt = usage_count
     usage_count = 0    
 }
@@ -565,7 +580,14 @@ event spi_done_handler
     a = i
     b = spi_data
     struct_write $ram_last_adc_data
+    
+    // react to ADC reading.
+    if i eq $tps_adc_channel {
+        callx  begin_adc_conversion  $o2_adc_channel
+        event_return
+    }
     if i eq $o2_adc_channel {
+        callx  plan_tick
         event_return
     }
     if i eq $anmux_adc_channel {        

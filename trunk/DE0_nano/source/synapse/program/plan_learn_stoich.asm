@@ -16,13 +16,15 @@ setvar      num_rpm_cells           13
     7276
     0xffff
 
-ram_define  ram_smap          ($num_rpm_cells * 2)
-setvar      lrns_map_step     200      
+ram_define  ram_smap                ($num_rpm_cells * 2)
+setvar      lrns_map_step           200      
 
 ram_define  ram_last_learn_second
+
+ram_define  ram_tps_reference       ($num_rpm_cells * 2)
     
 // trim puff length by o2 sensor every 200 ms.
-setvar      lrns_ticks_per_o2_trim   (int(200 / $plan_tick_ms))
+setvar      lrns_ticks_per_o2_trim  (int(200 / $plan_tick_ms))
 ram_define  ram_lrns_ticks_remain
     
 // trim puff length as needed.
