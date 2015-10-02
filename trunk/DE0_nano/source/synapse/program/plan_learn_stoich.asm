@@ -21,6 +21,14 @@ setvar      lrns_map_step           200
 
 ram_define  ram_last_learn_second
 
+ram_define  ram_tps_state           
+    setvar  tps_state_closed        0
+    setvar  tps_state_nominal       1
+    setvar  tps_state_accel1        2
+    setvar  tps_state_accel2        3
+    setvar  tps_state_open          4
+setvar      tps_history_len         4
+ram_define  ram_tps_avg             
 ram_define  ram_tps_reference       ($num_rpm_cells * 2)
     
 // trim puff length by o2 sensor every 200 ms.

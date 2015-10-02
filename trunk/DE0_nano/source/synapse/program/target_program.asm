@@ -584,6 +584,7 @@ event spi_done_handler
     // react to ADC reading.
     if i eq $tps_adc_channel {
         callx  begin_adc_conversion  $o2_adc_channel
+        callx  interpret_tps
         event_return
     }
     if i eq $o2_adc_channel {
@@ -818,6 +819,40 @@ func report_plan {
     call :print_nt
     ram a = $run_manual_trim_thou
     call :put4x
+}
+    
+func interpret_tps {
+    a = $tps_adc_channel
+    struct_read $ram_last_adc_data
+    // memorize reading into slot 0 and shift history up 1 slot.  total up as we go.
+    ga = b
+    x = 0
+    for {i = 0} {i lt $tps_history_len} step j = 1 {
+        a = i
+        struct_read $tps_history
+        gb = b
+        y = b
+        x = x+y
+        a = i
+        b = ga
+        struct_write $tps_history
+        ga = gb
+    }
+    // memorize average.
+    a = x
+    a = a>>1
+    ga = a>>1
+    ram $ram_tps_avg = ga
+    // interpret state by comparing vs. reference table.
+    a = 0
+    struct_read $ram_tps_reference
+first test if it's within a percentage of idle (the first reference level).  assign tps_state_closed.
+first test if it's within a percentage of open (the last reference level).  assign tps_state_open.
+then for each add'l reference level:
+    test if it's within 1/16 of that level.  assign tps_state_nominal. 
+    test if it's within 1/8 of that level.  assign tps_state_accel1. 
+    test if it's within 1/2 of that level.  assign tps_state_accel2.    
+all percentages are relative to the reference level.    
 }
     
 func jf_to_rpm {jiffies in pa} {rpm out pa} {
