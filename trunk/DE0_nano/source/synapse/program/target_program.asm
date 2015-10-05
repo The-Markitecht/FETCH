@@ -844,15 +844,38 @@ func interpret_tps {
     ga = a>>1
     ram $ram_tps_avg = ga
     // interpret state by comparing vs. reference table.
+    // compare to idle reference.
     a = 0
     struct_read $ram_tps_reference
-first test if it's within a percentage of idle (the first reference level).  assign tps_state_closed.
-first test if it's within a percentage of open (the last reference level).  assign tps_state_open.
-then for each add'l reference level:
+    a = b
+    a = a>>4
+    b = a+b
+    ram a = $ram_tps_avg
+    if {a lt b} {
+        ram $ram_tps_state = $tps_state_closed
+        jmp :end
+    }
+    // compare to wide open reference.
+    a = ($num_tps_cells - 1)
+    struct_read $ram_tps_reference
+    x = b
+    a = b
+    a = a>>1
+    a = a>>1
+    b = 0xffff
+    y = xor
+    ram a = $ram_tps_avg    
+    if {a gt x+y} {
+        ram $ram_tps_state = $tps_state_open
+        jmp :end
+    }
+then for the current RPM's reference level:
     test if it's within 1/16 of that level.  assign tps_state_nominal. 
     test if it's within 1/8 of that level.  assign tps_state_accel1. 
     test if it's within 1/2 of that level.  assign tps_state_accel2.    
-all percentages are relative to the reference level.    
+all percentages are relative to the reference level.
+
+    :end
 }
     
 func jf_to_rpm {jiffies in pa} {rpm out pa} {
