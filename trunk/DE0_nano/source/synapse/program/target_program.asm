@@ -850,8 +850,7 @@ func interpret_tps {
     a = b
     a = a>>4
     b = a+b
-    ram a = $ram_tps_avg
-    if {a lt b} {
+    if {ga lt b} {
         ram $ram_tps_state = $tps_state_closed
         jmp :end
     }
@@ -864,17 +863,45 @@ func interpret_tps {
     a = a>>1
     b = 0xffff
     y = xor
-    ram a = $ram_tps_avg    
-    if {a gt x+y} {
+    if {ga gt x+y} {
         ram $ram_tps_state = $tps_state_open
         jmp :end
     }
-then for the current RPM's reference level:
-    test if it's within 1/16 of that level.  assign tps_state_nominal. 
-    test if it's within 1/8 of that level.  assign tps_state_accel1. 
-    test if it's within 1/2 of that level.  assign tps_state_accel2.    
-all percentages are relative to the reference level.
-
+    // compare to current RPM's reference position.
+    ram pa = $ram_avg_rpm
+    callx  find_rpm_cell  pa  a
+    struct_read $ram_tps_reference
+    x = b
+    // test if it's within 1/16 of reference. 
+    a = x
+    a = a>>4
+    a = a+b
+    if {a gt ga} {
+        ram $ram_tps_state = $tps_state_cruise
+        jmp :end
+    }
+    // test if it's within 1/8 of reference. 
+    a = x
+    a = a>>1
+    a = a>>1
+    a = a>>1
+    b = x
+    a = a+b
+    if {a gt ga} {
+        ram $ram_tps_state = $tps_state_accel1
+        jmp :end
+    }
+    // test if it's within 1/2 of reference. 
+    a = x
+    a = a>>1
+    b = x
+    a = a+b
+    if {a gt ga} {
+        ram $ram_tps_state = $tps_state_accel2
+        jmp :end
+    }
+    // in this case leave ram_tps_state as-is.
+    
     :end
 }
     

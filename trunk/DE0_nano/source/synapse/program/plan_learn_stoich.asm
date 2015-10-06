@@ -24,7 +24,7 @@ ram_define  ram_last_learn_second
 setvar      num_tps_cells           $num_rpm_cells
 ram_define  ram_tps_state           
     setvar  tps_state_closed        0
-    setvar  tps_state_nominal       1
+    setvar  tps_state_cruise       1
     setvar  tps_state_accel1        2
     setvar  tps_state_accel2        3
     setvar  tps_state_open          4
