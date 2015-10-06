@@ -817,7 +817,7 @@ func report_plan {
     
     a = :manual_trim_msg
     call :print_nt
-    ram a = $run_manual_trim_thou
+    ram a = $ram_run_manual_trim_thou
     call :put4x
 }
     
