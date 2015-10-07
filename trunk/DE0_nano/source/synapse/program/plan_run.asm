@@ -62,6 +62,11 @@ func init_plan_run {
 func destroy_plan_run {
 }
 
+:tps_accel2_msg
+    "tpsa2\x0"
+:tps_open_msg
+    "tpsop\x0"
+
 func puff_len_run {
     ram a = $ram_rpm_valid
     if a eq 1 {
@@ -86,8 +91,15 @@ func puff_len_run {
         ga = a+b
         
         // determine TPS enrichment for acceleration.
-        x = 0
-        ram a = $ram_tps_state
+        ga = 0
+        ram x = $ram_tps_state
+        if x eq $tps_state_accel2 {
+            callx  unique_text_flag  :tps_accel2_msg
+        }
+        if x eq $tps_state_open {
+            callx  unique_text_flag  :tps_open_msg
+        }
+        a = x
         struct_read $ram_tps_enrich_thou
         if 0 ne b {
             // calculate TPS enrichment in us.  apply a total of 10 bits of right-shift to 
