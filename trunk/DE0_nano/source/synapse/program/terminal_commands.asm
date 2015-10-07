@@ -20,6 +20,10 @@ ram_define      ram_terminal_connected
         ([label load_smap_cmd])
     " clsmap"
         ([label clear_smap_cmd])
+    " ldtpsr"
+        ([label load_tps_ref_cmd])
+    " ldtpse"
+        ([label load_tps_enrich_cmd])
     "      ,"
         ([label trim_lean_cmd])
     "      ."

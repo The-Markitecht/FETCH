@@ -100,7 +100,6 @@
         setvar      anmux_settle_ms         5
         setvar      anmux_retry_ms          2
         ram_define  ram_daq_pass_cnt        
-        ram_define  ram_daq_discard_cnt     
         ram_define  ram_last_anmux_data     ($anmux_num_channels * 2)
         setvar      anmux_engine_block_temp 2
         setvar      temp_ceiling_adc        0xff0
@@ -512,6 +511,10 @@ func start_daq_pass {
     struct_read $ram_last_adc_data
     a = b
     call :put4x    
+    putasc ","
+    ram a = $ram_tps_state
+    asc b = "0"
+    putchar a+b    
     
     // start to acquire & report all anmux channels.
     a = ($anmux_num_channels - 1)
@@ -785,13 +788,25 @@ func set_text_flag {flag_addr in pa} {
     ram $ram_next_tfp_idx = and
 }
 
+func unique_text_flag {flag_addr in pa} {
+    for {i = 0} {i lt $num_text_flag_pointers} step j = 1 {
+        a = i        
+        struct_read $ram_text_flag_pointers
+        if b eq flag_addr {
+            jmp :skip
+        }  
+    }
+    callx  set_text_flag  flag_addr
+:skip
+}
+
 :text_flags_msg
     " tf=\x0"
 
 func report_text_flags {
     a = :text_flags_msg
     call :print_nt
-    for {i = 0} {i lt $num_text_flag_pointers} step 1 {
+    for {i = 0} {i lt $num_text_flag_pointers} step j = 1 {
         a = i        
         struct_read $ram_text_flag_pointers
         if b ne 0 {
@@ -829,13 +844,13 @@ func interpret_tps {
     x = 0
     for {i = 0} {i lt $tps_history_len} step j = 1 {
         a = i
-        struct_read $tps_history
+        struct_read $ram_tps_history
         gb = b
         y = b
         x = x+y
         a = i
         b = ga
-        struct_write $tps_history
+        struct_write $ram_tps_history
         ga = gb
     }
     // memorize average.
@@ -850,7 +865,7 @@ func interpret_tps {
     a = b
     a = a>>4
     b = a+b
-    if {ga lt b} {
+    if ga lt b {
         ram $ram_tps_state = $tps_state_closed
         jmp :end
     }
@@ -863,7 +878,7 @@ func interpret_tps {
     a = a>>1
     b = 0xffff
     y = xor
-    if {ga gt x+y} {
+    if ga gt x+y {
         ram $ram_tps_state = $tps_state_open
         jmp :end
     }
@@ -876,7 +891,7 @@ func interpret_tps {
     a = x
     a = a>>4
     a = a+b
-    if {a gt ga} {
+    if a gt ga {
         ram $ram_tps_state = $tps_state_cruise
         jmp :end
     }
@@ -887,7 +902,7 @@ func interpret_tps {
     a = a>>1
     b = x
     a = a+b
-    if {a gt ga} {
+    if a gt ga {
         ram $ram_tps_state = $tps_state_accel1
         jmp :end
     }
@@ -896,7 +911,7 @@ func interpret_tps {
     a = a>>1
     b = x
     a = a+b
-    if {a gt ga} {
+    if a gt ga {
         ram $ram_tps_state = $tps_state_accel2
         jmp :end
     }

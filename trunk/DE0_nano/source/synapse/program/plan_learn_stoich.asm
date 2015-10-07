@@ -33,6 +33,7 @@ setvar      num_tps_states          5
 ram_define  ram_tps_enrich_thou     ($num_tps_states * 2)
 ram_define  ram_tps_avg             
 setvar      tps_history_len         4
+ram_define  ram_tps_history         ($tps_history_len * 2)    
     
 // trim puff length by o2 sensor every 200 ms.
 setvar      lrns_ticks_per_o2_trim  (int(200 / $plan_tick_ms))
@@ -212,19 +213,53 @@ func find_rpm_cell {rpm in pa} {cell out pa} {
 }
     
 func dump_smap_cmd {
+    puteol
     ram pa = $ram_avg_rpm
-    callx  find_rpm_cell  pa  y
-    for {x = 0} {x lt $num_rpm_cells} step 1 {
+    callx  find_rpm_cell  pa  pa
+    for {x = 0} {x lt $num_rpm_cells} step y = 1 {
         a = x
         struct_read $ram_smap
         a = b
         call put4x
-        if x eq y {
+        if x eq pa {
             putasc "<"
         }
         putasc " "
     }
     puteol
+    for {x = 0} {x lt $num_tps_cells} step y = 1 {
+        a = x
+        struct_read $ram_tps_reference
+        a = b
+        call put4x
+        if x eq pa {
+            putasc "<"
+        }
+        putasc " "
+    }
+    puteol
+    ram pa = $ram_tps_state
+    for {x = 0} {x lt $num_tps_states} step y = 1 {
+        a = x
+        struct_read $ram_tps_enrich_thou
+        a = b
+        call put4x
+        if x eq pa {
+            putasc "<"
+        }
+        putasc " "
+    }
+    puteol
+}
+
+func load_tps_enrich_cmd {
+    for {i = 0} {i lt $num_tps_states} step j = 1 {
+        call  get4x
+        b = a
+        a = i
+        struct_write $ram_tps_enrich_thou
+        getchar
+    }
 }
     
 func load_smap_cmd {
@@ -244,3 +279,14 @@ func clear_smap_cmd {
         struct_write $ram_smap
     }
 }
+    
+func load_tps_ref_cmd {
+    for {i = 0} {i lt $num_tps_cells} step j = 1 {
+        call  get4x
+        b = a
+        a = i
+        struct_write $ram_tps_reference
+        getchar
+    }
+}
+
