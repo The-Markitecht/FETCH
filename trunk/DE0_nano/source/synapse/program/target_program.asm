@@ -883,6 +883,8 @@ func interpret_tps {
         jmp :end
     }
     // compare to current RPM's reference position.
+//patch: rework this to compare to the next 2 tps reference cells instead of a fixed margin.
+// that way always prevents it from enriching while the tps is still within same ref cell.
     ram pa = $ram_avg_rpm
     callx  find_rpm_cell  pa  a
     struct_read $ram_tps_reference

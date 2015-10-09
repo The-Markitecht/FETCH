@@ -290,3 +290,10 @@ func load_tps_ref_cmd {
     }
 }
 
+func learn_tps_ref_cmd {
+    ram pa = $ram_avg_rpm
+    callx  find_rpm_cell  pa  a
+    ram b = $ram_tps_avg
+    struct_write $ram_tps_reference
+}
+
