@@ -2526,8 +2526,8 @@ addr == 16'h6a7 ? 16'h06aa :  // <0017> "
 addr == 16'h6a8 ? 16'he00f :  // <0019> jmp :end_1702
 addr == 16'h6a9 ? 16'h06b0 :  // <0019> "
 
-addr == 16'h6aa ? 16'h07a0 :  // <0020> b = ($run_manual_trim_step_thou ^ 0xffff + 1)
-addr == 16'h6ab ? 16'h10004 :  // <0020> "
+addr == 16'h6aa ? 16'h07a0 :  // <0020> b = (($run_manual_trim_step_thou ^ 0xffff) + 1)
+addr == 16'h6ab ? 16'hfffc :  // <0020> "
 addr == 16'h6ac ? 16'h5e00 :  // <0021> ram $ram_run_manual_trim_thou = a+b // av_ad_hi = 0
 addr == 16'h6ad ? 16'h62ec :  // <0021> ram $ram_run_manual_trim_thou = a+b // av_ad_lo = 236
 addr == 16'h6ae ? 16'hc800 :  // <0021> ram $ram_run_manual_trim_thou = a+b // av_write_data = a+b
@@ -2580,8 +2580,8 @@ addr == 16'h6c9 ? 16'h06cc :  // <0035> "
 addr == 16'h6ca ? 16'he00f :  // <0037> jmp :end_1736
 addr == 16'h6cb ? 16'h06d2 :  // <0037> "
 
-addr == 16'h6cc ? 16'h07a0 :  // <0038> b = (($run_manual_trim_step_thou << 3) ^ 0xffff + 1)
-addr == 16'h6cd ? 16'h10020 :  // <0038> "
+addr == 16'h6cc ? 16'h07a0 :  // <0038> b = ((($run_manual_trim_step_thou << 3) ^ 0xffff) + 1)
+addr == 16'h6cd ? 16'hffe0 :  // <0038> "
 addr == 16'h6ce ? 16'h5e00 :  // <0039> ram $ram_run_manual_trim_thou = a+b // av_ad_hi = 0
 addr == 16'h6cf ? 16'h62ec :  // <0039> ram $ram_run_manual_trim_thou = a+b // av_ad_lo = 236
 addr == 16'h6d0 ? 16'hc800 :  // <0039> ram $ram_run_manual_trim_thou = a+b // av_write_data = a+b

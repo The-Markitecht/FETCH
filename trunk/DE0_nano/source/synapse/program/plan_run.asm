@@ -16,7 +16,7 @@ func trim_lean_cmd {
     ram a = $ram_run_manual_trim_thou
     if a = 0 {
     } else {
-        b = ($run_manual_trim_step_thou ^ 0xffff + 1)
+        b = (($run_manual_trim_step_thou ^ 0xffff) + 1)
         ram $ram_run_manual_trim_thou = a+b
     }
 }
@@ -34,7 +34,7 @@ func trim_2lean_cmd {
     ram a = $ram_run_manual_trim_thou
     if a = 0 {
     } else {
-        b = (($run_manual_trim_step_thou << 3) ^ 0xffff + 1)
+        b = ((($run_manual_trim_step_thou << 3) ^ 0xffff) + 1)
         ram $ram_run_manual_trim_thou = a+b
     }
 }

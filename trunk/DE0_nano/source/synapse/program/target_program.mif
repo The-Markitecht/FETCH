@@ -2525,8 +2525,8 @@
     06a8 : e00f ; -- <0019> jmp :end_1702
     06a9 : 06b0 ; -- <0019> "
 
-    06aa : 07a0 ; -- <0020> b = ($run_manual_trim_step_thou ^ 0xffff + 1)
-    06ab : 10004 ; -- <0020> "
+    06aa : 07a0 ; -- <0020> b = (($run_manual_trim_step_thou ^ 0xffff) + 1)
+    06ab : fffc ; -- <0020> "
     06ac : 5e00 ; -- <0021> ram $ram_run_manual_trim_thou = a+b -- av_ad_hi = 0
     06ad : 62ec ; -- <0021> ram $ram_run_manual_trim_thou = a+b -- av_ad_lo = 236
     06ae : c800 ; -- <0021> ram $ram_run_manual_trim_thou = a+b -- av_write_data = a+b
@@ -2579,8 +2579,8 @@
     06ca : e00f ; -- <0037> jmp :end_1736
     06cb : 06d2 ; -- <0037> "
 
-    06cc : 07a0 ; -- <0038> b = (($run_manual_trim_step_thou << 3) ^ 0xffff + 1)
-    06cd : 10020 ; -- <0038> "
+    06cc : 07a0 ; -- <0038> b = ((($run_manual_trim_step_thou << 3) ^ 0xffff) + 1)
+    06cd : ffe0 ; -- <0038> "
     06ce : 5e00 ; -- <0039> ram $ram_run_manual_trim_thou = a+b -- av_ad_hi = 0
     06cf : 62ec ; -- <0039> ram $ram_run_manual_trim_thou = a+b -- av_ad_lo = 236
     06d0 : c800 ; -- <0039> ram $ram_run_manual_trim_thou = a+b -- av_write_data = a+b
