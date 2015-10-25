@@ -283,9 +283,12 @@ func clear_smap_cmd {
 func load_tps_ref_cmd {
     for {i = 0} {i lt $num_tps_cells} step j = 1 {
         call  get4x
+        ga = a
         b = a
         a = i
         struct_write $ram_tps_reference
+        a = ga
+        call put4x
         getchar
     }
 }

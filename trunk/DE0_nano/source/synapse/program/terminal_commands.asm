@@ -1,6 +1,7 @@
 
 ram_define      ram_terminal_connected
 
+// when commands share a common suffix, the longer command must come FIRST here.
 :cmd_table
     "  hello"
         ([label hello_cmd])
@@ -14,12 +15,12 @@ ram_define      ram_terminal_connected
         ([label set_plan_run_cmd])
     "   plln"
         ([label set_plan_learn_cmd])
-    "   smap"
-        ([label dump_smap_cmd])
     " ldsmap"
         ([label load_smap_cmd])
     " clsmap"
         ([label clear_smap_cmd])
+    "   smap"
+        ([label dump_smap_cmd])
     "   ltps"
         ([label learn_tps_ref_cmd])
     " ldtpsr"

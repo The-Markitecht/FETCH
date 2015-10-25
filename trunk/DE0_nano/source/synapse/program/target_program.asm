@@ -434,8 +434,12 @@ event uart_rx_overflow_handler
     error_halt_code $err_rx_overflow
 end_event
     
+:tx_overflow_msg
+    "TXO\x0"
+    
 event uart_tx_overflow_handler
-    error_halt_code $err_tx_overflow
+    // error_halt_code $err_tx_overflow
+    callx  set_text_flag  :tx_overflow_msg
 end_event    
     
 event key0_handler
@@ -510,6 +514,9 @@ func start_daq_pass {
     a = $tps_adc_channel
     struct_read $ram_last_adc_data
     a = b
+    call :put4x    
+    putasc ","
+    ram a = $ram_tps_avg
     call :put4x    
     putasc ","
     ram a = $ram_tps_state
@@ -839,6 +846,9 @@ func report_plan {
 func interpret_tps {
     a = $tps_adc_channel
     struct_read $ram_last_adc_data
+    // reverse the scale.
+    a = 0x0fff
+    b = xor
     // memorize reading into slot 0 and shift history up 1 slot.  total up as we go.
     ga = b
     x = 0
