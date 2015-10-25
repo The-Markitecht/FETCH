@@ -219,6 +219,25 @@
 
     // init fuel injection.
     callx  init_plan_stop    
+    for {i = 0} {i lt $num_rpm_cells} step j = 1 {
+        a = i
+        b = 0x0c08
+        struct_write $ram_smap
+    }
+    for {i = 0} {i lt $num_tps_cells} step j = 1 {
+        a = i
+        b = :default_tps_reference
+        fetch b from a+b
+        a = i
+        struct_write $ram_tps_reference
+    }
+    for {i = 0} {i lt $num_tps_states} step j = 1 {
+        a = i
+        b = :default_tps_enrich_thou
+        fetch b from a+b
+        a = i
+        struct_write $ram_tps_enrich_thou
+    }    
     
     // power up FTDI USB board, and init any other special board control functions.
     board_ctrl = $ftdi_power_mask

@@ -55,6 +55,29 @@ ram_define  ram_o2_been_lean
 setvar      o2_lean_thresh_adc      450
 setvar      o2_rich_thresh_adc      700
 
+// default maps
+:default_tps_reference
+    0x05f0
+    0x0680
+    0x0680
+    0x0680
+    0x0680
+    0x0680
+    0x0700
+    0x0780
+    0x0800
+    0x0880
+    0x0900
+    0x0980
+    0x0c80
+:default_tps_enrich_thou
+    0x0000
+    0x0000
+    0x0100
+    0x0200
+    0x1388
+
+
 :plan_name_learn_stoich
     "LN\x0"
         

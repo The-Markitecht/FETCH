@@ -91,7 +91,6 @@ func puff_len_run {
         ga = a+b
         
         // determine TPS enrichment for acceleration.
-        ga = 0
         ram x = $ram_tps_state
         if x eq $tps_state_accel2 {
             callx  unique_text_flag  :tps_accel2_msg
