@@ -73,6 +73,7 @@ func puff_len_run {
         // read smap puff into ga
         ram pa = $ram_avg_rpm
         callx  find_rpm_cell  pa  a
+        gb = a
         struct_read $ram_smap
         ga = b
         
@@ -98,23 +99,28 @@ func puff_len_run {
         if x eq $tps_state_open {
             callx  unique_text_flag  :tps_open_msg
         }
-        a = x
-        struct_read $ram_tps_enrich_thou
-        if 0 ne b {
-            // calculate TPS enrichment in us.  apply a total of 10 bits of right-shift to 
-            // implement division by 1024 (thou unit).  spread them out to prevent overflow.
-            a = b
-            a = a>>1
-            b = a>>1
-            a = ga
-            a = a>>4
-            call  multiply        
-            a = a>>4
-            
-            // add enrichment to smap puff.
-            b = ga
-            ga = a+b
-        }
+        // index into maps by TPS state.
+        i = 0
+        j = $num_tps_cells
+        y = -1
+        :next_state
+        br xz :found_state
+            i = i+j
+            x = x+y
+        jmp :next_state        
+        :found_state
+        // index into maps by RPM.
+        j = gb
+        a = i+j
+        // convert from words to bytes.
+        a = a<<1
+        // add map address.
+        b = :ram_tps_closed_enrich_us
+        a = a+b
+
+        // add enrichment to smap puff.
+        b = ga
+        ga = a+b
         
         // memorize total puff.
         ram $ram_next_puff_len_us = ga

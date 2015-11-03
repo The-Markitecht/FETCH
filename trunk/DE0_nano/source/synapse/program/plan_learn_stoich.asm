@@ -30,7 +30,11 @@ ram_define  ram_tps_state
     setvar  tps_state_accel2        3
     setvar  tps_state_open          4
 setvar      num_tps_states          5
-ram_define  ram_tps_enrich_thou     ($num_tps_states * 2)
+ram_define  ram_tps_closed_enrich_us ($num_tps_cells * 2)
+ram_define  ram_tps_cruise_enrich_us ($num_tps_cells * 2)
+ram_define  ram_tps_accel1_enrich_us ($num_tps_cells * 2)
+ram_define  ram_tps_accel2_enrich_us ($num_tps_cells * 2)
+ram_define  ram_tps_open_enrich_us   ($num_tps_cells * 2)
 ram_define  ram_tps_avg             
 setvar      tps_history_len         4
 ram_define  ram_tps_history         ($tps_history_len * 2)    
@@ -57,27 +61,20 @@ setvar      o2_rich_thresh_adc      700
 
 // default maps
 :default_tps_reference
-    0x05f0
-    0x0680
-    0x0680
-    0x0680
-    0x0680
-    0x0680
-    0x0700
-    0x0780
-    0x0800
-    0x0880
-    0x0900
-    0x0980
-    0x0c80
-:default_tps_enrich_thou
-    0x0000
-    0x0000
     0x0100
-    0x0200
-    0x1388
-
-
+    0x0540
+    0x0540
+    0x0540
+    0x0540
+    0x0540
+    0x0540
+    0x0540
+    0x0540
+    0x0540
+    0x0540
+    0x0540
+    0x0b00
+    
 :plan_name_learn_stoich
     "LN\x0"
         
@@ -261,28 +258,28 @@ func dump_smap_cmd {
         putasc " "
     }
     puteol
-    ram pa = $ram_tps_state
-    for {x = 0} {x lt $num_tps_states} step y = 1 {
-        a = x
-        struct_read $ram_tps_enrich_thou
-        a = b
-        call put4x
-        if x eq pa {
-            putasc "<"
-        }
-        putasc " "
-    }
-    puteol
+    //~ ram pa = $ram_tps_state
+    //~ for {x = 0} {x lt $num_tps_states} step y = 1 {
+        //~ a = x
+        //~ struct_read $ram_tps_enrich_thou
+        //~ a = b
+        //~ call put4x
+        //~ if x eq pa {
+            //~ putasc "<"
+        //~ }
+        //~ putasc " "
+    //~ }
+    //~ puteol
 }
 
 func load_tps_enrich_cmd {
-    for {i = 0} {i lt $num_tps_states} step j = 1 {
-        call  get4x
-        b = a
-        a = i
-        struct_write $ram_tps_enrich_thou
-        getchar
-    }
+    //~ for {i = 0} {i lt $num_tps_states} step j = 1 {
+        //~ call  get4x
+        //~ b = a
+        //~ a = i
+        //~ struct_write $ram_tps_enrich_thou
+        //~ getchar
+    //~ }
 }
     
 func load_smap_cmd {

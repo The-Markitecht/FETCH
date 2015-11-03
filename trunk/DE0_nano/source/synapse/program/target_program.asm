@@ -221,7 +221,7 @@
     callx  init_plan_stop    
     for {i = 0} {i lt $num_rpm_cells} step j = 1 {
         a = i
-        b = 0x0c08
+        b = 0x1194
         struct_write $ram_smap
     }
     for {i = 0} {i lt $num_tps_cells} step j = 1 {
@@ -230,14 +230,16 @@
         fetch b from a+b
         a = i
         struct_write $ram_tps_reference
+        a = i
+        b = 0x2000
+        struct_write $ram_tps_accel1_enrich_us
+        a = i
+        b = 0x4000
+        struct_write $ram_tps_accel2_enrich_us
+        a = i
+        b = 0x8000
+        struct_write $ram_tps_open_enrich_us
     }
-    for {i = 0} {i lt $num_tps_states} step j = 1 {
-        a = i
-        b = :default_tps_enrich_thou
-        fetch b from a+b
-        a = i
-        struct_write $ram_tps_enrich_thou
-    }    
     
     // power up FTDI USB board, and init any other special board control functions.
     board_ctrl = $ftdi_power_mask

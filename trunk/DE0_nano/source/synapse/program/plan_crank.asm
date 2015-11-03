@@ -2,7 +2,7 @@
 setvar crank_success_rpm            800
 setvar crank_min_puff_len_us        10000
 setvar crank_max_puff_len_us        20000
-setvar crank_incr_us_per_puff       1500
+setvar crank_incr_us_per_puff       2500
     // escalating puff length by 1500 us per puff while cranking slowly at e.g. 80 RPM
     // on a frozen winter morning will ramp up from 10000 to 20000 us length in about 5 seconds.
 setvar crank_max_puffs              (($crank_max_puff_len_us - $crank_min_puff_len_us) / $crank_incr_us_per_puff)
