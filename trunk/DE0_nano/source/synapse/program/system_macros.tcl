@@ -30,6 +30,11 @@ namespace eval ::asm {
     #     return $vlg
     # }
 
+    # source code editor integration macros & functions.
+    proc set_editor_tag {name} {
+        # this can be redefined elsewhere to do application-specific work.
+    }        
+
     # common register aliases.
     proc alias_src {lin name addr visor_name} {
         dict set ::asrc $name $addr
@@ -96,6 +101,7 @@ namespace eval ::asm {
     # Tcl integration macros.
     proc setvar {lin varname value} {
         namespace eval ::asm [list set $varname $value]
+        set_editor_tag $varname 
     }
 
     # subroutine macros.

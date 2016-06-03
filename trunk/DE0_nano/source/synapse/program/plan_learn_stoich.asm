@@ -168,6 +168,7 @@ func learn_smap {
         ram a = $ram_last_learn_second
         ram b = $ram_seconds_cnt
         if a ne b {
+            ram $ram_last_learn_second = b
             callx  dump_smap_cmd
         }
     }

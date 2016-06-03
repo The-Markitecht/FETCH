@@ -16,6 +16,10 @@ namespace eval ::asm {
         error_halt $lin
     }
 
+    proc set_editor_tag {name} {
+        puts $::editor_tags "${name}|||" 
+    }        
+
     proc declare_system_dimensions {lin} {
         # each vdefine here is auto-generated into a _defines.v file.
         # so they're visible in Verilog as well as assembly source.

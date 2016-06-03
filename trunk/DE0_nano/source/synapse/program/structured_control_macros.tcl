@@ -239,6 +239,7 @@ namespace eval ::asm {
     }
 
     proc func_ {block label args} {
+puts "func_ $::asm_pass $label"
         # memorize function's label
         set label [string trim $label {: }]
         set_label $label
