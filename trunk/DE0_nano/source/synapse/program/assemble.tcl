@@ -239,9 +239,11 @@ proc parse_expressions {lin} {
 proc parse_line {lin} {
     # parse a whole line of assembler file as input.  emit any resulting bytes into the ROM file.
     set lin [string trim $lin]
+    #puts "parse_line $::asm_pass $::src_fn : $::lnum : $lin"
     console "<[format %04d ${::lnum}]> <${::ml_state}> $lin"
     set open_brace  [expr {[string index $lin end] eq "\{" }]
     set close_brace [expr {[string index $lin   0] eq "\}" }]
+    set comment     [string equal -length 2 $lin {//}]
     if {$::ml_state eq {tcl}} {
         # continuing a Tcl block in angle brackets.
         if {[string range $lin end-1 end] eq {>>} } {
@@ -254,7 +256,7 @@ proc parse_line {lin} {
     } elseif {[string is integer -strict $::ml_state]} {
         # continuing a braced Tcl block.
         append ::multi_line $lin \n
-        if {$close_brace && ! $open_brace} {
+        if {$close_brace && ! $open_brace && ! $comment} {
             incr ::ml_state -1 ;# reduce nesting of braces.
             if {$::ml_state == 0} {
                 set ::ml_state {}
@@ -267,12 +269,12 @@ proc parse_line {lin} {
                     error "macro not found: $cmd"
                 }
             }
-        } elseif {$open_brace && ! $close_brace} {
+        } elseif {$open_brace && ! $close_brace && ! $comment} {
             incr ::ml_state ;# nested open brace.
         }
     } elseif {[string length $lin] == 0} {
         emit_comment $lin ;# blank line for readability.
-    } elseif {[string equal -length 2 $lin {//}]} {        
+    } elseif {$comment} {        
         emit_comment $lin ;# comment line
     } elseif {[string equal -length 1 $lin \" ]} {
         # string constant line.  note: NO DELIMITER is added here.  e.g. if a null terminator is needed it must be specified explicitly.
@@ -304,7 +306,7 @@ proc parse_line {lin} {
             set ::multi_line "[string range $lin 2 end]\n"
             set ::ml_state tcl
         }
-    } elseif {$open_brace && ! $close_brace} {
+    } elseif {$open_brace && ! $close_brace && ! $comment} {
         # line ends in an opening curly brace; keep accumulating a Tcl block until a line ends in a closing curly brace.
         set ::multi_line "$lin\n"
         set ::ml_state 1
@@ -440,7 +442,7 @@ proc handle_assembly_error {msg} {
     puts stderr "\nError: $msg"
     puts stderr "On pass $::asm_pass, line $::lnum of $fn"
     puts stderr "On source line:\n$::asm_line"
-    
+
     exit 1
 }
 

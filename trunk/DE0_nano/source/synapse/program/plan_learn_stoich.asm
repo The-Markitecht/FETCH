@@ -259,28 +259,28 @@ func dump_smap_cmd {
         putasc " "
     }
     puteol
-    //~ ram pa = $ram_tps_state
-    //~ for {x = 0} {x lt $num_tps_states} step y = 1 {
-        //~ a = x
-        //~ struct_read $ram_tps_enrich_thou
-        //~ a = b
-        //~ call put4x
-        //~ if x eq pa {
-            //~ putasc "<"
-        //~ }
-        //~ putasc " "
-    //~ }
-    //~ puteol
+    // ram pa = $ram_tps_state
+    // for {x = 0} {x lt $num_tps_states} step y = 1 {
+        // a = x
+        // struct_read $ram_tps_enrich_thou
+        // a = b
+        // call put4x
+        // if x eq pa {
+            // putasc "<"
+        // }
+        // putasc " "
+    // }
+    // puteol
 }
 
 func load_tps_enrich_cmd {
-    //~ for {i = 0} {i lt $num_tps_states} step j = 1 {
-        //~ call  get4x
-        //~ b = a
-        //~ a = i
-        //~ struct_write $ram_tps_enrich_thou
-        //~ getchar
-    //~ }
+    // for {i = 0} {i lt $num_tps_states} step j = 1 {
+        // call  get4x
+        // b = a
+        // a = i
+        // struct_write $ram_tps_enrich_thou
+        // getchar
+    // }
 }
     
 func load_smap_cmd {

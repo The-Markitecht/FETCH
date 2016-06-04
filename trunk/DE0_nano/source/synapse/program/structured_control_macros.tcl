@@ -239,7 +239,12 @@ namespace eval ::asm {
     }
 
     proc func_ {block label args} {
-puts "func_ $::asm_pass $label"
+        #puts "func_ $::asm_pass $label"
+
+        if {$::func ne {}} {
+            error "Function '${::func}' contains another function, or an unmatched brace."
+        }
+
         # memorize function's label
         set label [string trim $label {: }]
         set_label $label
@@ -318,13 +323,14 @@ puts "func_ $::asm_pass $label"
     }
     
     proc callx {lin label args} {
+        #puts "$::asm_pass callx $label"
         if {$::asm_pass < $::pass(calls)} {
             # do only the old-style call on the earliest passes.  that includes a "uses_reg rtna" which is important
             # because the earliest passes are where the used registers are memorized.
             call $lin $label
             return
         }
-        
+        #puts "callx $label: $::fparms($label)"
         # parse actual arguments & match to formal parameters.
         if {[llength $args] != [llength $::fparms($label)]} {
             error "wrong number of arguments"
