@@ -16,7 +16,7 @@ namespace eval ::asm {
         error_halt $lin
     }
 
-    proc set_editor_tag {name} {
+    proc ::set_editor_tag {name} {
         puts $::editor_tags "${name}|||" 
     }        
 

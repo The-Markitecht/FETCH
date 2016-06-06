@@ -31,7 +31,7 @@ namespace eval ::asm {
     # }
 
     # source code editor integration macros & functions.
-    proc set_editor_tag {name} {
+    proc ::set_editor_tag {name} {
         # this can be redefined elsewhere to do application-specific work.
     }        
 
@@ -130,6 +130,7 @@ set obsolete {
         verify_func_closure
         set label [string trim $label {: }]
         set_label $label
+        set_editor_tag $label 
         emit_comment "// ######## $lin // = 0x[format %04x $::ipr]"
         set ::func $label
         if { $::asm_pass == $::pass(func) } {

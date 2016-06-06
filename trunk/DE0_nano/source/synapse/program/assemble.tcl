@@ -120,7 +120,6 @@ proc set_label {name} {
 #        error "redefined label: $label"
 #    }
     dict set ::labels $name $::ipr   
-    ::asm::set_editor_tag $name 
     return $name
 }
 

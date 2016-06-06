@@ -14,7 +14,7 @@ setvar      run_manual_trim_step_thou   4
     
 func trim_lean_cmd {
     ram a = $ram_run_manual_trim_thou
-    if a = 0 {
+    if a eq 0 {
     } else {
         b = (($run_manual_trim_step_thou ^ 0xffff) + 1)
         ram $ram_run_manual_trim_thou = a+b
@@ -32,7 +32,7 @@ func trim_rich_cmd {
 
 func trim_2lean_cmd {
     ram a = $ram_run_manual_trim_thou
-    if a = 0 {
+    if a eq 0 {
     } else {
         b = ((($run_manual_trim_step_thou << 3) ^ 0xffff) + 1)
         ram $ram_run_manual_trim_thou = a+b
@@ -91,36 +91,36 @@ func puff_len_run {
         b = ga
         ga = a+b
         
-        // determine TPS enrichment for acceleration.
-        ram x = $ram_tps_state
-        if x eq $tps_state_accel2 {
-            callx  unique_text_flag  :tps_accel2_msg
-        }
-        if x eq $tps_state_open {
-            callx  unique_text_flag  :tps_open_msg
-        }
-        // index into maps by TPS state.
-        i = 0
-        j = $num_tps_cells
-        y = -1
-        :next_state
-        br xz :found_state
-            i = i+j
-            x = x+y
-        jmp :next_state        
-        :found_state
-        // index into maps by RPM.
-        j = gb
-        a = i+j
-        // convert from words to bytes.
-        a = a<<1
-        // add map address.
-        b = :ram_tps_closed_enrich_us
-        a = a+b
+        //// determine TPS enrichment for acceleration.
+        //ram x = $ram_tps_state
+        //if x eq $tps_state_accel2 {
+            //callx  unique_text_flag  :tps_accel2_msg
+        //}
+        //if x eq $tps_state_open {
+            //callx  unique_text_flag  :tps_open_msg
+        //}
+        //// index into maps by TPS state.
+        //i = 0
+        //j = $num_tps_cells
+        //y = -1
+        //:next_state
+        //br xz :found_state
+            //i = i+j
+            //x = x+y
+        //jmp :next_state        
+        //:found_state
+        //// index into maps by RPM.
+        //j = gb
+        //a = i+j
+        //// convert from words to bytes.
+        //a = a<<1
+        //// add map address.
+        //b = :ram_tps_closed_enrich_us
+        //a = a+b
 
-        // add enrichment to smap puff.
-        b = ga
-        ga = a+b
+        //// add enrichment to smap puff.
+        //b = ga
+        //ga = a+b
         
         // memorize total puff.
         ram $ram_next_puff_len_us = ga
