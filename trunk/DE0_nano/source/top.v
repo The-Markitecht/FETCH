@@ -174,6 +174,14 @@ supervised_synapse316 supmcu(
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
 stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`DR_RSTK]);
 
+// Altera 16x16=32 multiplier.  see settings for latency.
+multiplier	multiplier_inst (
+    .clock ( sysclk ),
+    .dataa ( r[0] ),
+    .datab ( r[1] ),
+    .result ( {r[`SR_PRODUCT_HI], r[`SR_PRODUCT_LO]} )
+);
+
 // ADC SPI.  SPI_CLOCK_DIVISOR(50) = 1mhz spi_sck = 16us/read.
 wire spi_busy;
 spi_master #(.WIDTH(16), .SPI_CLOCK_DIVISOR(50)) spi (
@@ -254,6 +262,15 @@ qsys2 u0 (
     .sdramc_we_n                  (DRAM_WE_N)    
 );
 assign DRAM_CLK = clk_sdram;
+
+// data ROM for lookup tables etc.
+patch: change data_rom_ad to write_only, since there's no read access to altera's built-in address reg.
+data_rom data_rom_inst (
+    .address ( r_load_data ),
+    .clken ( ! r_load[`DR_DATA_ROM_AD] ), 
+    .clock ( sysclk ),
+    .q ( r[`SR_DATA_ROM_DATA] )
+);
 
 /*  bus_expander does not seem to read back correctly from a non-zero address.
 // ///////////////////////////   I/O expansion bus.

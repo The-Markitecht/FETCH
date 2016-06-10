@@ -29,6 +29,9 @@
         vdefine     event_controller_reset_mask  (1 << $event_controller_reset_bit)
     alias_both usage_count          [incr counter]  "usage"
 
+    alias_src  product_lo           [incr counter]  "prductlo"
+    alias_src  product_hi           [incr counter]  "prducthi"
+
     alias_both ustimer0             [incr counter]  "ustimer0"
     alias_both mstimer0             [incr counter]  "mstimer0"
         // throttle for each pass of data acquisition.
@@ -61,6 +64,9 @@
         // cause wait states there until SDRAM controller is ready for it.
         // - apparently Altera's claims of SDRAM controller approaching 1 word per clock cycle must be
         // using e.g. Avalon burst transfers or Avalon-ST.  don't think my Avalon-MM master can go that fast.
+
+    alias_dest data_rom_ad          [incr counter]  "//rom_ad"
+    alias_src  data_rom_data        [incr counter]  "rom_data"
 
     alias_both fduart_data          [incr counter]  "//uartdt"
     alias_both fduart_status        [incr counter]  "uartstat"
@@ -202,6 +208,7 @@
     include lib/math.asm
     include lib/string.asm
     include lib/time.asm
+    include data_rom.asm
     include terminal_commands.asm
     include plan_stop.asm
     include plan_crank.asm
@@ -216,6 +223,8 @@
     
     // clear the first 64k of RAM.
     callx  clear_ram_page  0
+    
+    callx  init_data_rom
 
     // init fuel injection.
     callx  init_plan_stop    

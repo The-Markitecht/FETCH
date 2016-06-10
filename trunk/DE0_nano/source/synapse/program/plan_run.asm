@@ -70,6 +70,105 @@ func destroy_plan_run {
 func puff_len_run {
     ram a = $ram_rpm_valid
     if a eq 1 {
+
+ram_define  ram_maf_raw_adc
+ram_define  ram_maf_adc
+ram_define  ram_maf_flow_hi_res
+ram_define  ram_afrc_maf_row_idx
+ram_define  ram_afrc_rpm_col_idx
+ram_define  ram_block_temp_map_idx
+ram_define  ram_afterstart_map_idx
+ram_define  ram_stoich_learn_trim
+ram_define  ram_manual_trim
+ram_define  ram_total_trim
+
+setvar afrc_row_len_bytes
+
+        // offset and clamp the MAF ADC count to 0..511.
+        
+        
+        // recover linear flow from MAF ADC count using hi-res method, 
+        // for actual flow feeding into final puff multiply.  
+        // table len 256
+        // Brute-force lookup might take e.g. 80us to run.  That's 4 jf, 
+        // or 5% of ignition cycle at max RPM.
+        
+        
+        // quantize linear flow from hi-res to lo-res for indexing into AFRC map.
+        // Lo-res = hi-res >> 2.  
+
+        
+        // look up Air/Fuel Ratio Correction in AFRC map.
+        // index rows by MAF.
+        ram a = $ram_afrc_maf_row_idx
+        b = $afrc_cells_per_row
+        nop
+        nop
+        nop
+        nop
+        b = product_lo
+        // index columns by RPM.
+        ram a = $ram_afrc_rpm_col_idx
+        a = a+b
+        struct_read $shadow_afrc_map_base
+        ga = b
+        
+        // ga = total trim factor as integer.
+        
+        
+        // look up block temperature map trim factor.
+
+
+        // look up afterstart map trim factor.
+        
+
+        // apply stoich learning trim factor.
+        
+        
+        // apply manual trim factor.
+
+        // clamp the total trim between 0.5 and 2.0 trim factor equivalent 
+        // ( = 0 to 24576 inclusive).  best to do this instead using saturating addition (at 24576) in the previous step.
+        
+
+        // final multiplication for puff length.
+        // (MAF linear flow) * (stoich ratio constant) * (total trim as floating point) = (puff length jf).  
+        // here the total trim float will have to be represented as a fraction (num/denom).
+        // stoich ratio constant (8) (really the conversion factor from linear
+        // flow to nominal jf)  is folded into that denominator (16384) at compile time.  
+        // that makes denom = 2048 = 11 bits.  so:
+        // gb = (puff len jf) = (MAF linear flow) * [(total trim) + 8192] >> 11
+        a = ga
+        b = 8192
+        a = a+b
+        ram b = $ram_maf_flow_hi_res
+        nop
+        nop
+        nop
+        nop
+        // gb = 32-bit product shifted >> 11.  lower 11 bits of product_hi are
+        // explicitly moved to upper 11 bits of gb.
+        a = product_lo
+        b = product_hi
+        a = a>>4
+        a = a>>4
+        a = a>>1
+        a = a>>1
+        gb = a>>1
+        a = b
+        a = a<<4
+        a = a<<1
+        b = gb
+        gb = or
+
+
+        // clamp the (puff length jf) to sane range.  max is the floating duty cycle.  min is the safety amount to keep motor running and maybe prevent leaning damage.
+
+
+        // shut off puff during closed throttle engine braking.
+        
+        
+// old code:
         // read smap puff into ga
         ram pa = $ram_avg_rpm
         callx  find_rpm_cell  pa  a
