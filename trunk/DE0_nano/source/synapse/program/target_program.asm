@@ -880,7 +880,14 @@ func report_plan {
 }
     
 func interpret_maf {
-    
+    // offset and clamp the MAF ADC count to 0..511.
+    a = $maf_adc_channel
+    struct_read $ram_last_adc_data
+    a = b
+    a = a>>1
+    b = 0x01ff
+    //patch: do some averaging here, like interpret_tps.
+    ram $ram_maf_adc_filtered = and
 }
 
 func interpret_tps {

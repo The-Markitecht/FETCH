@@ -71,8 +71,7 @@ func puff_len_run {
     ram a = $ram_rpm_valid
     if a eq 1 {
 
-ram_define  ram_maf_raw_adc
-ram_define  ram_maf_adc
+ram_define  ram_maf_adc_filtered
 ram_define  ram_maf_flow_hi_res
 ram_define  ram_afrc_maf_row_idx
 ram_define  ram_afrc_rpm_col_idx
@@ -82,20 +81,38 @@ ram_define  ram_stoich_learn_trim
 ram_define  ram_manual_trim
 ram_define  ram_total_trim
 
-
-        // offset and clamp the MAF ADC count to 0..511.
-        
-        
         // recover linear flow from MAF ADC count using hi-res method, 
-        // for actual flow feeding into final puff multiply.  
-        // table len 256
-        // Brute-force lookup might take e.g. 80us to run.  That's 4 jf, 
+        // for actual flow feeding into final puff multiply later.  
+        // 256 cell Brute-force lookup might take e.g. 80us to run.  That's 4 jf, 
         // or 5% of ignition cycle at max RPM.
+        ram ga = $ram_maf_adc_filtered
+        for {i = 0} {i lt $maf_map_num_cells} step j = 1 {
+            a = i
+            struct_read $ram_maf_map
+            if b gt ga {
+                ram $ram_maf_flow_hi_res = i
+                jmp :maf_found
+            }
+        }
+        :maf_found
         
-        
-        // quantize linear flow from hi-res to lo-res for indexing into AFRC map.
+        // quantize linear flow from hi-res to lo-res for indexing into AFRC map rows.
         // Lo-res = hi-res >> 2.  
-
+        ram a = $ram_maf_flow_hi_res
+        a = a>>1
+        ram $ram_afrc_maf_row_idx = a>>1
+        
+        // find RPM column in AFRC map.
+        ram ga = $ram_avg_rpm
+        for {i = 0} {i lt $rpm_map_num_cells} step j = 1 {
+            a = i
+            struct_read $ram_rpm_map
+            if b gt ga {
+                ram $ram_afrc_rpm_col_idx = i
+                jmp :rpm_found
+            }
+        }
+        :rpm_found
         
         // look up Air/Fuel Ratio Correction in AFRC map.
         // index rows by MAF.
@@ -111,9 +128,7 @@ ram_define  ram_total_trim
         a = a+b
         struct_read $ram_afrc_map
         ga = b
-        
         // ga = total trim factor as integer.
-        
         
         // look up block temperature map trim factor.
 
