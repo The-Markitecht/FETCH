@@ -31,7 +31,7 @@ namespace eval ::asm {
     # }
 
     # source code editor integration macros & functions.
-    proc ::set_editor_tag {name} {
+    proc ::set_editor_tag {name  return_type  parms} {
         # this can be redefined elsewhere to do application-specific work.
     }        
 

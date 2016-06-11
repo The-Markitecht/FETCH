@@ -82,7 +82,6 @@ ram_define  ram_stoich_learn_trim
 ram_define  ram_manual_trim
 ram_define  ram_total_trim
 
-setvar afrc_row_len_bytes
 
         // offset and clamp the MAF ADC count to 0..511.
         
@@ -101,7 +100,7 @@ setvar afrc_row_len_bytes
         // look up Air/Fuel Ratio Correction in AFRC map.
         // index rows by MAF.
         ram a = $ram_afrc_maf_row_idx
-        b = $afrc_cells_per_row
+        b = $afrc_rpm_cols
         nop
         nop
         nop
@@ -110,7 +109,7 @@ setvar afrc_row_len_bytes
         // index columns by RPM.
         ram a = $ram_afrc_rpm_col_idx
         a = a+b
-        struct_read $shadow_afrc_map_base
+        struct_read $ram_afrc_map
         ga = b
         
         // ga = total trim factor as integer.
@@ -163,10 +162,21 @@ setvar afrc_row_len_bytes
 
 
         // clamp the (puff length jf) to sane range.  max is the floating duty cycle.  min is the safety amount to keep motor running and maybe prevent leaning damage.
-
+        ram a = $ram_ign_avg_jf
+        a = a>>1
+        a = a>>1
+        a = a>>1
+        b = 0xffff
+        a = xor
+        ram b = $ram_ign_avg_jf
+        x = a+b
+        if gb gt x {
+            gb = x
+        }
+        //patch: don't know a proper minimum.
 
         // shut off puff during closed throttle engine braking.
-        
+        //patch: not implemented.
         
 // old code:
         // read smap puff into ga

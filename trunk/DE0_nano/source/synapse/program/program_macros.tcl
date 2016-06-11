@@ -16,8 +16,8 @@ namespace eval ::asm {
         error_halt $lin
     }
 
-    proc ::set_editor_tag {name} {
-        puts $::editor_tags "${name}|||" 
+    proc ::set_editor_tag {name  {return_type {}}  {parms {}}} {
+        puts $::editor_tags "${name}|${return_type}|${parms}|" 
     }        
 
     proc declare_system_dimensions {lin} {
@@ -83,7 +83,7 @@ namespace eval ::asm {
         ram_incr ::asm::ram_counter $size_bytes
     }
 
-    proc ::ram_incr {var_name  increment} {
+    proc ram_incr {var_name  increment} {
         upvar $var_name v
         set v [ram_split [expr {[ram_join $v] + $increment}]]
     }

@@ -4,12 +4,14 @@
     ram_incr ::asm::drom_shadow_counter $size_bytes
 } >>
 
-setvar     drom_shadow_base       ($sdram_size / 2 + $sdram_base)
-setvar     drom_shadow_counter    [ram_split $drom_shadow_base]
+setvar     drom_shadow_base         ($sdram_size / 2 + $sdram_base)
+setvar     drom_shadow_counter      [ram_split $drom_shadow_base]
 
-drom_define  ram_log_table          
+setvar          afrc_maf_rows       64
+setvar          afrc_rpm_cols       16
+drom_define     ram_afrc_map        ($afrc_maf_rows * $afrc_rpm_cols * 2)
 
-setvar     drom_shadow_len_bytes  ([ram_join $drom_shadow_counter] - $drom_shadow_base)
+setvar     drom_shadow_len_bytes    ([ram_join $drom_shadow_counter] - $drom_shadow_base)
 << if {$drom_shadow_len_bytes > 65536} {error "Data ROM too long."} >>
 
 

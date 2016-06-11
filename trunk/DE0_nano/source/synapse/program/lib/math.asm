@@ -31,50 +31,6 @@ func multiply
     a = i
 end_func
 
-set junk {
-func multiply32 {arg_a in pa} {arg_b in pb} {product_lo out pa} {product_hi out pb} {
-    // unsigned 16-bit multiplication with 32-bit product. 
-
-    // ga = product_lo
-    // gb = product_hi
-    // pa is shifted right so its low bit can be tested each time.
-    // pb is shifted left so its value (for summing) increases each time.
-FAIL:  because pb is shifting, it will be destroyed in cases where total bits > 16.
-despite supporting carry overflow, the algorithm still assumes total bits <= 16.
-also i think the loop order is backward for correctly shifting into the hi word.
-could fix that by reversing the hi word shift.
-    ga = 0
-    gb = 0
-    :again
-    br xz :done
-        a = arg_a 
-        b = 1
-        br and0z :skip_add
-            a = ga
-            b = arg_b
-            ga = a+b
-            br ad0c :carry
-                a = gb
-                gb = a<<1
-                jmp :carry_done
-            :carry    
-                a = gb
-                a = a<<1
-                b = 1
-                gb = a+b
-            :carry_done
-        :skip_add
-        a = arg_a
-        arg_a = a>>1
-        a = arg_b
-        arg_b = a<<1
-    jmp :again
-    :done
-    product_lo = ga
-    product_hi = gb
-end_func
-}
-
 func divide
     // unsigned 15-bit division.  b = a / b.  return remainder in a.
     // division by zero results in zero.
@@ -259,7 +215,48 @@ func testmath
     a = i
     call :put4x
     puteol
-end_func
-    
+end_func    
 }
 >>
+
+//func multiply32 {arg_a in pa} {arg_b in pb} {product_lo out pa} {product_hi out pb} {
+    //// unsigned 16-bit multiplication with 32-bit product. 
+
+    //// ga = product_lo
+    //// gb = product_hi
+    //// pa is shifted right so its low bit can be tested each time.
+    //// pb is shifted left so its value (for summing) increases each time.
+//FAIL:  because pb is shifting, it will be destroyed in cases where total bits > 16.
+//despite supporting carry overflow, the algorithm still assumes total bits <= 16.
+//also i think the loop order is backward for correctly shifting into the hi word.
+//could fix that by reversing the hi word shift.
+    //ga = 0
+    //gb = 0
+    //:again
+    //br xz :done
+        //a = arg_a 
+        //b = 1
+        //br and0z :skip_add
+            //a = ga
+            //b = arg_b
+            //ga = a+b
+            //br ad0c :carry
+                //a = gb
+                //gb = a<<1
+                //jmp :carry_done
+            //:carry    
+                //a = gb
+                //a = a<<1
+                //b = 1
+                //gb = a+b
+            //:carry_done
+        //:skip_add
+        //a = arg_a
+        //arg_a = a>>1
+        //a = arg_b
+        //arg_b = a<<1
+    //jmp :again
+    //:done
+    //product_lo = ga
+    //product_hi = gb
+//end_func

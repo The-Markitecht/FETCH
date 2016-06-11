@@ -248,7 +248,7 @@ namespace eval ::asm {
         # memorize function's label
         set label [string trim $label {: }]
         set_label $label
-        set_editor_tag $label 
+        set_editor_tag $label void ()
         emit_comment "// ######## func $label // = 0x[format %04x $::ipr]"
         set ::func $label
 

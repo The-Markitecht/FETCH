@@ -118,6 +118,7 @@
     setvar      anmux_adc_channel       7
     setvar      tps_adc_channel         6
     setvar      o2_adc_channel          5
+    setvar      maf_adc_channel         4
     ram_define  ram_dial_setting              
     
     alias_both power_duty           [incr counter]  "pwr_duty"
@@ -628,6 +629,11 @@ event spi_done_handler
         event_return
     }
     if i eq $o2_adc_channel {
+        callx  begin_adc_conversion  $maf_adc_channel
+        event_return
+    }
+    if i eq $maf_adc_channel {
+        callx  interpret_maf
         callx  plan_tick
         event_return
     }
@@ -873,6 +879,10 @@ func report_plan {
     call :put4x
 }
     
+func interpret_maf {
+    
+}
+
 func interpret_tps {
     a = $tps_adc_channel
     struct_read $ram_last_adc_data
