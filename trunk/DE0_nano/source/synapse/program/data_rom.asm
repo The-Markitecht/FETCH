@@ -17,6 +17,10 @@ drom_define     ram_maf_map         ($maf_map_num_cells * 2)
 setvar          rpm_map_num_cells   $afrc_rpm_cols
 drom_define     ram_rpm_map         ($rpm_map_num_cells * 2)
 
+setvar          block_temp_num_cells    64
+drom_define     ram_block_temp_scale    ($block_temp_num_cells * 2)
+drom_define     ram_block_temp_map      ($block_temp_num_cells * 2)
+
 setvar     drom_shadow_len_bytes    ([ram_join $drom_shadow_counter] - $drom_shadow_base)
 << if {$drom_shadow_len_bytes > 65536} {error "Data ROM too long."} >>
 

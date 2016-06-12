@@ -1,56 +1,67 @@
 :plan_name_run
     "RN\x0"
 
-setvar      run_puff_max_us         10000
-setvar      run_puff_min_us         2000
-        
-ram_define  ram_run_manual_trim_thou         
-    // max trim is about 200 thou prior to multiplier overflow.
-    // or more if the smap puff is below 8000.
-    // trim resolution is 4 thou due to multiplier.
-    // smap resolution for trimming is 16 us.
-    // final trim enrichment us resolution is 16 us.
-setvar      run_manual_trim_step_thou   4
+setvar      trim_half                   0
+setvar      trim_unity                  8192
+setvar      trim_double                 24576
+
+// 0.5 to 2.0 trim factor equivalent.
+setvar      trim_min                    $trim_half
+setvar      trim_max                    $trim_double
+
+ram_define  ram_maf_adc_filtered
+ram_define  ram_maf_flow_hi_res
+ram_define  ram_afrc_maf_row_idx
+ram_define  ram_afrc_rpm_col_idx
+ram_define  ram_block_temp_map_idx
+ram_define  ram_block_temp_trim
+ram_define  ram_afterstart_map_idx
+ram_define  ram_afterstart_trim
+ram_define  ram_stoich_learn_trim
+ram_define  ram_run_manual_trim
+setvar      run_manual_trim_step        192
+ram_define  ram_total_trim
     
 func trim_lean_cmd {
-    ram a = $ram_run_manual_trim_thou
+    ram a = $ram_run_manual_trim
     if a eq 0 {
     } else {
-        b = (($run_manual_trim_step_thou ^ 0xffff) + 1)
-        ram $ram_run_manual_trim_thou = a+b
+        b = ([negate $run_manual_trim_step])
+        ram $ram_run_manual_trim = a+b
     }
 }
 
 func trim_rich_cmd {
-    ram a = $ram_run_manual_trim_thou
+    ram a = $ram_run_manual_trim
     if a gt 800 {
     } else {
-        b = $run_manual_trim_step_thou
-        ram $ram_run_manual_trim_thou = a+b
+        b = $run_manual_trim_step
+        ram $ram_run_manual_trim = a+b
     }
 }
 
 func trim_2lean_cmd {
-    ram a = $ram_run_manual_trim_thou
+    ram a = $ram_run_manual_trim
     if a eq 0 {
     } else {
-        b = ((($run_manual_trim_step_thou << 3) ^ 0xffff) + 1)
-        ram $ram_run_manual_trim_thou = a+b
+        b = ([negate [expr $run_manual_trim_step * 8]])
+        ram $ram_run_manual_trim = a+b
     }
 }
 
 func trim_2rich_cmd {
-    ram a = $ram_run_manual_trim_thou
+    ram a = $ram_run_manual_trim
     if a gt 800 {
     } else {
-        b = ($run_manual_trim_step_thou << 3)
-        ram $ram_run_manual_trim_thou = a+b
+        b = ($run_manual_trim_step * 8)
+        ram $ram_run_manual_trim = a+b
     }
 }
 
 func init_plan_run {
     // set up the run plan.
-    ram $ram_run_manual_trim_thou = 0
+    ram $ram_run_manual_trim = $trim_unity
+    ram $ram_stoich_learn_trim = $trim_unity
     
     // memorize state.
     ram $ram_plan_name = :plan_name_run
@@ -62,6 +73,48 @@ func init_plan_run {
 func destroy_plan_run {
 }
 
+func combine_trim {total in pa} {increment in pb} {out_total out pa} {
+    // combine the given increment with the given total trim factor, returning
+    // the new total trim.  this process is complicated by the decision to keep the
+    // 0.5 offset in the integer representation scheme.  that's done in case i ever
+    // have to calculate puff without the aid of a hardware multiplier.
+    // the process is to add the offset to each argument, multiply them, 
+    // undo the offsets, and saturate to prevent excess accumulation.
+    a = total
+    b = $trim_unity
+    a = a+b
+    i = increment
+    j = $trim_unity
+    b = i+j
+    nop
+    nop
+    nop
+    nop
+    // total = product / 16384 = product >> 14
+    // this cancels the two offsets that were added prior to the mult.
+    x = product_hi
+    a = product_lo
+    a = a>>4
+    a = a>>4
+    a = a>>4
+    a = a>>1
+    out_total = a>>1
+    a = x
+    b = 0x3fff
+    a = and
+    a = a<<1
+    a = a<<1
+    b = out_total
+    a = or
+    // subtract the unity offset to get back to the correct integer representation.
+    b = ([negate $trim_unity])
+    out_total = a+b
+    // clamp.
+    if out_total gt $trim_double {
+        out_total = $trim_double
+    }
+}
+
 :tps_accel2_msg
     "tpsa2\x0"
 :tps_open_msg
@@ -69,189 +122,152 @@ func destroy_plan_run {
 
 func puff_len_run {
     ram a = $ram_rpm_valid
-    if a eq 1 {
-
-ram_define  ram_maf_adc_filtered
-ram_define  ram_maf_flow_hi_res
-ram_define  ram_afrc_maf_row_idx
-ram_define  ram_afrc_rpm_col_idx
-ram_define  ram_block_temp_map_idx
-ram_define  ram_afterstart_map_idx
-ram_define  ram_stoich_learn_trim
-ram_define  ram_manual_trim
-ram_define  ram_total_trim
-
-        // recover linear flow from MAF ADC count using hi-res method, 
-        // for actual flow feeding into final puff multiply later.  
-        // 256 cell Brute-force lookup might take e.g. 80us to run.  That's 4 jf, 
-        // or 5% of ignition cycle at max RPM.
-        ram ga = $ram_maf_adc_filtered
-        for {i = 0} {i lt $maf_map_num_cells} step j = 1 {
-            a = i
-            struct_read $ram_maf_map
-            if b gt ga {
-                ram $ram_maf_flow_hi_res = i
-                jmp :maf_found
-            }
-        }
-        :maf_found
-        
-        // quantize linear flow from hi-res to lo-res for indexing into AFRC map rows.
-        // Lo-res = hi-res >> 2.  
-        ram a = $ram_maf_flow_hi_res
-        a = a>>1
-        ram $ram_afrc_maf_row_idx = a>>1
-        
-        // find RPM column in AFRC map.
-        ram ga = $ram_avg_rpm
-        for {i = 0} {i lt $rpm_map_num_cells} step j = 1 {
-            a = i
-            struct_read $ram_rpm_map
-            if b gt ga {
-                ram $ram_afrc_rpm_col_idx = i
-                jmp :rpm_found
-            }
-        }
-        :rpm_found
-        
-        // look up Air/Fuel Ratio Correction in AFRC map.
-        // index rows by MAF.
-        ram a = $ram_afrc_maf_row_idx
-        b = $afrc_rpm_cols
-        nop
-        nop
-        nop
-        nop
-        b = product_lo
-        // index columns by RPM.
-        ram a = $ram_afrc_rpm_col_idx
-        a = a+b
-        struct_read $ram_afrc_map
-        ga = b
-        // ga = total trim factor as integer.
-        
-        // look up block temperature map trim factor.
-
-
-        // look up afterstart map trim factor.
-        
-
-        // apply stoich learning trim factor.
-        
-        
-        // apply manual trim factor.
-
-        // clamp the total trim between 0.5 and 2.0 trim factor equivalent 
-        // ( = 0 to 24576 inclusive).  best to do this instead using saturating addition (at 24576) in the previous step.
-        
-
-        // final multiplication for puff length.
-        // (MAF linear flow) * (stoich ratio constant) * (total trim as floating point) = (puff length jf).  
-        // here the total trim float will have to be represented as a fraction (num/denom).
-        // stoich ratio constant (8) (really the conversion factor from linear
-        // flow to nominal jf)  is folded into that denominator (16384) at compile time.  
-        // that makes denom = 2048 = 11 bits.  so:
-        // gb = (puff len jf) = (MAF linear flow) * [(total trim) + 8192] >> 11
-        a = ga
-        b = 8192
-        a = a+b
-        ram b = $ram_maf_flow_hi_res
-        nop
-        nop
-        nop
-        nop
-        // gb = 32-bit product shifted >> 11.  lower 11 bits of product_hi are
-        // explicitly moved to upper 11 bits of gb.
-        a = product_lo
-        b = product_hi
-        a = a>>4
-        a = a>>4
-        a = a>>1
-        a = a>>1
-        gb = a>>1
-        a = b
-        a = a<<4
-        a = a<<1
-        b = gb
-        gb = or
-
-
-        // clamp the (puff length jf) to sane range.  max is the floating duty cycle.  min is the safety amount to keep motor running and maybe prevent leaning damage.
-        ram a = $ram_ign_avg_jf
-        a = a>>1
-        a = a>>1
-        a = a>>1
-        b = 0xffff
-        a = xor
-        ram b = $ram_ign_avg_jf
-        x = a+b
-        if gb gt x {
-            gb = x
-        }
-        //patch: don't know a proper minimum.
-
-        // shut off puff during closed throttle engine braking.
-        //patch: not implemented.
-        
-// old code:
-        // read smap puff into ga
-        ram pa = $ram_avg_rpm
-        callx  find_rpm_cell  pa  a
-        gb = a
-        struct_read $ram_smap
-        ga = b
-        
-        // calculate manual enrichment in us.  apply a total of 10 bits of right-shift to 
-        // implement division by 1024 (thou unit).  spread them out to prevent overflow.
-        ram a = $ram_run_manual_trim_thou
-        a = a>>1
-        b = a>>1
-        a = ga
-        a = a>>4
-        call  multiply        
-        a = a>>4
-        
-        // add enrichment to smap puff.
-        b = ga
-        ga = a+b
-        
-        //// determine TPS enrichment for acceleration.
-        //ram x = $ram_tps_state
-        //if x eq $tps_state_accel2 {
-            //callx  unique_text_flag  :tps_accel2_msg
-        //}
-        //if x eq $tps_state_open {
-            //callx  unique_text_flag  :tps_open_msg
-        //}
-        //// index into maps by TPS state.
-        //i = 0
-        //j = $num_tps_cells
-        //y = -1
-        //:next_state
-        //br xz :found_state
-            //i = i+j
-            //x = x+y
-        //jmp :next_state        
-        //:found_state
-        //// index into maps by RPM.
-        //j = gb
-        //a = i+j
-        //// convert from words to bytes.
-        //a = a<<1
-        //// add map address.
-        //b = :ram_tps_closed_enrich_us
-        //a = a+b
-
-        //// add enrichment to smap puff.
-        //b = ga
-        //ga = a+b
-        
-        // memorize total puff.
-        ram $ram_next_puff_len_us = ga
+    if a ne 1 {
+        jmp :abort
     }
+
+    // recover linear flow from MAF ADC count using hi-res method, 
+    // for actual flow feeding into final puff multiply later.  
+    // 256 cell Brute-force lookup might take e.g. 80us to run.  That's 4 jf, 
+    // or 5% of ignition cycle at max RPM.
+    ram ga = $ram_maf_adc_filtered
+    for {i = 0} {i lt $maf_map_num_cells} step j = 1 {
+        a = i
+        struct_read $ram_maf_map
+        if b gt ga {
+            ram $ram_maf_flow_hi_res = i
+            jmp :maf_found
+        }
+    }
+    jmp :abort
+    :maf_found
+    
+    // quantize linear flow from hi-res to lo-res for indexing into AFRC map rows.
+    // Lo-res = hi-res >> 2.  
+    ram a = $ram_maf_flow_hi_res
+    a = a>>1
+    ram $ram_afrc_maf_row_idx = a>>1
+    
+    // find RPM column in AFRC map.
+    ram gb = $ram_avg_rpm
+    for {i = 0} {i lt $rpm_map_num_cells} step j = 1 {
+        a = i
+        struct_read $ram_rpm_map
+        if b gt gb {
+            ram $ram_afrc_rpm_col_idx = i
+            jmp :rpm_found
+        }
+    }
+    jmp :abort
+    :rpm_found
+    
+    // look up Air/Fuel Ratio Correction in AFRC map.
+    // index rows by MAF.
+    ram a = $ram_afrc_maf_row_idx
+    b = $afrc_rpm_cols
+    nop
+    nop
+    nop
+    nop
+    b = product_lo
+    // index columns by RPM.
+    ram a = $ram_afrc_rpm_col_idx
+    a = a+b
+    struct_read $ram_afrc_map
+    ga = b
+    // now ga = total trim factor as integer.
+    
+    // apply block temperature trim factor.
+    ram b = $ram_block_temp_trim
+    callx combine_trim ga b ga
+
+    // apply afterstart trim factor.
+    ram b = $ram_afterstart_trim
+    callx combine_trim ga b ga
+
+    // apply stoich learning trim factor.
+    ram b = $ram_stoich_learn_trim
+    callx combine_trim ga b ga
+    
+    // apply manual trim factor.
+    ram b = $ram_run_manual_trim
+    callx combine_trim ga b ga
+
+    // final multiplication for puff length.
+    // (MAF linear flow) * (stoich ratio constant) * (total trim as floating point) = (puff length jf).  
+    // here the total trim float will have to be represented as a fraction (num/denom).
+    // stoich ratio constant (8) (really the conversion factor from linear
+    // flow to nominal jf)  is folded into that denominator (16384) at compile time.  
+    // that makes denom = 2048 = 11 bits.  so:
+    // gb = (puff len jf) = (MAF linear flow) * [(total trim) + trim_unity] >> 11
+    a = ga
+    b = $trim_unity
+    a = a+b
+    ram b = $ram_maf_flow_hi_res
+    nop
+    nop
+    nop
+    nop
+    // gb = 32-bit product shifted >> 11.  lower 11 bits of product_hi are
+    // explicitly moved to upper 11 bits of gb.
+    a = product_lo
+    b = product_hi
+    a = a>>4
+    a = a>>4
+    a = a>>1
+    a = a>>1
+    gb = a>>1
+    a = b
+    a = a<<4
+    a = a<<1
+    b = gb
+    gb = or
+
+
+    // clamp the (puff length jf) to sane range.  
+    // max is the floating duty cycle.  7/8 of puff cycle, or 87.5%.  
+    ram a = $ram_ign_avg_jf
+    a = a>>1
+    a = a>>1
+    a = a>>1
+    b = 0xffff
+    a = xor
+    ram b = $ram_ign_avg_jf
+    x = a+b
+    if gb gt x {
+        gb = x
+    }
+    // min is the safety amount to keep motor running and maybe prevent leaning damage.
+    //patch: don't know a proper minimum.
+
+    // shut off puff during closed throttle engine braking.
+    //patch: not implemented.
+        
+    // memorize total puff.
+    ram $ram_next_puff_len_us = ga
+
+    :abort
 }
 
 func leave_run {
     callx  check_engine_stop  pa
 }
 
+func interpret_block_temp {
+    // look up block temperature map trim factor.
+    a = $anmux_engine_block_temp
+    struct_read $ram_last_anmux_data
+    gb = b
+    for {i = 0} {i lt $block_temp_num_cells} step j = 1 {
+        a = i
+        struct_read $ram_block_temp_scale
+        if b gt gb {
+            ram $ram_block_temp_map_idx = i
+            a = i
+            struct_read $ram_block_temp_map
+            ram $ram_block_temp_trim = b
+            jmp :temp_done
+        }
+    }
+    :temp_done
+}

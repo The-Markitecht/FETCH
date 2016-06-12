@@ -658,6 +658,7 @@ event spi_done_handler
         }
         
         // end of temperature daq pass.
+        callx  interpret_block_temp
         callx  report_plan
         callx  report_text_flags
         puteol   
@@ -875,7 +876,7 @@ func report_plan {
     
     a = :manual_trim_msg
     call :print_nt
-    ram a = $ram_run_manual_trim_thou
+    ram a = $ram_run_manual_trim
     call :put4x
 }
     
