@@ -9,6 +9,7 @@ setvar      trim_double                 24576
 setvar      trim_min                    $trim_half
 setvar      trim_max                    $trim_double
 
+ram_define  ram_maf_valid
 ram_define  ram_maf_adc_filtered
 ram_define  ram_maf_flow_hi_res
 ram_define  ram_afrc_maf_row_idx
@@ -125,41 +126,6 @@ func puff_len_run {
     if a ne 1 {
         jmp :abort
     }
-
-    // recover linear flow from MAF ADC count using hi-res method, 
-    // for actual flow feeding into final puff multiply later.  
-    // 256 cell Brute-force lookup might take e.g. 80us to run.  That's 4 jf, 
-    // or 5% of ignition cycle at max RPM.
-    ram ga = $ram_maf_adc_filtered
-    for {i = 0} {i lt $maf_map_num_cells} step j = 1 {
-        a = i
-        struct_read $ram_maf_map
-        if b gt ga {
-            ram $ram_maf_flow_hi_res = i
-            jmp :maf_found
-        }
-    }
-    jmp :abort
-    :maf_found
-    
-    // quantize linear flow from hi-res to lo-res for indexing into AFRC map rows.
-    // Lo-res = hi-res >> 2.  
-    ram a = $ram_maf_flow_hi_res
-    a = a>>1
-    ram $ram_afrc_maf_row_idx = a>>1
-    
-    // find RPM column in AFRC map.
-    ram gb = $ram_avg_rpm
-    for {i = 0} {i lt $rpm_map_num_cells} step j = 1 {
-        a = i
-        struct_read $ram_rpm_map
-        if b gt gb {
-            ram $ram_afrc_rpm_col_idx = i
-            jmp :rpm_found
-        }
-    }
-    jmp :abort
-    :rpm_found
     
     // look up Air/Fuel Ratio Correction in AFRC map.
     // index rows by MAF.
@@ -222,7 +188,6 @@ func puff_len_run {
     a = a<<1
     b = gb
     gb = or
-
 
     // clamp the (puff length jf) to sane range.  
     // max is the floating duty cycle.  7/8 of puff cycle, or 87.5%.  

@@ -362,6 +362,19 @@ event ign_capture_handler
         callx  jf_to_rpm  x  pa
         ram $ram_avg_rpm = pa
         ram $ram_rpm_valid = 1
+
+        // find RPM column in AFRC map.
+        ram gb = $ram_avg_rpm
+        for {i = 0} {i lt $rpm_map_num_cells} step j = 1 {
+            a = i
+            struct_read $ram_rpm_map
+            if b gt gb {
+                ram $ram_afrc_rpm_col_idx = i
+                jmp :rpm_found
+            }
+        }
+        ram $ram_rpm_valid = 0
+        :rpm_found
     }
 end_event
 
@@ -888,7 +901,30 @@ func interpret_maf {
     a = a>>1
     b = 0x01ff
     //patch: do some averaging here, like interpret_tps.
+    x = and
     ram $ram_maf_adc_filtered = and
+    
+    // recover linear flow from MAF ADC count using hi-res method, 
+    // for actual flow feeding into final puff multiply later.  
+    // 256 cell Brute-force lookup might take e.g. 80us to run.  That's 4 jf, 
+    // or 5% of ignition cycle at max RPM.
+    ram $ram_maf_valid = 0
+    for {i = 0} {i lt $maf_map_num_cells} step j = 1 {
+        a = i
+        struct_read $ram_maf_map
+        if b gt x {
+            ram $ram_maf_flow_hi_res = i
+            ram $ram_maf_valid = 1
+            jmp :maf_done
+        }
+    }
+    :maf_done
+    
+    // quantize linear flow from hi-res to lo-res for indexing into AFRC map rows.
+    // Lo-res = hi-res >> 2.  
+    ram a = $ram_maf_flow_hi_res
+    a = a>>1
+    ram $ram_afrc_maf_row_idx = a>>1
 }
 
 func interpret_tps {
