@@ -25,12 +25,12 @@ setvar     drom_shadow_len_bytes    ([ram_join $drom_shadow_counter] - $drom_sha
 << if {$drom_shadow_len_bytes > 65536} {error "Data ROM too long."} >>
 
 
-func init_data_rom {
+func init_drom {
     // copy entire ROM content to a shadow area in RAM.
     av_ad_hi = ($drom_shadow_base >> 16)
     for {i = 0} {i lt $drom_shadow_len_bytes} step j = 1 {
-        data_rom_ad = i
+        drom_ad = i
         av_ad_lo = i
-        av_write_data = data_rom_data
+        av_write_data = drom_data
     }
 }

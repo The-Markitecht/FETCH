@@ -571,7 +571,7 @@ func load_program
     // load opcodes.  count up address in i.
     i = 0
     j = 1
-    call :fletcher16_init
+    callx  fletcher16_init
     :loadword
         // receive, store in RAM.
         get16 a
@@ -579,8 +579,7 @@ func load_program
         m9k_data = a
 
         // read back from RAM and build checksum.
-        a = m9k_data
-        call :fletcher16_input16 
+        callx  fletcher16_input16  m9k_data 
         
         //  show decimated feedback text, for more speed:
         a = i
@@ -594,7 +593,7 @@ func load_program
         b = x
     bn eq :loadword
     puteol
-    call :fletcher16_result
+    callx fletcher16_result  a
     call :put4x
     puteol
 end_func

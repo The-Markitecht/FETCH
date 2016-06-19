@@ -223,14 +223,14 @@
     006c : 615f ; -- <0196> a_
     006d : 5f64 ; -- <0196> _d
     006e : 6f6c ; -- <0196> ol
--- "--rom_ad"
+-- "--dromad"
     006f : 2f2f ; -- <0196> --
-    0070 : 6f72 ; -- <0196> or
-    0071 : 5f6d ; -- <0196> _m
+    0070 : 7264 ; -- <0196> rd
+    0071 : 6d6f ; -- <0196> mo
     0072 : 6461 ; -- <0196> da
--- "rom_data"
-    0073 : 6f72 ; -- <0196> or
-    0074 : 5f6d ; -- <0196> _m
+-- "dromdata"
+    0073 : 7264 ; -- <0196> rd
+    0074 : 6d6f ; -- <0196> mo
     0075 : 6164 ; -- <0196> ad
     0076 : 6174 ; -- <0196> at
 -- "--uartdt"
@@ -925,8 +925,8 @@
 
 
 
--- ######## func init_data_rom -- = 0x022d
-    022d : 3002 ; -- <0036> push i -- func init_data_rom
+-- ######## func init_drom -- = 0x022d
+    022d : 3002 ; -- <0036> push i -- func init_drom
 
 -- copy entire ROM content to a shadow area in RAM.
     022e : 67a0 ; -- <0030> av_ad_hi = ($drom_shadow_base >> 16)
@@ -934,9 +934,9 @@
     0230 : 0a00 ; -- <0035> i = 0
 -- :loop_560 -- = 0x0231
 
-    0231 : 6c02 ; -- <0031> data_rom_ad = i
+    0231 : 6c02 ; -- <0031> drom_ad = i
     0232 : 6802 ; -- <0032> av_ad_lo = i
-    0233 : 5c1c ; -- <0033> av_write_data = data_rom_data
+    0233 : 5c1c ; -- <0033> av_write_data = drom_data
 
 
     0234 : 0002 ; -- <0035> a = i
@@ -953,7 +953,7 @@
 
 -- :end_560 -- = 0x023d
 
-    023d : 080c ; -- <0037> pop i -- func init_data_rom
+    023d : 080c ; -- <0037> pop i -- func init_drom
     023e : fc00 ; -- <0037> swapra = nop
 
 
@@ -3106,7 +3106,7 @@
     0810 : 0beb ; -- <0226> "
     0811 : fc00 ; -- <0226> "
 
-    0812 : fba0 ; -- <0228> callx  init_data_rom
+    0812 : fba0 ; -- <0228> callx  init_drom
     0813 : 022d ; -- <0228> "
     0814 : fc00 ; -- <0228> "
 
@@ -5141,7 +5141,7 @@
 -- src reg 0018 av_read_data
 -- src reg 0019 av_ad_hi
 -- src reg 001a av_ad_lo
--- src reg 001c data_rom_data
+-- src reg 001c drom_data
 -- src reg 001d fduart_data
 -- src reg 001e fduart_status
 -- src reg 001f leds
@@ -5175,7 +5175,7 @@
 -- dest reg 0017 av_write_data
 -- dest reg 0019 av_ad_hi
 -- dest reg 001a av_ad_lo
--- dest reg 001b data_rom_ad
+-- dest reg 001b drom_ad
 -- dest reg 001d fduart_data
 -- dest reg 001e fduart_status
 -- dest reg 001f leds

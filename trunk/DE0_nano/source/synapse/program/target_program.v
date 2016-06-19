@@ -224,14 +224,14 @@ addr == 16'h6b ? 16'h7661 :  // <0196> va
 addr == 16'h6c ? 16'h615f :  // <0196> a_
 addr == 16'h6d ? 16'h5f64 :  // <0196> _d
 addr == 16'h6e ? 16'h6f6c :  // <0196> ol
-// "//rom_ad"
+// "//dromad"
 addr == 16'h6f ? 16'h2f2f :  // <0196> //
-addr == 16'h70 ? 16'h6f72 :  // <0196> or
-addr == 16'h71 ? 16'h5f6d :  // <0196> _m
+addr == 16'h70 ? 16'h7264 :  // <0196> rd
+addr == 16'h71 ? 16'h6d6f :  // <0196> mo
 addr == 16'h72 ? 16'h6461 :  // <0196> da
-// "rom_data"
-addr == 16'h73 ? 16'h6f72 :  // <0196> or
-addr == 16'h74 ? 16'h5f6d :  // <0196> _m
+// "dromdata"
+addr == 16'h73 ? 16'h7264 :  // <0196> rd
+addr == 16'h74 ? 16'h6d6f :  // <0196> mo
 addr == 16'h75 ? 16'h6164 :  // <0196> ad
 addr == 16'h76 ? 16'h6174 :  // <0196> at
 // "//uartdt"
@@ -926,8 +926,8 @@ addr == 16'h22c ? 16'hfc00 :  // <0015> swapra = nop
 
 
 
-// ######## func init_data_rom // = 0x022d
-addr == 16'h22d ? 16'h3002 :  // <0036> push i // func init_data_rom
+// ######## func init_drom // = 0x022d
+addr == 16'h22d ? 16'h3002 :  // <0036> push i // func init_drom
 
 // copy entire ROM content to a shadow area in RAM.
 addr == 16'h22e ? 16'h67a0 :  // <0030> av_ad_hi = ($drom_shadow_base >> 16)
@@ -935,9 +935,9 @@ addr == 16'h22f ? 16'h0100 :  // <0030> "
 addr == 16'h230 ? 16'h0a00 :  // <0035> i = 0
 // :loop_560 // = 0x0231
 
-addr == 16'h231 ? 16'h6c02 :  // <0031> data_rom_ad = i
+addr == 16'h231 ? 16'h6c02 :  // <0031> drom_ad = i
 addr == 16'h232 ? 16'h6802 :  // <0032> av_ad_lo = i
-addr == 16'h233 ? 16'h5c1c :  // <0033> av_write_data = data_rom_data
+addr == 16'h233 ? 16'h5c1c :  // <0033> av_write_data = drom_data
 
 
 addr == 16'h234 ? 16'h0002 :  // <0035> a = i
@@ -954,7 +954,7 @@ addr == 16'h23c ? 16'h0231 :  // <0035> "
 
 // :end_560 // = 0x023d
 
-addr == 16'h23d ? 16'h080c :  // <0037> pop i // func init_data_rom
+addr == 16'h23d ? 16'h080c :  // <0037> pop i // func init_drom
 addr == 16'h23e ? 16'hfc00 :  // <0037> swapra = nop
 
 
@@ -3107,7 +3107,7 @@ addr == 16'h80f ? 16'hfba0 :  // <0226> callx  clear_ram_page  0
 addr == 16'h810 ? 16'h0beb :  // <0226> "
 addr == 16'h811 ? 16'hfc00 :  // <0226> "
 
-addr == 16'h812 ? 16'hfba0 :  // <0228> callx  init_data_rom
+addr == 16'h812 ? 16'hfba0 :  // <0228> callx  init_drom
 addr == 16'h813 ? 16'h022d :  // <0228> "
 addr == 16'h814 ? 16'hfc00 :  // <0228> "
 

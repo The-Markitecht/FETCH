@@ -1,55 +1,50 @@
 
-    nonstackable  $fletcher_sum1_reg  $fletcher_sum2_reg
+nonstackable  $fletcher_sum1_reg  $fletcher_sum2_reg
 
-func fletcher16_init
+func fletcher16_init {
     $fletcher_sum1_reg = 0
     $fletcher_sum2_reg = 0
-end_func
+}
     
-// compute the modulus(255) of a number given in a.  return remainder in a.
-func mod255
+// return the modulus(255) of a given number.
+func mod255 {data in a} {modulus out a} {
     // while a is greater than 254, subtract 255.
     :mod255_again
     b = 0xfe
     br gt :mod255_greater
     rtn
     :mod255_greater
-    b = 0xff01
+    b = ([negate 0xfe])
     a = a+b
     jmp :mod255_again
-end_func
+}
 
-// accumulate a Fletcher16 checksum, given the next byte of data in a.    
-func fletcher16_input8
+// accumulate a Fletcher16 checksum, given the next byte of data.    
+func fletcher16_input8 {data in a} {
     b = $fletcher_sum1_reg
-    a = a+b
-    call :mod255
-    $fletcher_sum1_reg = a
-    
-    b = $fletcher_sum2_reg
-    a = a+b
-    call :mod255
-    $fletcher_sum2_reg = a
-end_func
+    callx mod255  a+b  $fletcher_sum1_reg
 
-// accumulate a Fletcher16 checksum, given the next word of data in a.    
-func fletcher16_input16
+    a = $fletcher_sum1_reg
+    b = $fletcher_sum2_reg
+    callx mod255  a+b  $fletcher_sum2_reg
+}
+
+// accumulate a Fletcher16 checksum, given the next word of data.    
+func fletcher16_input16 {data in a} {
     i = a>>4
     b = 0xff
-    a = and
-    call :fletcher16_input8
+    callx fletcher16_input8  and
     a = i
-    a = a>>4
-    call :fletcher16_input8
-end_func
+    callx fletcher16_input8  a>>4
+}
 
-// return the combined 16-bit result of Fletcher16 checksum in a.    
-func fletcher16_result
+// return the combined 16-bit result of Fletcher16 checksum.    
+func fletcher16_result {result out a} {
     a = $fletcher_sum2_reg
     a = a<<4
     a = a<<4
     b = $fletcher_sum1_reg
-    a = or
-end_func
+    rtn  or
+}
     
-    stackable  $fletcher_sum1_reg  $fletcher_sum2_reg
+stackable  $fletcher_sum1_reg  $fletcher_sum2_reg

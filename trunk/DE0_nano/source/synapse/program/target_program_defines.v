@@ -81,8 +81,8 @@
 `define SDRAM_SIZE  33554432
 `define SDRAM_SIZE_HI  512
 `define SDRAM_SIZE_LO  0
-`define DR_DATA_ROM_AD  27
-`define SR_DATA_ROM_DATA  28
+`define DR_DROM_AD  27
+`define SR_DROM_DATA  28
 `define SR_FDUART_DATA  29
 `define DR_FDUART_DATA  29
 `define SR_FDUART_STATUS  30

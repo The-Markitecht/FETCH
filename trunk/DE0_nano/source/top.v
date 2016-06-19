@@ -264,12 +264,11 @@ qsys2 u0 (
 assign DRAM_CLK = clk_sdram;
 
 // data ROM for lookup tables etc.
-patch: change data_rom_ad to write_only, since there's no read access to altera's built-in address reg.
-data_rom data_rom_inst (
+data_rom drom (
     .address ( r_load_data ),
-    .clken ( ! r_load[`DR_DATA_ROM_AD] ), 
+    .clken ( ! r_load[`DR_DROM_AD] ), 
     .clock ( sysclk ),
-    .q ( r[`SR_DATA_ROM_DATA] )
+    .q ( r[`SR_DROM_DATA] )
 );
 
 /*  bus_expander does not seem to read back correctly from a non-zero address.
