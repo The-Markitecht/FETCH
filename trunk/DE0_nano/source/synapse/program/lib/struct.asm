@@ -12,7 +12,7 @@ proc struct_read {lin  base_addr} {
         b = $lo
         av_ad_hi = $hi
         av_ad_lo = ad0
-        b = av_write_data
+        b = av_begin_read
         b = av_read_data
     "
 }

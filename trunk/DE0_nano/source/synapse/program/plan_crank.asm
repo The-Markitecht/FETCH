@@ -64,7 +64,7 @@ func leave_crank {
         b = $crank_success_rpm
         br lt :stay
             callx  destroy_plan_crank
-            callx  init_plan_warmup
+            callx  init_plan_run
     :stay
     
     :done

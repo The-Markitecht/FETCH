@@ -18,8 +18,8 @@
     setvar num_gp $visor_num_gp
     
     // application-specific register aliases.  
-    alias_both g6               6               "g6"
-    alias_both g7               7               "g7"
+    alias_both ga               6               "ga"
+    alias_both gb               7               "gb"
     setvar counter $visor_top_gp
     
     alias_both rstk             [incr counter]  "//rstk"
@@ -66,7 +66,7 @@
     setvar dest_mask ((1 << $dest_width) - 1)
     setvar dest_field_mask ($dest_mask << $dest_lsb)
     
-    convention_gpx
+    convention_formal
     
     jmp :main
     
@@ -74,8 +74,8 @@
     include lib/string.asm
     include lib/console.asm
     
-    setvar fletcher_sum1_reg g6
-    setvar fletcher_sum2_reg g7
+    setvar fletcher_sum1_reg ga
+    setvar fletcher_sum2_reg gb
     include lib/fletcher.asm
 
     << proc getchar_echo {lin} {
@@ -246,8 +246,8 @@ func dump_avalon
   
     // this func may borrow some peripheral registers to hold temporary data.
     // but it can only borrow registers that don't have side effects that are relevant to this function.
-    setvar  av_data_regs  g6
-    setvar  av_ad_lo_reg  g7
+    setvar  av_data_regs  ga
+    setvar  av_ad_lo_reg  gb
 
     // parse av_write_data reg address into av_data_regs high byte.
     call :get4x    
@@ -540,12 +540,12 @@ func print_fixed_target
         br xz :done
         x = ad2
         m9k_addr = i
-        g6 = m9k_data
+        ga = m9k_data
         // now x = bytes remaining, i = current word address, g6 = data word.
-        putchar g6
+        putchar ga
         br xz :done
         x = ad2
-        a = g6
+        a = ga
         a = a>>4
         a = a>>4
         putchar a

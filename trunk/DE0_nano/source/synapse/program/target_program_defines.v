@@ -70,6 +70,7 @@
 `define DR_SPI_DATA  22
 `define SR_AV_WRITE_DATA  23
 `define DR_AV_WRITE_DATA  23
+`define SR_AV_BEGIN_READ  23
 `define SR_AV_READ_DATA  24
 `define SR_AV_AD_HI  25
 `define DR_AV_AD_HI  25

@@ -9,24 +9,16 @@ ram_define      ram_terminal_connected
         ([label set_plan_stop_cmd])
     "   plcr"
         ([label set_plan_crank_cmd])
-    "   plwm"
-        ([label set_plan_warmup_cmd])
+    //"   plwm"
+        //([label set_plan_warmup_cmd])
     "   plrn"
         ([label set_plan_run_cmd])
-    "   plln"
-        ([label set_plan_learn_cmd])
-    " ldsmap"
-        ([label load_smap_cmd])
-    " clsmap"
-        ([label clear_smap_cmd])
-    "   smap"
-        ([label dump_smap_cmd])
-    "   ltps"
-        ([label learn_tps_ref_cmd])
-    " ldtpsr"
-        ([label load_tps_ref_cmd])
-    " ldtpse"
-        ([label load_tps_enrich_cmd])
+    //"   plln"
+        //([label set_plan_learn_cmd])
+    " ldafrc"
+        ([label load_afrc_cmd])
+    "   afrc"
+        ([label dump_afrc_cmd])
     "      ,"
         ([label trim_lean_cmd])
     "      ."
@@ -115,21 +107,9 @@ func set_plan_crank_cmd {
     callx  init_plan_crank
 }
     
-func set_plan_warmup_cmd {
-    ram rtna = $ram_destroy_plan_func
-    call_indirect
-    callx  init_plan_warmup
-}
-    
 func set_plan_run_cmd {
     ram rtna = $ram_destroy_plan_func
     call_indirect
     callx  init_plan_run
-}
-    
-func set_plan_learn_cmd {
-    ram rtna = $ram_destroy_plan_func
-    call_indirect
-    callx  init_plan_learn_stoich
 }
     

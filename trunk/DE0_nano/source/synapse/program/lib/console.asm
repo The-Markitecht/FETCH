@@ -54,7 +54,7 @@
 func put4x
     x = :hexdigits
     
-    g6 = a
+    ga = a
     b = 0xF000
     a = and
     a = a>>4
@@ -63,7 +63,7 @@ func put4x
     call fetch_byte
     putchar a
     
-    a = g6
+    a = ga
     b = 0x0F00
     a = and
     a = a>>4
@@ -71,14 +71,14 @@ func put4x
     call fetch_byte
     putchar a
     
-    a = g6
+    a = ga
     b = 0x00F0
     a = and
     a = a>>4
     call fetch_byte
     putchar a
     
-    a = g6
+    a = ga
     b = 0x000F
     a = and
     call fetch_byte
@@ -126,12 +126,12 @@ func print_fixed
     :next_word
         br xz :done
         x = ad2
-        fetch g6 from i
-        // now x = bytes remaining, i = current word address, g6 = data word.
-        putchar g6
+        fetch ga from i
+        // now x = bytes remaining, i = current word address, ga = data word.
+        putchar ga
         br xz :done
         x = ad2
-        a = g6
+        a = ga
         a = a>>4
         a = a>>4
         putchar a

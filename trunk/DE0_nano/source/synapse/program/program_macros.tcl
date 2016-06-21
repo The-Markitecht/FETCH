@@ -104,7 +104,7 @@ namespace eval ::asm {
         lassign [split $addr {'}] hi lo
         parse3 av_ad_hi $eq [expr {$hi}] "$lin // av_ad_hi = $hi"
         parse3 av_ad_lo $eq [expr {$lo}] "$lin // av_ad_lo = $lo"
-        parse3 $reg_name $eq av_write_data "$lin // $reg_name = av_write_data // start read cycle"
+        parse3 $reg_name $eq av_begin_read "$lin // $reg_name = av_write_data // start read cycle"
         parse3 $reg_name $eq av_read_data  "$lin // $reg_name = av_read_data // finish read cycle"
     }
 

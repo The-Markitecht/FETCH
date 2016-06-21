@@ -43,6 +43,7 @@
     alias_both spi_data             [incr counter]  "spi_data"
     
     alias_both av_write_data        [incr counter]  "//avwrdt"
+    alias_src  av_begin_read        [src av_write_data]  "//avwrdt"
     alias_src  av_read_data	        [incr counter]  "av_rd_dt"
     alias_both av_ad_hi             [incr counter]  "av_ad_hi"
     alias_both av_ad_lo             [incr counter]  "av_ad_lo"
@@ -209,12 +210,13 @@
     include lib/math.asm
     include lib/string.asm
     include lib/time.asm
+    setvar fletcher_sum1_reg pc
+    setvar fletcher_sum2_reg pd
+    include lib/fletcher.asm
     include data_rom.asm
     include terminal_commands.asm
     include plan_stop.asm
     include plan_crank.asm
-    include plan_warmup.asm
-    include plan_learn_stoich.asm
     include plan_run.asm
         
     // #########################################################################
@@ -229,28 +231,7 @@
 
     // init fuel injection.
     callx  init_plan_stop    
-    for {i = 0} {i lt $num_rpm_cells} step j = 1 {
-        a = i
-        b = 0x1194
-        struct_write $ram_smap
-    }
-    for {i = 0} {i lt $num_tps_cells} step j = 1 {
-        a = i
-        b = :default_tps_reference
-        fetch b from a+b
-        a = i
-        struct_write $ram_tps_reference
-        a = i
-        b = 0x2000
-        struct_write $ram_tps_accel1_enrich_us
-        a = i
-        b = 0x4000
-        struct_write $ram_tps_accel2_enrich_us
-        a = i
-        b = 0x8000
-        struct_write $ram_tps_open_enrich_us
-    }
-    
+
     // power up FTDI USB board, and init any other special board control functions.
     board_ctrl = $ftdi_power_mask
     callx postpone_comm_restart
@@ -562,10 +543,6 @@ func start_daq_pass {
     putasc ","
     ram a = $ram_tps_avg
     call :put4x    
-    putasc ","
-    ram a = $ram_tps_state
-    asc b = "0"
-    putchar a+b    
     
     // start to acquire & report all anmux channels.
     a = ($anmux_num_channels - 1)
@@ -952,66 +929,6 @@ func interpret_tps {
     a = a>>1
     ga = a>>1
     ram $ram_tps_avg = ga
-    // interpret state by comparing vs. reference table.
-    // compare to idle reference.
-    a = 0
-    struct_read $ram_tps_reference
-    a = b
-    a = a>>4
-    b = a+b
-    if ga lt b {
-        ram $ram_tps_state = $tps_state_closed
-        jmp :end
-    }
-    // compare to wide open reference.
-    a = ($num_tps_cells - 1)
-    struct_read $ram_tps_reference
-    x = b
-    a = b
-    a = a>>1
-    a = a>>1
-    b = 0xffff
-    y = xor
-    if ga gt x+y {
-        ram $ram_tps_state = $tps_state_open
-        jmp :end
-    }
-    // compare to current RPM's reference position.
-//patch: rework this to compare to the next 2 tps reference cells instead of a fixed margin.
-// that way always prevents it from enriching while the tps is still within same ref cell.
-    ram pa = $ram_avg_rpm
-    callx  find_rpm_cell  pa  a
-    struct_read $ram_tps_reference
-    x = b
-    // test if it's within 1/16 of reference. 
-    a = x
-    a = a>>4
-    a = a+b
-    if a gt ga {
-        ram $ram_tps_state = $tps_state_cruise
-        jmp :end
-    }
-    // test if it's within 1/8 of reference. 
-    a = x
-    a = a>>1
-    a = a>>1
-    a = a>>1
-    b = x
-    a = a+b
-    if a gt ga {
-        ram $ram_tps_state = $tps_state_accel1
-        jmp :end
-    }
-    // test if it's within 1/2 of reference. 
-    a = x
-    a = a>>1
-    b = x
-    a = a+b
-    if a gt ga {
-        ram $ram_tps_state = $tps_state_accel2
-        jmp :end
-    }
-    // in this case leave ram_tps_state as-is.
     
     :end
 }

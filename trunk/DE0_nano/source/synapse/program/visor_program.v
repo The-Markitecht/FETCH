@@ -207,12 +207,12 @@ addr == 16'h5e ? 16'h6665 :  // <0050> fe
 // pass number in a.
 // ######## func put4x // = 0x005f
 addr == 16'h5f ? 16'h2004 :  // <0054> push x // func put4x
-addr == 16'h60 ? 16'h2006 :  // <0054> push g6 // "
+addr == 16'h60 ? 16'h2006 :  // <0054> push ga // "
 addr == 16'h61 ? 16'h203e :  // <0054> push rtna // "
 addr == 16'h62 ? 16'h13a0 :  // <0055> x = :hexdigits
 addr == 16'h63 ? 16'h0057 :  // <0055> "
 
-addr == 16'h64 ? 16'h1800 :  // <0057> g6 = a
+addr == 16'h64 ? 16'h1800 :  // <0057> ga = a
 addr == 16'h65 ? 16'h07a0 :  // <0058> b = 0xF000
 addr == 16'h66 ? 16'hf000 :  // <0058> "
 addr == 16'h67 ? 16'hc800 :  // <0059> a = and
@@ -227,7 +227,7 @@ addr == 16'h6f ? 16'hfba0 :  // <0064> putchar a
 addr == 16'h70 ? 16'h0004 :  // <0064> "
 addr == 16'h71 ? 16'hfc00 :  // <0064> "
 
-addr == 16'h72 ? 16'h0006 :  // <0066> a = g6
+addr == 16'h72 ? 16'h0006 :  // <0066> a = ga
 addr == 16'h73 ? 16'h07a0 :  // <0067> b = 0x0F00
 addr == 16'h74 ? 16'h0f00 :  // <0067> "
 addr == 16'h75 ? 16'hc800 :  // <0068> a = and
@@ -241,7 +241,7 @@ addr == 16'h7c ? 16'hfba0 :  // <0072> putchar a
 addr == 16'h7d ? 16'h0004 :  // <0072> "
 addr == 16'h7e ? 16'hfc00 :  // <0072> "
 
-addr == 16'h7f ? 16'h0006 :  // <0074> a = g6
+addr == 16'h7f ? 16'h0006 :  // <0074> a = ga
 addr == 16'h80 ? 16'h06f0 :  // <0075> b = 0x00F0
 addr == 16'h81 ? 16'hc800 :  // <0076> a = and
 addr == 16'h82 ? 16'h0330 :  // <0076> "
@@ -253,7 +253,7 @@ addr == 16'h87 ? 16'hfba0 :  // <0079> putchar a
 addr == 16'h88 ? 16'h0004 :  // <0079> "
 addr == 16'h89 ? 16'hfc00 :  // <0079> "
 
-addr == 16'h8a ? 16'h0006 :  // <0081> a = g6
+addr == 16'h8a ? 16'h0006 :  // <0081> a = ga
 addr == 16'h8b ? 16'h060f :  // <0082> b = 0x000F
 addr == 16'h8c ? 16'hc800 :  // <0083> a = and
 addr == 16'h8d ? 16'h0330 :  // <0083> "
@@ -265,7 +265,7 @@ addr == 16'h92 ? 16'h0004 :  // <0085> "
 addr == 16'h93 ? 16'hfc00 :  // <0085> "
 
 addr == 16'h94 ? 16'hf808 :  // <0087> pop rtna // end_func
-addr == 16'h95 ? 16'h1808 :  // <0087> pop g6 // "
+addr == 16'h95 ? 16'h1808 :  // <0087> pop ga // "
 addr == 16'h96 ? 16'h1008 :  // <0087> pop x // "
 addr == 16'h97 ? 16'hfc00 :  // <0086> swapra = nop
 
@@ -330,7 +330,7 @@ addr == 16'hc4 ? 16'h2002 :  // <0121> push i // func print_fixed
 addr == 16'hc5 ? 16'h2003 :  // <0121> push j // "
 addr == 16'hc6 ? 16'h2004 :  // <0121> push x // "
 addr == 16'hc7 ? 16'h2005 :  // <0121> push y // "
-addr == 16'hc8 ? 16'h2006 :  // <0121> push g6 // "
+addr == 16'hc8 ? 16'h2006 :  // <0121> push ga // "
 addr == 16'hc9 ? 16'h203e :  // <0121> push rtna // "
 addr == 16'hca ? 16'h0800 :  // <0122> i = a
 addr == 16'hcb ? 16'h0e01 :  // <0123> j = 1
@@ -340,17 +340,17 @@ addr == 16'hcd ? 16'h1760 :  // <0125> y = -1
 addr == 16'hce ? 16'he002 :  // <0127> br xz :done
 addr == 16'hcf ? 16'h00e4 :  // <0127> "
 addr == 16'hd0 ? 16'h1320 :  // <0128> x = ad2
-addr == 16'hd1 ? 16'hd002 :  // <0129> fetch g6 from i
+addr == 16'hd1 ? 16'hd002 :  // <0129> fetch ga from i
 addr == 16'hd2 ? 16'h1bb0 :  // <0129> "
-// now x = bytes remaining, i = current word address, g6 = data word.
-addr == 16'hd3 ? 16'h0006 :  // <0131> a = g6 // putchar g6
-addr == 16'hd4 ? 16'hfba0 :  // <0131> putchar g6
+// now x = bytes remaining, i = current word address, ga = data word.
+addr == 16'hd3 ? 16'h0006 :  // <0131> a = ga // putchar ga
+addr == 16'hd4 ? 16'hfba0 :  // <0131> putchar ga
 addr == 16'hd5 ? 16'h0004 :  // <0131> "
 addr == 16'hd6 ? 16'hfc00 :  // <0131> "
 addr == 16'hd7 ? 16'he002 :  // <0132> br xz :done
 addr == 16'hd8 ? 16'h00e4 :  // <0132> "
 addr == 16'hd9 ? 16'h1320 :  // <0133> x = ad2
-addr == 16'hda ? 16'h0006 :  // <0134> a = g6
+addr == 16'hda ? 16'h0006 :  // <0134> a = ga
 addr == 16'hdb ? 16'h0353 :  // <0135> a = a>>4
 addr == 16'hdc ? 16'h0353 :  // <0136> a = a>>4
 addr == 16'hdd ? 16'hfba0 :  // <0137> putchar a
@@ -362,7 +362,7 @@ addr == 16'he2 ? 16'he00f :  // <0139> jmp :next_word
 addr == 16'he3 ? 16'h00ce :  // <0139> "
 // :done // = 0x00e4
 addr == 16'he4 ? 16'hf808 :  // <0141> pop rtna // end_func
-addr == 16'he5 ? 16'h1808 :  // <0141> pop g6 // "
+addr == 16'he5 ? 16'h1808 :  // <0141> pop ga // "
 addr == 16'he6 ? 16'h1408 :  // <0141> pop y // "
 addr == 16'he7 ? 16'h1008 :  // <0141> pop x // "
 addr == 16'he8 ? 16'h0c08 :  // <0141> pop j // "
@@ -450,7 +450,7 @@ addr == 16'h11d ? 16'h0300 :  // <0025> "
 addr == 16'h11e ? 16'hfba0 :  // <0025> callx mod255  a+b  $fletcher_sum1_reg
 addr == 16'h11f ? 16'h010f :  // <0025> "
 addr == 16'h120 ? 16'hfc00 :  // <0025> "
-addr == 16'h121 ? 16'h1800 :  // <0025> g6 = a
+addr == 16'h121 ? 16'h1800 :  // <0025> ga = a
 
 addr == 16'h122 ? 16'h0006 :  // <0027> a = $fletcher_sum1_reg
 addr == 16'h123 ? 16'h0407 :  // <0028> b = $fletcher_sum2_reg
@@ -459,7 +459,7 @@ addr == 16'h125 ? 16'h0300 :  // <0029> "
 addr == 16'h126 ? 16'hfba0 :  // <0029> callx mod255  a+b  $fletcher_sum2_reg
 addr == 16'h127 ? 16'h010f :  // <0029> "
 addr == 16'h128 ? 16'hfc00 :  // <0029> "
-addr == 16'h129 ? 16'h1c00 :  // <0029> g7 = a
+addr == 16'h129 ? 16'h1c00 :  // <0029> gb = a
 
 addr == 16'h12a ? 16'hf808 :  // <0031> pop rtna // func fletcher16_input8
 addr == 16'h12b ? 16'hfc00 :  // <0031> swapra = nop
@@ -717,8 +717,8 @@ addr == 16'h1df ? 16'h2002 :  // <0244> push i // func dump_avalon
 addr == 16'h1e0 ? 16'h2003 :  // <0244> push j // "
 addr == 16'h1e1 ? 16'h2004 :  // <0244> push x // "
 addr == 16'h1e2 ? 16'h2005 :  // <0244> push y // "
-addr == 16'h1e3 ? 16'h2006 :  // <0244> push g6 // "
-addr == 16'h1e4 ? 16'h2007 :  // <0244> push g7 // "
+addr == 16'h1e3 ? 16'h2006 :  // <0244> push ga // "
+addr == 16'h1e4 ? 16'h2007 :  // <0244> push gb // "
 addr == 16'h1e5 ? 16'h203e :  // <0244> push rtna // "
 // test case: u0010 0011 0013 0012 0000 0000 0080.
 
@@ -935,8 +935,8 @@ addr == 16'h297 ? 16'hfba0 :  // <0351> puteol
 addr == 16'h298 ? 16'h00eb :  // <0351> "
 addr == 16'h299 ? 16'hfc00 :  // <0351> "
 addr == 16'h29a ? 16'hf808 :  // <0352> pop rtna // rtn
-addr == 16'h29b ? 16'h1c08 :  // <0352> pop g7 // "
-addr == 16'h29c ? 16'h1808 :  // <0352> pop g6 // "
+addr == 16'h29b ? 16'h1c08 :  // <0352> pop gb // "
+addr == 16'h29c ? 16'h1808 :  // <0352> pop ga // "
 addr == 16'h29d ? 16'h1408 :  // <0352> pop y // "
 addr == 16'h29e ? 16'h1008 :  // <0352> pop x // "
 addr == 16'h29f ? 16'h0c08 :  // <0352> pop j // "
@@ -954,8 +954,8 @@ addr == 16'h2a8 ? 16'hfba0 :  // <0356> puteol
 addr == 16'h2a9 ? 16'h00eb :  // <0356> "
 addr == 16'h2aa ? 16'hfc00 :  // <0356> "
 addr == 16'h2ab ? 16'hf808 :  // <0357> pop rtna // end_func
-addr == 16'h2ac ? 16'h1c08 :  // <0357> pop g7 // "
-addr == 16'h2ad ? 16'h1808 :  // <0357> pop g6 // "
+addr == 16'h2ac ? 16'h1c08 :  // <0357> pop gb // "
+addr == 16'h2ad ? 16'h1808 :  // <0357> pop ga // "
 addr == 16'h2ae ? 16'h1408 :  // <0357> pop y // "
 addr == 16'h2af ? 16'h1008 :  // <0357> pop x // "
 addr == 16'h2b0 ? 16'h0c08 :  // <0357> pop j // "
@@ -1279,7 +1279,7 @@ addr == 16'h3b2 ? 16'h2002 :  // <0534> push i // func print_fixed_target
 addr == 16'h3b3 ? 16'h2003 :  // <0534> push j // "
 addr == 16'h3b4 ? 16'h2004 :  // <0534> push x // "
 addr == 16'h3b5 ? 16'h2005 :  // <0534> push y // "
-addr == 16'h3b6 ? 16'h2006 :  // <0534> push g6 // "
+addr == 16'h3b6 ? 16'h2006 :  // <0534> push ga // "
 addr == 16'h3b7 ? 16'h203e :  // <0534> push rtna // "
 addr == 16'h3b8 ? 16'h0800 :  // <0535> i = a
 addr == 16'h3b9 ? 16'h0e01 :  // <0536> j = 1
@@ -1290,16 +1290,16 @@ addr == 16'h3bc ? 16'he002 :  // <0540> br xz :done
 addr == 16'h3bd ? 16'h03d2 :  // <0540> "
 addr == 16'h3be ? 16'h1320 :  // <0541> x = ad2
 addr == 16'h3bf ? 16'h4c02 :  // <0542> m9k_addr = i
-addr == 16'h3c0 ? 16'h1814 :  // <0543> g6 = m9k_data
+addr == 16'h3c0 ? 16'h1814 :  // <0543> ga = m9k_data
 // now x = bytes remaining, i = current word address, g6 = data word.
-addr == 16'h3c1 ? 16'h0006 :  // <0545> a = g6 // putchar g6
-addr == 16'h3c2 ? 16'hfba0 :  // <0545> putchar g6
+addr == 16'h3c1 ? 16'h0006 :  // <0545> a = ga // putchar ga
+addr == 16'h3c2 ? 16'hfba0 :  // <0545> putchar ga
 addr == 16'h3c3 ? 16'h0004 :  // <0545> "
 addr == 16'h3c4 ? 16'hfc00 :  // <0545> "
 addr == 16'h3c5 ? 16'he002 :  // <0546> br xz :done
 addr == 16'h3c6 ? 16'h03d2 :  // <0546> "
 addr == 16'h3c7 ? 16'h1320 :  // <0547> x = ad2
-addr == 16'h3c8 ? 16'h0006 :  // <0548> a = g6
+addr == 16'h3c8 ? 16'h0006 :  // <0548> a = ga
 addr == 16'h3c9 ? 16'h0353 :  // <0549> a = a>>4
 addr == 16'h3ca ? 16'h0353 :  // <0550> a = a>>4
 addr == 16'h3cb ? 16'hfba0 :  // <0551> putchar a
@@ -1311,7 +1311,7 @@ addr == 16'h3d0 ? 16'he00f :  // <0553> jmp :next_word
 addr == 16'h3d1 ? 16'h03bc :  // <0553> "
 // :done // = 0x03d2
 addr == 16'h3d2 ? 16'hf808 :  // <0555> pop rtna // end_func
-addr == 16'h3d3 ? 16'h1808 :  // <0555> pop g6 // "
+addr == 16'h3d3 ? 16'h1808 :  // <0555> pop ga // "
 addr == 16'h3d4 ? 16'h1408 :  // <0555> pop y // "
 addr == 16'h3d5 ? 16'h1008 :  // <0555> pop x // "
 addr == 16'h3d6 ? 16'h0c08 :  // <0555> pop j // "

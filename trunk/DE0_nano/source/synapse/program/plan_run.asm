@@ -12,16 +12,26 @@ setvar      trim_max                    $trim_double
 ram_define  ram_maf_valid
 ram_define  ram_maf_adc_filtered
 ram_define  ram_maf_flow_hi_res
+
 ram_define  ram_afrc_maf_row_idx
 ram_define  ram_afrc_rpm_col_idx
+
 ram_define  ram_block_temp_map_idx
 ram_define  ram_block_temp_trim
+
 ram_define  ram_afterstart_map_idx
 ram_define  ram_afterstart_trim
-ram_define  ram_stoich_learn_trim
+
+ram_define  ram_o2_trim
+
 ram_define  ram_run_manual_trim
 setvar      run_manual_trim_step        192
+
 ram_define  ram_total_trim
+
+ram_define  ram_tps_avg             
+setvar      tps_history_len         4
+ram_define  ram_tps_history         ($tps_history_len * 2)    
     
 func trim_lean_cmd {
     ram a = $ram_run_manual_trim
@@ -62,7 +72,7 @@ func trim_2rich_cmd {
 func init_plan_run {
     // set up the run plan.
     ram $ram_run_manual_trim = $trim_unity
-    ram $ram_stoich_learn_trim = $trim_unity
+    ram $ram_o2_trim = $trim_unity
     
     // memorize state.
     ram $ram_plan_name = :plan_name_run
@@ -116,10 +126,22 @@ func combine_trim {total in pa} {increment in pb} {out_total out pa} {
     }
 }
 
-:tps_accel2_msg
-    "tpsa2\x0"
-:tps_open_msg
-    "tpsop\x0"
+func fetch_afrc {maf_row_idx in pa} {rpm_col_idx in pb} {afrc out pa} {
+    // look up Air/Fuel Ratio Correction in AFRC map.
+    // index rows by MAF.
+    a = maf_row_idx
+    b = $afrc_rpm_cols
+    nop
+    nop
+    nop
+    nop
+    b = product_lo
+    // index columns by RPM.
+    a = rpm_col_idx
+    a = a+b
+    struct_read $ram_afrc_map
+    rtn b
+}
 
 func puff_len_run {
     ram a = $ram_rpm_valid
@@ -128,19 +150,9 @@ func puff_len_run {
     }
     
     // look up Air/Fuel Ratio Correction in AFRC map.
-    // index rows by MAF.
-    ram a = $ram_afrc_maf_row_idx
-    b = $afrc_rpm_cols
-    nop
-    nop
-    nop
-    nop
-    b = product_lo
-    // index columns by RPM.
-    ram a = $ram_afrc_rpm_col_idx
-    a = a+b
-    struct_read $ram_afrc_map
-    ga = b
+    ram pa = $ram_afrc_maf_row_idx
+    ram pb = $ram_afrc_rpm_col_idx
+    callx fetch_afrc pa pb ga
     // now ga = total trim factor as integer.
     
     // apply block temperature trim factor.
@@ -152,7 +164,7 @@ func puff_len_run {
     callx combine_trim ga b ga
 
     // apply stoich learning trim factor.
-    ram b = $ram_stoich_learn_trim
+    ram b = $ram_o2_trim
     callx combine_trim ga b ga
     
     // apply manual trim factor.
@@ -235,4 +247,65 @@ func interpret_block_temp {
         }
     }
     :temp_done
+}
+
+func dump_afrc_cmd {
+    puteol
+    ram ga = $ram_afrc_maf_row_idx
+    ram gb = $ram_afrc_rpm_col_idx
+    av_ad_hi = ([ram_join $ram_afrc_map] >> 16)
+    av_ad_lo = ([ram_join $ram_afrc_map] & 0xffff)
+    for {i = 0} {i lt $afrc_maf_rows} step j = 1 {
+        for {x = 0} {x lt $afrc_rpm_cols} step y = 1 {
+            a = av_begin_read
+            a = av_read_data
+            call put4x
+            if x eq gb {
+                putasc "<"
+            } else {
+                putasc " "
+            }
+            putasc " "
+            a = av_ad_lo
+            b = 2
+            av_ad_lo = a+b
+        }
+        puteol
+    }
+}
+
+func load_afrc_cmd {
+    // loads 1 row only.
+    
+    callx fletcher16_init
+    // expect valid row index.
+    call  get4x
+    y = a
+    callx fletcher16_input16  a
+    if y lt $afrc_maf_rows {
+        // set RAM address to start of given row.  call struct_read for its side effect on Avalon address regs.
+        a = y
+        b = $afrc_rpm_cols
+        nop
+        nop
+        nop
+        nop
+        b = product_lo
+        struct_read $ram_afrc_map
+        
+        // expect each cell value back-to-back.
+        for {i = 0} {i lt $afrc_rpm_cols} step j = 1 {
+            call  get4x
+            callx fletcher16_input16  a
+            av_write_data = a
+            a = av_ad_lo
+            b = 2
+            av_ad_lo = a+b
+        }
+    }
+    
+    // reply with checksum
+    callx fletcher16_result a
+    call put4x
+    puteol
 }

@@ -33,10 +33,10 @@
 `define VISOR_TOP_REG  31
 `define VISOR_NUM_GP  8
 `define VISOR_TOP_GP  7
-`define SR_G6  6
-`define DR_G6  6
-`define SR_G7  7
-`define DR_G7  7
+`define SR_GA  6
+`define DR_GA  6
+`define SR_GB  7
+`define DR_GB  7
 `define SR_RSTK  8
 `define DR_RSTK  8
 `define SR_BP0_ADDR  9

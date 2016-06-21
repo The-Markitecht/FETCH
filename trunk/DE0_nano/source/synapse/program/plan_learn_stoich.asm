@@ -35,9 +35,6 @@ ram_define  ram_tps_cruise_enrich_us ($num_tps_cells * 2)
 ram_define  ram_tps_accel1_enrich_us ($num_tps_cells * 2)
 ram_define  ram_tps_accel2_enrich_us ($num_tps_cells * 2)
 ram_define  ram_tps_open_enrich_us   ($num_tps_cells * 2)
-ram_define  ram_tps_avg             
-setvar      tps_history_len         4
-ram_define  ram_tps_history         ($tps_history_len * 2)    
     
 // trim puff length by o2 sensor every 200 ms.
 setvar      lrns_ticks_per_o2_trim  (int(200 / $plan_tick_ms))
@@ -68,7 +65,7 @@ setvar      o2_rich_thresh_adc      700
     0x0540
     0x0540
     0x0540
-    0x0540
+    0x0540f
     0x0540
     0x0540
     0x0540
