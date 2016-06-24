@@ -27,6 +27,13 @@ proc load_afrc_map {fn} {
     set ::afrc_maf_rows [llength $map] 
     set ::afrc_rpm_cols [llength [lindex $map 0]]            
     set ::afrc_map $map
+#patch: load these instead of hard coding:
+    for {set i 0} {$i < $::max_terms} {incr i} {
+        set ::term_center_x($i) 8
+        set ::term_center_y($i) [e $i * 6]
+        set ::term_expr($i) {}
+        set ::term_enable($i) 1
+    }
     clear_sent
 }
 
@@ -51,9 +58,54 @@ proc send_afrc_map {} {
     }
 }
 
-proc background_error {msg} {
-    puts "background error:\n$msg\n$errorInfo"
-    exit
+proc ::tcl::mathfunc::dist {x_factor} {
+    return [e {sqrt($::dx*$::dx*$x_factor + $::dy*$::dy)}]
+}
+
+proc ::tcl::mathfunc::clamp {n min max} {
+    return [e {max($min, min($max, $n))}]
+}
+
+proc calc_afrc_map {} {
+    foreach var {dx dy row col term} {
+        upvar ::$var $var
+    }
+    foreach var {max min double half unity} {
+        upvar ::trim_$var $var
+    }
+    for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
+        for {set col 0} {$col < $::afrc_rpm_cols} {incr col} {
+            set sum 0
+            for {set term 0} {$term < $::max_terms} {incr term} {
+                if {$::term_enable($term)} {
+                    set ex [string trim $::term_expr($term)]
+                    if {$ex ne {}} {
+                        set cx $::term_center_x($term)
+                        set cy $::term_center_y($term)
+                        set dx [e {$col - $cx}]
+                        set dy [e {$row - $cy}]
+                        incr sum [e "int($ex)"]
+                    }
+                }
+            }
+            mapset $col $row $sum
+            refresh_cell $col $row
+        }
+    }
+    clear_sent
+    #patch: upgrade from clear_sent to clear_sent_row
+    
+#    $::trim_max - int(sqrt($dx*$dx*8+$dy*$dy)*2000)
+# dist(8) < 5 ? $max/(dist(8)+1) : 0
+# $max-dist(8)*2000
+# $max/((dist(8)+1)**0.5)
+# clamp($max/((dist(8)+1)**0.5)-10000, $min, $max)
+# sin(clamp(dist(8)/3, 0, 6.28))*4000
+}
+
+proc bgerror {msg} {
+    puts "background error:\n$msg\n$::errorInfo"
+    #exit
 }
 
 proc mapget {col row} {
@@ -67,7 +119,7 @@ proc mapset {col row value} {
 }
 
 proc bounds {col row} {
-    return [list [e $col * 10 + 10] [e $row * 10 + 10] [e $col * 10 + 19] [e $row * 10 + 19]] 
+    return [list [e $col * 30 + 10] [e $row * 10 + 10] [e $col * 30 + 10 + 29] [e $row * 10 + 19]] 
 }
 
 proc color {value} {
@@ -76,7 +128,7 @@ proc color {value} {
 }
 
 proc refresh_cell {col row} {
-    puts "$col $row = [mapget $col $row]"
+    #puts "$col $row = [mapget $col $row]"
     .win.c itemconfigure ${col},$row -fill [color [mapget $col $row]]
 }
 
@@ -93,10 +145,12 @@ proc hide_cell {cnv id col row} {
 }
 
 proc init_gui {} {
+    # system stuff
 #    console show ;# useless
     fconfigure stdout -buffering line
-    interp bgerror {} background_error
-    
+#    interp bgerror {} background_error
+
+    # toplevel window
     wm withdraw .
     set w .win
     toplevel $w
@@ -106,13 +160,10 @@ proc init_gui {} {
         exit
     }
 
-    set b ${w}.send
-    button $b -text Send -command send_afrc_map
-    pack $b 
-    
+    # AFRC map canvas
     set c ${w}.c
-    canvas $c -relief sunken -borderwidth 6 -width 500 -height 700
-    pack $c -side top -expand yes -fill both
+    canvas $c -relief sunken -borderwidth 2 -width 500 -height 650
+    pack $c -side left -expand no -fill none
 
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
         for {set col 0} {$col < $::afrc_rpm_cols} {incr col} {
@@ -135,9 +186,56 @@ proc init_gui {} {
     set ::cell_text {}
     entry $t -textvariable ::cell_text 
     $c create window 0 0 -tags cell_text -state hidden -window $t -height 25 -width 140 -anchor s
+
+    # tools frame
+    set tools ${w}.tools
+    frame $tools -relief sunken -borderwidth 2 
+    pack $tools -side left -expand yes -fill both
+    
+    set btns ${tools}.btns
+    frame $btns -relief flat -borderwidth 2
+    pack $btns -side top -expand no -fill x    
+    
+    set b ${btns}.calc
+    button $b -text Calculate -command calc_afrc_map
+    pack $b -side left -expand no -fill none
+    
+    set b ${btns}.send
+    button $b -text Send -command send_afrc_map
+    pack $b -side right -expand no -fill none
+
+    set terms ${tools}.terms
+    frame $terms -relief sunken -borderwidth 2
+    pack $terms -side top -expand yes -fill both
+    
+    # terms grid
+    for {set i 0} {$i < $::max_terms} {incr i} {
+        set f ${terms}.term$i
+        frame $f -relief sunken -borderwidth 2
+        pack $f -side top -expand no -fill x
+        
+        set cx ${f}.cx
+        entry $cx -width 3 -textvariable ::term_center_x($i)
+        pack $cx -side left -expand no -fill none
+
+        set cy ${f}.cy
+        entry $cy -width 3 -textvariable ::term_center_y($i)
+        pack $cy -side left -expand no -fill none
+
+        set en ${f}.enable
+        checkbutton $en -text {} -variable ::term_enable($i)
+        pack $en -side left -expand no -fill none
+
+        set e ${f}.expr
+        entry $e -textvariable ::term_expr($i) -font {Courier 15}
+        pack $e -side left -expand yes -fill x
+        bind $e <Return> calc_afrc_map
+    }
 }
 
 # #########################################################
+
+set ::max_terms 10
 
 if {[catch {
     
