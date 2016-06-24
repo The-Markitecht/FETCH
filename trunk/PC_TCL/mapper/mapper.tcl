@@ -1,3 +1,22 @@
+
+# to do:  
+# error feedback widget next to each expr.  re-test after each keystroke.  also show if term fails during map calc.
+# press enter in any field to calc
+# toggling enabler checkbtn causes calc.
+# console for save & load etc. wish console useless.
+# mark center of each term on map
+# arrow keys move center of term while focus is in center coordinate fields.
+# text description for each term
+
+# useful terms:
+#    $::trim_max - int(sqrt($dx*$dx*8+$dy*$dy)*2000)
+# dist(8) < 5 ? $max/(dist(8)+1) : 0
+# $max-dist(8)*2000
+# $max/((dist(8)+1)**0.5)
+# clamp($max/((dist(8)+1)**0.5)-10000, $min, $max)
+# sin(clamp(dist(8)/3, 0, 6.28))*4000
+# (sin(clamp(dist(8)/3, -$pi, $pi))+1)*4000
+
 package require Tk
 
 interp alias {} e {} expr
@@ -58,16 +77,20 @@ proc send_afrc_map {} {
     }
 }
 
-proc ::tcl::mathfunc::dist {x_factor} {
-    return [e {sqrt($::dx*$::dx*$x_factor + $::dy*$::dy)}]
+proc ::tcl::mathfunc::dist {x_aspect} {
+    return [e {sqrt($::dx*$::dx*$x_aspect + $::dy*$::dy)}]
 }
 
 proc ::tcl::mathfunc::clamp {n min max} {
     return [e {max($min, min($max, $n))}]
 }
 
+proc ::tcl::mathfunc::sinhump {x_aspect  tabletop_radius  rolloff_radius  trim_scale} {
+    return [e {(1 - sin(clamp( (dist($x_aspect)-$tabletop_radius) / ($rolloff_radius*$::pi/10), 0, $::pi)-$::pi/2)) * $trim_scale / 2}]
+}
+
 proc calc_afrc_map {} {
-    foreach var {dx dy row col term} {
+    foreach var {dx dy row col term pi} {
         upvar ::$var $var
     }
     foreach var {max min double half unity} {
@@ -93,14 +116,7 @@ proc calc_afrc_map {} {
         }
     }
     clear_sent
-    #patch: upgrade from clear_sent to clear_sent_row
-    
-#    $::trim_max - int(sqrt($dx*$dx*8+$dy*$dy)*2000)
-# dist(8) < 5 ? $max/(dist(8)+1) : 0
-# $max-dist(8)*2000
-# $max/((dist(8)+1)**0.5)
-# clamp($max/((dist(8)+1)**0.5)-10000, $min, $max)
-# sin(clamp(dist(8)/3, 0, 6.28))*4000
+    #patch: upgrade from clear_sent to clear_sent_row    
 }
 
 proc bgerror {msg} {
@@ -236,6 +252,7 @@ proc init_gui {} {
 # #########################################################
 
 set ::max_terms 10
+set ::pi 3.1415926
 
 if {[catch {
     
