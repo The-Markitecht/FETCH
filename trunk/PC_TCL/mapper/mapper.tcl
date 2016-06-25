@@ -1,12 +1,15 @@
 
 # to do:  
 # error feedback widget next to each expr.  re-test after each keystroke.  also show if term fails during map calc.
-# press enter in any field to calc
-# toggling enabler checkbtn causes calc.
 # console for save & load etc. wish console useless.
 # mark center of each term on map
 # arrow keys move center of term while focus is in center coordinate fields.
+    # isn't it better to just drag & drop center marker?  
+    # no.  have to be able to move way outside of map bounds while observing area of effect.
 # text description for each term
+# buttons to clear or toggle all term enables.
+# click a center marker to focus on that term's expression.
+# when a term is focused, color its center marker.
 
 # useful terms:
 #    $::trim_max - int(sqrt($dx*$dx*8+$dy*$dy)*2000)
@@ -89,26 +92,39 @@ proc ::tcl::mathfunc::sinhump {x_aspect  tabletop_radius  rolloff_radius  trim_s
     return [e {(1 - sin(clamp( (dist($x_aspect)-$tabletop_radius) / ($rolloff_radius*$::pi/10), 0, $::pi)-$::pi/2)) * $trim_scale / 2}]
 }
 
-proc calc_afrc_map {} {
-    foreach var {dx dy row col term pi} {
+proc eval_term {term_num row col} {
+    set_term_error $term_num {}
+    set ex [string trim $::term_expr($term_num)]
+    if {$ex eq {}} {return 0}
+    foreach var {dx dy tc_row tc_col term pi} {
         upvar ::$var $var
     }
     foreach var {max min double half unity} {
         upvar ::trim_$var $var
     }
+    set term $term_num
+    set tc_col $::term_center_x($term_num)
+    set tc_row $::term_center_y($term_num)
+    set dx [e {$col - $tc_col}]
+    set dy [e {$row - $tc_row}]
+    set result {}
+    if {[catch {
+        set result [e "int($ex)"]
+    } err]} {
+        set_term_error $term $err
+    }
+    return $result
+}
+
+proc calc_afrc_map {} {
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
         for {set col 0} {$col < $::afrc_rpm_cols} {incr col} {
             set sum 0
             for {set term 0} {$term < $::max_terms} {incr term} {
                 if {$::term_enable($term)} {
-                    set ex [string trim $::term_expr($term)]
-                    if {$ex ne {}} {
-                        set cx $::term_center_x($term)
-                        set cy $::term_center_y($term)
-                        set dx [e {$col - $cx}]
-                        set dy [e {$row - $cy}]
-                        incr sum [e "int($ex)"]
-                    }
+                    set v [eval_term $term $row $col]
+                    if {$v eq {}} break
+                    incr sum $v
                 }
             }
             mapset $col $row $sum
@@ -135,7 +151,7 @@ proc mapset {col row value} {
 }
 
 proc bounds {col row} {
-    return [list [e $col * 30 + 10] [e $row * 10 + 10] [e $col * 30 + 10 + 29] [e $row * 10 + 19]] 
+    return [list [e $col * 30 + 10] [e $row * 10 + 10] [e $col * 30 + 10 + 30] [e $row * 10 + 20]] 
 }
 
 proc color {value} {
@@ -149,7 +165,7 @@ proc refresh_cell {col row} {
 }
 
 proc show_cell {cnv id col row} {
-    set ::cell_text "[lindex $::afrc_map $row $col] at row $row col $col"
+    set ::cell_text "[lindex $::afrc_map $row $col] at $col , $row"
     lassign [$cnv coords $id] x y
     $cnv coords cell_text $x [e {$y - 5}] 
     $cnv itemconfigure cell_text -state normal 
@@ -158,6 +174,27 @@ proc show_cell {cnv id col row} {
 
 proc hide_cell {cnv id col row} {
     $cnv itemconfigure cell_text -state hidden 
+}
+
+proc set_term_error {term msg} {
+    if {$msg eq {}} {
+        .win.tools.terms.term${term}.error configure -text "$term OK" -background green
+    } else {
+        puts "term $term error: $msg"
+        .win.tools.terms.term${term}.error configure -text ERROR -background red
+    }
+}
+
+proc focus_term {term} {
+    focus .win.tools.terms.term${term}.expr
+}
+
+proc focused_term {term} {
+    .win.c itemconfigure center$term -outline green -width 5 
+}
+
+proc unfocused_term {term} {
+    .win.c itemconfigure center$term -outline blue -width 3
 }
 
 proc init_gui {} {
@@ -175,6 +212,8 @@ proc init_gui {} {
     bind $w <Destroy> {
         exit
     }
+    bind $w <Control-c> calc_afrc_map
+    bind $w <Control-Return> send_afrc_map
 
     # AFRC map canvas
     set c ${w}.c
@@ -200,7 +239,7 @@ proc init_gui {} {
     }
     set t ${w}.cell_text
     set ::cell_text {}
-    entry $t -textvariable ::cell_text 
+    entry $t -textvariable ::cell_text  -justify center
     $c create window 0 0 -tags cell_text -state hidden -window $t -height 25 -width 140 -anchor s
 
     # tools frame
@@ -213,19 +252,19 @@ proc init_gui {} {
     pack $btns -side top -expand no -fill x    
     
     set b ${btns}.calc
-    button $b -text Calculate -command calc_afrc_map
+    button $b -text Calculate -font "-size 24" -command calc_afrc_map
     pack $b -side left -expand no -fill none
     
     set b ${btns}.send
-    button $b -text Send -command send_afrc_map
-    pack $b -side right -expand no -fill none
+    button $b -text Send -font "-size 24" -command send_afrc_map
+    pack $b -side left -expand no -fill none
 
     set terms ${tools}.terms
     frame $terms -relief sunken -borderwidth 2
     pack $terms -side top -expand yes -fill both
     
-    # terms grid
     for {set i 0} {$i < $::max_terms} {incr i} {
+        # terms grid
         set f ${terms}.term$i
         frame $f -relief sunken -borderwidth 2
         pack $f -side top -expand no -fill x
@@ -233,19 +272,38 @@ proc init_gui {} {
         set cx ${f}.cx
         entry $cx -width 3 -textvariable ::term_center_x($i)
         pack $cx -side left -expand no -fill none
+        bind $cx <Return> calc_afrc_map
 
         set cy ${f}.cy
         entry $cy -width 3 -textvariable ::term_center_y($i)
         pack $cy -side left -expand no -fill none
+        bind $cy <Return> calc_afrc_map
 
         set en ${f}.enable
-        checkbutton $en -text {} -variable ::term_enable($i)
+        checkbutton $en -text {} -variable ::term_enable($i) -command calc_afrc_map
         pack $en -side left -expand no -fill none
+
+        set error ${f}.error
+        label $error -width 5 -justify center
+        set_term_error $i {}
+        pack $error -side left -expand no -fill none
 
         set e ${f}.expr
         entry $e -textvariable ::term_expr($i) -font {Courier 15}
         pack $e -side left -expand yes -fill x
         bind $e <Return> calc_afrc_map
+        bind $e <FocusIn> "focused_term $i"
+        bind $e <FocusOut> "unfocused_term $i"
+
+        # term center markers  
+        lassign [bounds $::term_center_x($i) $::term_center_y($i)] x1 y1 x2 y2  
+        incr x1 -4
+        incr y1 -4
+        incr x2 4
+        incr y2 4
+        set id [$c create oval $x1 $y1 $x2 $y2 -tags center$i]
+        unfocused_term $i
+        $c bind $id <Button-1> "focus_term $i"
     }
 }
 
