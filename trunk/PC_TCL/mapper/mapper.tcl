@@ -1,15 +1,10 @@
 
 # to do:  
-# error feedback widget next to each expr.  re-test after each keystroke.  also show if term fails during map calc.
 # console for save & load etc. wish console useless.
-# mark center of each term on map
 # arrow keys move center of term while focus is in center coordinate fields.
     # isn't it better to just drag & drop center marker?  
     # no.  have to be able to move way outside of map bounds while observing area of effect.
 # text description for each term
-# buttons to clear or toggle all term enables.
-# click a center marker to focus on that term's expression.
-# when a term is focused, color its center marker.
 
 # useful terms:
 #    $::trim_max - int(sqrt($dx*$dx*8+$dy*$dy)*2000)
@@ -92,10 +87,8 @@ proc ::tcl::mathfunc::sinhump {x_aspect  tabletop_radius  rolloff_radius  trim_s
     return [e {(1 - sin(clamp( (dist($x_aspect)-$tabletop_radius) / ($rolloff_radius*$::pi/10), 0, $::pi)-$::pi/2)) * $trim_scale / 2}]
 }
 
-proc eval_term {term_num row col} {
+proc eval_term {term_num  ex  row  col} {
     set_term_error $term_num {}
-    set ex [string trim $::term_expr($term_num)]
-    if {$ex eq {}} {return 0}
     foreach var {dx dy tc_row tc_col term pi} {
         upvar ::$var $var
     }
@@ -122,9 +115,12 @@ proc calc_afrc_map {} {
             set sum 0
             for {set term 0} {$term < $::max_terms} {incr term} {
                 if {$::term_enable($term)} {
-                    set v [eval_term $term $row $col]
-                    if {$v eq {}} break
-                    incr sum $v
+                    set ex [string trim $::term_expr($term)]
+                    if {$ex ne {}} {
+                        set v [eval_term $term $ex $row $col]
+                        if {$v eq {}} break
+                        incr sum $v
+                    }
                 }
             }
             mapset $col $row $sum
@@ -183,6 +179,13 @@ proc set_term_error {term msg} {
         puts "term $term error: $msg"
         .win.tools.terms.term${term}.error configure -text ERROR -background red
     }
+}
+
+proc enable_all_terms {cmd} {
+    for {set i 0} {$i < $::max_terms} {incr i} {    
+        .win.tools.terms.term${i}.enable $cmd
+    }
+    calc_afrc_map
 }
 
 proc focus_term {term} {
@@ -253,11 +256,23 @@ proc init_gui {} {
     
     set b ${btns}.calc
     button $b -text Calculate -font "-size 24" -command calc_afrc_map
-    pack $b -side left -expand no -fill none
+    pack $b -side left -expand no -fill none -padx 2
     
     set b ${btns}.send
     button $b -text Send -font "-size 24" -command send_afrc_map
-    pack $b -side left -expand no -fill none
+    pack $b -side left -expand no -fill none -padx 2
+
+    set b ${btns}.enable_all
+    button $b -text All -font "-size 14" -command "enable_all_terms select"
+    pack $b -side left -expand no -fill none -padx 2
+    
+    set b ${btns}.disable_all
+    button $b -text None -font "-size 14" -command "enable_all_terms deselect"
+    pack $b -side left -expand no -fill none -padx 2
+
+    set b ${btns}.toggle_all
+    button $b -text Toggle -font "-size 14" -command "enable_all_terms toggle"
+    pack $b -side left -expand no -fill none -padx 2
 
     set terms ${tools}.terms
     frame $terms -relief sunken -borderwidth 2
