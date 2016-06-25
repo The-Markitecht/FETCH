@@ -110,9 +110,8 @@ proc eval_term {term_num  ex  row  col} {
 }
 
 proc calc_afrc_map {} {
-    print_rx "Calculating [clock seconds]\n"
-    print_rx "2 [clock seconds]\n"
-    print_rx "3 [clock seconds]\n"
+    clear_sent
+    #patch: upgrade from clear_sent to clear_sent_row    
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
         for {set col 0} {$col < $::afrc_rpm_cols} {incr col} {
             set sum 0
@@ -121,7 +120,7 @@ proc calc_afrc_map {} {
                     set ex [string trim $::term_expr($term)]
                     if {$ex ne {}} {
                         set v [eval_term $term $ex $row $col]
-                        if {$v eq {}} break
+                        if {$v eq {}} return
                         incr sum $v
                     }
                 }
@@ -130,14 +129,10 @@ proc calc_afrc_map {} {
             refresh_cell $col $row
         }
     }
-    clear_sent
-    #patch: upgrade from clear_sent to clear_sent_row    
-    print_rx "Done [clock seconds]\n"
 }
 
 proc bgerror {msg} {
-    puts "background error:\n$msg\n$::errorInfo"
-    #exit
+    print_tcl "background error:\n$msg\n$::errorInfo"
 }
 
 proc mapget {col row} {
@@ -160,7 +155,6 @@ proc color {value} {
 }
 
 proc refresh_cell {col row} {
-    #puts "$col $row = [mapget $col $row]"
     .win.c itemconfigure ${col},$row -fill [color [mapget $col $row]]
 }
 
@@ -169,7 +163,6 @@ proc show_cell {cnv id col row} {
     lassign [$cnv coords $id] x y
     $cnv coords cell_text $x [e {$y - 5}] 
     $cnv itemconfigure cell_text -state normal 
-    #puts [$cnv itemconfigure cell_text]
 }
 
 proc hide_cell {cnv id col row} {
@@ -180,7 +173,7 @@ proc set_term_error {term msg} {
     if {$msg eq {}} {
         .win.tools.terms.term${term}.error configure -text "$term OK" -background green
     } else {
-        puts "term $term error: $msg"
+        print_tcl "term $term error: $msg"
         .win.tools.terms.term${term}.error configure -text ERROR -background red
     }
 }
@@ -214,15 +207,40 @@ proc show_terms {} {
 
 proc print_rx {msg} {
     # assumes the message already contains a newline; none is added here.
-    .win.tools.console.rx insert end $msg
-    lappend ::rx_lines [string length $msg]
-    if {[llength $::rx_lines] > 25} {
-        .win.tools.console.rx delete 1.0 {1.end + 1 display chars} 
-        #[e [lindex $::rx_lines 0] - 1]
-        set ::rx_lines [lreplace $::rx_lines 0 0]
+    set t .win.tools.console.rx
+    $t insert end $msg
+    while {[$t count -displaylines 1.0 end] > 60} {
+        $t delete 1.0 {10.end + 1 display chars} 
     } 
-    .win.tools.console.rx see end    
+    $t see end    
     update idletasks
+}
+
+proc print_tcl {msg} {
+    # assumes the message already contains a newline; none is added here.
+    puts $msg
+    set t .win.tools.console.tcl
+    $t insert end $msg
+    while {[$t count -displaylines 1.0 end] > 1000} {
+        $t delete 1.0 {10.end + 1 display chars} 
+    } 
+    $t see end    
+    update idletasks
+}
+
+proc run_tcl {} {
+    set t .win.tools.console.tcl
+    set cmd [$t get {insert linestart} {insert lineend}]
+    if {[string range $cmd 0 [string length $::prompt]-1] == $::prompt} {
+        set cmd [string range $cmd [string length $::prompt] end]
+    }
+    #print_tcl "\n$cmd\n"    
+    if {[catch {set result [eval $cmd]} err]} {
+        print_tcl \n$err\n$::errorInfo\n$::prompt
+    } else {
+        print_tcl \n$result\n$::prompt
+    }
+    return -code break ;# don't run the built-in handler to honor the Return keypress in the usual way.
 }
 
 proc init_gui {} {
@@ -357,20 +375,27 @@ proc init_gui {} {
         $c bind $id <Button-1> "focus_term $i"
     }
     
-    # serial display
+    # serial display & Tcl console
     set console ${tools}.console
     frame $console -relief sunken -borderwidth 2
     pack $console -side top -expand yes -fill both
     
+    set tcl ${console}.tcl
+    text $tcl -font {Courier 11} -wrap char -height 5
+    pack $tcl -side bottom -expand no -fill x
+    bind $tcl <Return> run_tcl
+    #interp alias {} puts {} print_tcl
+    set ::prompt {Tcl> }
+    print_tcl $::prompt
+
     set rx ${console}.rx
     text $rx -font {Courier 11} -wrap char
     pack $rx -side top -expand yes -fill both
-    set ::rx_lines [list]
 }
 
 # #########################################################
 
-set ::max_terms 10
+set ::max_terms 8
 set ::pi 3.1415926
 
 if {[catch {
