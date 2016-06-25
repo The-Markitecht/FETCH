@@ -1,10 +1,10 @@
 
 # to do:  
 # console for save & load etc. wish console useless.
+# save & load terms with map.
 # arrow keys move center of term while focus is in center coordinate fields.
     # isn't it better to just drag & drop center marker?  
     # no.  have to be able to move way outside of map bounds while observing area of effect.
-# text description for each term
 
 # useful terms:
 #    $::trim_max - int(sqrt($dx*$dx*8+$dy*$dy)*2000)
@@ -110,6 +110,9 @@ proc eval_term {term_num  ex  row  col} {
 }
 
 proc calc_afrc_map {} {
+    print_rx "Calculating [clock seconds]\n"
+    print_rx "2 [clock seconds]\n"
+    print_rx "3 [clock seconds]\n"
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
         for {set col 0} {$col < $::afrc_rpm_cols} {incr col} {
             set sum 0
@@ -129,6 +132,7 @@ proc calc_afrc_map {} {
     }
     clear_sent
     #patch: upgrade from clear_sent to clear_sent_row    
+    print_rx "Done [clock seconds]\n"
 }
 
 proc bgerror {msg} {
@@ -200,6 +204,27 @@ proc unfocused_term {term} {
     .win.c itemconfigure center$term -outline blue -width 3
 }
 
+proc show_terms {} {
+    if {$::show_terms} {
+        pack .win.tools.terms -before .win.tools.console -side top -expand no -fill x
+    } else {
+        pack forget .win.tools.terms
+    }
+}
+
+proc print_rx {msg} {
+    # assumes the message already contains a newline; none is added here.
+    .win.tools.console.rx insert end $msg
+    lappend ::rx_lines [string length $msg]
+    if {[llength $::rx_lines] > 25} {
+        .win.tools.console.rx delete 1.0 {1.end + 1 display chars} 
+        #[e [lindex $::rx_lines 0] - 1]
+        set ::rx_lines [lreplace $::rx_lines 0 0]
+    } 
+    .win.tools.console.rx see end    
+    update idletasks
+}
+
 proc init_gui {} {
     # system stuff
 #    console show ;# useless
@@ -254,6 +279,11 @@ proc init_gui {} {
     frame $btns -relief flat -borderwidth 2
     pack $btns -side top -expand no -fill x    
     
+    set b ${btns}.show_terms
+    set ::show_terms 1
+    checkbutton $b -text Terms -font "-size 24" -command show_terms -variable ::show_terms
+    pack $b -side left -expand no -fill none -padx 2
+    
     set b ${btns}.calc
     button $b -text Calculate -font "-size 24" -command calc_afrc_map
     pack $b -side left -expand no -fill none -padx 2
@@ -276,7 +306,7 @@ proc init_gui {} {
 
     set terms ${tools}.terms
     frame $terms -relief sunken -borderwidth 2
-    pack $terms -side top -expand yes -fill both
+    pack $terms -side top -expand no -fill x
     
     for {set i 0} {$i < $::max_terms} {incr i} {
         # terms grid
@@ -284,6 +314,12 @@ proc init_gui {} {
         frame $f -relief sunken -borderwidth 2
         pack $f -side top -expand no -fill x
         
+        set desc ${f}.desc
+        entry $desc -textvariable ::term_desc($i) -justify center
+        pack $desc -side bottom -expand yes -fill x
+        bind $desc <FocusIn> "focused_term $i"
+        bind $desc <FocusOut> "unfocused_term $i"
+
         set cx ${f}.cx
         entry $cx -width 3 -textvariable ::term_center_x($i)
         pack $cx -side left -expand no -fill none
@@ -320,6 +356,16 @@ proc init_gui {} {
         unfocused_term $i
         $c bind $id <Button-1> "focus_term $i"
     }
+    
+    # serial display
+    set console ${tools}.console
+    frame $console -relief sunken -borderwidth 2
+    pack $console -side top -expand yes -fill both
+    
+    set rx ${console}.rx
+    text $rx -font {Courier 11} -wrap char
+    pack $rx -side top -expand yes -fill both
+    set ::rx_lines [list]
 }
 
 # #########################################################
