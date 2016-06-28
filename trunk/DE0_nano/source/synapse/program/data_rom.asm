@@ -11,11 +11,11 @@ setvar          afrc_maf_rows       64
 setvar          afrc_rpm_cols       16
 drom_define     ram_afrc_map        ($afrc_maf_rows * $afrc_rpm_cols * 2)
 
-setvar          maf_map_num_cells   256
-drom_define     ram_maf_map         ($maf_map_num_cells * 2)
+setvar          maf_ref_num_cells   256
+drom_define     ram_maf_ref         ($maf_ref_num_cells * 2)
 
-setvar          rpm_map_num_cells   $afrc_rpm_cols
-drom_define     ram_rpm_map         ($rpm_map_num_cells * 2)
+setvar          rpm_ref_num_cells   $afrc_rpm_cols
+drom_define     ram_rpm_ref         ($rpm_ref_num_cells * 2)
 
 setvar          block_temp_num_cells    64
 drom_define     ram_block_temp_scale    ($block_temp_num_cells * 2)

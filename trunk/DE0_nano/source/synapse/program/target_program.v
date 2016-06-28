@@ -2579,7 +2579,7 @@ addr == 16'h699 ? 16'h0b00 :  // <0357> "
 
 
 addr == 16'h69a ? 16'h0002 :  // <0357> a = i
-addr == 16'h69b ? 16'h0610 :  // <0357> b = $rpm_map_num_cells
+addr == 16'h69b ? 16'h0610 :  // <0357> b = $rpm_ref_num_cells
 addr == 16'h69c ? 16'he005 :  // <0357> br lt :loop_1667
 addr == 16'h69d ? 16'h0684 :  // <0357> "
 
@@ -3926,7 +3926,7 @@ addr == 16'ha4c ? 16'h0b00 :  // <0918> "
 
 
 addr == 16'ha4d ? 16'h0002 :  // <0918> a = i
-addr == 16'ha4e ? 16'h07a0 :  // <0918> b = $maf_map_num_cells
+addr == 16'ha4e ? 16'h07a0 :  // <0918> b = $maf_ref_num_cells
 addr == 16'ha4f ? 16'h0100 :  // <0918> "
 addr == 16'ha50 ? 16'he005 :  // <0918> br lt :loop_2611
 addr == 16'ha51 ? 16'h0a34 :  // <0918> "

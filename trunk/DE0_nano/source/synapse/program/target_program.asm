@@ -346,9 +346,9 @@ event ign_capture_handler
 
         // find RPM column in AFRC map.
         ram gb = $ram_avg_rpm
-        for {i = 0} {i lt $rpm_map_num_cells} step j = 1 {
+        for {i = 0} {i lt $rpm_ref_num_cells} step j = 1 {
             a = i
-            struct_read $ram_rpm_map
+            struct_read $ram_rpm_ref
             if b gt gb {
                 ram $ram_afrc_rpm_col_idx = i
                 jmp :rpm_found
@@ -905,9 +905,9 @@ func interpret_maf {
     // 256 cell Brute-force lookup might take e.g. 80us to run.  That's 4 jf, 
     // or 5% of ignition cycle at max RPM.
     ram $ram_maf_valid = 0
-    for {i = 0} {i lt $maf_map_num_cells} step j = 1 {
+    for {i = 0} {i lt $maf_ref_num_cells} step j = 1 {
         a = i
-        struct_read $ram_maf_map
+        struct_read $ram_maf_ref
         if b gt x {
             ram $ram_maf_flow_hi_res = i
             ram $ram_maf_valid = 1
