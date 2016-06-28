@@ -1,7 +1,8 @@
 
 # to do:  
-# console for save & load etc. wish console useless.
 # save & load terms with map.
+# more tables, like maf & rpm references.
+    # rename those in target?
 # arrow keys move center of term while focus is in center coordinate fields.
     # isn't it better to just drag & drop center marker?  
     # no.  have to be able to move way outside of map bounds while observing area of effect.
@@ -20,6 +21,44 @@ package require Tk
 interp alias {} e {} expr
 
 source [file join [file dirname [info script]] fletcher16.tcl]
+
+proc init_port {} {
+    set ::port [open //./com99 r+]
+    fconfigure $::port -blocking 0 -buffering none -mode 115200,n,8,1 -handshake none
+    read_port 
+}
+
+proc read_port {} {
+    if {[catch {
+        set s [read $::port]
+        print_rx $s
+        scan_data $s
+    } err]} {
+        print_rx "\nrx error: $err\n"
+    }
+    after 300 read_port
+}
+
+proc tx {msg} {
+    if {[catch {
+        puts $::port $msg
+    } err]} {
+        print_rx "\ntx error: $err\n"
+    }
+}
+
+proc scan_data {data} {
+    # 03f1: rpm=0000 pfl=0000,0000 o2=0000 tp=0a7e,0543,0 s7=045d s6=0fff s5=0fff s4=0fff s3=0fff s2=0fff s1=0fff s0=0170 pl=STP mt=0000 tf=
+    foreach word [split $data { }] {
+        lassign [split $word =] name value
+        if {$value ne {}} {
+            set ::data($name) $value
+        }
+    }           
+    if {[info exists ::data(map)]} {
+        set ::run_mark [split $::data(map) ,]
+    }
+}
 
 proc clear_sent {} {
     set ::sent [list]
@@ -197,6 +236,22 @@ proc unfocused_term {term} {
     .win.c itemconfigure center$term -outline blue -width 3
 }
 
+proc refresh_run_mark {col row} {
+    lassign [bounds $col $row] x1 y1 x2 y2  
+    incr x1 4
+    incr y1 -10
+    incr x2 -4
+    incr y2 10
+    .win.c coords run_mark [list $x1 $y1 $x2 $y2]
+}
+
+proc track_run_mark {} {
+    if {$::run_mark ne {}} {
+        eval refresh_run_mark $::run_mark
+    }
+    after 300 track_run_mark
+} 
+
 proc show_terms {} {
     if {$::show_terms} {
         pack .win.tools.terms -before .win.tools.console -side top -expand no -fill x
@@ -249,6 +304,9 @@ proc init_gui {} {
     fconfigure stdout -buffering line
 #    interp bgerror {} background_error
 
+    # init GUI's required globals
+    array set ::data {}
+
     # toplevel window
     wm withdraw .
     set w .win
@@ -276,6 +334,10 @@ proc init_gui {} {
             $c bind $id <Leave> "
                 hide_cell $c $id $col $row
             "
+#patch: for testing
+$c bind $id <Button-1> "
+    set ::run_mark {$col $row}
+"
             # test gradient: mapset $col $row [e $::trim_double * $col * $row / $::afrc_rpm_cols / $::afrc_maf_rows]
             set dx [e $col - 12]
             set dy [e $row - 41]
@@ -283,10 +345,16 @@ proc init_gui {} {
             refresh_cell $col $row
         }
     }
+    
+    # movable items on map canvas
     set t ${w}.cell_text
     set ::cell_text {}
     entry $t -textvariable ::cell_text  -justify center
     $c create window 0 0 -tags cell_text -state hidden -window $t -height 25 -width 140 -anchor s
+
+    set ::run_mark {}
+    set id [$c create oval -100 -100 -90 -90 -tags run_mark -outline red -width 3]
+    track_run_mark
 
     # tools frame
     set tools ${w}.tools
@@ -403,6 +471,8 @@ if {[catch {
     load_afrc_map default.map
     
     init_gui
+
+#    init_port
     
     vwait forever
     
