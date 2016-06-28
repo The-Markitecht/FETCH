@@ -29,8 +29,8 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=14
-FILE_NAME_0=4057;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_learn_stoich.asm;0;4
+current_page=17
+FILE_NAME_0=1004;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_learn_stoich.asm;0;4
 FILE_NAME_1=63099;reStructuredText;0;EUTF-8;0;1;0;C%3A%5CProgram%20Files%5CGeany%5Cdoc%5CManual.Txt;0;4
 FILE_NAME_2=39;None;0;EUTF-8;0;1;0;c%3A%5Ctemp%5Cenv.txt;0;4
 FILE_NAME_3=1089;Tcl;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Cbuild.tcl;0;4
@@ -43,14 +43,16 @@ FILE_NAME_9=6301;Verilog;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctr
 FILE_NAME_10=8782;None;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cafrc_map_source.csv;0;4
 FILE_NAME_11=753;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cdata_rom.asm;0;4
 FILE_NAME_12=8744;Verilog;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Csynapse316.v;0;4
-FILE_NAME_13=0;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_crank.asm;0;4
-FILE_NAME_14=28706;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.asm;0;4
-FILE_NAME_15=435;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_run.asm;0;4
+FILE_NAME_13=2430;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_crank.asm;0;4
+FILE_NAME_14=19509;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.asm;0;4
+FILE_NAME_15=4228;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_run.asm;0;4
+FILE_NAME_16=549;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cterminal_commands.asm;0;4
+FILE_NAME_17=416;Tcl;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CPC_TCL%5Cmapper%5Cmapper.tcl;0;4
 
 [build-menu]
 NF_00_LB=_Make
-NF_00_CM=c:\\tcl\\bin\\tclsh85 build.tcl
-NF_00_WD=%p/source
+NF_00_CM=c:\\tcl\\bin\\wish85 mapper.tcl
+NF_00_WD=
 NF_01_LB=Make Custom _Target...
 NF_01_CM=c:\\tcl\\bin\\tclsh85 build.tcl
 NF_01_WD=%p/source

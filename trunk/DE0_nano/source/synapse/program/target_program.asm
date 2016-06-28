@@ -495,12 +495,18 @@ end_event
 :puff_len_msg
     " pfl=\x0"
     
+:afrc_coords_msg
+    " map=\x0"
+    
 :o2_msg
     " o2=\x0"
+
+:maf_msg
+    " af=\x0"
     
 :tps_msg
     " tp=\x0"
-    
+
 func start_daq_pass {
     // daq pass counter in RAM.  
     ram a = $ram_daq_pass_cnt
@@ -527,11 +533,24 @@ func start_daq_pass {
     ram a = $ram_puff_count
     call :put4x    
     
+    a = :afrc_coords_msg
+    call :print_nt 
+    ram a = $ram_afrc_rpm_col_idx
+    call :put4x
+    putasc ","
+    ram a = $ram_afrc_maf_row_idx
+    call :put4x    
+    
     a = :o2_msg
     call :print_nt 
     a = $o2_adc_channel
     struct_read $ram_last_adc_data
     a = b
+    call :put4x    
+    
+    a = :maf_msg
+    call :print_nt 
+    ram a = $ram_maf_adc_filtered
     call :put4x    
     
     a = :tps_msg
