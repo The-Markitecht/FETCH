@@ -1,8 +1,6 @@
 
 # to do:  
-# save & load terms with map.
 # more tables, like maf & rpm references.
-    # rename those in target?
 # arrow keys move center of term while focus is in center coordinate fields.
     # isn't it better to just drag & drop center marker?  
     # no.  have to be able to move way outside of map bounds while observing area of effect.
@@ -20,6 +18,7 @@ package require Tk
 
 interp alias {} e {} expr
 
+#source [file join [file dirname [info script]] trace.tcl]
 source [file join [file dirname [info script]] fletcher16.tcl]
 
 proc init_port {} {
@@ -71,26 +70,55 @@ proc clear_sent_row {row} {
     }
 }
 
-proc load_afrc_map {fn} {
+proc lod {fn} {
     set ::trim_half    0
     set ::trim_unity   8192
     set ::trim_double  24576
     set ::trim_min     $::trim_half
     set ::trim_max     $::trim_double
-    set f [open $fn r]
-    set map [read $f]
-    close $f
-    set ::afrc_maf_rows [llength $map] 
-    set ::afrc_rpm_cols [llength [lindex $map 0]]            
-    set ::afrc_map $map
-#patch: load these instead of hard coding:
-    for {set i 0} {$i < $::max_terms} {incr i} {
-        set ::term_center_x($i) 8
-        set ::term_center_y($i) [e $i * 6]
-        set ::term_expr($i) {}
-        set ::term_enable($i) 1
+    
+    if {[file extension $fn] eq {}} {
+        append fn .map
     }
+    set fn [file join maps $fn]
+
+    set f [open $fn r]
+    array set content [read $f]
+    close $f
+    
+    set ::afrc_map $content(afrc_map)
+    foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable} {
+        catch {unset $ary}
+        array set $ary $content([string trim $ary :])
+    }
+    
+    if {$::max_terms != [array size ::term_expr]} {
+        error "Expected $::max_terms terms but found [array size ::term_expr]."
+    }
+     
+    set ::afrc_maf_rows [llength $::afrc_map] 
+    set ::afrc_rpm_cols [llength [lindex $::afrc_map 0]]            
+    
     clear_sent
+}
+
+proc sav {fn} {
+puts "straight: [array get ::term_enable]"
+    if {[file extension $fn] eq {}} {
+        append fn .map
+    }
+    set fn [file join maps $fn]
+    set content(afrc_map) $::afrc_map
+    foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable} {
+puts [array get $ary]
+        set content([string trim $ary :])  [array get $ary]
+puts "[string trim $ary :] = $content([string trim $ary :])"
+    }
+puts "straight: [array get ::term_enable]"
+
+    set f [open $fn w]
+    puts $f [array get content]
+    close $f
 }
 
 proc send_afrc_map {} {
@@ -313,6 +341,7 @@ proc init_gui {} {
     toplevel $w
     wm title $w Mapper
     wm deiconify $w
+    wm state $w zoomed 
     bind $w <Destroy> {
         exit
     }
@@ -416,6 +445,7 @@ $c bind $id <Button-1> "
         pack $cy -side left -expand no -fill none
         bind $cy <Return> calc_afrc_map
 
+        set ::term_enable($i) 1
         set en ${f}.enable
         checkbutton $en -text {} -variable ::term_enable($i) -command calc_afrc_map
         pack $en -side left -expand no -fill none
@@ -468,7 +498,7 @@ set ::pi 3.1415926
 
 if {[catch {
     
-    load_afrc_map default.map
+    lod default.map
     
     init_gui
 
