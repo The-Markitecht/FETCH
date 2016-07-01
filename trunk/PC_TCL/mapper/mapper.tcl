@@ -71,6 +71,11 @@ proc clear_sent_row {row} {
 }
 
 proc lod {fn} {
+    load_maps $fn
+    calc_afrc_map
+}
+
+proc load_maps {fn} {
     set ::trim_half    0
     set ::trim_unity   8192
     set ::trim_double  24576
@@ -86,7 +91,9 @@ proc lod {fn} {
     array set content [read $f]
     close $f
     
-    set ::afrc_map $content(afrc_map)
+    foreach lst {::afrc_map  ::maf_ref  ::rpm_ref} {
+        set $lst $content([string trim $lst :])
+    }
     foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable} {
         catch {unset $ary}
         array set $ary $content([string trim $ary :])
@@ -103,43 +110,47 @@ proc lod {fn} {
 }
 
 proc sav {fn} {
-puts "straight: [array get ::term_enable]"
     if {[file extension $fn] eq {}} {
         append fn .map
     }
     set fn [file join maps $fn]
-    set content(afrc_map) $::afrc_map
-    foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable} {
-puts [array get $ary]
-        set content([string trim $ary :])  [array get $ary]
-puts "[string trim $ary :] = $content([string trim $ary :])"
+
+    foreach lst {::afrc_map  ::maf_ref  ::rpm_ref} {
+        set content([string trim $lst :]) [set $lst]
     }
-puts "straight: [array get ::term_enable]"
+    foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable} {
+        set content([string trim $ary :])  [array get $ary]
+    }
 
     set f [open $fn w]
     puts $f [array get content]
     close $f
 }
 
+proc send_row {cmd  data_words  desc} {
+    flush_rx
+    foreach v $data_words {
+        fletcher16_input16 local_sum $v
+        append cmd [format %04x $v]
+    }
+    send $cmd
+    set remote_sum [get4x]
+    if {[get4x] != [fletcher16_result local_sum]} {
+        show "ERROR: $desc should have had checksum $local_sum"
+        break
+    }
+}
+
 proc send_afrc_map {} {
     fletcher16_init local_sum
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
         if {$row ni $::sent} {
-            flush_rx
-            set hex [format ldafrc%04x $row]
-            foreach v [lindex $::afrc_map $row] {
-                fletcher16_input16 local_sum $v
-                append hex [format %04x $v]
-            }
-            send $hex
-            set remote_sum [get4x]
-            if {[get4x] != [fletcher16_result local_sum]} {
-                show "ERROR: row $row should have had checksum $local_sum"
-                break
-            }
+            send_row  [format ldafrc%04x $row]  [lindex $::afrc_map $row]  "row $row"
             lappend ::sent $row
         }
     }
+    send_row  ldrpm  $::rpm_ref  {RPM reference}
+    send_row  ldmaf  $::maf_ref  {MAF reference}
 }
 
 proc ::tcl::mathfunc::dist {x_aspect} {
@@ -226,7 +237,9 @@ proc refresh_cell {col row} {
 }
 
 proc show_cell {cnv id col row} {
-    set ::cell_text "[lindex $::afrc_map $row $col] at $col , $row"
+    set flow [lindex $::maf_ref $row]
+    set rpm [lindex $::rpm_ref $col]
+    set ::cell_text "[lindex $::afrc_map $row $col] at $col , $row\n$rpm RPM, $flow MAF"
     lassign [$cnv coords $id] x y
     $cnv coords cell_text $x [e {$y - 5}] 
     $cnv itemconfigure cell_text -state normal 
@@ -378,7 +391,7 @@ $c bind $id <Button-1> "
     # movable items on map canvas
     set t ${w}.cell_text
     set ::cell_text {}
-    entry $t -textvariable ::cell_text  -justify center
+    label $t -textvariable ::cell_text  -justify center 
     $c create window 0 0 -tags cell_text -state hidden -window $t -height 25 -width 140 -anchor s
 
     set ::run_mark {}
@@ -498,7 +511,7 @@ set ::pi 3.1415926
 
 if {[catch {
     
-    lod default.map
+    load_maps default.map
     
     init_gui
 
