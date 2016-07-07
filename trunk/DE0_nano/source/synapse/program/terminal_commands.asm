@@ -15,10 +15,22 @@ ram_define      ram_terminal_connected
         ([label set_plan_run_cmd])
     //"   plln"
         //([label set_plan_learn_cmd])
-    " ldafrc"
-        ([label load_afrc_cmd])
     "   afrc"
         ([label dump_afrc_cmd])
+    " ldafrc"
+        ([label load_afrc_cmd])
+    "  ldrpm"
+        ([label load_rpm_ref_cmd])
+    "  ldmaf"
+        ([label load_maf_ref_cmd])
+    "ldbtsc"
+        ([label load_block_temp_scale_cmd])
+    "ldbtmap"
+        ([label load_block_temp_map_cmd])
+    "ldastref"
+        ([label load_afterstart_ref_cmd])
+    "ldastmap"
+        ([label load_afterstart_map_cmd])
     "      ,"
         ([label trim_lean_cmd])
     "      ."

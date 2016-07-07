@@ -145,9 +145,9 @@ func fetch_afrc {maf_row_idx in pa} {rpm_col_idx in pb} {afrc out pa} {
 
 func puff_len_run {
     ram a = $ram_rpm_valid
-    if a ne 1 {
-        jmp :abort
-    }
+    br az :abort
+    ram a = $ram_maf_valid
+    br az :abort
     
     // look up Air/Fuel Ratio Correction in AFRC map.
     ram pa = $ram_afrc_maf_row_idx
@@ -274,38 +274,3 @@ func dump_afrc_cmd {
     }
 }
 
-func load_afrc_cmd {
-    // loads 1 row only.
-    
-    callx fletcher16_init
-    // expect valid row index.
-    call  get4x
-    y = a
-    callx fletcher16_input16  a
-    if y lt $afrc_maf_rows {
-        // set RAM address to start of given row.  call struct_read for its side effect on Avalon address regs.
-        a = y
-        b = $afrc_rpm_cols
-        nop
-        nop
-        nop
-        nop
-        b = product_lo
-        struct_read $ram_afrc_map
-        
-        // expect each cell value back-to-back.
-        for {i = 0} {i lt $afrc_rpm_cols} step j = 1 {
-            call  get4x
-            callx fletcher16_input16  a
-            av_write_data = a
-            a = av_ad_lo
-            b = 2
-            av_ad_lo = a+b
-        }
-    }
-    
-    // reply with checksum
-    callx fletcher16_result a
-    call put4x
-    puteol
-}
