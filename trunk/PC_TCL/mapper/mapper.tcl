@@ -2,8 +2,6 @@
 # to do:  
 # bench testing
 # assembler build drom init file from map file.
-# sensor displays in decimal, and degF.  label sensors by location.
-# run marks in block temp & afterstart maps.
 # arrow keys move center of term while focus is in center coordinate fields.
     # isn't it better to just drag & drop center marker?  
     # no.  have to be able to move way outside of map bounds while observing area of effect.
@@ -56,10 +54,29 @@ proc scan_data {data} {
         if {$value ne {}} {
             set ::data($name) $value
         }
-    }           
+    }          
+    
+    # update GUI run marks 
     if {[info exists ::data(map)]} {
         set ::afrc_run_mark [split $::data(map) ,]
+        eval refresh_afrc_run_mark $::afrc_run_mark
     }
+    if {[info exists ::data(bti)]} {
+        set ::block_temp_map_idx [e {int("0x$::data(bti)")}]
+        for {set i 0} {$i < [array size ::block_temp_ref]} {incr i} {
+            .win.tools.refs.block_temp_ref.run$i configure -text {} -background $::system_label_background
+        }
+        .win.tools.refs.block_temp_ref.run$::block_temp_map_idx configure -text {<<} -background red
+    }
+    if {[info exists ::data(asi)]} {
+        set ::afterstart_map_idx [e {int("0x$::data(bti)")}]
+        for {set i 0} {$i < [array size ::afterstart_ref]} {incr i} {
+            .win.tools.refs.afterstart_ref.run$i configure -text {} -background $::system_label_background
+        }
+        .win.tools.refs.afterstart_ref.run$::afterstart_map_idx configure -text {<<}  -background red
+    }
+
+    # update GUI sensor display
     for {set i 0} {$i < 8} {incr i} {
         if {[info exists ::data(s$i)]} {
             set ::sensor_hex($i) "0x$::data(s$i)"
@@ -105,6 +122,12 @@ proc load_maps {fn} {
     set ::trim_double  24576
     set ::trim_min     $::trim_half
     set ::trim_max     $::trim_double
+
+    set ::max_terms 8
+    set ::pi 3.1415926
+
+    # sensor friendly names in order 0 thru 7.
+    set ::sensor_name [list {} {} {Engine Block} {Transmission} {} {} {} {}]
     
     if {[file extension $fn] eq {}} {
         append fn .map
@@ -135,6 +158,8 @@ proc load_maps {fn} {
      
     set ::afrc_maf_rows [llength $::afrc_map] 
     set ::afrc_rpm_cols [llength [lindex $::afrc_map 0]]            
+    set ::block_temp_map_idx 0
+    set ::afterstart_map_idx 0
     
     clear_sent
 }
@@ -331,21 +356,14 @@ proc unfocused_term {term} {
     .win.c itemconfigure center$term -outline blue -width 3
 }
 
-proc refresh_afrc_run_mark {col row} {
-    lassign [bounds $col $row] x1 y1 x2 y2  
+proc refresh_afrc_run_mark {col_hex row_hex} {
+    lassign [bounds 0x$col_hex 0x$row_hex] x1 y1 x2 y2  
     incr x1 4
     incr y1 -10
     incr x2 -4
     incr y2 10
     .win.c coords afrc_run_mark [list $x1 $y1 $x2 $y2]
 }
-
-proc track_afrc_run_mark {} {
-    if {$::afrc_run_mark ne {}} {
-        eval refresh_afrc_run_mark $::afrc_run_mark
-    }
-    after 300 track_afrc_run_mark
-} 
 
 proc show_tab {} {
     foreach tab {terms refs none} {
@@ -451,7 +469,6 @@ $c bind $id <Button-1> "
 
     set ::afrc_run_mark {}
     set id [$c create oval -100 -100 -90 -90 -tags afrc_run_mark -outline red -width 3]
-    track_afrc_run_mark
 
     # tools frame
     set tools ${w}.tools
@@ -556,23 +573,27 @@ $c bind $id <Button-1> "
     set btr [frame $refs.block_temp_ref]
     pack $btr -side left -expand no -fill y -padx 4
     set btn [button $btr.send -text "Send Block Temp Ref/Map" -command send_block_temp_map]
-    grid $btn -column 0 -row 0 -columnspan [e int(ceil([array size ::block_temp_ref]/16)) * 2]
+    grid $btn -column 0 -row 0 -columnspan [e int(ceil([array size ::block_temp_ref]/16)) * 3]
     for {set i 0} {$i < [array size ::block_temp_ref]} {incr i} {
         set e [entry $btr.ref$i -textvariable ::block_temp_ref($i) -justify center -width 4 -font "-size 7"]
-        grid $e -column [e int(floor($i/16)) * 2] -row [e $i % 16 + 1]
+        grid $e   -column [e int(floor($i/16)) * 3] -row [e $i % 16 + 1]
         set e [entry $btr.map$i -textvariable ::block_temp_map($i) -justify center -width 5 -font "-size 7" -background yellow]
-        grid $e -column [e int(floor($i/16)) * 2 + 1] -row [e $i % 16 + 1]
+        grid $e   -column [e int(floor($i/16)) * 3 + 1] -row [e $i % 16 + 1]
+        set lbl [label $btr.run$i -justify left -width 4 -font {-size 7 -weight bold}]
+        grid $lbl -column [e int(floor($i/16)) * 3 + 2] -row [e $i % 16 + 1] -sticky w
     }
 
     set astr [frame $refs.afterstart_ref]
     pack $astr -side left -expand no -fill y  -padx 4
     set btn [button $astr.send -text "Send Afterstart Ref/Map" -command send_afterstart_map]
-    grid $btn -column 0 -row 0 -columnspan 2
+    grid $btn -column 0 -row 0 -columnspan 3
     for {set i 0} {$i < [array size ::afterstart_ref]} {incr i} {
         set e [entry $astr.ref$i -textvariable ::afterstart_ref($i) -justify center -width 7 -font "-size 7"]
         grid $e -column 0 -row [e $i + 1] -sticky e
         set e [entry $astr.map$i -textvariable ::afterstart_map($i) -justify center -width 5 -font "-size 7" -background orange]
         grid $e -column 1 -row [e $i + 1] -sticky w
+        set lbl [label $astr.run$i -justify left -width 4 -font {-size 7 -weight bold}]
+        grid $lbl -column 2 -row [e $i + 1] -sticky w
     }
 
     set sens [frame $refs.sens]
@@ -584,11 +605,12 @@ $c bind $id <Button-1> "
         grid $lbl -column 1 -row $i -sticky e
         set lbl [label $sens.dec$i -textvariable ::sensor_dec($i) -justify right]
         grid $lbl -column 2 -row $i -sticky e
-        set lbl [label $sens.degf$i -textvariable ::sensor_degf($i) -justify right -font "-size 14" -width 8]
+        set lbl [label $sens.degf$i -textvariable ::sensor_degf($i) -justify right -font "-size 14"]
         grid $lbl -column 3 -row $i -sticky e
+        set ::system_label_background [$lbl cget -background]
 #patch: for testing
 bind $lbl <Button-1> {
-    scan_data {03f1: rpm=0000 pfl=0000,0000 o2=0000 tp=0a7e,0543,0 s7=0fff s6=0fff s5=0fff s4=0fff s3=0400 s2=0500 s1=0fff s0=0fff pl=STP mt=0000 tf=}
+    scan_data {03f1: rpm=0000 pfl=0000,0000 o2=0000 tp=0a7e,0543,0 map=0003,000d bti=0004 asi=0006 s7=0fff s6=0fff s5=0fff s4=0fff s3=0400 s2=0500 s1=0fff s0=0fff pl=STP mt=0000 tf=}
 }
     }
     
@@ -614,12 +636,6 @@ bind $lbl <Button-1> {
 }
 
 # #########################################################
-
-set ::max_terms 8
-set ::pi 3.1415926
-
-# sensor friendly names in order 0 thru 7.
-set ::sensor_name [list {} {} {Engine Block} {Transmission} {} {} {} {}]
 
 if {[catch {
     
