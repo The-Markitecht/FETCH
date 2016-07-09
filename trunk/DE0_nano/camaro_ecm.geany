@@ -41,13 +41,15 @@ FILE_NAME_7=3729;Tcl;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%
 FILE_NAME_8=447;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Clib%5Cstruct.asm;0;4
 FILE_NAME_9=6301;Verilog;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Ctop.v;0;4
 FILE_NAME_10=8782;None;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cafrc_map_source.csv;0;4
-FILE_NAME_11=753;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cdata_rom.asm;0;4
-FILE_NAME_12=8744;Verilog;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Csynapse316.v;0;4
-FILE_NAME_13=2430;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_crank.asm;0;4
-FILE_NAME_14=19509;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.asm;0;4
-FILE_NAME_15=4228;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_run.asm;0;4
-FILE_NAME_16=549;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cterminal_commands.asm;0;4
-FILE_NAME_17=416;Tcl;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CPC_TCL%5Cmapper%5Cmapper.tcl;0;4
+FILE_NAME_11=8744;Verilog;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Csynapse316.v;0;4
+FILE_NAME_12=167;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_crank.asm;0;4
+FILE_NAME_13=19724;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.asm;0;4
+FILE_NAME_14=259;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cdata_rom.asm;0;4
+FILE_NAME_15=1998;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_run.asm;0;4
+FILE_NAME_16=55;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cterminal_commands.asm;0;4
+FILE_NAME_17=2571;Tcl;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CPC_TCL%5Cmapper%5Cmapper.tcl;0;4
+FILE_NAME_18=3045;None;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CPC_TCL%5Cmapper%5Cmaps%5Cdefault.map;0;4
+FILE_NAME_19=9230;Java;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5Candroid_studio%5CGUI%5Capp%5Csrc%5Cmain%5Cjava%5Ccom%5CUARTTest%5Cbehavior%5Ccar_behavior.java;0;4
 
 [build-menu]
 NF_00_LB=_Make

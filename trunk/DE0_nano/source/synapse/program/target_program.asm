@@ -507,6 +507,12 @@ end_event
 :tps_msg
     " tp=\x0"
 
+:block_temp_idx_msg
+    " bti=\x0"
+
+:afterstart_idx_msg
+    " asi=\x0"
+
 func start_daq_pass {
     // daq pass counter in RAM.  
     ram a = $ram_daq_pass_cnt
@@ -561,6 +567,16 @@ func start_daq_pass {
     call :put4x    
     putasc ","
     ram a = $ram_tps_avg
+    call :put4x    
+    
+    a = :block_temp_idx_msg
+    call :print_nt 
+    ram a = $ram_block_temp_map_idx
+    call :put4x    
+    
+    a = :afterstart_idx_msg
+    call :print_nt 
+    ram a = $ram_afterstart_map_idx
     call :put4x    
     
     // start to acquire & report all anmux channels.
