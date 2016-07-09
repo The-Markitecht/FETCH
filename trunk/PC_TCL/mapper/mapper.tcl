@@ -1,11 +1,7 @@
 
 # to do:  
-# button to send block temp map in mapper
-# button to send afterstart map in mapper
-# afterstart timer/counter implement.  hw + sw.  use existing puff counter; sw only?
-# 10x uninitialized new vars in target pgm.
 # bench testing
-# mapper save drom init file.
+# assembler build drom init file from map file.
 # sensor displays in decimal, and degF.  label sensors by location.
 # run marks in block temp & afterstart maps.
 # arrow keys move center of term while focus is in center coordinate fields.
@@ -64,6 +60,27 @@ proc scan_data {data} {
     if {[info exists ::data(map)]} {
         set ::afrc_run_mark [split $::data(map) ,]
     }
+    for {set i 0} {$i < 8} {incr i} {
+        if {[info exists ::data(s$i)]} {
+            set ::sensor_hex($i) "0x$::data(s$i)"
+            set ::sensor_dec($i) [e {int($::sensor_hex($i))}]
+            set ::sensor_degf($i) "[adc_to_degf $::sensor_dec($i)] F" 
+        }
+    }
+}
+
+proc adc_to_degf {adc} {
+    if {$adc < 5 || $adc > 4090} {
+        return 0 ;# invalid reading; probably sensor is disconnected.
+    }
+
+    # cubic polynomial from test run 2015/3/31.
+    return [e {int( 
+            0.0000000179780888794392 * $adc ** 3 
+            - 0.000143319023091959 * $adc ** 2
+            + 0.499930154162973 * double($adc) 
+            -307.47204516067
+    ) }]
 }
 
 proc clear_sent {} {
@@ -134,9 +151,7 @@ proc sav {fn} {
     foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable
         ::block_temp_ref  ::block_temp_map  
         ::afterstart_ref  ::afterstart_map} {
-        foreach i [array names $ary] {
-            lappend content([string trim $ary :]) [set "${ary}($i)"]
-        }
+        set content([string trim $ary :]) [to_list $ary]
     }
 
     set f [open $fn w]
@@ -144,7 +159,19 @@ proc sav {fn} {
     close $f
 }
 
-proc send_row {cmd  data_words  desc} {
+proc to_list {ary} {
+    set ls [list]
+    foreach i [lsort -integer [array names $ary]] {
+        lappend ls [set "${ary}($i)"]
+    }
+    return $ls
+}
+
+proc send_row {cmd  seed  data_words  desc} {
+    fletcher16_init local_sum
+    if {$seed != -1} {
+        fletcher16_input16 local_sum $seed
+    }
     flush_rx
     foreach v $data_words {
         fletcher16_input16 local_sum $v
@@ -159,15 +186,24 @@ proc send_row {cmd  data_words  desc} {
 }
 
 proc send_afrc_map {} {
-    fletcher16_init local_sum
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
         if {$row ni $::sent} {
-            send_row  [format ldafrc%04x $row]  [lindex $::afrc_map $row]  "row $row"
+            send_row  [format ldafrc%04x $row]  $row  [lindex $::afrc_map $row]  "row $row"
             lappend ::sent $row
         }
     }
-    send_row  ldrpm  $::rpm_ref  {RPM reference}
-    send_row  ldmaf  $::maf_ref  {MAF reference}
+    send_row  ldrpm  -1  $::rpm_ref  {RPM reference}
+    send_row  ldmaf  -1  $::maf_ref  {MAF reference}
+}
+
+proc send_block_temp_map {} {
+    send_row  ldbtsc  -1  [to_list ::block_temp_ref]  {Block temp reference}
+    send_row  ldbtmap -1  [to_list ::block_temp_map]  {Block temp map}
+}
+
+proc send_afterstart_map {} {
+    send_row  ldastref  -1  [to_list ::afterstart_ref]  {Afterstart reference}
+    send_row  ldastmap  -1  [to_list ::afterstart_map]  {Afterstart map}
 }
 
 proc ::tcl::mathfunc::dist {x_aspect} {
@@ -225,6 +261,7 @@ proc calc_afrc_map {} {
         }
     }
 }
+
 
 proc bgerror {msg} {
     print_tcl "background error:\n$msg\n$::errorInfo"
@@ -425,15 +462,16 @@ $c bind $id <Button-1> "
     frame $btns -relief flat -borderwidth 2
     pack $btns -side top -expand no -fill x    
     
-    set b ${btns}.terms
-    radiobutton $b -text Terms -font "-size 18" -command show_tab -variable ::show_tab -value terms
-    pack $b -side left -expand no -fill none -padx 2
-    set b ${btns}.refs
-    radiobutton $b -text Refs -font "-size 18" -command show_tab -variable ::show_tab -value refs
-    pack $b -side left -expand no -fill none -padx 2
-    set b ${btns}.none
-    radiobutton $b -text None -font "-size 18" -command show_tab -variable ::show_tab -value none
-    pack $b -side left -expand no -fill none -padx 2
+    set ts [frame $btns.tabselect]
+    pack $ts -side left -expand no -fill none -padx 2
+    set b [radiobutton $ts.terms -text Terms -font "-size 18" -command show_tab -variable ::show_tab -value terms]
+    grid $b -row 0 -column 0 -sticky w
+    set b [radiobutton $ts.refs -text Refs -font "-size 18" -command show_tab -variable ::show_tab -value refs]
+    grid $b -row 1 -column 0 -sticky w
+#    set b [radiobutton $ts.sens -text Sensors -font "-size 18" -command show_tab -variable ::show_tab -value sens]
+#    grid $b -row 0 -column 1 -sticky w
+    set b [radiobutton $ts.none -text None -font "-size 18" -command show_tab -variable ::show_tab -value none]
+    grid $b -row 1 -column 1 -sticky w
     
     set b ${btns}.calc
     button $b -text Calculate -font "-size 24" -command calc_afrc_map
@@ -516,9 +554,9 @@ $c bind $id <Button-1> "
 #    pack $refs -side top -expand no -fill x
 
     set btr [frame $refs.block_temp_ref]
-    pack $btr -side left -expand no -fill y
-    set lbl [label $btr.label -text "Block Temp Ref/Map"]
-    grid $lbl -column 0 -row 0 -columnspan [e int(ceil([array size ::block_temp_ref]/16)) * 2]
+    pack $btr -side left -expand no -fill y -padx 4
+    set btn [button $btr.send -text "Send Block Temp Ref/Map" -command send_block_temp_map]
+    grid $btn -column 0 -row 0 -columnspan [e int(ceil([array size ::block_temp_ref]/16)) * 2]
     for {set i 0} {$i < [array size ::block_temp_ref]} {incr i} {
         set e [entry $btr.ref$i -textvariable ::block_temp_ref($i) -justify center -width 4 -font "-size 7"]
         grid $e -column [e int(floor($i/16)) * 2] -row [e $i % 16 + 1]
@@ -527,9 +565,9 @@ $c bind $id <Button-1> "
     }
 
     set astr [frame $refs.afterstart_ref]
-    pack $astr -side left -expand no -fill y
-    set lbl [label $astr.label -text "Afterstart Ref/Map"]
-    grid $lbl -column 0 -row 0 -columnspan 2
+    pack $astr -side left -expand no -fill y  -padx 4
+    set btn [button $astr.send -text "Send Afterstart Ref/Map" -command send_afterstart_map]
+    grid $btn -column 0 -row 0 -columnspan 2
     for {set i 0} {$i < [array size ::afterstart_ref]} {incr i} {
         set e [entry $astr.ref$i -textvariable ::afterstart_ref($i) -justify center -width 7 -font "-size 7"]
         grid $e -column 0 -row [e $i + 1] -sticky e
@@ -537,7 +575,23 @@ $c bind $id <Button-1> "
         grid $e -column 1 -row [e $i + 1] -sticky w
     }
 
-
+    set sens [frame $refs.sens]
+    pack $sens -side left -expand no -fill y -padx 4
+    for {set i 0} {$i < [llength $::sensor_name]} {incr i} {
+        set lbl [label $sens.lbl$i -text "[lindex $::sensor_name $i] s$i" -justify right]
+        grid $lbl -column 0 -row $i -sticky e
+        set lbl [label $sens.hex$i -textvariable ::sensor_hex($i) -justify right]
+        grid $lbl -column 1 -row $i -sticky e
+        set lbl [label $sens.dec$i -textvariable ::sensor_dec($i) -justify right]
+        grid $lbl -column 2 -row $i -sticky e
+        set lbl [label $sens.degf$i -textvariable ::sensor_degf($i) -justify right -font "-size 14" -width 8]
+        grid $lbl -column 3 -row $i -sticky e
+#patch: for testing
+bind $lbl <Button-1> {
+    scan_data {03f1: rpm=0000 pfl=0000,0000 o2=0000 tp=0a7e,0543,0 s7=0fff s6=0fff s5=0fff s4=0fff s3=0400 s2=0500 s1=0fff s0=0fff pl=STP mt=0000 tf=}
+}
+    }
+    
     # serial display & Tcl console
     set console ${tools}.console
     frame $console -relief sunken -borderwidth 2
@@ -555,7 +609,7 @@ $c bind $id <Button-1> "
     text $rx -font {Courier 11} -wrap char
     pack $rx -side top -expand yes -fill both
 
-    set ::show_tab terms
+    set ::show_tab refs
     show_tab
 }
 
@@ -563,6 +617,9 @@ $c bind $id <Button-1> "
 
 set ::max_terms 8
 set ::pi 3.1415926
+
+# sensor friendly names in order 0 thru 7.
+set ::sensor_name [list {} {} {Engine Block} {Transmission} {} {} {} {}]
 
 if {[catch {
     
