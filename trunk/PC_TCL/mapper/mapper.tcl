@@ -1,6 +1,13 @@
 
 # to do:  
-# more tables, like maf & rpm references.
+# button to send block temp map in mapper
+# button to send afterstart map in mapper
+# afterstart timer/counter implement.  hw + sw.  use existing puff counter; sw only?
+# 10x uninitialized new vars in target pgm.
+# bench testing
+# mapper save drom init file.
+# sensor displays in decimal, and degF.  label sensors by location.
+# run marks in block temp & afterstart maps.
 # arrow keys move center of term while focus is in center coordinate fields.
     # isn't it better to just drag & drop center marker?  
     # no.  have to be able to move way outside of map bounds while observing area of effect.
@@ -55,7 +62,7 @@ proc scan_data {data} {
         }
     }           
     if {[info exists ::data(map)]} {
-        set ::run_mark [split $::data(map) ,]
+        set ::afrc_run_mark [split $::data(map) ,]
     }
 }
 
@@ -94,9 +101,15 @@ proc load_maps {fn} {
     foreach lst {::afrc_map  ::maf_ref  ::rpm_ref} {
         set $lst $content([string trim $lst :])
     }
-    foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable} {
+    foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable
+        ::block_temp_ref  ::block_temp_map  
+        ::afterstart_ref  ::afterstart_map} {
         catch {unset $ary}
-        array set $ary $content([string trim $ary :])
+        set i 0
+        foreach item $content([string trim $ary :]) {
+            set "${ary}($i)" $item
+            incr i
+        }
     }
     
     if {$::max_terms != [array size ::term_expr]} {
@@ -118,8 +131,12 @@ proc sav {fn} {
     foreach lst {::afrc_map  ::maf_ref  ::rpm_ref} {
         set content([string trim $lst :]) [set $lst]
     }
-    foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable} {
-        set content([string trim $ary :])  [array get $ary]
+    foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable
+        ::block_temp_ref  ::block_temp_map  
+        ::afterstart_ref  ::afterstart_map} {
+        foreach i [array names $ary] {
+            lappend content([string trim $ary :]) [set "${ary}($i)"]
+        }
     }
 
     set f [open $fn w]
@@ -277,27 +294,28 @@ proc unfocused_term {term} {
     .win.c itemconfigure center$term -outline blue -width 3
 }
 
-proc refresh_run_mark {col row} {
+proc refresh_afrc_run_mark {col row} {
     lassign [bounds $col $row] x1 y1 x2 y2  
     incr x1 4
     incr y1 -10
     incr x2 -4
     incr y2 10
-    .win.c coords run_mark [list $x1 $y1 $x2 $y2]
+    .win.c coords afrc_run_mark [list $x1 $y1 $x2 $y2]
 }
 
-proc track_run_mark {} {
-    if {$::run_mark ne {}} {
-        eval refresh_run_mark $::run_mark
+proc track_afrc_run_mark {} {
+    if {$::afrc_run_mark ne {}} {
+        eval refresh_afrc_run_mark $::afrc_run_mark
     }
-    after 300 track_run_mark
+    after 300 track_afrc_run_mark
 } 
 
-proc show_terms {} {
-    if {$::show_terms} {
-        pack .win.tools.terms -before .win.tools.console -side top -expand no -fill x
-    } else {
-        pack forget .win.tools.terms
+proc show_tab {} {
+    foreach tab {terms refs none} {
+        pack forget .win.tools.$tab
+    }
+    if {$::show_tab ne {none}} {
+        pack .win.tools.$::show_tab -before .win.tools.console -side top -expand no -fill x
     }
 }
 
@@ -378,7 +396,7 @@ proc init_gui {} {
             "
 #patch: for testing
 $c bind $id <Button-1> "
-    set ::run_mark {$col $row}
+    set ::afrc_run_mark {$col $row}
 "
             # test gradient: mapset $col $row [e $::trim_double * $col * $row / $::afrc_rpm_cols / $::afrc_maf_rows]
             set dx [e $col - 12]
@@ -394,9 +412,9 @@ $c bind $id <Button-1> "
     label $t -textvariable ::cell_text  -justify center 
     $c create window 0 0 -tags cell_text -state hidden -window $t -height 25 -width 140 -anchor s
 
-    set ::run_mark {}
-    set id [$c create oval -100 -100 -90 -90 -tags run_mark -outline red -width 3]
-    track_run_mark
+    set ::afrc_run_mark {}
+    set id [$c create oval -100 -100 -90 -90 -tags afrc_run_mark -outline red -width 3]
+    track_afrc_run_mark
 
     # tools frame
     set tools ${w}.tools
@@ -407,9 +425,14 @@ $c bind $id <Button-1> "
     frame $btns -relief flat -borderwidth 2
     pack $btns -side top -expand no -fill x    
     
-    set b ${btns}.show_terms
-    set ::show_terms 1
-    checkbutton $b -text Terms -font "-size 24" -command show_terms -variable ::show_terms
+    set b ${btns}.terms
+    radiobutton $b -text Terms -font "-size 18" -command show_tab -variable ::show_tab -value terms
+    pack $b -side left -expand no -fill none -padx 2
+    set b ${btns}.refs
+    radiobutton $b -text Refs -font "-size 18" -command show_tab -variable ::show_tab -value refs
+    pack $b -side left -expand no -fill none -padx 2
+    set b ${btns}.none
+    radiobutton $b -text None -font "-size 18" -command show_tab -variable ::show_tab -value none
     pack $b -side left -expand no -fill none -padx 2
     
     set b ${btns}.calc
@@ -432,9 +455,10 @@ $c bind $id <Button-1> "
     button $b -text Toggle -font "-size 14" -command "enable_all_terms toggle"
     pack $b -side left -expand no -fill none -padx 2
 
+    # terms grid
     set terms ${tools}.terms
     frame $terms -relief sunken -borderwidth 2
-    pack $terms -side top -expand no -fill x
+#    pack $terms -side top -expand no -fill x
     
     for {set i 0} {$i < $::max_terms} {incr i} {
         # terms grid
@@ -486,6 +510,34 @@ $c bind $id <Button-1> "
         $c bind $id <Button-1> "focus_term $i"
     }
     
+    # refs grid
+    set refs ${tools}.refs
+    frame $refs -relief sunken -borderwidth 2
+#    pack $refs -side top -expand no -fill x
+
+    set btr [frame $refs.block_temp_ref]
+    pack $btr -side left -expand no -fill y
+    set lbl [label $btr.label -text "Block Temp Ref/Map"]
+    grid $lbl -column 0 -row 0 -columnspan [e int(ceil([array size ::block_temp_ref]/16)) * 2]
+    for {set i 0} {$i < [array size ::block_temp_ref]} {incr i} {
+        set e [entry $btr.ref$i -textvariable ::block_temp_ref($i) -justify center -width 4 -font "-size 7"]
+        grid $e -column [e int(floor($i/16)) * 2] -row [e $i % 16 + 1]
+        set e [entry $btr.map$i -textvariable ::block_temp_map($i) -justify center -width 5 -font "-size 7" -background yellow]
+        grid $e -column [e int(floor($i/16)) * 2 + 1] -row [e $i % 16 + 1]
+    }
+
+    set astr [frame $refs.afterstart_ref]
+    pack $astr -side left -expand no -fill y
+    set lbl [label $astr.label -text "Afterstart Ref/Map"]
+    grid $lbl -column 0 -row 0 -columnspan 2
+    for {set i 0} {$i < [array size ::afterstart_ref]} {incr i} {
+        set e [entry $astr.ref$i -textvariable ::afterstart_ref($i) -justify center -width 7 -font "-size 7"]
+        grid $e -column 0 -row [e $i + 1] -sticky e
+        set e [entry $astr.map$i -textvariable ::afterstart_map($i) -justify center -width 5 -font "-size 7" -background orange]
+        grid $e -column 1 -row [e $i + 1] -sticky w
+    }
+
+
     # serial display & Tcl console
     set console ${tools}.console
     frame $console -relief sunken -borderwidth 2
@@ -502,6 +554,9 @@ $c bind $id <Button-1> "
     set rx ${console}.rx
     text $rx -font {Courier 11} -wrap char
     pack $rx -side top -expand yes -fill both
+
+    set ::show_tab terms
+    show_tab
 }
 
 # #########################################################
