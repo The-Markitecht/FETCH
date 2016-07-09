@@ -71,8 +71,19 @@ func trim_2rich_cmd {
 
 func init_plan_run {
     // set up the run plan.
+    // this code is repeated each crank cycle, so don't depend on RAM already being 0.
+    ram $ram_maf_valid = 0
+    ram $ram_afrc_maf_row_idx = 0
+    ram $ram_afrc_rpm_col_idx = 0
+    ram $ram_block_temp_map_idx = 0
+    ram $ram_block_temp_trim = $trim_unity
+    ram $ram_afterstart_map_idx = 0
+    ram $ram_afterstart_trim = $trim_unity
+    ram $ram_o2_trim = $trim_unity
+    ram $ram_puff_count = 0
     ram $ram_run_manual_trim = $trim_unity
     ram $ram_o2_trim = $trim_unity
+    ram $ram_total_trim = 0
     
     // memorize state.
     ram $ram_plan_name = :plan_name_run
@@ -160,6 +171,7 @@ func puff_len_run {
     callx combine_trim ga b ga
 
     // apply afterstart trim factor.
+    callx interpret_puff_count
     ram b = $ram_afterstart_trim
     callx combine_trim ga b ga
 
@@ -247,6 +259,27 @@ func interpret_block_temp {
         }
     }
     :temp_done
+}
+
+func interpret_puff_count {
+    // look up afterstart trim factor.
+    ram gb = $ram_puff_count
+    for {i = 0} {i lt $afterstart_num_cells} step j = 1 {
+        a = i
+        struct_read $ram_afterstart_ref
+        if b gt gb {
+            j = -1
+            ram $ram_afterstart_map_idx = i+j
+            a = i
+            struct_read $ram_afterstart_map
+            ram $ram_afterstart_trim = b
+            jmp :done
+        }
+    }
+    a = ($afterstart_num_cells - 1)
+    struct_read $ram_afterstart_map
+    ram $ram_afterstart_trim = b    
+    :done
 }
 
 func dump_afrc_cmd {
