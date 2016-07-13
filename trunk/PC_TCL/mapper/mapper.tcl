@@ -1,7 +1,6 @@
 
 # to do:  
 # bench testing
-# assembler build drom init file from map file.
 # arrow keys move center of term while focus is in center coordinate fields.
     # isn't it better to just drag & drop center marker?  
     # no.  have to be able to move way outside of map bounds while observing area of effect.
@@ -23,7 +22,7 @@ interp alias {} e {} expr
 source [file join [file dirname [info script]] fletcher16.tcl]
 
 proc init_port {} {
-    set ::port [open //./com99 r+]
+    set ::port [open //./com11 r+]
     fconfigure $::port -blocking 0 -buffering none -mode 115200,n,8,1 -handshake none
     read_port 
 }
@@ -222,7 +221,7 @@ proc send_afrc_map {} {
 }
 
 proc send_block_temp_map {} {
-    send_row  ldbtsc  -1  [to_list ::block_temp_ref]  {Block temp reference}
+    send_row  ldbtref -1  [to_list ::block_temp_ref]  {Block temp reference}
     send_row  ldbtmap -1  [to_list ::block_temp_map]  {Block temp map}
 }
 
@@ -643,7 +642,7 @@ if {[catch {
     
     init_gui
 
-#    init_port
+    init_port
     
     vwait forever
     
