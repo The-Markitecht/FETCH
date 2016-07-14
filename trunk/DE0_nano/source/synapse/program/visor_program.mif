@@ -1486,6 +1486,5 @@
 -- dest reg 0012 atx_ctrl
 -- dest reg 0013 m9k_addr
 -- dest reg 0014 m9k_data
-        
-        END;
-    
+
+END;

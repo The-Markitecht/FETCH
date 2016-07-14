@@ -23,8 +23,8 @@ ram_define      ram_terminal_connected
         ([label load_rpm_ref_cmd])
     "  ldmaf"
         ([label load_maf_ref_cmd])
-    "ldbtsc"
-        ([label load_block_temp_scale_cmd])
+    "ldbtref"
+        ([label load_block_temp_ref_cmd])
     "ldbtmap"
         ([label load_block_temp_map_cmd])
     "ldastref"

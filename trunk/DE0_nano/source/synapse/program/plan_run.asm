@@ -249,7 +249,7 @@ func interpret_block_temp {
     gb = b
     for {i = 0} {i lt $block_temp_num_cells} step j = 1 {
         a = i
-        struct_read $ram_block_temp_scale
+        struct_read $ram_block_temp_ref
         if b gt gb {
             ram $ram_block_temp_map_idx = i
             a = i

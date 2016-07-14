@@ -138,6 +138,4 @@ namespace eval ::asm {
         }
         return [expr { int( 700000 / $rpm )}]
     }    
-
-    
 }    

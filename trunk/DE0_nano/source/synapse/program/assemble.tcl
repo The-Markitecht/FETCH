@@ -445,6 +445,23 @@ proc handle_assembly_error {msg} {
     exit 1
 }
 
+proc open_mif {fn num_words} {
+    set f [open $fn w]
+    puts $f "
+        DEPTH = $num_words ;  -- The size of memory in words
+        WIDTH = 16;                   -- bits per data word
+        ADDRESS_RADIX = HEX;          
+        DATA_RADIX = HEX;             
+        CONTENT                       
+        BEGIN
+    "    
+    return $f
+}
+
+proc close_mif {f} {
+    puts $f "\nEND;"
+}
+
 proc parse_pass {asm_lines pass_num} {
     set ::asm_pass $pass_num
     console "####################   PASS $::asm_pass  ####################"
@@ -524,15 +541,7 @@ proc assemble_file {src_fn rom_fn} {
         );
             assign data = 
     "    
-    set ::mif_file [open $::mif_fn w]
-    puts $::mif_file "
-        DEPTH = $::asm::assembler_max_words ;  -- The size of memory in words
-        WIDTH = 16;                   -- bits per data word
-        ADDRESS_RADIX = HEX;          
-        DATA_RADIX = HEX;             
-        CONTENT                       
-        BEGIN
-    "    
+    set ::mif_file [open_mif $::mif_fn $::asm::assembler_max_words]
     set ::bin_file [open $::bin_fn w]
     fconfigure $::bin_file -translation binary
     puts -nonewline $::bin_file [format %c%c [expr {$len_words & 0xff}] [expr {($len_words >> 8) & 0xff}] ]
@@ -551,10 +560,7 @@ proc assemble_file {src_fn rom_fn} {
     dict for {addr name} $::debugger_ram_names {
         puts $::mif_file "-- ram [format %08x $addr] $name"
     }
-    puts $::mif_file {        
-        END;
-    }
-    close $::mif_file
+    close_mif $::mif_file
     close $::bin_file
 }
 
