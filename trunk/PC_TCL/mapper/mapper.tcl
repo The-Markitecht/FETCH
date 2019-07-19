@@ -355,6 +355,23 @@ proc unfocused_term {term} {
     .win.c itemconfigure center$term -outline blue -width 3
 }
 
+proc set_term_center {term} {
+    lassign [bounds $::term_center_x($i) $::term_center_y($i)] x1 y1 x2 y2  
+    incr x1 -4
+    incr y1 -4
+    incr x2 4
+    incr y2 4
+    set id [$c create oval $x1 $y1 $x2 $y2 -tags center$i]
+}    
+
+proc move_term {term dx dy} {
+    incr ::term_center_x($term) $dx
+    incr ::term_center_y($term) $dy
+    .win.c coords oval $x1 $y1 $x2 $y2 -tags center$i]
+patch: need function for center marker bounds.
+better, a function to just set them.
+}
+
 proc refresh_afrc_run_mark {col_hex row_hex} {
     lassign [bounds 0x$col_hex 0x$row_hex] x1 y1 x2 y2  
     incr x1 4
@@ -530,11 +547,19 @@ $c bind $id <Button-1> "
         entry $cx -width 3 -textvariable ::term_center_x($i)
         pack $cx -side left -expand no -fill none
         bind $cx <Return> calc_afrc_map
+        bind $cx <Up>    "move_term $i 0 -1"
+        bind $cx <Down>  "move_term $i 0 1"
+        bind $cx <Left>  "move_term $i -1 0"
+        bind $cx <Right> "move_term $i 1 0"
 
         set cy ${f}.cy
         entry $cy -width 3 -textvariable ::term_center_y($i)
         pack $cy -side left -expand no -fill none
         bind $cy <Return> calc_afrc_map
+        bind $cy <Up>    "move_term $i 0 -1"
+        bind $cy <Down>  "move_term $i 0 1"
+        bind $cy <Left>  "move_term $i -1 0"
+        bind $cy <Right> "move_term $i 1 0"
 
         set ::term_enable($i) 1
         set en ${f}.enable
@@ -554,12 +579,8 @@ $c bind $id <Button-1> "
         bind $e <FocusOut> "unfocused_term $i"
 
         # term center markers  
-        lassign [bounds $::term_center_x($i) $::term_center_y($i)] x1 y1 x2 y2  
-        incr x1 -4
-        incr y1 -4
-        incr x2 4
-        incr y2 4
-        set id [$c create oval $x1 $y1 $x2 $y2 -tags center$i]
+        set id [$c create oval 0 0 10 10 -tags center$i]
+        set_term_center $i
         unfocused_term $i
         $c bind $id <Button-1> "focus_term $i"
     }
@@ -642,7 +663,7 @@ if {[catch {
     
     init_gui
 
-    init_port
+#    init_port
     
     vwait forever
     
