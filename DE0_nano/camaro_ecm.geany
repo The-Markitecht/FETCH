@@ -1,4 +1,3 @@
-
 [editor]
 line_wrapping=false
 line_break_column=72
@@ -29,32 +28,29 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=20
-FILE_NAME_0=1004;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_learn_stoich.asm;0;4
-FILE_NAME_1=63099;reStructuredText;0;EUTF-8;0;1;0;C%3A%5CProgram%20Files%5CGeany%5Cdoc%5CManual.Txt;0;4
-FILE_NAME_2=39;None;0;EUTF-8;0;1;0;c%3A%5Ctemp%5Cenv.txt;0;4
-FILE_NAME_3=1089;Tcl;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Cbuild.tcl;0;4
-FILE_NAME_4=233;Tcl;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cassemble.tcl;0;4
-FILE_NAME_5=4927;Tcl;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cprogram_macros.tcl;0;4
-FILE_NAME_6=9955;Tcl;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csystem_macros.tcl;0;4
-FILE_NAME_7=3729;Tcl;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cstructured_control_macros.tcl;0;4
-FILE_NAME_8=447;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Clib%5Cstruct.asm;0;4
-FILE_NAME_9=6301;Verilog;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Ctop.v;0;4
-FILE_NAME_10=8782;None;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cafrc_map_source.csv;0;4
-FILE_NAME_11=8744;Verilog;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Csynapse316.v;0;4
-FILE_NAME_12=167;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_crank.asm;0;4
-FILE_NAME_13=19724;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.asm;0;4
-FILE_NAME_14=259;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cdata_rom.asm;0;4
-FILE_NAME_15=1998;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_run.asm;0;4
-FILE_NAME_16=55;C;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cterminal_commands.asm;0;4
-FILE_NAME_17=2571;Tcl;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CPC_TCL%5Cmapper%5Cmapper.tcl;0;4
-FILE_NAME_18=3045;None;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5CPC_TCL%5Cmapper%5Cmaps%5Cdefault.map;0;4
-FILE_NAME_19=9230;Java;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2014%5Ccamaro_ecm%5Ctrunk%5Candroid_studio%5CGUI%5Capp%5Csrc%5Cmain%5Cjava%5Ccom%5CUARTTest%5Cbehavior%5Ccar_behavior.java;0;4
-FILE_NAME_20=1087;Tcl;0;EUTF-8;0;1;0;K%3A%5Cpersonal%5C2016%5Cwebscraper%5Ctrunk%5Ctcl86%5Cscraper.tcl;0;4
+current_page=15
+FILE_NAME_0=1004;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fplan_learn_stoich.asm;0;4
+FILE_NAME_1=1089;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fbuild.tcl;0;4
+FILE_NAME_2=233;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fassemble.tcl;0;4
+FILE_NAME_3=4927;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fprogram_macros.tcl;0;4
+FILE_NAME_4=9955;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fsystem_macros.tcl;0;4
+FILE_NAME_5=3729;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fstructured_control_macros.tcl;0;4
+FILE_NAME_6=447;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Flib%2Fstruct.asm;0;4
+FILE_NAME_7=6301;Verilog;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Ftop.v;0;4
+FILE_NAME_8=8782;None;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fafrc_map_source.csv;0;4
+FILE_NAME_9=8744;Verilog;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fsynapse316.v;0;4
+FILE_NAME_10=167;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fplan_crank.asm;0;4
+FILE_NAME_11=19724;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Ftarget_program.asm;0;4
+FILE_NAME_12=259;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fdata_rom.asm;0;4
+FILE_NAME_13=1998;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fplan_run.asm;0;4
+FILE_NAME_14=55;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fterminal_commands.asm;0;4
+FILE_NAME_15=10418;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FPC_TCL%2Fmapper%2Fmapper.tcl;0;4
+FILE_NAME_16=3045;None;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FPC_TCL%2Fmapper%2Fmaps%2Fdefault.map;0;4
+FILE_NAME_17=9240;Java;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2Fandroid_studio%2FGUI%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2FUARTTest%2Fbehavior%2Fcar_behavior.java;0;4
 
 [build-menu]
 NF_00_LB=_Make
-NF_00_CM=c:\\tcl\\bin\\wish85 mapper.tcl
+NF_00_CM=wish mapper.tcl
 NF_00_WD=
 NF_01_LB=Make Custom _Target...
 NF_01_CM=c:\\tcl\\bin\\tclsh85 build.tcl
