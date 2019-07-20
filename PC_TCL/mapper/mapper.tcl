@@ -1,5 +1,7 @@
 
 # to do:  
+# function for term center marker bounds.
+#   better, a function to just set them.
 # bench testing
 # arrow keys move center of term while focus is in center coordinate fields.
     # isn't it better to just drag & drop center marker?  
@@ -356,20 +358,18 @@ proc unfocused_term {term} {
 }
 
 proc set_term_center {term} {
-    lassign [bounds $::term_center_x($i) $::term_center_y($i)] x1 y1 x2 y2  
+    lassign [bounds $::term_center_x($term) $::term_center_y($term)] x1 y1 x2 y2  
     incr x1 -4
     incr y1 -4
     incr x2 4
     incr y2 4
-    set id [$c create oval $x1 $y1 $x2 $y2 -tags center$i]
+    set id [.win.c create oval $x1 $y1 $x2 $y2 -tags center$term]
 }    
 
 proc move_term {term dx dy} {
     incr ::term_center_x($term) $dx
     incr ::term_center_y($term) $dy
     .win.c coords oval $x1 $y1 $x2 $y2 -tags center$i]
-patch: need function for center marker bounds.
-better, a function to just set them.
 }
 
 proc refresh_afrc_run_mark {col_hex row_hex} {
@@ -443,7 +443,7 @@ proc init_gui {} {
     toplevel $w
     wm title $w Mapper
     wm deiconify $w
-    wm state $w zoomed 
+#    wm state $w zoomed 
     bind $w <Destroy> {
         exit
     }
