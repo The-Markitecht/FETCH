@@ -23,14 +23,14 @@ package require MityBuild
 source [file join [file dirname [info script]] fletcher16.tcl]
 
 proc init_port {} {
-    set ::port [open //./com11 r+]
+    ::port = [open //./com11 r+]
     fconfigure $::port -blocking 0 -buffering none -mode 115200,n,8,1 -handshake none
     read_port 
 }
 
 proc read_port {} {
     if {[catch {
-        set s [read $::port]
+        s = [read $::port]
         print_rx $s
         scan_data $s
     } err]} {
@@ -52,24 +52,24 @@ proc scan_data {data} {
     foreach word [split $data { }] {
         lassign [split $word =] name value
         if {$value ne {}} {
-            set ::data($name) $value
+            ::data($name) = $value
         }
     }          
     
     # update GUI run marks 
     if {[info exists ::data(map)]} {
-        set ::afrc_run_mark [split $::data(map) ,]
+        ::afrc_run_mark = [split $::data(map) ,]
         eval refresh_afrc_run_mark $::afrc_run_mark
     }
     if {[info exists ::data(bti)]} {
-        set ::block_temp_map_idx [e {int("0x$::data(bti)")}]
+        ::block_temp_map_idx := int("0x$::data(bti)")
         for {set i 0} {$i < [array size ::block_temp_ref]} {incr i} {
             .win.tools.refs.block_temp_ref.run$i configure -text {} -background $::system_label_background
         }
         .win.tools.refs.block_temp_ref.run$::block_temp_map_idx configure -text {<<} -background red
     }
     if {[info exists ::data(asi)]} {
-        set ::afterstart_map_idx [e {int("0x$::data(bti)")}]
+        ::afterstart_map_idx := int("0x$::data(bti)")
         for {set i 0} {$i < [array size ::afterstart_ref]} {incr i} {
             .win.tools.refs.afterstart_ref.run$i configure -text {} -background $::system_label_background
         }
@@ -79,9 +79,9 @@ proc scan_data {data} {
     # update GUI sensor display
     for {set i 0} {$i < 8} {incr i} {
         if {[info exists ::data(s$i)]} {
-            set ::sensor_hex($i) "0x$::data(s$i)"
-            set ::sensor_dec($i) [e {int($::sensor_hex($i))}]
-            set ::sensor_degf($i) "[adc_to_degf $::sensor_dec($i)] F" 
+            ::sensor_hex($i) = "0x$::data(s$i)"
+            ::sensor_dec($i) := int($::sensor_hex($i))
+            ::sensor_degf($i) = "[adc_to_degf $::sensor_dec($i)] F" 
         }
     }
 }
@@ -101,13 +101,13 @@ proc adc_to_degf {adc} {
 }
 
 proc clear_sent {} {
-    set ::sent [list]
+    ::sent = [list]
 }
 
 proc clear_sent_row {row} {
-    set i [lsearch -exact -integer $::sent $row]
+    i = [lsearch -exact -integer $::sent $row]
     if {$i >= 0} {
-        set ::sent [lreplace $::sent $i $i]
+        ::sent = [lreplace $::sent $i $i]
     }
 }
 
@@ -117,37 +117,37 @@ proc lod {fn} {
 }
 
 proc load_maps {fn} {
-    set ::trim_half    0
-    set ::trim_unity   8192
-    set ::trim_double  24576
-    set ::trim_min     $::trim_half
-    set ::trim_max     $::trim_double
+    ::trim_half = 0
+    ::trim_unity = 8192
+    ::trim_double = 24576
+    ::trim_min = $::trim_half
+    ::trim_max = $::trim_double
 
-    set ::max_terms 8
-    set ::pi 3.1415926
+    ::max_terms = 8
+    ::pi = 3.1415926
 
     # sensor friendly names in order 0 thru 7.
-    set ::sensor_name [list {} {} {Engine Block} {Transmission} {} {} {} {}]
+    ::sensor_name = [list {} {} {Engine Block} {Transmission} {} {} {} {}]
     
     if {[file extension $fn] eq {}} {
         append fn .map
     }
-    set fn [file join maps $fn]
+    fn = [file join maps $fn]
 
-    set f [open $fn r]
+    f = [open $fn r]
     array set content [read $f]
     close $f
     
     foreach lst {::afrc_map  ::maf_ref  ::rpm_ref} {
-        set $lst $content([string trim $lst :])
+        $lst = $content([string trim $lst :])
     }
     foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable
         ::block_temp_ref  ::block_temp_map  
         ::afterstart_ref  ::afterstart_map} {
         catch {unset $ary}
-        set i 0
+        i = 0
         foreach item $content([string trim $ary :]) {
-            set "${ary}($i)" $item
+            "${ary}($i)" = $item
             incr i
         }
     }
@@ -156,10 +156,10 @@ proc load_maps {fn} {
         error "Expected $::max_terms terms but found [array size ::term_expr]."
     }
      
-    set ::afrc_maf_rows [llength $::afrc_map] 
-    set ::afrc_rpm_cols [llength [lindex $::afrc_map 0]]            
-    set ::block_temp_map_idx 0
-    set ::afterstart_map_idx 0
+    ::afrc_maf_rows = [llength $::afrc_map] 
+    ::afrc_rpm_cols = [llength [lindex $::afrc_map 0]]            
+    ::block_temp_map_idx = 0
+    ::afterstart_map_idx = 0
     
     clear_sent
 }
@@ -168,24 +168,24 @@ proc sav {fn} {
     if {[file extension $fn] eq {}} {
         append fn .map
     }
-    set fn [file join maps $fn]
+    fn = [file join maps $fn]
 
     foreach lst {::afrc_map  ::maf_ref  ::rpm_ref} {
-        set content([string trim $lst :]) [set $lst]
+        content([string = trim $lst :]) [set $lst]
     }
     foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable
         ::block_temp_ref  ::block_temp_map  
         ::afterstart_ref  ::afterstart_map} {
-        set content([string trim $ary :]) [to_list $ary]
+        content([string = trim $ary :]) [to_list $ary]
     }
 
-    set f [open $fn w]
+    f = [open $fn w]
     puts $f [array get content]
     close $f
 }
 
 proc to_list {ary} {
-    set ls [list]
+    ls = [list]
     foreach i [lsort -integer [array names $ary]] {
         lappend ls [set "${ary}($i)"]
     }
@@ -203,7 +203,7 @@ proc send_row {cmd  seed  data_words  desc} {
         append cmd [format %04x $v]
     }
     send $cmd
-    set remote_sum [get4x]
+    remote_sum = [get4x]
     if {[get4x] != [fletcher16_result local_sum]} {
         show "ERROR: $desc should have had checksum $local_sum"
         break
@@ -251,14 +251,14 @@ proc eval_term {term_num  ex  row  col} {
     foreach var {max min double half unity} {
         upvar ::trim_$var $var
     }
-    set term $term_num
-    set tc_col $::term_center_x($term_num)
-    set tc_row $::term_center_y($term_num)
-    set dx [e {$col - $tc_col}]
-    set dy [e {$row - $tc_row}]
-    set result {}
+    term = $term_num
+    tc_col = $::term_center_x($term_num)
+    tc_row = $::term_center_y($term_num)
+    dx := $col - $tc_col
+    dy := $row - $tc_row
+    result = {}
     if {[catch {
-        set result [e "int($ex)"]
+        result = [e "int($ex)"]
     } err]} {
         set_term_error $term $err
     }
@@ -270,12 +270,12 @@ proc calc_afrc_map {} {
     #patch: upgrade from clear_sent to clear_sent_row    
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
         for {set col 0} {$col < $::afrc_rpm_cols} {incr col} {
-            set sum 0
+            sum = 0
             for {set term 0} {$term < $::max_terms} {incr term} {
                 if {$::term_enable($term)} {
-                    set ex [string trim $::term_expr($term)]
+                    ex = [string trim $::term_expr($term)]
                     if {$ex ne {}} {
-                        set v [eval_term $term $ex $row $col]
+                        v = [eval_term $term $ex $row $col]
                         if {$v eq {}} return
                         incr sum $v
                     }
@@ -307,7 +307,7 @@ proc bounds {col row} {
 }
 
 proc color {value} {
-    set i [e {int(($value - $::trim_min) * 255 / ($::trim_max - $::trim_min))}]
+    i := int(($value - $::trim_min) * 255 / ($::trim_max - $::trim_min))
     return [format #%02x%02x%02x $i $i 0]
 }
 
@@ -316,9 +316,9 @@ proc refresh_cell {col row} {
 }
 
 proc show_cell {cnv id col row} {
-    set flow [lindex $::maf_ref $row]
-    set rpm [lindex $::rpm_ref $col]
-    set ::cell_text "[lindex $::afrc_map $row $col] at $col , $row\n$rpm RPM, $flow MAF"
+    flow = [lindex $::maf_ref $row]
+    rpm = [lindex $::rpm_ref $col]
+    ::cell_text = "[lindex $::afrc_map $row $col] at $col , $row\n$rpm RPM, $flow MAF"
     lassign [$cnv coords $id] x y
     $cnv coords cell_text $x [e {$y - 5}] 
     $cnv itemconfigure cell_text -state normal 
@@ -391,7 +391,7 @@ proc refresh_show_tab {} {
 
 proc print_rx {msg} {
     # assumes the message already contains a newline; none is added here.
-    set t .win.tools.console.rx
+    t = .win.tools.console.rx
     $t insert end $msg
     while {[$t count -displaylines 1.0 end] > 60} {
         $t delete 1.0 {10.end + 1 display chars} 
@@ -403,7 +403,7 @@ proc print_rx {msg} {
 proc print_tcl {msg} {
     # assumes the message already contains a newline; none is added here.
     puts $msg
-    set t .win.tools.console.tcl
+    t = .win.tools.console.tcl
     $t insert end $msg
     while {[$t count -displaylines 1.0 end] > 1000} {
         $t delete 1.0 {10.end + 1 display chars} 
@@ -413,10 +413,10 @@ proc print_tcl {msg} {
 }
 
 proc run_tcl {} {
-    set t .win.tools.console.tcl
-    set cmd [$t get {insert linestart} {insert lineend}]
+    t = .win.tools.console.tcl
+    cmd = [$t get {insert linestart} {insert lineend}]
     if {[string range $cmd 0 [string length $::prompt]-1] == $::prompt} {
-        set cmd [string range $cmd [string length $::prompt] end]
+        cmd = [string range $cmd [string length $::prompt] end]
     }
     #print_tcl "\n$cmd\n"    
     if {[catch {set result [eval $cmd]} err]} {
@@ -438,7 +438,7 @@ proc init_gui {} {
 
     # toplevel window
     wm withdraw .
-    set w .win
+    w = .win
     toplevel $w
     wm title $w Mapper
     wm deiconify $w
@@ -450,13 +450,13 @@ proc init_gui {} {
     bind $w <Control-Return> send_afrc_map
 
     # AFRC map canvas
-    set c ${w}.c
+    c = ${w}.c
     canvas $c -relief sunken -borderwidth 2 -width 500 -height 650
     pack $c -side left -expand no -fill none
 
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
         for {set col 0} {$col < $::afrc_rpm_cols} {incr col} {
-            set id [$c create rectangle [bounds $col $row] \
+            id = [$c create rectangle [bounds $col $row] \
                 -tags [list ${col},$row c$col r$row]]
             $c bind $id <Enter> "
                 show_cell $c $id $col $row
@@ -466,83 +466,83 @@ proc init_gui {} {
             "
 #patch: for testing
 $c bind $id <Button-1> "
-    set ::afrc_run_mark {$col $row}
+    ::afrc_run_mark = {$col $row}
 "
             # test gradient: mapset $col $row [e $::trim_double * $col * $row / $::afrc_rpm_cols / $::afrc_maf_rows]
-            set dx [e $col - 12]
-            set dy [e $row - 41]
+            dx := $col - 12
+            dy := $row - 41
             mapset $col $row [e $::trim_double - $dx * $dx * 100 - $dy * $dy * 100]
             refresh_cell $col $row
         }
     }
     
     # movable items on map canvas
-    set t ${w}.cell_text
-    set ::cell_text {}
+    t = ${w}.cell_text
+    ::cell_text = {}
     label $t -textvariable ::cell_text  -justify center 
     $c create window 0 0 -tags cell_text -state hidden -window $t -height 25 -width 140 -anchor s
 
-    set ::afrc_run_mark {}
-    set id [$c create oval -100 -100 -90 -90 -tags afrc_run_mark -outline red -width 3]
+    ::afrc_run_mark = {}
+    id = [$c create oval -100 -100 -90 -90 -tags afrc_run_mark -outline red -width 3]
 
     # tools frame
-    set tools ${w}.tools
+    tools = ${w}.tools
     frame $tools -relief sunken -borderwidth 2 
     pack $tools -side left -expand yes -fill both
     
-    set btns ${tools}.btns
+    btns = ${tools}.btns
     frame $btns -relief flat -borderwidth 2
     pack $btns -side top -expand no -fill x    
     
-    set ts [frame $btns.tabselect]
+    ts = [frame $btns.tabselect]
     pack $ts -side left -expand no -fill none -padx 2
-    set b [radiobutton $ts.terms -text Terms -font "-size 18" -command show_tab -variable ::show_tab -value terms]
+    b = [radiobutton $ts.terms -text Terms -font "-size 18" -command show_tab -variable ::show_tab -value terms]
     grid $b -row 0 -column 0 -sticky w
-    set b [radiobutton $ts.refs -text Refs -font "-size 18" -command show_tab -variable ::show_tab -value refs]
+    b = [radiobutton $ts.refs -text Refs -font "-size 18" -command show_tab -variable ::show_tab -value refs]
     grid $b -row 1 -column 0 -sticky w
 #    set b [radiobutton $ts.sens -text Sensors -font "-size 18" -command show_tab -variable ::show_tab -value sens]
 #    grid $b -row 0 -column 1 -sticky w
-    set b [radiobutton $ts.none -text None -font "-size 18" -command show_tab -variable ::show_tab -value none]
+    b = [radiobutton $ts.none -text None -font "-size 18" -command show_tab -variable ::show_tab -value none]
     grid $b -row 1 -column 1 -sticky w
     
-    set b ${btns}.calc
+    b = ${btns}.calc
     button $b -text Calculate -font "-size 24" -command calc_afrc_map
     pack $b -side left -expand no -fill none -padx 2
     
-    set b ${btns}.send
+    b = ${btns}.send
     button $b -text Send -font "-size 24" -command send_afrc_map
     pack $b -side left -expand no -fill none -padx 2
 
-    set b ${btns}.enable_all
+    b = ${btns}.enable_all
     button $b -text All -font "-size 14" -command "enable_all_terms select"
     pack $b -side left -expand no -fill none -padx 2
     
-    set b ${btns}.disable_all
+    b = ${btns}.disable_all
     button $b -text None -font "-size 14" -command "enable_all_terms deselect"
     pack $b -side left -expand no -fill none -padx 2
 
-    set b ${btns}.toggle_all
+    b = ${btns}.toggle_all
     button $b -text Toggle -font "-size 14" -command "enable_all_terms toggle"
     pack $b -side left -expand no -fill none -padx 2
 
     # terms grid
-    set terms ${tools}.terms
+    terms = ${tools}.terms
     frame $terms -relief sunken -borderwidth 2
 #    pack $terms -side top -expand no -fill x
     
     for {set i 0} {$i < $::max_terms} {incr i} {
         # terms grid
-        set f ${terms}.term$i
+        f = ${terms}.term$i
         frame $f -relief sunken -borderwidth 2
         pack $f -side top -expand no -fill x
         
-        set desc ${f}.desc
+        desc = ${f}.desc
         entry $desc -textvariable ::term_desc($i) -justify center
         pack $desc -side bottom -expand yes -fill x
         bind $desc <FocusIn> "focused_term $i"
         bind $desc <FocusOut> "unfocused_term $i"
 
-        set cx ${f}.cx
+        cx = ${f}.cx
         entry $cx -width 3 -textvariable ::term_center_x($i)
         pack $cx -side left -expand no -fill none
         bind $cx <Return> calc_afrc_map
@@ -551,7 +551,7 @@ $c bind $id <Button-1> "
         bind $cx <Left>  "move_term $i -1 0"
         bind $cx <Right> "move_term $i 1 0"
 
-        set cy ${f}.cy
+        cy = ${f}.cy
         entry $cy -width 3 -textvariable ::term_center_y($i)
         pack $cy -side left -expand no -fill none
         bind $cy <Return> calc_afrc_map
@@ -560,73 +560,73 @@ $c bind $id <Button-1> "
         bind $cy <Left>  "move_term $i -1 0"
         bind $cy <Right> "move_term $i 1 0"
 
-        set ::term_enable($i) 1
-        set en ${f}.enable
+        ::term_enable($i) = 1
+        en = ${f}.enable
         checkbutton $en -text {} -variable ::term_enable($i) -command calc_afrc_map
         pack $en -side left -expand no -fill none
 
-        set error ${f}.error
-        label $error -width 5 -justify center
+        err = ${f}.error
+        label $err -width 5 -justify center
         set_term_error $i {}
-        pack $error -side left -expand no -fill none
+        pack $err -side left -expand no -fill none
 
-        set e ${f}.expr
-        entry $e -textvariable ::term_expr($i) -font {Courier 15}
-        pack $e -side left -expand yes -fill x
-        bind $e <Return> calc_afrc_map
-        bind $e <FocusIn> "focused_term $i"
-        bind $e <FocusOut> "unfocused_term $i"
+        ex = ${f}.expr
+        entry $ex -textvariable ::term_expr($i) -font {Courier 15}
+        pack $ex -side left -expand yes -fill x
+        bind $ex <Return> calc_afrc_map
+        bind $ex <FocusIn> "focused_term $i"
+        bind $ex <FocusOut> "unfocused_term $i"
 
         # term center markers  
-        set id [$c create oval 0 0 10 10 -tags center$i]
+        id = [$c create oval 0 0 10 10 -tags center$i]
         set_term_center $i
         unfocused_term $i
         $c bind $id <Button-1> "focus_term $i"
     }
     
     # refs grid
-    set refs ${tools}.refs
+    refs = ${tools}.refs
     frame $refs -relief sunken -borderwidth 2
 #    pack $refs -side top -expand no -fill x
 
-    set btr [frame $refs.block_temp_ref]
+    btr = [frame $refs.block_temp_ref]
     pack $btr -side left -expand no -fill y -padx 4
-    set btn [button $btr.send -text "Send Block Temp Ref/Map" -command send_block_temp_map]
+    btn = [button $btr.send -text "Send Block Temp Ref/Map" -command send_block_temp_map]
     grid $btn -column 0 -row 0 -columnspan [e int(ceil([array size ::block_temp_ref]/16)) * 3]
     for {set i 0} {$i < [array size ::block_temp_ref]} {incr i} {
-        set e [entry $btr.ref$i -textvariable ::block_temp_ref($i) -justify center -width 4 -font "-size 7"]
-        grid $e   -column [e int(floor($i/16)) * 3] -row [e $i % 16 + 1]
-        set e [entry $btr.map$i -textvariable ::block_temp_map($i) -justify center -width 5 -font "-size 7" -background yellow]
-        grid $e   -column [e int(floor($i/16)) * 3 + 1] -row [e $i % 16 + 1]
-        set lbl [label $btr.run$i -justify left -width 4 -font {-size 7 -weight bold}]
+        ent = [entry $btr.ref$i -textvariable ::block_temp_ref($i) -justify center -width 4 -font "-size 7"]
+        grid $ent   -column [e int(floor($i/16)) * 3] -row [e $i % 16 + 1]
+        ent = [entry $btr.map$i -textvariable ::block_temp_map($i) -justify center -width 5 -font "-size 7" -background yellow]
+        grid $ent   -column [e int(floor($i/16)) * 3 + 1] -row [e $i % 16 + 1]
+        lbl = [label $btr.run$i -justify left -width 4 -font {-size 7 -weight bold}]
         grid $lbl -column [e int(floor($i/16)) * 3 + 2] -row [e $i % 16 + 1] -sticky w
     }
 
-    set astr [frame $refs.afterstart_ref]
+    astr = [frame $refs.afterstart_ref]
     pack $astr -side left -expand no -fill y  -padx 4
-    set btn [button $astr.send -text "Send Afterstart Ref/Map" -command send_afterstart_map]
+    btn = [button $astr.send -text "Send Afterstart Ref/Map" -command send_afterstart_map]
     grid $btn -column 0 -row 0 -columnspan 3
     for {set i 0} {$i < [array size ::afterstart_ref]} {incr i} {
-        set e [entry $astr.ref$i -textvariable ::afterstart_ref($i) -justify center -width 7 -font "-size 7"]
-        grid $e -column 0 -row [e $i + 1] -sticky e
-        set e [entry $astr.map$i -textvariable ::afterstart_map($i) -justify center -width 5 -font "-size 7" -background orange]
-        grid $e -column 1 -row [e $i + 1] -sticky w
-        set lbl [label $astr.run$i -justify left -width 4 -font {-size 7 -weight bold}]
+        ent = [entry $astr.ref$i -textvariable ::afterstart_ref($i) -justify center -width 7 -font "-size 7"]
+        grid $ent -column 0 -row [e $i + 1] -sticky e
+        ent = [entry $astr.map$i -textvariable ::afterstart_map($i) -justify center -width 5 -font "-size 7" -background orange]
+        grid $ent -column 1 -row [e $i + 1] -sticky w
+        lbl = [label $astr.run$i -justify left -width 4 -font {-size 7 -weight bold}]
         grid $lbl -column 2 -row [e $i + 1] -sticky w
     }
 
-    set sens [frame $refs.sens]
+    sens = [frame $refs.sens]
     pack $sens -side left -expand no -fill y -padx 4
     for {set i 0} {$i < [llength $::sensor_name]} {incr i} {
-        l =bl [label $sens.lbl$i -text "[lindex $::sensor_name $i] s$i" -justify right]
+        lbl = [label $sens.lbl$i -text "[lindex $::sensor_name $i] s$i" -justify right]
         grid $lbl -column 0 -row $i -sticky e
-        set lbl [label $sens.hex$i -textvariable ::sensor_hex($i) -justify right]
+        lbl = [label $sens.hex$i -textvariable ::sensor_hex($i) -justify right]
         grid $lbl -column 1 -row $i -sticky e
-        set lbl [label $sens.dec$i -textvariable ::sensor_dec($i) -justify right]
+        lbl = [label $sens.dec$i -textvariable ::sensor_dec($i) -justify right]
         grid $lbl -column 2 -row $i -sticky e
-        set lbl [label $sens.degf$i -textvariable ::sensor_degf($i) -justify right -font "-size 14"]
+        lbl = [label $sens.degf$i -textvariable ::sensor_degf($i) -justify right -font "-size 14"]
         grid $lbl -column 3 -row $i -sticky e
-        set ::system_label_background [$lbl cget -background]
+        ::system_label_background = [$lbl cget -background]
 #patch: for testing
 bind $lbl <Button-1> {
     scan_data {03f1: rpm=0000 pfl=0000,0000 o2=0000 tp=0a7e,0543,0 map=0003,000d bti=0004 asi=0006 s7=0fff s6=0fff s5=0fff s4=0fff s3=0400 s2=0500 s1=0fff s0=0fff pl=STP mt=0000 tf=}
@@ -634,7 +634,7 @@ bind $lbl <Button-1> {
     }
     
     # serial display & Tcl console
-    set console ${tools}.console
+    console = ${tools}.console
     frame $console -relief sunken -borderwidth 2
     pack $console -side top -expand yes -fill both
     
