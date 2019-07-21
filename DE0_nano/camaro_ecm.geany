@@ -28,7 +28,7 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=15
+current_page=17
 FILE_NAME_0=1004;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fplan_learn_stoich.asm;0;4
 FILE_NAME_1=1089;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fbuild.tcl;0;4
 FILE_NAME_2=233;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fassemble.tcl;0;4
@@ -44,13 +44,13 @@ FILE_NAME_11=19724;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Inje
 FILE_NAME_12=259;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fdata_rom.asm;0;4
 FILE_NAME_13=1998;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fplan_run.asm;0;4
 FILE_NAME_14=55;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fterminal_commands.asm;0;4
-FILE_NAME_15=10418;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FPC_TCL%2Fmapper%2Fmapper.tcl;0;4
+FILE_NAME_15=698;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FPC_TCL%2Fmapper%2Fmapper.tcl;0;4
 FILE_NAME_16=3045;None;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FPC_TCL%2Fmapper%2Fmaps%2Fdefault.map;0;4
 FILE_NAME_17=9240;Java;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2Fandroid_studio%2FGUI%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2FUARTTest%2Fbehavior%2Fcar_behavior.java;0;4
 
 [build-menu]
 NF_00_LB=_Make
-NF_00_CM=wish mapper.tcl
+NF_00_CM=sh -c wish mapper.tcl
 NF_00_WD=
 NF_01_LB=Make Custom _Target...
 NF_01_CM=c:\\tcl\\bin\\tclsh85 build.tcl

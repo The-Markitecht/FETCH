@@ -17,8 +17,7 @@
 # (sin(clamp(dist(8)/3, -$pi, $pi))+1)*4000
 
 package require Tk
-
-interp alias {} e {} expr
+package require MityBuild
 
 #source [file join [file dirname [info script]] trace.tcl]
 source [file join [file dirname [info script]] fletcher16.tcl]
@@ -363,7 +362,7 @@ proc set_term_center {term} {
     incr y1 -4
     incr x2 4
     incr y2 4
-    set id [.win.c create oval $x1 $y1 $x2 $y2 -tags center$term]
+    .win.c create oval $x1 $y1 $x2 $y2 -tags center$term
 }    
 
 proc move_term {term dx dy} {
@@ -381,7 +380,7 @@ proc refresh_afrc_run_mark {col_hex row_hex} {
     .win.c coords afrc_run_mark [list $x1 $y1 $x2 $y2]
 }
 
-proc show_tab {} {
+proc refresh_show_tab {} {
     foreach tab {terms refs none} {
         pack forget .win.tools.$tab
     }
@@ -619,7 +618,7 @@ $c bind $id <Button-1> "
     set sens [frame $refs.sens]
     pack $sens -side left -expand no -fill y -padx 4
     for {set i 0} {$i < [llength $::sensor_name]} {incr i} {
-        set lbl [label $sens.lbl$i -text "[lindex $::sensor_name $i] s$i" -justify right]
+        l =bl [label $sens.lbl$i -text "[lindex $::sensor_name $i] s$i" -justify right]
         grid $lbl -column 0 -row $i -sticky e
         set lbl [label $sens.hex$i -textvariable ::sensor_hex($i) -justify right]
         grid $lbl -column 1 -row $i -sticky e
@@ -639,20 +638,20 @@ bind $lbl <Button-1> {
     frame $console -relief sunken -borderwidth 2
     pack $console -side top -expand yes -fill both
     
-    set tcl ${console}.tcl
+    tcl = ${console}.tcl
     text $tcl -font {Courier 11} -wrap char -height 5
     pack $tcl -side bottom -expand no -fill x
     bind $tcl <Return> run_tcl
     #interp alias {} puts {} print_tcl
-    set ::prompt {Tcl> }
+    ::prompt = {Tcl> }
     print_tcl $::prompt
 
-    set rx ${console}.rx
+    rx = ${console}.rx
     text $rx -font {Courier 11} -wrap char
     pack $rx -side top -expand yes -fill both
 
-    set ::show_tab refs
-    show_tab
+    ::show_tab = refs
+    refresh_show_tab
 }
 
 # #########################################################
