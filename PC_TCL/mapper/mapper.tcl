@@ -157,7 +157,7 @@ proc load_maps {fn} {
     }
      
     ::afrc_maf_rows = [llength $::afrc_map] 
-    ::afrc_rpm_cols = [llength [lindex $::afrc_map 0]]            
+    ::afrc_rpm_cols = [llength [::afrc_map ^ 0]]            
     ::block_temp_map_idx = 0
     ::afterstart_map_idx = 0
     
@@ -213,7 +213,7 @@ proc send_row {cmd  seed  data_words  desc} {
 proc send_afrc_map {} {
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
         if {$row ni $::sent} {
-            send_row  [format ldafrc%04x $row]  $row  [lindex $::afrc_map $row]  "row $row"
+            send_row  [format ldafrc%04x $row]  $row  [::afrc_map ^ $row]  "row $row"
             lappend ::sent $row
         }
     }
@@ -316,8 +316,8 @@ proc refresh_cell {col row} {
 }
 
 proc show_cell {cnv id col row} {
-    flow = [lindex $::maf_ref $row]
-    rpm = [lindex $::rpm_ref $col]
+    flow = [::maf_ref ^ $row]
+    rpm = [::rpm_ref ^ $col]
     ::cell_text = "[lindex $::afrc_map $row $col] at $col , $row\n$rpm RPM, $flow MAF"
     lassign [$cnv coords $id] x y
     $cnv coords cell_text $x [e {$y - 5}] 
@@ -618,7 +618,7 @@ $c bind $id <Button-1> "
     sens = [frame $refs.sens]
     pack $sens -side left -expand no -fill y -padx 4
     for {set i 0} {$i < [llength $::sensor_name]} {incr i} {
-        lbl = [label $sens.lbl$i -text "[lindex $::sensor_name $i] s$i" -justify right]
+        lbl = [label $sens.lbl$i -text "[::sensor_name ^ $i] s$i" -justify right]
         grid $lbl -column 0 -row $i -sticky e
         lbl = [label $sens.hex$i -textvariable ::sensor_hex($i) -justify right]
         grid $lbl -column 1 -row $i -sticky e
