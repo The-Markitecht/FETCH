@@ -174,6 +174,7 @@ supervised_synapse316 supmcu(
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
 stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`DR_RSTK]);
 
+/* commented out to clean up the build 2019-08-03
 // Altera 16x16=32 multiplier.  see settings for latency.
 multiplier	multiplier_inst (
     .clock ( sysclk ),
@@ -181,6 +182,7 @@ multiplier	multiplier_inst (
     .datab ( r[1] ),
     .result ( {r[`SR_PRODUCT_HI], r[`SR_PRODUCT_LO]} )
 );
+*/
 
 // ADC SPI.  SPI_CLOCK_DIVISOR(50) = 1mhz spi_sck = 16us/read.
 wire spi_busy;
@@ -263,6 +265,7 @@ qsys2 u0 (
 );
 assign DRAM_CLK = clk_sdram;
 
+/* commented out to clean up the build 2019-08-03
 // data ROM for lookup tables etc.
 data_rom drom (
     .address ( r_load_data ),
@@ -270,6 +273,7 @@ data_rom drom (
     .clock ( sysclk ),
     .q ( r[`SR_DROM_DATA] )
 );
+*/
 
 /*  bus_expander does not seem to read back correctly from a non-zero address.
 // ///////////////////////////   I/O expansion bus.

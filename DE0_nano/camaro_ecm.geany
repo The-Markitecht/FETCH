@@ -28,32 +28,25 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=17
-FILE_NAME_0=1004;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fplan_learn_stoich.asm;0;4
-FILE_NAME_1=1089;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fbuild.tcl;0;4
-FILE_NAME_2=233;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fassemble.tcl;0;4
-FILE_NAME_3=4927;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fprogram_macros.tcl;0;4
-FILE_NAME_4=9955;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fsystem_macros.tcl;0;4
-FILE_NAME_5=3729;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fstructured_control_macros.tcl;0;4
-FILE_NAME_6=447;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Flib%2Fstruct.asm;0;4
-FILE_NAME_7=6301;Verilog;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Ftop.v;0;4
-FILE_NAME_8=8782;None;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fafrc_map_source.csv;0;4
-FILE_NAME_9=8744;Verilog;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fsynapse316.v;0;4
-FILE_NAME_10=167;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fplan_crank.asm;0;4
-FILE_NAME_11=19724;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Ftarget_program.asm;0;4
-FILE_NAME_12=259;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fdata_rom.asm;0;4
-FILE_NAME_13=1998;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fplan_run.asm;0;4
-FILE_NAME_14=55;C;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FDE0_nano%2Fsource%2Fsynapse%2Fprogram%2Fterminal_commands.asm;0;4
-FILE_NAME_15=698;Tcl;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FPC_TCL%2Fmapper%2Fmapper.tcl;0;4
-FILE_NAME_16=3045;None;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2FPC_TCL%2Fmapper%2Fmaps%2Fdefault.map;0;4
-FILE_NAME_17=9240;Java;0;EUTF-8;0;1;0;%2Fsecure%2FSecureNotes%2FHomebrew_Fuel_Injection_Computer%2Fgit%2Fandroid_studio%2FGUI%2Fapp%2Fsrc%2Fmain%2Fjava%2Fcom%2FUARTTest%2Fbehavior%2Fcar_behavior.java;0;4
+current_page=10
+FILE_NAME_0=685;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Cbuild.tcl;0;4
+FILE_NAME_1=0;None;0;EUTF-8;0;1;0;C%3A%5CUsers%5Cx%5CAppData%5CRoaming%5Cgeany%5Ctags%5Csynapse_target_program.asm.tags;0;4
+FILE_NAME_2=19990;ASM;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.asm;0;4
+FILE_NAME_3=14057;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cassemble.tcl;0;4
+FILE_NAME_4=9696;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csystem_macros.tcl;0;4
+FILE_NAME_5=0;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cprogram_macros.tcl;0;4
+FILE_NAME_6=12648;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cstructured_control_macros.tcl;0;4
+FILE_NAME_7=526;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Cpre_flow.tcl;0;4
+FILE_NAME_8=0;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program_defines.v;0;4
+FILE_NAME_9=658;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Ctop.v;0;4
+FILE_NAME_10=51;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5C.gitignore;0;4
 
 [build-menu]
 NF_00_LB=_Make
 NF_00_CM=sh -c wish mapper.tcl
 NF_00_WD=
 NF_01_LB=Make Custom _Target...
-NF_01_CM=c:\\tcl\\bin\\tclsh85 build.tcl
+NF_01_CM=c:\\tcl\\bin\\tclsh build.tcl
 NF_01_WD=%p/source
 NF_02_LB=Make _Object
 NF_02_CM=make %e.o
