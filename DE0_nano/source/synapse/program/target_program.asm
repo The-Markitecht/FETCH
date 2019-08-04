@@ -47,14 +47,9 @@
     // libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
     convention_formal
     include ../peripheral/driver/fduart.asm
-    include lib/struct.asm
     include lib/console.asm
-    include lib/math.asm
     include lib/string.asm
     include lib/time.asm
-    setvar fletcher_sum1_reg pc
-    setvar fletcher_sum2_reg pd
-    include lib/fletcher.asm
 
 <<
     proc eread {lin addr read_into_reg} {
@@ -63,7 +58,7 @@
         }
         parse3 exp_addr = $addr "eread $addr $read_into_reg"
         parse3 $read_into_reg = exp \"
-        nop \"
+        parse3 exp_addr = 0xffff \"
         parse3 $read_into_reg = exp \"
     }
         
@@ -89,7 +84,6 @@
     }
     
     proc etest {lin addr expected fail_code_num} {
-        emit_comment "// $lin"
         edump $lin $addr
         parse "
             if ga ne $expected {
@@ -168,10 +162,24 @@
     ewrite 2 0x42
     etest  2 0x42 0x42
 
-//TODO: test exp_r_read with a read-sensitive counter.
-// also test a write-sensitive counter.
-
-        
+    // write-sensitive peripherals, represented by a write-sensitive counter.
+    ewrite 4 0
+    etest  4 0x0  0x50
+    ewrite 4 0xf0
+    etest  4 0x01 0x51
+    ewrite 4 0xf0
+    ewrite 4 0xf0
+    ewrite 4 0xf0
+    etest  4 0x04 0x52
+    
+    // read-sensitive peripherals, represented by a read-sensitive counter.
+    ewrite 5 0
+    etest  5 0x0  0x60
+    etest  5 0x01 0x61
+    etest  5 0x02 0x62
+    etest  5 0x03 0x63
+    etest  5 0x04 0x64
+    
     jmp :begin_test
 
 func fail {fail_code_num in pa} {

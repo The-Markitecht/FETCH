@@ -7,21 +7,21 @@ module top (
     (* chip_pin = "G21" *) input clk50m
 
     // DE0 LEDs.  active high.
-    , (* chip_pin = "B1, B2, C2, C1, E1, F2, H1, J3, J2, J1" *)   output[9:0] led
+//    , (* chip_pin = "B1, B2, C2, C1, E1, F2, H1, J3, J2, J1" *)   output[9:0] led
 
     // DE0 pushbuttons.  3.3v pullups.  pressed = logic low.
 //    , (* chip_pin = "F1, G3, H2" *)   input[2:0] buttons_raw
 
     // raw signals from DE0 on-board slide switches (up/inboard = logic high).  3.3v.
 //    , (* chip_pin = "D2, E4, E3, H7, J7, G5, G4, H6, H5, J6" *)   input [9:0] switches_raw 
-
+/*
     ////////////////////  DE0 7-SEG Display, active low.  ////////////////////
     , (* chip_pin = "F13, F12, G12, H13, H12, F11, E11" *)   output	[6:0]	hex0 // low-order digit
     , (* chip_pin = "A15, E14, B14, A14, C13, B13, A13" *)   output	[6:0]	hex1
     , (* chip_pin = "F14, B17, A17, E15, B16, A16, D15" *)   output	[6:0]	hex2
     , (* chip_pin = "G15, D19, C19, B19, A19, F15, B18" *)   output	[6:0]	hex3 // high-order digit
     , (* chip_pin = "G16, A18, B15, D13" *)                  output	[3:0]	hex_dp // dp [0] is the right-most (low-order) digit.  active low.
-
+*/
     ,(* chip_pin = "V5" *) output wire  async_tx_line
     ,(* chip_pin = "U7" *)  input wire  async_rx_line
     
@@ -86,7 +86,7 @@ wire[15:0]                r[`TOP_REG:0];
 wire[`TOP_REG:0]          r_read;  
 wire[`TOP_REG:0]          r_load;
 wire[15:0]                r_load_data;  
-wire                      mcu_wait;
+wire                      mcu_wait = 0;
 wire                      visor_break_mode;
 assign timer_enable = ! visor_break_mode;
 supervised_synapse316 supmcu(
@@ -145,7 +145,24 @@ bus_expander #(.NUM_REGS(`EXP_NUM_REGS)) expand(
     ,.r_load_data       (exp_r_load_data)    
 );
 
-std_reg ex_test_reg[`EXP_TOP_REG:0] (sysclk, sysreset, exp_r, exp_r_load_data, exp_r_load);
+std_reg ex_test_reg[3:0] (sysclk, sysreset, exp_r[3:0], exp_r_load_data, exp_r_load[3:0]);
+
+// write-sensitive counter.  can be reset by writing a zero to it.
+reg[`WMSB:0] ws_cnt = 0;
+always_ff @(posedge sysclk) 
+    if (exp_r_load[4])
+        ws_cnt <= exp_r_load_data == `WW'h0 ? `WW'h0 : ws_cnt + `WW'h1;
+assign exp_r[4] = ws_cnt;
+
+// read-sensitive counter.  can be reset by writing a zero to it.
+reg[`WMSB:0] rs_cnt = 0;
+always_ff @(posedge sysclk) 
+    if (exp_r_load[5])
+        rs_cnt <= `WW'h0;
+    else if (exp_r_read[5])
+        rs_cnt <= rs_cnt + `WW'h1;
+assign exp_r[5] = rs_cnt;
+
 
 /*
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, exp_r[`EDR_LEDS], exp_r_load_data[7:0], exp_r_load[`EDR_LEDS]);

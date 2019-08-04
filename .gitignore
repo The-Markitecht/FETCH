@@ -6,3 +6,4 @@ DE0_nano/simulation/modelsim
 PC_WPF35/debug_monitor/debug_monitor/bin
 PC_WPF35/debug_monitor/debug_monitor/obj
 PC_WPF35/**/*.user
+PC_WPF35/**/*.suo
