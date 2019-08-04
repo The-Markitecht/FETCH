@@ -44,7 +44,12 @@ module bus_expander #(
     generate  
         for (i=0; i < NUM_REGS; i=i+1) begin: body
             assign r_load[i] = (address_out == i ? pend_write : 1'b0);
-            assign r_read[i] = (address_out == i ? pend_read : 1'b0);
+            assign r_read[i] = (address_out == i ? data_read && pend_read : 1'b0);
+            // that combinational expression (data_read && pend_read) could be moved to the input side of 
+            // pend_read instead.  as in pend_read <= data_read && ! pend_read;
+            // but that just makes the expression's delay stack up with that of the MCU's address decoder
+            // instead of the expander's address decoder.  bad move; the expander has less need for high clock rates,
+            // and its peripherals are often ignoring the read ack signal anyway.  the expander never ignores it.
         end
     endgenerate     
 
@@ -52,6 +57,9 @@ module bus_expander #(
     std_reg data_write_reg (sysclk, sysreset, r_load_data, data_in, data_load);
 
     // data read register.
-    std_reg data_read_reg (sysclk, sysreset, data_out, r[address_out], pend_read);
+    // while the MCU core triggers this register to load on 2 consecutive cycles, only
+    // the latter of those is reported to the peripheral, by pend_read.
+    // that's important for read-sensitive devices like FIFOs.
+    std_reg data_read_reg (sysclk, sysreset, data_out, r[address_out], data_read);
     
 endmodule

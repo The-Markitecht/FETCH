@@ -57,12 +57,11 @@
             error "eread into exp register not supported."
         }
         parse3 exp_addr = $addr "eread $addr $read_into_reg"
-        # first read begins the cycle by loading pend_read, so data enters the data_read_reg within the expander.
-        parse3 $read_into_reg = exp \"
-        # second read loads the data from data_read_reg into the MCU.
-        # address is changed first, so the peripheral doesn't get a second read acknowledge signal.
+        # allow 1 extra cycle for the expander's data muxer to bring data to the inputs of the expander's data register.
+        # during that cycle, do an additional throwaway read, to cause that data register to load from that muxer.
+        # the 2 consecutive read signals will be condensed into 1 by the expander.
         # that's important for read-sensitive devices like FIFOs.
-        parse3 exp_addr = 0xffff \"
+        parse3 $read_into_reg = exp \"
         parse3 $read_into_reg = exp \"
     }
         
