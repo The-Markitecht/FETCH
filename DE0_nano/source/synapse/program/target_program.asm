@@ -57,15 +57,17 @@
             error "eread into exp register not supported."
         }
         parse3 exp_addr = $addr "eread $addr $read_into_reg"
+        # first read begins the cycle by loading pend_read, so data enters the data_read_reg within the expander.
         parse3 $read_into_reg = exp \"
+        # second read loads the data from data_read_reg into the MCU.
+        # address is changed first, so the peripheral doesn't get a second read acknowledge signal.
+        # that's important for read-sensitive devices like FIFOs.
         parse3 exp_addr = 0xffff \"
         parse3 $read_into_reg = exp \"
     }
         
     proc ewrite {lin addr data} {
-        # nop's not needed for consecutive writes?
         parse3 exp_addr = $addr "ewrite $addr $data"
-        nop \"
         parse3 exp = $data \"
     }
         

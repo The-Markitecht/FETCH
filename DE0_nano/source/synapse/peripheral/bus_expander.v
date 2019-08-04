@@ -32,7 +32,7 @@ module bus_expander #(
     reg pend_write = 0;
     always_ff @(posedge sysclk) 
         pend_write <= data_load;
-    reg pend_read = 0;
+    reg pend_read = 0; //TODO: eliminate this register.
     always_ff @(posedge sysclk) 
         pend_read <= data_read;
 
