@@ -3,3 +3,6 @@ DE0_nano/incremental_db
 DE0_nano/output
 DE0_nano/simulation/modelsim
 **/*_tags.txt
+PC_WPF35/debug_monitor/debug_monitor/bin
+PC_WPF35/debug_monitor/debug_monitor/obj
+PC_WPF35/**/*.user

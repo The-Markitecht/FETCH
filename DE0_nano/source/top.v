@@ -125,7 +125,6 @@ fduart uart (
     ,.arx_reg_read  ( r_read[`DR_FDUART_DATA] )
 );  
 
-/*  bus_expander does not seem to read back correctly from a non-zero address.
 // ///////////////////////////   I/O expansion bus.
 wire[15:0]                exp_r[`EXP_TOP_REG:0];
 wire[`EXP_TOP_REG:0]      exp_r_read;  
@@ -146,6 +145,9 @@ bus_expander #(.NUM_REGS(`EXP_NUM_REGS)) expand(
     ,.r_load_data       (exp_r_load_data)    
 );
 
+std_reg ex_test_reg[`EXP_TOP_REG:0] (sysclk, sysreset, exp_r, exp_r_load_data, exp_r_load);
+
+/*
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, exp_r[`EDR_LEDS], exp_r_load_data[7:0], exp_r_load[`EDR_LEDS]);
 assign LED = exp_r[`EDR_LEDS][7:0];
 
@@ -155,7 +157,7 @@ std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, exp_r[`EDR_ANMUX_CTRL], ex
 assign anmux_ctrl = exp_r[`EDR_ANMUX_CTRL][3:0];
 */
 
-std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
+//std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
 //assign LED = { ! ignition_switch_off_sync, r[`DR_LEDS][6:0]};
 
 
