@@ -73,11 +73,11 @@ module bus_expander #(
     // debugger is likely to access peripherals through the expander using additional operations
     // during the break.  that will definitely destroy the target's pending access.
     reg critical = 0;
-    assign critical_section = critical;
-    always_ff @(posedge sysclk) 
-        if (address_load)
-            critical <= 1'b1;
-        else if (pend_read || pend_write)
-            critical <= 1'b0;
+    reg critical2 = 0;
+    assign critical_section = address_load || critical || critical2;
+    always_ff @(posedge sysclk) begin
+        critical <= address_load;
+        critical2 <= critical;
+    end
     
 endmodule
