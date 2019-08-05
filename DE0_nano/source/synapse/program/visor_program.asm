@@ -11,7 +11,8 @@
     setvar assembler_max_words          $visor_code_size_max_words
 
     // register file configuration
-    vdefine visor_num_regs 26
+    vdefine visor_num_regs 32
+        // DON'T reduce visor_num_regs from 32 to 26.  it costs 6% of the core's clock rate!
     vdefine visor_top_reg ($visor_num_regs - 1)
     vdefine visor_num_gp 8
     vdefine visor_top_gp ($visor_num_gp - 1)

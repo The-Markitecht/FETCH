@@ -129,6 +129,7 @@
 { "" "" "" "Verilog HDL assignment warning at debounce_counter.v(29): truncated value with size 32 to match size of target (4)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Net \"vr\[31..26\]\" at supervised_synapse316.v(59) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "PLL \"async_pll:async_pll_inst\|altpll:altpll_component\|async_pll_altpll:auto_generated\|pll1\" has parameters clk2_multiply_by and clk2_divide_by specified but port CLK\[2\] is not connected" {  } {  } 0 15899 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"vr\[31..26\]\" at supervised_synapse316.v(60) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

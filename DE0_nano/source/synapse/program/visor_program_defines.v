@@ -30,8 +30,8 @@
 `define VISOR_CODE_ADDR_WIDTH  11
 `define VISOR_CODE_ADDR_TOP  10
 `define VISOR_CODE_SIZE_MAX_WORDS  2048
-`define VISOR_NUM_REGS  26
-`define VISOR_TOP_REG  25
+`define VISOR_NUM_REGS  32
+`define VISOR_TOP_REG  31
 `define VISOR_NUM_GP  8
 `define VISOR_TOP_GP  7
 `define SR_GA  6
