@@ -30,7 +30,7 @@
 
 -- register file configuration
 
--- application-specific register aliases.
+-- application-specific register aliases.  in this case debugging-specific ones.
 
 
 

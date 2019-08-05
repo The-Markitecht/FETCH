@@ -52,7 +52,8 @@ namespace eval ::asm {
                 vdefine debug_force_exec_bit        18
                 vdefine debug_force_load_exr_bit    17
                 vdefine debug_force_hold_state_bit  16
-            vdefine debug_out_width         7
+            vdefine debug_out_width         8
+                vdefine debug_critical_section_bit  7
                 vdefine debug_prg_break_op_bit      6
                 vdefine debug_branching_cycle_bit   5
                 vdefine debug_const16_cycle1_bit    4

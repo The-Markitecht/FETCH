@@ -87,6 +87,7 @@ wire[`TOP_REG:0]          r_read;
 wire[`TOP_REG:0]          r_load;
 wire[15:0]                r_load_data;  
 wire                      mcu_wait = 0;
+wire                      app_critical_section;
 wire                      visor_break_mode;
 assign timer_enable = ! visor_break_mode;
 supervised_synapse316 supmcu(
@@ -95,6 +96,7 @@ supervised_synapse316 supmcu(
     .clk_progmem     (clk_progmem),
     .clk_async       (clk_async),
     .mcu_wait_in     (mcu_wait),
+    .app_critical_section(app_critical_section),
     .visor_break_mode(visor_break_mode),
     .boot_break      ( 1'b0 ), 
     .r               (r),
@@ -130,6 +132,7 @@ wire[15:0]                exp_r[`EXP_TOP_REG:0];
 wire[`EXP_TOP_REG:0]      exp_r_read;  
 wire[`EXP_TOP_REG:0]      exp_r_load;
 wire[15:0]                exp_r_load_data;  
+wire                      exp_critical_section;
 bus_expander #(.NUM_REGS(`EXP_NUM_REGS)) expand(
      .sysclk            (sysclk)
     ,.sysreset          (sysreset)
@@ -143,7 +146,9 @@ bus_expander #(.NUM_REGS(`EXP_NUM_REGS)) expand(
     ,.r_read            (exp_r_read)
     ,.r_load            (exp_r_load)
     ,.r_load_data       (exp_r_load_data)    
+    ,.critical_section  (exp_critical_section)
 );
+assign app_critical_section = exp_critical_section;
 
 std_reg ex_test_reg[3:0] (sysclk, sysreset, exp_r[3:0], exp_r_load_data, exp_r_load[3:0]);
 

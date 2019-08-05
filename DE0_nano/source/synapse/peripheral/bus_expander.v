@@ -25,14 +25,19 @@ module bus_expander #(
     ,input  wire[15:0]                r[TOP_REG:0]
     ,output wire[TOP_REG:0]           r_read    
     ,output wire[TOP_REG:0]           r_load
-    ,output wire[15:0]                r_load_data        
+    ,output wire[15:0]                r_load_data      
+    
+    // connect to debugger as needed.
+    ,output wire                      critical_section
 );      
+    // MCU should always write the address register first, then write the data register.
+    // or write the address register first, then read the data register TWICE.  the first is a throwaway.
 
     // control sequence registers.
     reg pend_write = 0;
     always_ff @(posedge sysclk) 
         pend_write <= data_load;
-    reg pend_read = 0; //TODO: eliminate this register.
+    reg pend_read = 0; 
     always_ff @(posedge sysclk) 
         pend_read <= data_read;
 
@@ -61,5 +66,18 @@ module bus_expander #(
     // the latter of those is reported to the peripheral, by pend_read.
     // that's important for read-sensitive devices like FIFOs.
     std_reg data_read_reg (sysclk, sysreset, data_out, r[address_out], data_read);
+
+    // notify debugger etc. when the expander is busy.
+    // this is important not because the expander is sensitive to the interruption itself
+    // (it doesn't seem to be in casual tests), but because the
+    // debugger is likely to access peripherals through the expander using additional operations
+    // during the break.  that will definitely destroy the target's pending access.
+    reg critical = 0;
+    assign critical_section = critical;
+    always_ff @(posedge sysclk) 
+        if (address_load)
+            critical <= 1'b1;
+        else if (pend_read || pend_write)
+            critical <= 1'b0;
     
 endmodule

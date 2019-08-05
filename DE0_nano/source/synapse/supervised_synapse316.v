@@ -13,6 +13,7 @@ module supervised_synapse316 (
     ,input wire                       clk_async
     
     ,input wire                       mcu_wait_in    
+    ,input wire                       app_critical_section
     ,output wire                      visor_break_mode
     
     ,input wire                       boot_break
@@ -119,6 +120,7 @@ assign vr[`SR_BP_STATUS] = {`WMSB'h0, bp_hit};
 std_reg bp_reg[3:0](sysclk, sysreset, vr[`DR_BP3_ADDR:`DR_BP0_ADDR], vr_load_data, vr_load[`DR_BP3_ADDR:`DR_BP0_ADDR]);
 wire tg_debug_loading_exr = tg_debug_out[`DEBUG_LOAD_EXR_BIT];
 wire tg_debug_enable_exec = tg_debug_out[`DEBUG_ENABLE_EXEC_BIT];
+wire tg_debug_critical_section = tg_debug_out[`DEBUG_CRITICAL_SECTION_BIT];
 wire program_break = tg_debug_out[`DEBUG_PRG_BREAK_OP_BIT];
 assign vr[`SR_BOOT_BREAK] = {`WMSB'h0, boot_break}; 
 wire bp_matched_comb =   tg_code_addr == vr[`DR_BP0_ADDR] 
@@ -146,10 +148,14 @@ always_ff @(posedge sysreset, posedge sysclk) begin
             if (bp_matched_comb) begin
                 bp_matched <= 1;
             end
-            if (tg_debug_enable_exec && (bp_matched || bp_matched_comb)) begin
+            if (tg_debug_enable_exec && (bp_matched || bp_matched_comb) 
+                && ( ! tg_debug_critical_section) && ( ! app_critical_section)) begin
                 // bp_hit is delayed until the next enable_exec after any address match.
                 // that way it only hits on ordinary assignment cycles, no special cycles.
                 // that allows the visor to correctly commandeer and later refill exr.
+                // bp_hit is likewise delayed during any critical section of instructions, 
+                // e.g. a bus mastering operation, as indicated by the target core OR by
+                // the external application logic.
                 bp_hit <= 1;
             end
         end        

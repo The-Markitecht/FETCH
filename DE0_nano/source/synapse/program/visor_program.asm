@@ -11,13 +11,13 @@
     setvar assembler_max_words          $visor_code_size_max_words
 
     // register file configuration
-    vdefine visor_num_regs 32
+    vdefine visor_num_regs 26
     vdefine visor_top_reg ($visor_num_regs - 1)
     vdefine visor_num_gp 8
     vdefine visor_top_gp ($visor_num_gp - 1)
     setvar num_gp $visor_num_gp
     
-    // application-specific register aliases.  
+    // application-specific register aliases.  in this case debugging-specific ones.
     alias_both ga               6               "ga"
     alias_both gb               7               "gb"
     setvar counter $visor_top_gp

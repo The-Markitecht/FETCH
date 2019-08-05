@@ -55,6 +55,7 @@ module synapse316 #(
     wire enable_exec = (code_ready && ! (const16cycle1 || branching_cycle 
         || random_fetch_cycle1 || random_fetch_cycle2 || debug_hold_state)) || debug_force_exec; 
     wire muxa_do_copy = enable_exec;    
+    wire debug_critical_section = 1'b0; // this signal never asserted by the core itself in this version.  a similar signal might be asserted by the external appliction logic.
     wire clrf_operator          = muxa_do_copy && (muxa_dest_addr == `DEST_WIDTH'h30);
     wire setf_operator          = muxa_do_copy && (muxa_dest_addr == `DEST_WIDTH'h31);
     //wire nop_operator           = muxa_do_copy && (muxa_dest_addr == `DEST_WIDTH'h32); // reserved address code.  data is discarded.  this destination is also used during supervisor peek.
@@ -122,6 +123,7 @@ module synapse316 #(
     end    
     
     // debugger output flattener.
+    assign debug_out[`DEBUG_CRITICAL_SECTION_BIT] = debug_critical_section;
     assign debug_out[`DEBUG_PRG_BREAK_OP_BIT    ] = program_break_operator;
     assign debug_out[`DEBUG_BRANCHING_CYCLE_BIT ] = branching_cycle;
     assign debug_out[`DEBUG_CONST16_CYCLE1_BIT  ] = const16cycle1;

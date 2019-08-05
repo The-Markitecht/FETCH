@@ -32,7 +32,7 @@
     // I/O expansion bus.
     alias_both exp                  [incr counter]  "//edata"
     alias_both exp_addr             [incr counter]  "eaddr"
-        vdefine EXP_NUM_REGS 8
+        vdefine EXP_NUM_REGS 6
         vdefine EXP_TOP_REG ($EXP_NUM_REGS - 1)
         setvar exp_counter -1
     
@@ -52,6 +52,11 @@
     include lib/time.asm
 
 <<
+    proc ewrite {lin addr data} {
+        parse3 exp_addr = $addr "ewrite $addr $data"
+        parse3 exp = $data \"
+    }
+        
     proc eread {lin addr read_into_reg} {
         if {$read_into_reg eq {exp}} {
             error "eread into exp register not supported."
@@ -63,11 +68,6 @@
         # that's important for read-sensitive devices like FIFOs.
         parse3 $read_into_reg = exp \"
         parse3 $read_into_reg = exp \"
-    }
-        
-    proc ewrite {lin addr data} {
-        parse3 exp_addr = $addr "ewrite $addr $data"
-        parse3 exp = $data \"
     }
         
     proc edump {lin addr} {
