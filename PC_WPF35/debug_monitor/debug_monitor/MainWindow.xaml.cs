@@ -43,6 +43,8 @@ namespace CVtool
         protected UInt16 last_known_hilite = 0;
         protected UInt16 last_known_ipr = 0;
         protected UInt16 lagged_ipr = 0;
+        protected UInt16 last_known_exr = 0;
+        protected const UInt16 EXR_SPECIAL_INSTRUCTION_MASK = 0xc000;        
 
         public MainWindow()
         {
@@ -185,6 +187,7 @@ rename some uses of "src" as "mif" instead.
                     {
                         lagged_ipr = last_known_ipr;
                         last_known_ipr = UInt16.Parse(m.Groups[1].Value, System.Globalization.NumberStyles.HexNumber);
+                        last_known_exr = UInt16.Parse(m.Groups[2].Value, System.Globalization.NumberStyles.HexNumber);
                         show_ipr();
                     }
                 }
@@ -255,9 +258,15 @@ rename some uses of "src" as "mif" instead.
 
         private void load_btn_Click(object sender, RoutedEventArgs e)
         {
+            // avoid loading at any time that might send the target berserk.
+            if ((last_known_exr & EXR_SPECIAL_INSTRUCTION_MASK) == EXR_SPECIAL_INSTRUCTION_MASK) {
+                MessageBox.Show("This is a bad time for a load.  EXR contains a branching instruction or other special instruction.  Step past it first.", "Not Supported");
+                return;
+            }
+            
+            // read new binary from disk.
             string src_fn = System.IO.Path.Combine(app_path, @"..\..\..\..\..\DE0_nano\source\synapse\program\target_program.bin");
             log(src_fn);
-            send("l");
             byte[] b;
             fletcher16 sum = new fletcher16();
             using (System.IO.FileStream fs = new System.IO.FileStream(src_fn, System.IO.FileMode.Open, System.IO.FileAccess.Read))
@@ -276,6 +285,7 @@ rename some uses of "src" as "mif" instead.
                 sum.input8(b[i]);
             logf("{0} = file sum", sum.result().ToString("x4"));
 
+            send("l");
             send(b, 0, b.Length);
 
             load_source(source_fn);
