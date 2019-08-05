@@ -127,6 +127,7 @@ fduart uart (
     ,.arx_reg_read  ( r_read[`DR_FDUART_DATA] )
 );  
 
+
 // ///////////////////////////   I/O expansion bus.
 wire[15:0]                exp_r[`EXP_TOP_REG:0];
 wire[`EXP_TOP_REG:0]      exp_r_read;  
@@ -167,7 +168,21 @@ always_ff @(posedge sysclk)
     else if (exp_r_read[5])
         rs_cnt <= rs_cnt + `WW'h1;
 assign exp_r[5] = rs_cnt;
+/*
+// giant shift register, to mock up a large number of custom peripherals.
+// each address can load from its neighbor, or not, on a given cycle, under MCU control.
+// this version appears in expander space.
+std_reg ex_test_reg0 (sysclk, sysreset, exp_r[0], exp_r_load_data, exp_r_load[0]);
+std_reg ex_test_reg[`EXP_TOP_REG:1] (sysclk, sysreset, exp_r[`EXP_TOP_REG:1], exp_r[`EXP_TOP_REG-1:0], exp_r_load[`EXP_TOP_REG:1]);
 
+// giant shift register, to mock up a large number of custom peripherals.
+// each address can load from its neighbor, or not, on a given cycle, under MCU control.
+// this version appears in MCU register space.
+std_reg test_reg0 (sysclk, sysreset, r[17], r_load_data, r_load[17]);
+std_reg test_reg[`TOP_REG:18] (sysclk, sysreset, r[`TOP_REG:18], r[`TOP_REG-1:17], r_load[`TOP_REG:18]);
+
+assign app_critical_section = 1'b0;
+*/
 
 /*
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, exp_r[`EDR_LEDS], exp_r_load_data[7:0], exp_r_load[`EDR_LEDS]);
