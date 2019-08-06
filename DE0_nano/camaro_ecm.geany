@@ -28,18 +28,20 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=10
-FILE_NAME_0=685;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Cbuild.tcl;0;4
-FILE_NAME_1=0;None;0;EUTF-8;0;1;0;C%3A%5CUsers%5Cx%5CAppData%5CRoaming%5Cgeany%5Ctags%5Csynapse_target_program.asm.tags;0;4
-FILE_NAME_2=19990;ASM;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.asm;0;4
-FILE_NAME_3=14057;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cassemble.tcl;0;4
-FILE_NAME_4=9696;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csystem_macros.tcl;0;4
-FILE_NAME_5=0;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cprogram_macros.tcl;0;4
-FILE_NAME_6=12648;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cstructured_control_macros.tcl;0;4
-FILE_NAME_7=526;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Cpre_flow.tcl;0;4
-FILE_NAME_8=0;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program_defines.v;0;4
-FILE_NAME_9=658;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Ctop.v;0;4
-FILE_NAME_10=51;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5C.gitignore;0;4
+current_page=12
+FILE_NAME_0=5854;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Ctop.v;0;4
+FILE_NAME_1=125;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.asm;0;4
+FILE_NAME_2=0;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cassemble.tcl;0;4
+FILE_NAME_3=0;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csystem_macros.tcl;0;4
+FILE_NAME_4=1557;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cprogram_macros.tcl;0;4
+FILE_NAME_5=6678;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cstructured_control_macros.tcl;0;4
+FILE_NAME_6=1605;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cperipheral%5Cbus_expander.v;0;4
+FILE_NAME_7=439;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Clib%5Cconsole.asm;0;4
+FILE_NAME_8=2292;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Csupervised_synapse316.v;0;4
+FILE_NAME_9=1930;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Csynapse316.v;0;4
+FILE_NAME_10=223;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5C.gitignore;0;4
+FILE_NAME_11=14437;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cvisor_program.asm;0;4
+FILE_NAME_12=174;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program_defines.v;0;4
 
 [build-menu]
 NF_00_LB=_Make

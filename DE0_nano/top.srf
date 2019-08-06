@@ -128,6 +128,14 @@
 { "" "" "" "Verilog HDL assignment warning at cdpwm.v(50): truncated value with size 32 to match size of target (6)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Verilog HDL assignment warning at debounce_counter.v(29): truncated value with size 32 to match size of target (4)" {  } {  } 0 10230 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Net \"vr\[31..26\]\" at supervised_synapse316.v(59) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[47..38\]\" at platform.v(146) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[28..27\]\" at platform.v(146) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"r\[17..16\]\" at platform.v(146) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "3 hierarchies have connectivity warnings - see the Connectivity Checks report folder" {  } {  } 0 12241 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "The launch and latch times for the relationship between source clock: platform_hard\|async_pll_inst\|altpll_component\|auto_generated\|pll1\|clk\[0\] and destination clock: clk50m are outside of the legal time range. The relationship difference is correct, however the launch time is set to 0." {  } {  } 0 332009 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "The launch and latch times for the relationship between source clock: clk50m and destination clock: platform_hard\|async_pll_inst\|altpll_component\|auto_generated\|pll1\|clk\[0\] are outside of the legal time range. The relationship difference is correct, however the launch time is set to 0." {  } {  } 0 332009 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Design contains 1 input pin(s) that do not drive logic" {  } {  } 0 21074 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "PLL \"platform:platform_hard\|async_pll:async_pll_inst\|altpll:altpll_component\|async_pll_altpll:auto_generated\|pll1\" output port clk\[2\] feeds output pin \"DRAM_CLK~output\" via non-dedicated routing -- jitter performance depends on switching rate of other design elements. Use PLL dedicated clock outputs to ensure jitter performance" {  } {  } 0 15064 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

@@ -1,8 +1,13 @@
 `include <header.v>
 `include "target_program_defines.v"
 
-module top (
-     (* chip_pin = "R8" *) input wire clk50m
+module platform (
+     input wire clk50m
+
+    ,output wire                        clk_async // PLL output for UARTs.  4x desired bit rate.  460,800 hz for 115,200 bps.   38,400 hz for 9,600 bps.
+    ,output wire                        clk_progmem // PLL output for MCU program memory.  doubled relative to sysclk.  posedge aligned ( = 0 degree phase).
+
+    ,output wire                        sysreset
 
     ,output wire		     [7:0]		LED // active HIGH
     ,input wire 		     [1:0]		KEY // active LOW
@@ -35,30 +40,28 @@ module top (
     ,output wire		          		ADC_SCLK
     ,input wire 		          		ADC_SDAT
 
-    ,(* chip_pin = "C16, C14, A14, B16" *) output wire[3:0] anmux_ctrl
+    ,output wire[3:0] anmux_ctrl
     
-    ,(* chip_pin = "M15, B9, T8, M1" *)  input wire[3:0]  dip_switch
+    ,input wire[3:0]  dip_switch
     
-    ,(* chip_pin = "G15" *) input wire   reserved
+    ,output wire  async_tx_line
+    ,input wire   async_rx_line
     
-    ,(* chip_pin = "F13" *) output wire  async_tx_line
-    ,(* chip_pin = "T9" *)  input wire   async_rx_line
+    ,output wire  dbg_async_tx_line
+    ,input wire  dbg_async_rx_line
     
-    ,(* chip_pin = "G16" *) output wire  dbg_async_tx_line
-    ,(* chip_pin = "F14" *)  input wire  dbg_async_rx_line
+    ,output wire[1:0]  scope
     
-    ,(* chip_pin = "T13, T15" *) output wire[1:0]  scope
+    ,output wire power_relay_pwm
+    ,input wire  power_lost
+    ,input wire  ignition_switch_off
     
-    ,(* chip_pin = "C15" *) output wire power_relay_pwm
-    ,(* chip_pin = "E16" *) input wire  power_lost
-    ,(* chip_pin = "M16" *) input wire  ignition_switch_off
+    ,output wire beeper_enable
     
-    ,(* chip_pin = "D16" *) output wire beeper_enable
+    ,output wire ftdi_power
     
-    ,(* chip_pin = "D14" *) output wire ftdi_power
-    
-    ,(* chip_pin = "A8" *) input wire  ign_coil_wht_lo
-    ,(* chip_pin = "C9" *) output wire injector1_open
+    ,input wire  ign_coil_wht_lo
+    ,output wire injector1_open
     
     //,output wire 		    [9:0]		GPIO_2
     //,input wire 		     [2:0]		GPIO_2_IN
@@ -74,8 +77,6 @@ module top (
 
 // clock and reset circuits.
 wire sysclk = clk50m;
-wire clk_async; // PLL output for UARTs.  4x desired bit rate.  460,800 hz for 115,200 bps.   38,400 hz for 9,600 bps.
-wire clk_progmem; // PLL output for MCU program memory.  doubled relative to sysclk.  posedge aligned ( = 0 degree phase).
 wire clk_sdram; // PLL output for SDRAM chip.  doubled relative to sysclk.  -60 degree phase.
 wire async_pll_lock;
 async_pll async_pll_inst (
@@ -91,7 +92,7 @@ always_ff @(posedge sysclk) begin
     rst1 <= rst0;
     rst2 <= rst1;
 end
-wire sysreset = rst2;
+assign sysreset = rst2;
 
 // realtime counters.  first the 1 MHz.  divide sysclk by 50.
 wire timer_enable;
@@ -273,36 +274,6 @@ data_rom drom (
     .clock ( sysclk ),
     .q ( r[`SR_DROM_DATA] )
 );
-*/
-
-/*  bus_expander does not seem to read back correctly from a non-zero address.
-// ///////////////////////////   I/O expansion bus.
-wire[15:0]                exp_r[`EXP_TOP_REG:0];
-wire[`EXP_TOP_REG:0]      exp_r_read;  
-wire[`EXP_TOP_REG:0]      exp_r_load;
-wire[15:0]                exp_r_load_data;  
-bus_expander #(.NUM_REGS(`EXP_NUM_REGS)) expand(
-     .sysclk            (sysclk)
-    ,.sysreset          (sysreset)
-    ,.data_out          (r[`DR_EXP])
-    ,.data_in           (r_load_data)
-    ,.data_load         (r_load[`DR_EXP])
-    ,.data_read         (r_read[`DR_EXP])
-    ,.address_out       (r[`DR_EXP_ADDR])
-    ,.address_load      (r_load[`DR_EXP_ADDR])
-    ,.r                 (exp_r)
-    ,.r_read            (exp_r_read)
-    ,.r_load            (exp_r_load)
-    ,.r_load_data       (exp_r_load_data)    
-);
-
-std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, exp_r[`EDR_LEDS], exp_r_load_data[7:0], exp_r_load[`EDR_LEDS]);
-assign LED = exp_r[`EDR_LEDS][7:0];
-
-assign exp_r[`ESR_KEYS] = {14'h0, KEY}; 
-
-std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, exp_r[`EDR_ANMUX_CTRL], exp_r_load_data[3:0], exp_r_load[`EDR_ANMUX_CTRL]);
-assign anmux_ctrl = exp_r[`EDR_ANMUX_CTRL][3:0];
 */
 
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
