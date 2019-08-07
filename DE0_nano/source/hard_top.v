@@ -49,9 +49,20 @@ module hard_top (
     ,(* chip_pin = "C9" *) output wire injector1_open
 );
 
-////////////////////////////////////////////////////////////////////////////
+//  PLATFORM INSTANCE //////////////////////////////////////////////////////////////////////////
 platform platform_inst (
      .clk50m                    (clk50m)
+
+    ,.clk_async                 ()
+    ,.clk_progmem               ()
+
+    ,.pulse1m                   ()
+    ,.pulse50k                  ()
+    ,.pulse1k                   ()
+
+    ,.sysreset                  ()
+
+    ,.visor_break_mode          ()
 
     ,.LED                       (LED)
     ,.KEY                       (KEY)

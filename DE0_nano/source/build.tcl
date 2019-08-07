@@ -43,6 +43,7 @@ cd synapse/program
 #assemble_with_macros tools_test_program.asm "tools_test_program.v"
 assemble_with_macros visor_program.asm "visor_program.v"
 assemble_with_macros target_program.asm "target_program.v"
+assemble_with_macros sim_program.asm "sim_program.v"
 
 set final_etfn [file join $::env(APPDATA) geany tags  synapse_target_program.asm.tags]
 puts "replacing $final_etfn"

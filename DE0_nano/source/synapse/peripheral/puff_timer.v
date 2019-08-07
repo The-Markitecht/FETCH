@@ -51,31 +51,31 @@ module puff_timer (
         ,.data        (ign_coil_sync)
         ,.debounced   (ign_coil_debounced)
     );
-    cdtimer16 ign_pulse_cnt (
+    down_counter ign_pulse_cnt (
          .sysclk          ( sysclk )  
         ,.sysreset        ( sysreset )  
-        ,.data_out        ( {junk[15:3], leds[2:0]} )
+        ,.counter_data_out( {junk[15:3], leds[2:0]} )
         ,.data_in         ( 16'd4 )  
-        ,.load            ( puff_reload )
-        ,.counter_event   ( ign_coil_debounced )
+        ,.counter_load    ( puff_reload )
+        ,.counter_tick   ( ign_coil_debounced )
         ,.expired         ( ign_4th_rise )
     );
-    cdtimer16 ign_timeout_cnt (
+    down_counter ign_timeout_cnt (
          .sysclk          ( sysclk )  
         ,.sysreset        ( sysreset )  
-        ,.data_out        (  )
+        ,.counter_data_out(  )
         ,.data_in         ( ign_timeout_len_jf )  
-        ,.load            ( puff_reload )
-        ,.counter_event   ( pulse50k )
+        ,.counter_load    ( puff_reload )
+        ,.counter_tick   ( pulse50k )
         ,.expired         ( ign_timeout )
     );
-    cdtimer16 puff_open_cnt (
+    down_counter puff_open_cnt (
          .sysclk          ( sysclk )  
         ,.sysreset        ( sysreset )  
-        ,.data_out        (  )
+        ,.counter_data_out(  )
         ,.data_in         ( puff_len_us )  
-        ,.load            ( puff_trigger_rise )
-        ,.counter_event   ( pulse1m )
+        ,.counter_load    ( puff_trigger_rise )
+        ,.counter_tick   ( pulse1m )
         ,.expired         ( puff_closed )
     );
     syncer puff_syncer(sysclk, puff_enable && ! puff_closed, injector_open);

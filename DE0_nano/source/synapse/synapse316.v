@@ -24,10 +24,10 @@ module synapse316 #(
     
     // register file, for any combination of general-purpose registers and i/o addressing.
     // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
-    ,input  wire[`WMSB:0]         r[TOP_REG:0]
+    ,input  wire[`WMSB:0]         r[TOP_REG:0] // r[] and r_read[] are addressed by the SR_ number space.  that may vary from DR_.
     ,output wire[TOP_REG:0]           r_read    
-    ,output wire[TOP_REG:0]           r_load
-    ,output wire[`WMSB:0]         r_load_data    
+    ,output wire[TOP_REG:0]           r_load   // r_load[] is addressed by the DR_ number space.  that may vary from SR_.
+    ,output wire[`WMSB:0]         r_load_data  
 ); 
     // see Zim notes for Synapse316 MCU.
 

@@ -257,6 +257,10 @@ set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME testbench -section_id tes
 set_global_assignment -name EDA_TEST_BENCH_FILE source/testbench.v -section_id testbench
 set_global_assignment -name SEARCH_PATH "j:\\camaro_ecm\\git\\de0_nano\\source\\synapse\\program"
 set_global_assignment -name SEARCH_PATH "j:\\camaro_ecm\\git\\de0_nano\\source"
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name VERILOG_FILE source/soft_top.v
 set_global_assignment -name VERILOG_FILE source/platform.v
 set_global_assignment -name VERILOG_FILE source/hard_top.v
 set_global_assignment -name VERILOG_FILE source/synapse/peripheral/puff_timer.v
@@ -284,7 +288,5 @@ set_global_assignment -name QSYS_FILE qsys2.qsys
 set_global_assignment -name QIP_FILE async_pll.qip
 set_global_assignment -name QIP_FILE data_rom.qip
 set_global_assignment -name QIP_FILE multiplier.qip
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name QIP_FILE sim_code_ram.qip
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

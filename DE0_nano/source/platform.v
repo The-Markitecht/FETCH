@@ -6,8 +6,14 @@ module platform (
 
     ,output wire                        clk_async // PLL output for UARTs.  4x desired bit rate.  460,800 hz for 115,200 bps.   38,400 hz for 9,600 bps.
     ,output wire                        clk_progmem // PLL output for MCU program memory.  doubled relative to sysclk.  posedge aligned ( = 0 degree phase).
+    
+    ,output wire                        pulse1m
+    ,output wire                        pulse50k
+    ,output wire                        pulse1k
 
     ,output wire                        sysreset
+
+    ,output wire                        visor_break_mode
 
     ,output wire		     [7:0]		LED // active HIGH
     ,input wire 		     [1:0]		KEY // active LOW
@@ -98,28 +104,26 @@ assign sysreset = rst2;
 wire timer_enable;
 reg[5:0] counter1m = 0;
 wire pulse1m_ungated = (counter1m == 6'd49);
-wire pulse1m = pulse1m_ungated && timer_enable;
+assign pulse1m = pulse1m_ungated && timer_enable;
 always_ff @(posedge sysclk) 
     counter1m <= (pulse1m ? 6'd0 : counter1m + 6'd1);
 // slower realtime counters.  these are dividers fed by the 1 MHz.    
-wire pulse50k;
-cdtimer16 counter50k (
+down_counter counter50k (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sysreset )  
-    ,.data_out        (  )
+    ,.counter_data_out(  )
     ,.data_in         ( 16'd20 )  
-    ,.load            ( pulse50k )
-    ,.counter_event   ( pulse1m )
+    ,.counter_load    ( pulse50k )
+    ,.counter_tick   ( pulse1m )
     ,.expired         ( pulse50k )
 );
-wire pulse1k;
-cdtimer16 counter1k (
+down_counter counter1k (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sysreset )  
-    ,.data_out        (  )
+    ,.counter_data_out(  )
     ,.data_in         ( 16'd50 )  
-    ,.load            ( pulse1k )
-    ,.counter_event   ( pulse50k )
+    ,.counter_load    ( pulse1k )
+    ,.counter_tick   ( pulse50k )
     ,.expired         ( pulse1k )
 );
 
@@ -151,7 +155,6 @@ wire[`TOP_REG:0]          r_read;
 wire[`TOP_REG:0]          r_load;
 wire[15:0]                r_load_data;  
 wire                      mcu_wait;
-wire                      visor_break_mode;
 assign timer_enable = ! visor_break_mode;
 supervised_synapse316 supmcu(
     .sysclk          (sysclk      ) ,
@@ -173,7 +176,7 @@ supervised_synapse316 supmcu(
 
 // GP register file and a stack.
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
-stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`DR_RSTK]);
+stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`SR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`SR_RSTK]);
 
 /* commented out to clean up the build 2019-08-03
 // Altera 16x16=32 multiplier.  see settings for latency.
@@ -190,7 +193,7 @@ wire spi_busy;
 spi_master #(.WIDTH(16), .SPI_CLOCK_DIVISOR(50)) spi (
      .sysclk                (sysclk)
     ,.sysreset              (sysreset)
-    ,.mi_data               (r[`DR_SPI_DATA])
+    ,.mi_data               (r[`SR_SPI_DATA])
     ,.mo_data               (r_load_data)
     ,.mo_load               (r_load[`DR_SPI_DATA])
     ,.busy                  (spi_busy)
@@ -207,11 +210,11 @@ fduart uart (
     ,.clk_async     ( clk_async )   // clocked at 4x bit rate.     
     ,.async_rx_line ( async_rx_line )  
     ,.async_tx_line ( async_tx_line )
-    ,.status_out    ( r[`DR_FDUART_STATUS] )    
+    ,.status_out    ( r[`SR_FDUART_STATUS] )    
     ,.data_in       ( r_load_data )
     ,.atx_reg_load  ( r_load[`DR_FDUART_DATA] )
-    ,.arx_reg_out   ( r[`DR_FDUART_DATA] )     
-    ,.arx_reg_read  ( r_read[`DR_FDUART_DATA] )
+    ,.arx_reg_out   ( r[`SR_FDUART_DATA] )     
+    ,.arx_reg_read  ( r_read[`SR_FDUART_DATA] )
 );  
 
 // Avalon MM master.
@@ -224,9 +227,9 @@ reg av_write = 0;
 reg av_read = 0;
 wire av_read_capture = av_read && ~ av_waitrequest; // 1 during the cycle following the end of av_waitrequest.
 wire[15:0] m0_readdata;
-std_reg av_ad_hi_reg(sysclk, sysreset, r[`DR_AV_AD_HI], r_load_data, r_load[`DR_AV_AD_HI]);
-std_reg av_ad_lo_reg(sysclk, sysreset, r[`DR_AV_AD_LO], r_load_data, r_load[`DR_AV_AD_LO]);
-std_reg av_write_data_reg(sysclk, sysreset, r[`DR_AV_WRITE_DATA], r_load_data, r_load[`DR_AV_WRITE_DATA]);
+std_reg av_ad_hi_reg(sysclk, sysreset, r[`SR_AV_AD_HI], r_load_data, r_load[`DR_AV_AD_HI]);
+std_reg av_ad_lo_reg(sysclk, sysreset, r[`SR_AV_AD_LO], r_load_data, r_load[`DR_AV_AD_LO]);
+std_reg av_write_data_reg(sysclk, sysreset, r[`SR_AV_WRITE_DATA], r_load_data, r_load[`DR_AV_WRITE_DATA]);
 std_reg av_read_data_reg(sysclk, sysreset, r[`SR_AV_READ_DATA], m0_readdata, av_read_capture);
 always_ff @(posedge sysclk) begin
     if (av_write && ! av_waitrequest) begin
@@ -235,7 +238,7 @@ always_ff @(posedge sysclk) begin
         av_write <= 1; // begin write transaction.
     end else if (av_read_capture) begin 
         av_read <= 0; // read transaction has ended.  will capture data on the next cycle.
-    end else if (r_read[`DR_AV_WRITE_DATA]) begin
+    end else if (r_read[`SR_AV_WRITE_DATA]) begin
         av_read <= 1; // begin read transaction. 
     end
 end
@@ -247,12 +250,12 @@ assign mcu_wait = av_busy;
 qsys2 u0 (
     .clk_clk                      (sysclk),                      
     .reset_reset_n                ( ! sysreset),                
-    .m0_address                   ({r[`DR_AV_AD_HI], r[`DR_AV_AD_LO]}),                   
+    .m0_address                   ({r[`SR_AV_AD_HI], r[`SR_AV_AD_LO]}),                   
     .m0_read                      (av_read),                      
     .m0_waitrequest               (av_waitrequest),               
     .m0_readdata                  (m0_readdata),                  
     .m0_write                     (av_write),                     
-    .m0_writedata                 (r[`DR_AV_WRITE_DATA]),                 
+    .m0_writedata                 (r[`SR_AV_WRITE_DATA]),                 
     .generic_master_1_reset_reset ()  ,
     .sdramc_addr                  (DRAM_ADDR),
     .sdramc_ba                    (DRAM_BA),
@@ -276,16 +279,16 @@ data_rom drom (
 );
 */
 
-std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
+std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`SR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
 //assign LED = { ! ignition_switch_off_sync, r[`DR_LEDS][6:0]};
 
 wire[14:0] ftdi_junk;
 wire[14:0] beep_junk;
-assign r[`DR_BOARD_CTRL] = {8'h0, ftdi_power, beeper_enable, KEY[1:0], dip_switch[3:0]}; 
+assign r[`SR_BOARD_CTRL] = {8'h0, ftdi_power, beeper_enable, KEY[1:0], dip_switch[3:0]}; 
 std_reg #(.WIDTH(1)) beep_en_reg(sysclk, sysreset, {beep_junk[14:0], beeper_enable}, r_load_data[`BEEPER_ENABLE_BIT], r_load[`DR_BOARD_CTRL]);
 std_reg #(.WIDTH(1)) ftdi_power_reg(sysclk, sysreset, {ftdi_junk[14:0], ftdi_power}, r_load_data[`FTDI_POWER_BIT], r_load[`DR_BOARD_CTRL]);
 
-std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, r[`DR_ANMUX_CTRL], r_load_data[3:0], r_load[`DR_ANMUX_CTRL]);
+std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, r[`SR_ANMUX_CTRL], r_load_data[3:0], r_load[`DR_ANMUX_CTRL]);
 assign anmux_ctrl = r[`DR_ANMUX_CTRL][3:0];
 // dg408 -  JP3 -   schem -     fpga -  verilog -   mcu bit
 // en =2    8       gpio_23     c16     gpio_2[3]   3
@@ -295,45 +298,45 @@ assign anmux_ctrl = r[`DR_ANMUX_CTRL][3:0];
 
 // ustimer's count down on microseconds.
 wire ustimer0_expired;
-cdtimer16 ustimer0 (
+down_counter ustimer0 (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sysreset )  
-    ,.data_out        ( r[`DR_USTIMER0] )
+    ,.counter_data_out( r[`SR_USTIMER0] )
     ,.data_in         ( r_load_data )  
-    ,.load            ( r_load[`DR_USTIMER0] )
-    ,.counter_event   ( pulse1m )
+    ,.counter_load    ( r_load[`DR_USTIMER0] )
+    ,.counter_tick   ( pulse1m )
     ,.expired         ( ustimer0_expired )
 );
 
 // mstimer's count down on milliseconds.
 wire mstimer0_expired;
-cdtimer16 mstimer0 (
+down_counter mstimer0 (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sysreset )  
-    ,.data_out        ( r[`DR_MSTIMER0] )
+    ,.counter_data_out( r[`SR_MSTIMER0] )
     ,.data_in         ( r_load_data )  
-    ,.load            ( r_load[`DR_MSTIMER0] )
-    ,.counter_event   ( pulse1k )
+    ,.counter_load    ( r_load[`DR_MSTIMER0] )
+    ,.counter_tick   ( pulse1k )
     ,.expired         ( mstimer0_expired )
 );
 wire mstimer1_expired;
-cdtimer16 mstimer1 (
+down_counter mstimer1 (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sysreset )  
-    ,.data_out        ( r[`DR_MSTIMER1] )
+    ,.counter_data_out( r[`SR_MSTIMER1] )
     ,.data_in         ( r_load_data )  
-    ,.load            ( r_load[`DR_MSTIMER1] )
-    ,.counter_event   ( pulse1k )
+    ,.counter_load    ( r_load[`DR_MSTIMER1] )
+    ,.counter_tick   ( pulse1k )
     ,.expired         ( mstimer1_expired )
 );
 wire mstimer2_expired;
-cdtimer16 mstimer2 (
+down_counter mstimer2 (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sysreset )  
-    ,.data_out        ( r[`DR_MSTIMER2] )
+    ,.counter_data_out( r[`SR_MSTIMER2] )
     ,.data_in         ( r_load_data )  
-    ,.load            ( r_load[`DR_MSTIMER2] )
-    ,.counter_event   ( pulse1k )
+    ,.counter_load    ( r_load[`DR_MSTIMER2] )
+    ,.counter_tick   ( pulse1k )
     ,.expired         ( mstimer2_expired )
 );
 
@@ -342,22 +345,22 @@ wire[5:0] power_duty;
 cdpwm #(.WIDTH(6), .START(50)) power_relay_pwm_inst (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sysreset )  
-    ,.counter_event   ( pulse1m_ungated ) // must be ungated, so the relay keeps working while the visor pauses the target MCU.
+    ,.counter_tick   ( pulse1m_ungated ) // must be ungated, so the relay keeps working while the visor pauses the target MCU.
     ,.counter_value   (  )
     ,.duty            ( power_duty )
     ,.duty_load       ( r_load[`DR_POWER_DUTY] )
     ,.data_in         ( r_load_data[5:0] )
     ,.pwm_signal      ( power_relay_pwm )
 );
-assign r[`DR_POWER_DUTY] = {8'd0, ignition_switch_off_sync, power_lost_sync, power_duty[5:0]};
+assign r[`SR_POWER_DUTY] = {8'd0, ignition_switch_off_sync, power_lost_sync, power_duty[5:0]};
 
 // MCU usage counter
 usage_counter usage (
      .sysclk               ( sysclk )
     ,.sysreset             ( sysreset )
-    ,.counter_out          ( r[`DR_USAGE_COUNT] )
+    ,.counter_out          ( r[`SR_USAGE_COUNT] )
     ,.counter_reset        ( r_load[`DR_USAGE_COUNT] )
-    ,.observable_pulse     ( r_read[`DR_EVENT_PRIORITY] )
+    ,.observable_pulse     ( r_read[`SR_EVENT_PRIORITY] )
     ,.sample_enable        ( pulse1k )
 );      
 
@@ -382,8 +385,8 @@ end
 std_reg ign_capture_jf_reg(sysclk, sysreset, r[`SR_IGN_CAPTURE_JF], ign_capture_cnt, ignition_capture);
 
 // fuel injector driver.
-std_reg puff_len_reg(sysclk, sysreset, r[`DR_PUFF_LEN_US], r_load_data, r_load[`DR_PUFF_LEN_US]);
-std_reg ign_timeout_len_reg(sysclk, sysreset, r[`DR_IGN_TIMEOUT_LEN_JF], r_load_data, r_load[`DR_IGN_TIMEOUT_LEN_JF]);
+std_reg puff_len_reg(sysclk, sysreset, r[`SR_PUFF_LEN_US], r_load_data, r_load[`DR_PUFF_LEN_US]);
+std_reg ign_timeout_len_reg(sysclk, sysreset, r[`SR_IGN_TIMEOUT_LEN_JF], r_load_data, r_load[`DR_IGN_TIMEOUT_LEN_JF]);
 wire puff1_event;
 wire inj;
 assign injector1_open = dip_switch[0] ? inj : ign_coil_sync;
@@ -393,8 +396,8 @@ puff_timer puff1 (
     ,.pulse50k              (pulse50k)
     ,.pulse1m               (pulse1m)
     ,.ign_coil              (ign_coil_sync)
-    ,.ign_timeout_len_jf    (r[`DR_IGN_TIMEOUT_LEN_JF])
-    ,.puff_len_us           (r[`DR_PUFF_LEN_US])
+    ,.ign_timeout_len_jf    (r[`SR_IGN_TIMEOUT_LEN_JF])
+    ,.puff_len_us           (r[`SR_PUFF_LEN_US])
     ,.injector_open         (inj)
     ,.puff_event            (puff1_event)
     ,.puff_enable           (r[`DR_PUFF_LEN_US] != 0)
@@ -404,12 +407,12 @@ puff_timer puff1 (
 
 // event controller is listed last to utilize wires from all other parts.
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
-std_reg soft_event_reg(sysclk, sysreset, r[`DR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
-assign scope = {ign_coil_sync, r[`DR_SOFT_EVENT][14]}; // copy soft_event_reg to o'scope pins for analysis.
+std_reg soft_event_reg(sysclk, sysreset, r[`SR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
+assign scope = {ign_coil_sync, r[`SR_SOFT_EVENT][14]}; // copy soft_event_reg to o'scope pins for analysis.
 event_controller #(.NUM_INPUTS(21)) events( 
      .sysclk            (sysclk)
-    ,.sysreset          (sysreset || r[`DR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])
-    ,.priority_out      (r[`DR_EVENT_PRIORITY])
+    ,.sysreset          (sysreset || r[`SR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])
+    ,.priority_out      (r[`SR_EVENT_PRIORITY])
     ,.priority_load     (r_load[`DR_EVENT_PRIORITY])
     ,.data_in           (r_load_data)
     ,.event_signals     ({
@@ -424,14 +427,14 @@ event_controller #(.NUM_INPUTS(21)) events(
         ,mstimer0_expired
         ,mstimer1_expired
         ,mstimer2_expired
-        , ! r[`DR_FDUART_STATUS][`ARX_FIFO_EMPTY_BIT]
-        , r[`DR_FDUART_STATUS][`ARX_FIFO_FULL_BIT]
-        , r[`DR_FDUART_STATUS][`ATX_FIFO_FULL_BIT]
+        , ! r[`SR_FDUART_STATUS][`ARX_FIFO_EMPTY_BIT]
+        , r[`SR_FDUART_STATUS][`ARX_FIFO_FULL_BIT]
+        , r[`SR_FDUART_STATUS][`ATX_FIFO_FULL_BIT]
         ,KEY[0]
         ,KEY[1]
         ,ignition_switch_off_sync
         , ! ignition_switch_off_sync
-        ,r[`DR_SOFT_EVENT][3:0]
+        ,r[`SR_SOFT_EVENT][3:0]
     })
 );
 
