@@ -167,17 +167,6 @@ synapse316 simulator_core (
     .debug_out       (tg_debug_out),
     .debug_in        (tg_debug_in)
 );    
-//TODO: program that core to tokenize all input conditions.  
-// continuously send the token stream up to the PC for buffering, reassembly, and pattern matching.
-// format a token as words separated by spaces, ending in a newline.
-// PC pass those directly to a Tcl interp?  easy to track test state that way, effectively operating
-// state machines in Tcl.  that goes against pattern matching by regex.
-// might be needed instead of regex due to pattern complexity.  surely will accelerate the
-// development by giving specific error messages, instead of leaving me to guess and troubleshoot 
-// a regex at each test failure.
-// include timestamp as first parm of each token.  8 hex digit us linear.  that's 71 minutes range.
-// simulator input script should be similar.
-// offer commands to enable/disable reporting of individual tokens, to limit bulk of output overwhelming uarts.
 
 // on-chip M9K RAM for target MCU program.
 std_reg #(.WIDTH(`CODE_ADDR_WIDTH)) m9k_addr_reg(
@@ -297,20 +286,53 @@ down_counter mstimer0 (
     ,.expired         ( mstimer0_expired )
 );
 
-// ignition pulse simulator.  runs continuously.  
+// ignition pulse simulator.  runs continuously during sim_run.  
 // period register is read/write, measuring in 20us jiffies (jf).
+// pulse length is fixed.
 std_reg ign_period_reg(sysclk, sim_reset, r[`SR_IGN_PERIOD], r_load_data, r_load[`DR_IGN_PERIOD]);
-reg[15:0] ign_cnt = 0;
+reg[15:0] ign_pulse_gen = 0;
+assign sim_ign_coil_wht_lo = ign_pulse_gen < 16'd4; 
+wire ign_pulse_end = (ign_pulse_gen == 16'd0) && pulse50k; // true on the final sysclk cycle of the ignition pulse.
 always_ff @(posedge sysclk, posedge sim_reset) 
-    if (sim_reset)
-        ign_cnt <= 0;
-    else if (sim_run) begin
-        if (ign_cnt == 16'd0)
-            ign_cnt <=  ? r[`SR_IGN_PERIOD]
-        else 
-            ign_cnt <= ign_cnt - 16'd1;
-    end
-assign sim_ign_coil_wht_lo = ign_cnt < 16'd4; 
+    if (sim_reset) 
+        ign_pulse_gen <= 0;
+    else if (sim_run && pulse50k)
+        ign_pulse_gen <= ign_pulse_end ? r[`SR_IGN_PERIOD] : ign_pulse_gen - 16'd1;
+
+// ignition pulse counter.  resettable.
+reg[15:0] ign_cycle_cnt;
+assign r[`SR_IGN_CYCLE_CNT] = ign_cycle_cnt;
+always_ff @(posedge sysclk, posedge sim_reset) 
+    if (sim_reset || r_load[`DR_IGN_CYCLE_CNT])
+        ign_cycle_cnt <= 0;
+    else if (ign_pulse_end)
+        ign_cycle_cnt <= ign_cycle_cnt + 16'd1;
+
+// injection edge detector.
+reg[15:0] injector1_old;
+always_ff @(posedge sysclk) 
+    injector1_old <= injector1_open;
+wire puff1_rise = injector1_open && ! injector1_old;
+wire puff1_fall = injector1_old && ! injector1_open;
+
+// injection puff count.
+reg[15:0] puff1cnt;
+assign r[`SR_PUFF1CNT] = puff1cnt;
+always_ff @(posedge sysclk, posedge sim_reset, posedge r_load[`DR_PUFF1CNT]) 
+    if (sim_reset || r_load[`DR_PUFF1CNT])
+        puff1cnt <= 0;
+    else if (puff1_fall)
+        puff1cnt <= puff1cnt + 16'd1;
+
+// injection puff length capture, in microseconds.
+//TODO: cope with injector PWM and/or peak-and-hold.
+reg[15:0] puff1len;
+assign r[`SR_PUFF1LEN] = puff1len;
+always_ff @(posedge sysclk, posedge sim_reset, posedge r_load[`DR_PUFF1LEN]) 
+    if (sim_reset || r_load[`DR_PUFF1LEN])
+        puff1len <= 0;
+    else if (injector1_open)
+        puff1len <= puff1len + 16'd1;
 
 //TODO: connect these remaining simulated signals.
 assign sim_adc_sdat = 1'b0;
@@ -319,5 +341,30 @@ assign sim_dip_switch = 1'b0;
 
 assign sim_power_lost = 1'b0;
 assign sim_ignition_switch_off = 1'b0;
+
+// event controller is listed last to utilize wires from all other parts.
+// its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
+std_reg soft_event_reg(sysclk, sysreset, r[`SR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
+assign scope = {r[`SR_SOFT_EVENT][14]}; // copy soft_event_reg to o'scope pins for analysis.
+event_controller #(.NUM_INPUTS(13)) events( 
+     .sysclk            (sysclk)
+    ,.sysreset          (sysreset || r[`SR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])
+    ,.priority_out      (r[`SR_EVENT_PRIORITY])
+    ,.priority_load     (r_load[`DR_EVENT_PRIORITY])
+    ,.data_in           (r_load_data)
+    ,.event_signals     ({
+        // MOST urgent events are listed FIRST.
+        1'b0 // the zero-priority event is hardwired to zero for this app.  it would override all others.
+        ,ustimer0_expired
+        ,ign_pulse_end // end of an ignition pulse.  just began a new period.  good time to set the period.  takes effect on the following period after the one that just started.
+        ,puff1_fall // end of a puff.  good time to read its captured length.
+        , ! spi_busy // END of a SPI transaction.
+        ,mstimer0_expired
+        , ! r[`SR_FDUART_STATUS][`ARX_FIFO_EMPTY_BIT]
+        , r[`SR_FDUART_STATUS][`ARX_FIFO_FULL_BIT]
+        , r[`SR_FDUART_STATUS][`ATX_FIFO_FULL_BIT]
+        ,r[`SR_SOFT_EVENT][3:0]
+    })
+);
 
 endmodule 
