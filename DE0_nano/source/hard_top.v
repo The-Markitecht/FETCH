@@ -57,6 +57,7 @@ platform platform_inst (
     ,.clk_progmem               ()
 
     ,.pulse1m                   ()
+    ,.pulse1m_ungated           ()
     ,.pulse50k                  ()
     ,.pulse1k                   ()
 

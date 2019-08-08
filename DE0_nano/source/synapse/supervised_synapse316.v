@@ -87,7 +87,8 @@ stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, vr[`DR_RSTK], vr_load_data, vr_lo
 reg bp_hit = 0;
 reg bp_matched = 0;
 wire bp_step = vr[`DR_BUS_CTRL][`BP_STEP_BIT];
-std_reg #(.WIDTH(4)) bus_ctrl_reg(sysclk, sysreset, vr[`DR_BUS_CTRL], vr_load_data[3:0], vr_load[`DR_BUS_CTRL]);
+std_reg #(.STORAGE_WIDTH(4)) bus_ctrl_reg
+    (sysclk, sysreset, vr[`DR_BUS_CTRL], vr_load_data[3:0], vr_load[`DR_BUS_CTRL]);
 wire divert_code_bus = vr[`DR_BUS_CTRL][`DIVERT_CODE_BUS_BIT];
 assign tg_reset      =  sysreset || vr[`DR_BUS_CTRL][`TG_RESET_BIT];
 assign tg_code_ready = divert_code_bus ? vr[`DR_BUS_CTRL][`TG_CODE_READY_BIT] : ! (mcu_wait_in || bp_hit);
@@ -96,7 +97,8 @@ wire[`WMSB:0]                 rom_code_in;
 assign tg_code_in = divert_code_bus ? vr[`DR_FORCE_OPCODE] : rom_code_in;
 
 // forced operation logic.
-std_reg #(.WIDTH(3)) force_reg(sysclk, sysreset, vr[`DR_TG_FORCE], vr_load_data[2:0], vr_load[`DR_TG_FORCE]);
+std_reg #(.STORAGE_WIDTH(3)) force_reg
+    (sysclk, sysreset, vr[`DR_TG_FORCE], vr_load_data[2:0], vr_load[`DR_TG_FORCE]);
 std_reg force_opcode_reg(sysclk, sysreset, vr[`DR_FORCE_OPCODE], vr_load_data, vr_load[`DR_FORCE_OPCODE]);
 
 // peek data register.  loads its data only from the TARGET but is readable only by the VISOR.
@@ -158,12 +160,14 @@ end
 
 // debugger UART
 wire[`WMSB:0] atxd;
-std_reg #(.WIDTH(8)) atx_data_reg(sysclk, sysreset, atxd, vr_load_data[7:0], vr_load[`DR_ATX_DATA]);
+std_reg #(.STORAGE_WIDTH(8)) atx_data_reg
+    (sysclk, sysreset, atxd, vr_load_data[7:0], vr_load[`DR_ATX_DATA]);
 wire[`WMSB:0] atxc;
 wire txbsy;
 wire rxbsy;
 assign vr[`DR_ATX_CTRL] = {atxc[`WMSB:3], rxbsy, txbsy, atxc[0]};
-std_reg #(.WIDTH(1)) atx_ctrl_reg(sysclk, sysreset, atxc, vr_load_data[0], vr_load[`DR_ATX_CTRL]);
+std_reg #(.STORAGE_WIDTH(1)) atx_ctrl_reg
+    (sysclk, sysreset, atxc, vr_load_data[0], vr_load[`DR_ATX_CTRL]);
 uart_v2_tx utx (
      .uart_sample_clk(clk_async) // clocked at 4x bit rate.
     ,.parallel_in    (atxd[7:0])
@@ -181,7 +185,8 @@ assign vr[`DR_ATX_DATA][`WMSB:8] = 8'd0;
 
 
 // on-chip M9K RAM for target MCU program.  dual-ported.
-std_reg #(.WIDTH(`CODE_ADDR_WIDTH)) m9k_addr_reg(sysclk, sysreset, vr[`DR_M9K_ADDR], vr_load_data[`CODE_ADDR_TOP:0], vr_load[`DR_M9K_ADDR]);
+std_reg #(.STORAGE_WIDTH(`CODE_ADDR_WIDTH)) m9k_addr_reg
+    (sysclk, sysreset, vr[`DR_M9K_ADDR], vr_load_data[`CODE_ADDR_TOP:0], vr_load[`DR_M9K_ADDR]);
 wire[`WMSB:0] m9k_data;
 std_reg m9k_data_reg(sysclk, sysreset, m9k_data, vr_load_data, vr_load[`DR_M9K_DATA]);
 reg m9k_wren = 0;

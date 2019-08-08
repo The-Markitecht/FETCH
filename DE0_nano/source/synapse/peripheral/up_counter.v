@@ -3,7 +3,6 @@
 
 module up_counter  #(
      parameter WIDTH         = `WW
-    ,parameter MSB           = WIDTH - 1       
 ) (
      input wire                  sysclk            
     ,input wire                  sysreset          
@@ -26,6 +25,8 @@ module up_counter  #(
     // both are read/write.
     // when those two match, the counter asserts expired, and it stops counting. 
 
+    localparam MSB = WIDTH - 1;
+
     reg[MSB:0] cnt = 0;
     
     // counter_tick rising edge detector.
@@ -35,8 +36,9 @@ module up_counter  #(
     wire event_edge = counter_tick && ! event_last;
 
     // output compare unit.
-    std_reg #(.WIDTH(WIDTH)) compare(sysclk, sysreset, compare_data_out, data_in, compare_load);
-    assign expired = cnt == compare;
+    std_reg #(.STORAGE_WIDTH(WIDTH), .OUTPUT_WIDTH(WIDTH)) compare_reg
+        (sysclk, sysreset, compare_data_out, data_in, compare_load);
+    assign expired = cnt == compare_data_out;
 
     // loadable up counter.
     assign counter_data_out = cnt;
@@ -46,6 +48,6 @@ module up_counter  #(
         else if (counter_load)
             cnt <= data_in;
         else if ( event_edge && ! expired)
-            cnt <= cnt + WIDTH'd1;
+            cnt <= cnt + 1'd1;
     end
 endmodule

@@ -3,7 +3,6 @@
 
 module down_counter  #(
      parameter WIDTH         = `WW
-    ,parameter MSB           = WIDTH - 1       
 ) (
      input wire                  sysclk            
     ,input wire                  sysreset          
@@ -22,6 +21,8 @@ module down_counter  #(
     // offers 1 exposed register:  the counter.  read/write.
     // when it reaches zero, the counter asserts expired, and it stops counting. 
 
+    localparam MSB = WIDTH - 1;
+
     // counter_tick rising edge detector.
     reg event_last = 0;
     always_ff @(posedge sysclk)
@@ -31,13 +32,13 @@ module down_counter  #(
     // loadable down counter.
     reg[MSB:0] cnt = 0;
     assign counter_data_out = cnt;
-    assign expired = cnt == WIDTH'd0;
+    assign expired = cnt == 0;
     always_ff @(posedge sysclk, posedge sysreset) begin
         if (sysreset)
             cnt <= 0;
         else if (counter_load)
             cnt <= data_in;
         else if ( event_edge && ! expired)
-            cnt <= cnt - WIDTH'd1;
+            cnt <= cnt - 1'd1;
     end
 endmodule

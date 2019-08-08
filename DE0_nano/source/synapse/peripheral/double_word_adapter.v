@@ -2,10 +2,8 @@
 `include "target_program_defines.v"
 
 module double_word_adapter #(
-     parameter WW         = `WW 
-    ,parameter MSB        = WW - 1       
-    ,parameter DW         = `WW * 2
-    ,parameter DMSB       = DW - 1       
+     parameter WW         = `WORD_WIDTH
+    ,parameter DW         = WW * 2
 ) (
      input wire                  sysclk            
     ,input wire                  sysreset          
@@ -41,22 +39,25 @@ module double_word_adapter #(
     // one more cycle, so then the high word can also be written without risk of inconsistency.
     // the peripheral sees all bits arrive simultaneously, during the high word write, 
     // since that's when they are all available.
+
+    localparam MSB = WW - 1;
+    localparam DMSB = DW - 1;
     
     reg[MSB:0] read_temp = 0;
-    always_ff @(posedge sysclk, posedge sysreset) 
+    always_ff @(posedge sysclk) 
         if (sysreset)
             read_temp <= 0;
-        if (read_lo)
+        else if (read_lo)
             read_temp <= double_data_to_read[DMSB:WW];
     assign data_out_hi = read_temp;
     assign data_out_lo = double_data_to_read[MSB:0];
     assign double_read = read_lo;
     
     reg[MSB:0] write_temp = 0;
-    always_ff @(posedge sysclk, posedge sysreset) 
+    always_ff @(posedge sysclk) 
         if (sysreset)
             write_temp <= 0;
-        if (load_lo)
+        else if (load_lo)
             write_temp <= data_in;
     assign double_data_to_write = {data_in, write_temp};
     assign double_load = load_hi;

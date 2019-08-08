@@ -136,6 +136,22 @@
 { "" "" "" "The launch and latch times for the relationship between source clock: clk50m and destination clock: platform_hard\|async_pll_inst\|altpll_component\|auto_generated\|pll1\|clk\[0\] are outside of the legal time range. The relationship difference is correct, however the launch time is set to 0." {  } {  } 0 332009 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Design contains 1 input pin(s) that do not drive logic" {  } {  } 0 21074 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "PLL \"platform:platform_hard\|async_pll:async_pll_inst\|altpll:altpll_component\|async_pll_altpll:auto_generated\|pll1\" output port clk\[2\] feeds output pin \"DRAM_CLK~output\" via non-dedicated routing -- jitter performance depends on switching rate of other design elements. Use PLL dedicated clock outputs to ensure jitter performance" {  } {  } 0 15064 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "No output dependent on input pin \"ADC_SDAT\"" {  } {  } 0 15610 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "No output dependent on input pin \"dip_switch\[3\]\"" {  } {  } 0 15610 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "No output dependent on input pin \"power_lost\"" {  } {  } 0 15610 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "No output dependent on input pin \"ignition_switch_off\"" {  } {  } 0 15610 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "No output dependent on input pin \"ign_coil_wht_lo\"" {  } {  } 0 15610 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Design contains 9 input pin(s) that do not drive logic" {  } {  } 0 21074 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"ADC_CS_N\" is stuck at VCC" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"ADC_SADDR\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"ADC_SCLK\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"sim_dip_switch\[0\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"sim_dip_switch\[1\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"sim_dip_switch\[2\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"sim_dip_switch\[3\]\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"sim_power_lost\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"sim_ignition_switch_off\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Pin \"sim_adc_sdat\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

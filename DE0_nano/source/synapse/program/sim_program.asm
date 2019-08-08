@@ -1,7 +1,7 @@
 // #########################################################################
 // assembly source code.    
 
-//TODO: program that core to tokenize all input conditions.  
+//TODO: tokenize all input conditions.  
 // continuously send the token stream up to the PC for buffering, reassembly, and pattern matching.
 // format a token as words separated by spaces, ending in a newline.
 // PC pass those directly to a Tcl interp?  easy to track test state that way, effectively operating
@@ -46,9 +46,23 @@
 
     alias_both timestamp_lo         [incr counter]  "stamplo"
     alias_both timestamp_hi         [incr counter]  "stamphi"
+    alias_both timestamp_compare_lo [incr counter]  "stampclo"
+    alias_both timestamp_compare_hi [incr counter]  "stampchi"
 
     alias_both ustimer0             [incr counter]  "ustimer0"
     alias_both mstimer0             [incr counter]  "mstimer0"
+
+    alias_both power_duty           [incr counter]  "pwr_duty"
+        // power relay duty cycles, in microseconds.  duty cycle time = relay OFF time.
+        // relay actually remains energized for about another 5 us after pwm goes high,
+        // due to the optocoupler pullup taking some time to climb through the MOSFET's threshold.
+        setvar power_duty_min                   0
+        setvar power_duty_max                   50
+        setvar power_duty_closing               $power_duty_min
+        setvar power_duty_opening               $power_duty_max
+        setvar power_duty_holding               (int($power_duty_max / 2))
+        setvar power_lost_mask                  0x0040
+        setvar ign_switch_off_mask              0x0080
 
     alias_both ign_period           [incr counter]  "ignperd"
     alias_both ign_cycle_cnt        [incr counter]  "igncycnt"
@@ -58,7 +72,7 @@
                 
     alias_both spi_data             [incr counter]  "spi_data"
     
-    alias_dest code_write_ad        [incr counter]  "//cdwrad"
+    alias_both code_write_addr      [incr counter]  "//cdwrad"
     alias_both code_write_data      [incr counter]  "//cdwrdt"
 
     alias_both fduart_data          [incr counter]  "//uartdt"
@@ -91,6 +105,12 @@
     a = :boot_msg
     call :print_nt 
     
+    // keep the real hardware occupied and powered up during testing.
+    power_duty = $power_duty_holding
+    
+    // set up an engine running state.
+    ign_period = 700
+    
     // start handling events.
     soft_event = $event_controller_reset_mask
     soft_event = 0
@@ -115,6 +135,16 @@
     // #########################################################################
     
 event puff1_capture_handler
+    a = puff1cnt
+    a = a>>4
+    if a eq 0 {
+        a = puff1cnt
+        call put4x
+        putasc { }
+        a = puff1len
+        call put4x
+        puteol
+    }
 end_event
 
 event ustimer0_handler
@@ -122,6 +152,9 @@ end_event
 
 event mstimer0_handler
 end_event
+
+func parse_key {key in pa} {
+}
     
 event uart_rx_handler
     :again
@@ -130,9 +163,6 @@ event uart_rx_handler
         if x eq -1 {
             event_return
         }                        
-        if x eq 10 {
-            callx  postpone_comm_restart
-        }        
         callx  parse_key  x
     jmp :again
 end_event
@@ -146,7 +176,6 @@ end_event
     
 event uart_tx_overflow_handler
     // error_halt_code $err_tx_overflow
-    callx  set_text_flag  :tx_overflow_msg
 end_event    
     
 event softevent3_handler

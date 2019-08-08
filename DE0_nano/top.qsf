@@ -6,7 +6,7 @@ set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:source/pre_flow.tcl
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE22F17C6
-set_global_assignment -name TOP_LEVEL_ENTITY hard_top
+set_global_assignment -name TOP_LEVEL_ENTITY soft_top
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 12.0
 set_global_assignment -name LAST_QUARTUS_VERSION 13.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "23:28:01 NOVEMBER 18,2014"
@@ -257,9 +257,9 @@ set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME testbench -section_id tes
 set_global_assignment -name EDA_TEST_BENCH_FILE source/testbench.v -section_id testbench
 set_global_assignment -name SEARCH_PATH "j:\\camaro_ecm\\git\\de0_nano\\source\\synapse\\program"
 set_global_assignment -name SEARCH_PATH "j:\\camaro_ecm\\git\\de0_nano\\source"
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name VERILOG_FILE source/synapse/peripheral/double_word_adapter.v
+set_global_assignment -name VERILOG_FILE source/synapse/peripheral/up_counter.v
+set_global_assignment -name VERILOG_FILE source/synapse/peripheral/down_counter.v
 set_global_assignment -name VERILOG_FILE source/soft_top.v
 set_global_assignment -name VERILOG_FILE source/platform.v
 set_global_assignment -name VERILOG_FILE source/hard_top.v
@@ -270,7 +270,6 @@ set_global_assignment -name VERILOG_FILE source/synapse/peripheral/usage_counter
 set_global_assignment -name VERILOG_FILE source/synapse/std_reg.v
 set_global_assignment -name VERILOG_FILE source/synapse/stack_reg.v
 set_global_assignment -name VERILOG_FILE source/synapse/peripheral/spi_master.v
-set_global_assignment -name VERILOG_FILE source/synapse/peripheral/cdtimer16.v
 set_global_assignment -name SDC_FILE source/top.sdc
 set_global_assignment -name QIP_FILE source/synapse/visor_pgm.qip
 set_global_assignment -name VERILOG_FILE source/synapse/peripheral/synchronizer.v
@@ -289,4 +288,7 @@ set_global_assignment -name QIP_FILE async_pll.qip
 set_global_assignment -name QIP_FILE data_rom.qip
 set_global_assignment -name QIP_FILE multiplier.qip
 set_global_assignment -name QIP_FILE sim_code_ram.qip
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

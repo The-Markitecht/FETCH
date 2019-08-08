@@ -35,7 +35,7 @@ module synapse316 #(
     wire[`WMSB:0] muxa_comb;      
     reg[`WMSB:0] exr; // executing instruction register
         
-    // debugger input flattener.
+    // debugger input unpacker.
     wire debug_force_exec = debug_in[`DEBUG_FORCE_EXEC_BIT];
     wire debug_force_load_exr = debug_in[`DEBUG_FORCE_LOAD_EXR_BIT];
     wire debug_hold_state = debug_in[`DEBUG_FORCE_HOLD_STATE_BIT];
@@ -121,7 +121,7 @@ module synapse316 #(
         end
     end    
     
-    // debugger output flattener.
+    // debugger output packer.
     assign debug_out[`DEBUG_PRG_BREAK_OP_BIT    ] = program_break_operator;
     assign debug_out[`DEBUG_BRANCHING_CYCLE_BIT ] = branching_cycle;
     assign debug_out[`DEBUG_CONST16_CYCLE1_BIT  ] = const16cycle1;

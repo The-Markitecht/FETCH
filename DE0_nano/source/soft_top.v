@@ -39,8 +39,7 @@ module soft_top (
     
     ,(* chip_pin = "T13, T15" *) output wire[1:0]  scope
     
-    //TODO: make sure relay isn't fully powered all the time during testing.
-    ,(* chip_pin = "C15" *) output wire power_relay_pwm //TODO: reassign to prevent target shutting itself down in testing.
+    ,(* chip_pin = "C15" *) output wire power_relay_pwm
     ,(* chip_pin = "E16" *) input wire  power_lost
     ,(* chip_pin = "M16" *) input wire  ignition_switch_off
     
@@ -76,14 +75,22 @@ module soft_top (
     ,(* chip_pin = "J16" *)  input wire  sim_async_rx_line
 );
 
+// stubbed hardware signals.
+assign ADC_CS_N          = 1;
+assign ADC_SADDR         = 0;
+assign ADC_SCLK          = 0;
+
 //  PLATFORM INSTANCE //////////////////////////////////////////////////////////////////////////
 wire clk_async;
 wire clk_progmem;
 wire sysreset;
 wire visor_break_mode;
 wire pulse1m;
+wire pulse1m_ungated;
 wire pulse50k;
 wire pulse1k;
+wire[7:0] LED; // active HIGH
+wire[1:0] KEY = 2'b11; // active LOW
 
 platform platform_inst (
      .clk50m                    (clk50m)
@@ -92,6 +99,7 @@ platform platform_inst (
     ,.clk_progmem               (clk_progmem)
 
     ,.pulse1m                   (pulse1m )
+    ,.pulse1m_ungated           (pulse1m_ungated )
     ,.pulse50k                  (pulse50k)
     ,.pulse1k                   (pulse1k )
 
@@ -113,9 +121,9 @@ platform platform_inst (
     ,.DRAM_RAS_N                (DRAM_RAS_N)
     ,.DRAM_WE_N                 (DRAM_WE_N)
 
-    ,.ADC_CS_N                  (adc_cs_n)
-    ,.ADC_SADDR                 (adc_saddr)
-    ,.ADC_SCLK                  (adc_sclk)
+    ,.ADC_CS_N                  (sim_adc_cs_n)
+    ,.ADC_SADDR                 (sim_adc_saddr)
+    ,.ADC_SCLK                  (sim_adc_sclk)
     ,.ADC_SDAT                  (sim_adc_sdat)
 
     ,.anmux_ctrl                (anmux_ctrl)
@@ -130,7 +138,7 @@ platform platform_inst (
 
     ,.scope                     (scope)
 
-    ,.power_relay_pwm           (power_relay_pwm)
+    ,.power_relay_pwm           ()
     ,.power_lost                (sim_power_lost)
     ,.ignition_switch_off       (sim_ignition_switch_off)
 
@@ -144,16 +152,20 @@ platform platform_inst (
 
 // simulator module control signals
 wire sysclk = clk50m;
-wire sim_run = ! visor_break_mode; //TODO: hold peripherals also.
+wire sim_run = ! visor_break_mode; 
 wire sim_reset = sysreset || 1'b0; //TODO: add a way to soft reset the sim for the next test?
 
 // ############################## car hardware simulator Synapse316 
 // with its own code RAM.  totally independent of the target MCU.
-wire[`WMSB:0]              code_addr;
+wire[`CODE_ADDR_TOP:0]     code_addr;
 wire[`WMSB:0]              code_in;
 wire                       code_ready;
-wire[`DEBUG_IN_WIDTH-1:0]  debug_in;
+wire[`DEBUG_IN_WIDTH-1:0]  debug_in = 'd0;
 wire[`DEBUG_OUT_WIDTH-1:0] debug_out; 
+wire[`WMSB:0]              r[`TOP_REG:0];
+wire[`TOP_REG:0]           r_read ;   
+wire[`TOP_REG:0]           r_load;
+wire[`WMSB:0]              r_load_data;
 synapse316 simulator_core (
     .sysclk          (sysclk      ) ,
     .sysreset        (sim_reset    ) ,
@@ -164,31 +176,31 @@ synapse316 simulator_core (
     .r_read          (r_read),
     .r_load          (r_load),
     .r_load_data     (r_load_data),
-    .debug_out       (tg_debug_out),
-    .debug_in        (tg_debug_in)
+    .debug_out       (debug_out),
+    .debug_in        (debug_in)
 );    
 
-// on-chip M9K RAM for target MCU program.
-std_reg #(.WIDTH(`CODE_ADDR_WIDTH)) m9k_addr_reg(
-    sysclk, sim_reset, r[`DR_M9K_ADDR], r_load_data[`CODE_ADDR_TOP:0], r_load[`DR_M9K_ADDR]);
-wire[`WMSB:0] m9k_write_data;
-std_reg m9k_write_data_reg(sysclk, sim_reset, m9k_write_data, r_load_data, r_load[`DR_M9K_WRITE_DATA]);
-reg m9k_wren = 0;
-always_ff @(posedge sim_reset, posedge sysclk) begin
+// on-chip M9K RAM for simulator MCU program.
+std_reg #(.STORAGE_WIDTH(`CODE_ADDR_WIDTH)) code_write_addr_reg
+    (sysclk, sim_reset, r[`SR_CODE_WRITE_ADDR], r_load_data[`CODE_ADDR_TOP:0], r_load[`DR_CODE_WRITE_ADDR]);
+wire[`WMSB:0] code_write_data;
+std_reg code_write_data_reg(sysclk, sim_reset, code_write_data, r_load_data, r_load[`DR_CODE_WRITE_DATA]);
+reg code_wren = 0;
+always_ff @(posedge sysclk) begin
     if (sim_reset)
-        m9k_wren <= 0;
+        code_wren <= 0;
     else
-        m9k_wren <= vr_load[`DR_M9K_DATA];
+        code_wren <= r_load[`DR_CODE_WRITE_DATA];
 end
 sim_code_ram	simulator_program (
 	.clock ( clk_progmem ),
 	
     .rdaddress ( code_addr ),
-	.q ( code_in )
+	.q ( code_in ),
 	
-	.data ( m9k_write_data ),
-    .wraddress ( r[`DR_M9K_WRITE_ADDR][`CODE_ADDR_TOP:0] ),
-	.wren ( m9k_wren )
+	.data ( code_write_data ),
+    .wraddress ( r[`SR_CODE_WRITE_ADDR][`CODE_ADDR_TOP:0] ),
+	.wren ( code_wren )
 );
 // Quartus II software searches for the altsyncram init_file in the project directory, 
 // the project db directory, user libraries, and the current source file location.
@@ -216,9 +228,9 @@ fduart uart (
 // timestamp timer counts up in microseconds.
 wire[31:0] timestamp;
 wire       timestamp_load;
+wire[31:0] timestamp_load_data;
 wire[31:0] timestamp_compare;
 wire       timestamp_compare_load;
-wire[31:0] timestamp_load_data;
 wire timestamp_expired;
 up_counter #(.WIDTH(32)) timestamp_counter (
      .sysclk          ( sysclk )  
@@ -232,34 +244,34 @@ up_counter #(.WIDTH(32)) timestamp_counter (
     ,.expired         ( timestamp_expired )
 );
 double_word_adapter timestamp_adapter (
-    .sysclk                (sysclk   )
-    .sysreset              (sim_reset )
-    .data_in               (r_load_data)
-    .data_out_lo           (     r[`SR_TIMESTAMP_LO])
-    .read_lo               (r_read[`SR_TIMESTAMP_LO])
-    .load_lo               (r_load[`DR_TIMESTAMP_LO])
-    .data_out_hi           (     r[`SR_TIMESTAMP_HI])
-    .read_hi               (r_read[`SR_TIMESTAMP_HI])
-    .load_hi               (r_load[`DR_TIMESTAMP_HI])
-    .double_data_to_read   (timestamp)      
-    .double_read           ()
-    .double_data_to_write  (timestamp_load_data)
-    .double_load           (timestamp_load)
+     .sysclk                (sysclk   )
+    ,.sysreset              (sim_reset )
+    ,.data_in               (r_load_data)
+    ,.data_out_lo           (     r[`SR_TIMESTAMP_LO])
+    ,.read_lo               (r_read[`SR_TIMESTAMP_LO])
+    ,.load_lo               (r_load[`DR_TIMESTAMP_LO])
+    ,.data_out_hi           (     r[`SR_TIMESTAMP_HI])
+    ,.read_hi               (r_read[`SR_TIMESTAMP_HI])
+    ,.load_hi               (r_load[`DR_TIMESTAMP_HI])
+    ,.double_data_to_read   (timestamp)      
+    ,.double_read           ()
+    ,.double_data_to_write  (timestamp_load_data)
+    ,.double_load           (timestamp_load)
 );
 double_word_adapter timestamp_compare_adapter (
-    .sysclk                (sysclk   )
-    .sysreset              (sim_reset )
-    .data_in               (r_load_data)
-    .data_out_lo           (     r[`SR_TIMESTAMP_COMPARE_LO])
-    .read_lo               (r_read[`SR_TIMESTAMP_COMPARE_LO])
-    .load_lo               (r_load[`DR_TIMESTAMP_COMPARE_LO])
-    .data_out_hi           (     r[`SR_TIMESTAMP_COMPARE_HI])
-    .read_hi               (r_read[`SR_TIMESTAMP_COMPARE_HI])
-    .load_hi               (r_load[`DR_TIMESTAMP_COMPARE_HI])
-    .double_data_to_read   (timestamp_compare)      
-    .double_read           ()
-    .double_data_to_write  (timestamp_compare_load_data)
-    .double_load           (timestamp_compare_load)
+     .sysclk                (sysclk   )
+    ,.sysreset              (sim_reset )
+    ,.data_in               (r_load_data)
+    ,.data_out_lo           (     r[`SR_TIMESTAMP_COMPARE_LO])
+    ,.read_lo               (r_read[`SR_TIMESTAMP_COMPARE_LO])
+    ,.load_lo               (r_load[`DR_TIMESTAMP_COMPARE_LO])
+    ,.data_out_hi           (     r[`SR_TIMESTAMP_COMPARE_HI])
+    ,.read_hi               (r_read[`SR_TIMESTAMP_COMPARE_HI])
+    ,.load_hi               (r_load[`DR_TIMESTAMP_COMPARE_HI])
+    ,.double_data_to_read   (timestamp_compare)      
+    ,.double_read           ()
+    ,.double_data_to_write  () // same as timestamp_load_data.
+    ,.double_load           (timestamp_compare_load)
 );
 
 // ustimer's count down on microseconds.
@@ -280,20 +292,32 @@ down_counter mstimer0 (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sim_reset )  
     ,.data_in         ( r_load_data )  
-    ,.data_out        (      r[`SR_MSTIMER0] )
+    ,.counter_data_out(      r[`SR_MSTIMER0] )
     ,.counter_load    ( r_load[`DR_MSTIMER0] )
     ,.counter_tick    ( pulse1k && sim_run)
     ,.expired         ( mstimer0_expired )
 );
 
-// ignition pulse simulator.  runs continuously during sim_run.  
+// PWM generator to drive the computer's main power relay.  counts microseconds.  count 50 = 20 KHz.
+cdpwm #(.WIDTH(6), .START(50)) power_relay_pwm_inst (
+     .sysclk          ( sysclk )  
+    ,.sysreset        ( sysreset )  
+    ,.counter_tick    ( pulse1m_ungated ) // must be ungated, so the relay keeps working while the visor pauses the target MCU.
+    ,.counter_value   (  )
+    ,.duty            ( r[`SR_POWER_DUTY] )
+    ,.duty_load       ( r_load[`DR_POWER_DUTY] )
+    ,.data_in         ( r_load_data[5:0] )
+    ,.pwm_signal      ( power_relay_pwm )
+);
+
+// ignition pulse generator.  runs continuously during sim_run.  
 // period register is read/write, measuring in 20us jiffies (jf).
 // pulse length is fixed.
 std_reg ign_period_reg(sysclk, sim_reset, r[`SR_IGN_PERIOD], r_load_data, r_load[`DR_IGN_PERIOD]);
 reg[15:0] ign_pulse_gen = 0;
-assign sim_ign_coil_wht_lo = ign_pulse_gen < 16'd4; 
+assign sim_ign_coil_wht_lo = ign_pulse_gen == 0; 
 wire ign_pulse_end = (ign_pulse_gen == 16'd0) && pulse50k; // true on the final sysclk cycle of the ignition pulse.
-always_ff @(posedge sysclk, posedge sim_reset) 
+always_ff @(posedge sysclk) 
     if (sim_reset) 
         ign_pulse_gen <= 0;
     else if (sim_run && pulse50k)
@@ -302,8 +326,10 @@ always_ff @(posedge sysclk, posedge sim_reset)
 // ignition pulse counter.  resettable.
 reg[15:0] ign_cycle_cnt;
 assign r[`SR_IGN_CYCLE_CNT] = ign_cycle_cnt;
-always_ff @(posedge sysclk, posedge sim_reset) 
-    if (sim_reset || r_load[`DR_IGN_CYCLE_CNT])
+always_ff @(posedge sysclk) 
+    if (sim_reset)
+        ign_cycle_cnt <= 0;
+    else if (r_load[`DR_IGN_CYCLE_CNT])
         ign_cycle_cnt <= 0;
     else if (ign_pulse_end)
         ign_cycle_cnt <= ign_cycle_cnt + 16'd1;
@@ -312,14 +338,16 @@ always_ff @(posedge sysclk, posedge sim_reset)
 reg[15:0] injector1_old;
 always_ff @(posedge sysclk) 
     injector1_old <= injector1_open;
-wire puff1_rise = injector1_open && ! injector1_old;
+//wire puff1_rise = injector1_open && ! injector1_old;
 wire puff1_fall = injector1_old && ! injector1_open;
 
 // injection puff count.
 reg[15:0] puff1cnt;
 assign r[`SR_PUFF1CNT] = puff1cnt;
-always_ff @(posedge sysclk, posedge sim_reset, posedge r_load[`DR_PUFF1CNT]) 
-    if (sim_reset || r_load[`DR_PUFF1CNT])
+always_ff @(posedge sysclk) 
+    if (sim_reset)
+        puff1cnt <= 0;
+    else if (r_load[`DR_PUFF1CNT])
         puff1cnt <= 0;
     else if (puff1_fall)
         puff1cnt <= puff1cnt + 16'd1;
@@ -328,10 +356,8 @@ always_ff @(posedge sysclk, posedge sim_reset, posedge r_load[`DR_PUFF1CNT])
 //TODO: cope with injector PWM and/or peak-and-hold.
 reg[15:0] puff1len;
 assign r[`SR_PUFF1LEN] = puff1len;
-always_ff @(posedge sysclk, posedge sim_reset, posedge r_load[`DR_PUFF1LEN]) 
-    if (sim_reset || r_load[`DR_PUFF1LEN])
-        puff1len <= 0;
-    else if (injector1_open)
+always_ff @(posedge sysclk) 
+    if (injector1_open)
         puff1len <= puff1len + 16'd1;
 
 //TODO: connect these remaining simulated signals.
@@ -342,10 +368,11 @@ assign sim_dip_switch = 1'b0;
 assign sim_power_lost = 1'b0;
 assign sim_ignition_switch_off = 1'b0;
 
+wire spi_busy = 0;
+
 // event controller is listed last to utilize wires from all other parts.
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
 std_reg soft_event_reg(sysclk, sysreset, r[`SR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
-assign scope = {r[`SR_SOFT_EVENT][14]}; // copy soft_event_reg to o'scope pins for analysis.
 event_controller #(.NUM_INPUTS(13)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset || r[`SR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])

@@ -4,19 +4,28 @@
 // synthesize with SystemVerilog
 
 module std_reg #(
-    parameter WIDTH = 16
+     parameter STORAGE_WIDTH = `WORD_WIDTH
+    ,parameter  OUTPUT_WIDTH = `WORD_WIDTH
 ) (
-     input wire                  sysclk            
-    ,input wire                  sysreset          
+     input  wire                 sysclk            
+    ,input  wire                 sysreset          
 
-    ,output wire[15:0]           data_out
-    ,input wire[WIDTH-1:0]       data_in           
-    ,input wire                  load
+    ,output wire[OMSB:0]         data_out
+    ,input  wire[SMSB:0]         data_in           
+    ,input  wire                 load
 );      
     // standard register implementation, with a parameterized number of actual data bits stored.
-    reg[WIDTH-1:0] r = 0;
-    assign data_out = { {16-WIDTH{1'b0}}, r};
-    always_ff @(posedge sysreset , posedge sysclk) begin
+    // width of data_out is a separate parameter, to conveniently drive signals
+    // into the MCU core without boilerplate.
+    // max for either is 256.
+    
+    localparam SMSB = STORAGE_WIDTH - 1;
+    localparam OMSB =  OUTPUT_WIDTH - 1;
+    
+    reg[SMSB:0] r = 0;
+    wire[256:0] padded = r;
+    assign data_out = padded[OMSB:0];
+    always_ff @(posedge sysclk) begin
         if (sysreset)
             r <= 0;
         else if (load)

@@ -7,11 +7,11 @@ module cdpwm #(
      input wire                  sysclk            
     ,input wire                  sysreset          
 
-    ,input wire                  counter_event
+    ,input wire                  counter_tick
 
-    ,output wire[MSB:0]          counter_value
+    ,output wire[`WMSB:0]        counter_value
     
-    ,output wire[MSB:0]          duty
+    ,output wire[`WMSB:0]        duty
     , input wire                 duty_load
     , input wire[MSB:0]          data_in
         
@@ -31,11 +31,11 @@ module cdpwm #(
 
     localparam MSB = WIDTH - 1;
     
-    // counter_event rising edge detector.
+    // counter_tick rising edge detector.
     reg event_last = 0;
     always_ff @(posedge sysclk)
-        event_last <= counter_event;
-    wire event_edge = counter_event && ! event_last;
+        event_last <= counter_tick;
+    wire event_edge = counter_tick && ! event_last;
 
     // free-running down counter.
     reg[MSB:0] cnt = START[MSB:0];
@@ -53,7 +53,8 @@ module cdpwm #(
     end
     
     // duty cycle register & signal generator.
-    std_reg #(.WIDTH(WIDTH)) duty_reg(sysclk, sysreset, duty, data_in, duty_load);
+    std_reg #(.STORAGE_WIDTH(WIDTH), .OUTPUT_WIDTH(`WORD_WIDTH)) duty_reg
+        (sysclk, sysreset, duty, data_in, duty_load);
     wire pwm_comb = cnt < duty;
     reg pwm_reg = 0;
     always_ff @(posedge sysclk)

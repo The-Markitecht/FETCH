@@ -7,8 +7,8 @@
 # Create Clock
 #**************************************************************
 create_clock -period 20 [get_ports clk50m]
-#create_clock -period 11.7 [get_ports clk50m] ;# patch 85.47 mhz
-#create_clock -period 12.2 [get_ports clk50m] ;# patch 81.97 mhz
+#create_clock -period 11.7 [get_ports clk50m] ;#  85.47 mhz
+#create_clock -period 12.2 [get_ports clk50m] ;#  81.97 mhz
 
 #**************************************************************
 # Create Generated Clock

@@ -8,6 +8,7 @@ module platform (
     ,output wire                        clk_progmem // PLL output for MCU program memory.  doubled relative to sysclk.  posedge aligned ( = 0 degree phase).
     
     ,output wire                        pulse1m
+    ,output wire                        pulse1m_ungated
     ,output wire                        pulse50k
     ,output wire                        pulse1k
 
@@ -103,7 +104,7 @@ assign sysreset = rst2;
 // realtime counters.  first the 1 MHz.  divide sysclk by 50.
 wire timer_enable;
 reg[5:0] counter1m = 0;
-wire pulse1m_ungated = (counter1m == 6'd49);
+assign pulse1m_ungated = (counter1m == 6'd49);
 assign pulse1m = pulse1m_ungated && timer_enable;
 always_ff @(posedge sysclk) 
     counter1m <= (pulse1m ? 6'd0 : counter1m + 6'd1);
@@ -130,6 +131,13 @@ down_counter counter1k (
 // alternate realtime counters.
 /* use flop's "clear" input to eliminate data muxers.  
 but somehow this doesn't increment counter1k at all.
+probably because pulse1m is unregistered combinational, maybe others too, 
+so they glitch, and those are fed into async inputs of these counters, posedge sensitive.
+it would be smaller and faster to make sure those signals are explicitly registered at their
+source, then always feed them into async inputs.  that should work well for reset signals,
+but don't try it on these counters.  not worth the trouble.
+//TODO: upgrade all reset signaling to that standard in all modules.
+
 reg[5:0] counter1m = 0;
 wire pulse1m = (counter1m == 6'd50);
 always_ff @(posedge sysclk, posedge pulse1m) 
@@ -279,16 +287,20 @@ data_rom drom (
 );
 */
 
-std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`SR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
+std_reg #(.STORAGE_WIDTH(8)) led_reg
+    (sysclk, sysreset, r[`SR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
 //assign LED = { ! ignition_switch_off_sync, r[`DR_LEDS][6:0]};
 
 wire[14:0] ftdi_junk;
 wire[14:0] beep_junk;
 assign r[`SR_BOARD_CTRL] = {8'h0, ftdi_power, beeper_enable, KEY[1:0], dip_switch[3:0]}; 
-std_reg #(.WIDTH(1)) beep_en_reg(sysclk, sysreset, {beep_junk[14:0], beeper_enable}, r_load_data[`BEEPER_ENABLE_BIT], r_load[`DR_BOARD_CTRL]);
-std_reg #(.WIDTH(1)) ftdi_power_reg(sysclk, sysreset, {ftdi_junk[14:0], ftdi_power}, r_load_data[`FTDI_POWER_BIT], r_load[`DR_BOARD_CTRL]);
+std_reg #(.STORAGE_WIDTH(1)) beep_en_reg
+    (sysclk, sysreset, {beep_junk[14:0], beeper_enable}, r_load_data[`BEEPER_ENABLE_BIT], r_load[`DR_BOARD_CTRL]);
+std_reg #(.STORAGE_WIDTH(1)) ftdi_power_reg
+    (sysclk, sysreset, {ftdi_junk[14:0], ftdi_power}, r_load_data[`FTDI_POWER_BIT], r_load[`DR_BOARD_CTRL]);
 
-std_reg #(.WIDTH(4)) anmux_ctrl_reg(sysclk, sysreset, r[`SR_ANMUX_CTRL], r_load_data[3:0], r_load[`DR_ANMUX_CTRL]);
+std_reg #(.STORAGE_WIDTH(4)) anmux_ctrl_reg
+    (sysclk, sysreset, r[`SR_ANMUX_CTRL], r_load_data[3:0], r_load[`DR_ANMUX_CTRL]);
 assign anmux_ctrl = r[`DR_ANMUX_CTRL][3:0];
 // dg408 -  JP3 -   schem -     fpga -  verilog -   mcu bit
 // en =2    8       gpio_23     c16     gpio_2[3]   3
@@ -345,7 +357,7 @@ wire[5:0] power_duty;
 cdpwm #(.WIDTH(6), .START(50)) power_relay_pwm_inst (
      .sysclk          ( sysclk )  
     ,.sysreset        ( sysreset )  
-    ,.counter_tick   ( pulse1m_ungated ) // must be ungated, so the relay keeps working while the visor pauses the target MCU.
+    ,.counter_tick    ( pulse1m_ungated ) // must be ungated, so the relay keeps working while the visor pauses the target MCU.
     ,.counter_value   (  )
     ,.duty            ( power_duty )
     ,.duty_load       ( r_load[`DR_POWER_DUTY] )
