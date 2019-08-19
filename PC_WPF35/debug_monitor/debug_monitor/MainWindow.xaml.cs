@@ -379,7 +379,7 @@ rename some uses of "src" as "mif" instead.
                 UInt16 addr_lo = (UInt16)(addr & 0xffff);
                 s = len_txt.Text.Trim().ToLower();
                 UInt16 len = UInt16.Parse(s, System.Globalization.NumberStyles.HexNumber);
-                s = "u" + src_reg_map["av_write_data"].ToString("x4") + " " + src_reg_map["av_read_data"].ToString("x4") 
+                s = "u" + dest_reg_map["av_write_data"].ToString("x4") + " " + src_reg_map["av_read_data"].ToString("x4") 
                     + " " + src_reg_map["av_ad_lo"].ToString("x4") + " " + src_reg_map["av_ad_hi"].ToString("x4") 
                     + " " + addr_hi.ToString("x4") + " " + addr_lo.ToString("x4") + " " + len.ToString("x4") + ".";
                 log("\n" + s);
