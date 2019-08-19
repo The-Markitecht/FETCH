@@ -16,14 +16,17 @@
 # sin(clamp(dist(8)/3, 0, 6.28))*4000
 # (sin(clamp(dist(8)/3, -$pi, $pi))+1)*4000
 
+package ifneeded MityBuild 3.0 {
+    source J:/temp/MityBuild/libMityBuild
+}
 package require Tk
 package require MityBuild
 
 #source [file join [file dirname [info script]] trace.tcl]
 source [file join [file dirname [info script]] fletcher16.tcl]
 
-proc init_port {} {
-    ::port = [open //./com11 r+]
+proc init_port {port_num} {
+    ::port = [open //./com$port_num r+]
     fconfigure $::port -blocking 0 -buffering none -mode 115200,n,8,1 -handshake none
     read_port 
 }
@@ -34,16 +37,17 @@ proc read_port {} {
         print_rx $s
         scan_data $s
     } err]} {
-        print_rx "\nrx error: $err\n"
+        print_rx "\n-- rx error: $err\n"
     }
     after 300 read_port
 }
 
 proc tx {msg} {
     if {[catch {
+        print_rx "\n>> $msg\n"
         puts $::port $msg
     } err]} {
-        print_rx "\ntx error: $err\n"
+        print_rx "\n-- tx error: $err\n"
     }
 }
 
@@ -62,18 +66,22 @@ proc scan_data {data} {
         eval refresh_afrc_run_mark $::afrc_run_mark
     }
     if {[info exists ::data(bti)]} {
-        ::block_temp_map_idx := int("0x$::data(bti)")
-        for {set i 0} {$i < [array size ::block_temp_ref]} {incr i} {
-            .win.tools.refs.block_temp_ref.run$i configure -text {} -background $::system_label_background
+        if {[scan $::data(bti) %4x idx]} {
+            ::block_temp_map_idx := $idx
+            for {set i 0} {$i < [array size ::block_temp_ref]} {incr i} {
+                .win.tools.refs.block_temp_ref.run$i configure -text {} -background $::system_label_background
+            }
+            .win.tools.refs.block_temp_ref.run$::block_temp_map_idx configure -text {<<} -background red
         }
-        .win.tools.refs.block_temp_ref.run$::block_temp_map_idx configure -text {<<} -background red
     }
     if {[info exists ::data(asi)]} {
-        ::afterstart_map_idx := int("0x$::data(bti)")
-        for {set i 0} {$i < [array size ::afterstart_ref]} {incr i} {
-            .win.tools.refs.afterstart_ref.run$i configure -text {} -background $::system_label_background
+        if {[scan $::data(asi) %4x idx]} {
+            ::afterstart_map_idx := $idx
+            for {set i 0} {$i < [array size ::afterstart_ref]} {incr i} {
+                .win.tools.refs.afterstart_ref.run$i configure -text {} -background $::system_label_background
+            }
+            .win.tools.refs.afterstart_ref.run$::afterstart_map_idx configure -text {<<}  -background red
         }
-        .win.tools.refs.afterstart_ref.run$::afterstart_map_idx configure -text {<<}  -background red
     }
 
     # update GUI sensor display
@@ -169,7 +177,7 @@ proc sav {fn} {
         append fn .map
     }
     fn = [file join maps $fn]
-
+#TODO: fix missing and confused equal signs in this proc??
     foreach lst {::afrc_map  ::maf_ref  ::rpm_ref} {
         content([string = trim $lst :]) [set $lst]
     }
@@ -197,14 +205,14 @@ proc send_row {cmd  seed  data_words  desc} {
     if {$seed != -1} {
         fletcher16_input16 local_sum $seed
     }
-    flush_rx
+    #flush_rx
     foreach v $data_words {
         fletcher16_input16 local_sum $v
         append cmd [format %04x $v]
     }
-    send $cmd
+    tx $cmd
     remote_sum = [get4x]
-    if {[get4x] != [fletcher16_result local_sum]} {
+    if {$remote_sum != [fletcher16_result local_sum]} {
         show "ERROR: $desc should have had checksum $local_sum"
         break
     }
@@ -496,13 +504,13 @@ $c bind $id <Button-1> "
     
     ts = [frame $btns.tabselect]
     pack $ts -side left -expand no -fill none -padx 2
-    b = [radiobutton $ts.terms -text Terms -font "-size 18" -command show_tab -variable ::show_tab -value terms]
+    b = [radiobutton $ts.terms -text Terms -font "-size 18" -command refresh_show_tab -variable ::show_tab -value terms]
     grid $b -row 0 -column 0 -sticky w
-    b = [radiobutton $ts.refs -text Refs -font "-size 18" -command show_tab -variable ::show_tab -value refs]
+    b = [radiobutton $ts.refs -text Refs -font "-size 18" -command refresh_show_tab -variable ::show_tab -value refs]
     grid $b -row 1 -column 0 -sticky w
 #    set b [radiobutton $ts.sens -text Sensors -font "-size 18" -command show_tab -variable ::show_tab -value sens]
 #    grid $b -row 0 -column 1 -sticky w
-    b = [radiobutton $ts.none -text None -font "-size 18" -command show_tab -variable ::show_tab -value none]
+    b = [radiobutton $ts.none -text None -font "-size 18" -command refresh_show_tab -variable ::show_tab -value none]
     grid $b -row 1 -column 1 -sticky w
     
     b = ${btns}.calc
@@ -634,11 +642,11 @@ bind $lbl <Button-1> {
     }
     
     # serial display & Tcl console
-    console = ${tools}.console
-    frame $console -relief sunken -borderwidth 2
-    pack $console -side top -expand yes -fill both
+    cnsl = ${tools}.console
+    frame $cnsl -relief sunken -borderwidth 2
+    pack $cnsl -side top -expand yes -fill both
     
-    tcl = ${console}.tcl
+    tcl = ${cnsl}.tcl
     text $tcl -font {Courier 11} -wrap char -height 5
     pack $tcl -side bottom -expand no -fill x
     bind $tcl <Return> run_tcl
@@ -646,7 +654,7 @@ bind $lbl <Button-1> {
     ::prompt = {Tcl> }
     print_tcl $::prompt
 
-    rx = ${console}.rx
+    rx = ${cnsl}.rx
     text $rx -font {Courier 11} -wrap char
     pack $rx -side top -expand yes -fill both
 
@@ -657,16 +665,18 @@ bind $lbl <Button-1> {
 # #########################################################
 
 if {[catch {
+    console show
+    
     
     load_maps default.map
     
     init_gui
 
-#    init_port
+    init_port 22
     
     vwait forever
     
 } err]} {
     puts "foreground error: \n$err\n$errorInfo"
-    exit
+#    exit
 }
