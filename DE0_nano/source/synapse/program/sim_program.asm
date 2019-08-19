@@ -109,7 +109,7 @@
     power_duty = $power_duty_holding
     
     // set up an engine running state.
-    ign_period = 700
+    ign_period = ([rpm_to_jf 1000])  
     
     // start handling events.
     soft_event = $event_controller_reset_mask
