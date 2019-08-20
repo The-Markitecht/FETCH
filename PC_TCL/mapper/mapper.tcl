@@ -31,6 +31,10 @@ proc init_port {port_num} {
     read_port 
 }
 
+proc flush_rx {} {
+    read $::port
+}
+
 proc read_port {} {
     if {[catch {
         s = [read $::port]
@@ -66,7 +70,7 @@ proc scan_data {data} {
         eval refresh_afrc_run_mark $::afrc_run_mark
     }
     if {[info exists ::data(bti)]} {
-        if {[scan $::data(bti) %4x idx]} {
+        if {[scan $::data(bti) %4x idx] == 1} {
             ::block_temp_map_idx := $idx
             for {set i 0} {$i < [array size ::block_temp_ref]} {incr i} {
                 .win.tools.refs.block_temp_ref.run$i configure -text {} -background $::system_label_background
@@ -75,7 +79,7 @@ proc scan_data {data} {
         }
     }
     if {[info exists ::data(asi)]} {
-        if {[scan $::data(asi) %4x idx]} {
+        if {[scan $::data(asi) %4x idx] == 1} {
             ::afterstart_map_idx := $idx
             for {set i 0} {$i < [array size ::afterstart_ref]} {incr i} {
                 .win.tools.refs.afterstart_ref.run$i configure -text {} -background $::system_label_background
@@ -92,6 +96,18 @@ proc scan_data {data} {
             ::sensor_degf($i) = "[adc_to_degf $::sensor_dec($i)] F" 
         }
     }
+}
+
+proc get4x {} {
+    valu = 0
+    if {[catch {
+        s = [read $::port]
+        print_rx $s
+        scan $s %4x valu
+    } err]} {
+        print_rx "\n-- rx error: $err\n"
+    }    
+    return $valu
 }
 
 proc adc_to_degf {adc} {
@@ -205,16 +221,16 @@ proc send_row {cmd  seed  data_words  desc} {
     if {$seed != -1} {
         fletcher16_input16 local_sum $seed
     }
-    #flush_rx
     foreach v $data_words {
         fletcher16_input16 local_sum $v
         append cmd [format %04x $v]
     }
+    sum = [fletcher16_result local_sum]
+    flush_rx ;# stop receiving since target is about to stop sending, and we need to capture its next output.
     tx $cmd
     remote_sum = [get4x]
-    if {$remote_sum != [fletcher16_result local_sum]} {
-        show "ERROR: $desc should have had checksum $local_sum"
-        break
+    if {$remote_sum != $sum} {
+        print_rx "\n-- ERROR: $desc should have had checksum $sum\n"
     }
 }
 
