@@ -121,6 +121,7 @@
     setvar      o2_adc_channel          5
     setvar      maf_adc_channel         4
     ram_define  ram_dial_setting              
+    ram_define  ram_enable_status_report
     
     alias_both power_duty           [incr counter]  "pwr_duty"
         // power relay duty cycles, in microseconds.  duty cycle time = relay OFF time.
@@ -254,6 +255,7 @@
     soft_event = 0
     mstimer0 = 1000
     mstimer2 = $plan_tick_ms
+    ram $ram_enable_status_report = 1
     jmp :poll_events
         
     // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.  
@@ -518,66 +520,72 @@ func start_daq_pass {
     ram a = $ram_daq_pass_cnt
     b = 1
     a = a+b
-    leds = a
-    ram $ram_daq_pass_cnt = a
-    call :put4x 
+    i = a
+    leds = i
+    ram $ram_daq_pass_cnt = i
+    
+    ram a = $ram_enable_status_report
+    if a ne 0 {
+        a = i
+        call :put4x 
 
-    a = :rpm_msg
-    call :print_nt 
-    a = 0
-    ram x = $ram_rpm_valid
-    if x ne 0 {
-        ram a = $ram_avg_rpm 
+        a = :rpm_msg
+        call :print_nt 
+        a = 0
+        ram x = $ram_rpm_valid
+        if x ne 0 {
+            ram a = $ram_avg_rpm 
+        }
+        call :put4x
+
+        a = :puff_len_msg
+        call :print_nt 
+        a = puff_len_us
+        call :put4x
+        putasc ","
+        ram a = $ram_puff_count
+        call :put4x    
+        
+        a = :afrc_coords_msg
+        call :print_nt 
+        ram a = $ram_afrc_rpm_col_idx
+        call :put4x
+        putasc ","
+        ram a = $ram_afrc_maf_row_idx
+        call :put4x    
+        
+        a = :o2_msg
+        call :print_nt 
+        a = $o2_adc_channel
+        struct_read $ram_last_adc_data
+        a = b
+        call :put4x    
+        
+        a = :maf_msg
+        call :print_nt 
+        ram a = $ram_maf_adc_filtered
+        call :put4x    
+        
+        a = :tps_msg
+        call :print_nt 
+        a = $tps_adc_channel
+        struct_read $ram_last_adc_data
+        a = b
+        call :put4x    
+        putasc ","
+        ram a = $ram_tps_avg
+        call :put4x    
+        
+        a = :block_temp_idx_msg
+        call :print_nt 
+        ram a = $ram_block_temp_map_idx
+        call :put4x    
+        
+        a = :afterstart_idx_msg
+        call :print_nt 
+        ram a = $ram_afterstart_map_idx
+        call :put4x    
     }
-    call :put4x
-
-    a = :puff_len_msg
-    call :print_nt 
-    a = puff_len_us
-    call :put4x
-    putasc ","
-    ram a = $ram_puff_count
-    call :put4x    
-    
-    a = :afrc_coords_msg
-    call :print_nt 
-    ram a = $ram_afrc_rpm_col_idx
-    call :put4x
-    putasc ","
-    ram a = $ram_afrc_maf_row_idx
-    call :put4x    
-    
-    a = :o2_msg
-    call :print_nt 
-    a = $o2_adc_channel
-    struct_read $ram_last_adc_data
-    a = b
-    call :put4x    
-    
-    a = :maf_msg
-    call :print_nt 
-    ram a = $ram_maf_adc_filtered
-    call :put4x    
-    
-    a = :tps_msg
-    call :print_nt 
-    a = $tps_adc_channel
-    struct_read $ram_last_adc_data
-    a = b
-    call :put4x    
-    putasc ","
-    ram a = $ram_tps_avg
-    call :put4x    
-    
-    a = :block_temp_idx_msg
-    call :print_nt 
-    ram a = $ram_block_temp_map_idx
-    call :put4x    
-    
-    a = :afterstart_idx_msg
-    call :print_nt 
-    ram a = $ram_afterstart_map_idx
-    call :put4x    
     
     // start to acquire & report all anmux channels.
     a = ($anmux_num_channels - 1)
@@ -600,12 +608,15 @@ event mstimer1_handler
     }
     
     // start a reading from the current anmux channel.
-    putasc " "
-    putasc "s"
-    call :anmux_get_chn
-    asc b = "0"
-    putchar a+b
-    putasc "="    
+    ram a = $ram_enable_status_report
+    if a ne 0 {
+        putasc " "
+        putasc "s"
+        call :anmux_get_chn
+        asc b = "0"
+        putchar a+b
+        putasc "="    
+    }
     callx  begin_adc_conversion  $anmux_adc_channel 
 end_event
         
@@ -663,9 +674,13 @@ event spi_done_handler
         event_return
     }
     if i eq $anmux_adc_channel {        
-        // report anmux reading.
-        a = spi_data
-        call :put4x 
+        ram a = $ram_enable_status_report
+        if a ne 0 {
+            // report anmux reading.
+            a = spi_data
+            
+            call :put4x 
+        }
         
         // memorize anmux reading.
         call :anmux_get_chn
@@ -684,10 +699,18 @@ event spi_done_handler
         
         // end of temperature daq pass.
         callx  interpret_block_temp
-        callx  report_plan
-        callx  report_text_flags
-        puteol   
+        
+        // wrap up status report on UART.
+        ram a = $ram_enable_status_report
+        if a ne 0 {
+            callx  report_plan
+            callx  report_text_flags
+            puteol   
+        }
+        
+        //TODO: is this a hack??
         ram $ram_dial_setting = spi_data
+        
         event_return
     } 
 end_event

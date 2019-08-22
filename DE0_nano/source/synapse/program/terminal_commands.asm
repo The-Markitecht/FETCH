@@ -1,6 +1,8 @@
 
 ram_define      ram_terminal_connected
 
+// command strings must be exactly key_buf_max bytes long (currently 7).
+// the other byte is the carriage return.
 // when commands share a common suffix, the longer command must come FIRST here.
 :cmd_table
     "  hello"
@@ -15,10 +17,15 @@ ram_define      ram_terminal_connected
         ([label set_plan_run_cmd])
     //"   plln"
         //([label set_plan_learn_cmd])
-    "   afrc"
-        ([label dump_afrc_cmd])
+    "  stoff"
+        ([label status_off_cmd])
+    "   ston"
+        ([label status_on_cmd])
     " ldafrc"
         ([label load_afrc_cmd])
+    // when commands share a common suffix, the longer command must come FIRST here.
+    "   afrc"
+        ([label dump_afrc_cmd])
     "  ldrpm"
         ([label load_rpm_ref_cmd])
     "  ldmaf"
@@ -27,17 +34,17 @@ ram_define      ram_terminal_connected
         ([label load_block_temp_ref_cmd])
     "ldbtmap"
         ([label load_block_temp_map_cmd])
-    "ldastref"
+    "ldasref"
         ([label load_afterstart_ref_cmd])
-    "ldastmap"
+    "ldasmap"
         ([label load_afterstart_map_cmd])
     "      ,"
         ([label trim_lean_cmd])
     "      ."
         ([label trim_rich_cmd])
-    "      \["
+    "     \["
         ([label trim_2lean_cmd])
-    "      \]"
+    "     \]"
         ([label trim_2rich_cmd])
     "\x0\x0"
 
@@ -67,16 +74,16 @@ func parse_command {
     :next_cmd
         fetch a from x
         br az :done
-        
+
         for {i = 0} {i lt $key_buf_max} step j = 1 {
             a = i
             call :fetch_byte
             y = a
             asc b = " "
             if a ne b {
-                asc b = "*"
-                br eq :matched  
-                    // parameter character.  succeed early.
+                //asc b = "*"
+                //br eq :matched  
+                    //// parameter character.  succeed early.
                 a = i
                 struct_read $ram_key_buf
                 a = y
@@ -123,5 +130,13 @@ func set_plan_run_cmd {
     ram rtna = $ram_destroy_plan_func
     call_indirect
     callx  init_plan_run
+}
+    
+func status_off_cmd {
+    ram $ram_enable_status_report = 0
+}
+    
+func status_on_cmd {
+    ram $ram_enable_status_report = 1
 }
     

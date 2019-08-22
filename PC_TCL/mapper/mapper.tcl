@@ -27,23 +27,31 @@ source [file join [file dirname [info script]] fletcher16.tcl]
 
 proc init_port {port_num} {
     ::port = [open //./com$port_num r+]
-    fconfigure $::port -blocking 0 -buffering none -mode 115200,n,8,1 -handshake none
-    read_port 
+    fconfigure $::port -blocking 0 -buffering none -mode 115200,n,8,1 -handshake none -translation cr
+    ::read_interval_ms = 300
+    ::read_interval_enabled = 1
+    scheduled_read_port 
+    tx hello
 }
 
 proc flush_rx {} {
     read $::port
 }
 
+proc scheduled_read_port {} {
+    if {$::read_interval_enabled} read_port
+    after $::read_interval_ms scheduled_read_port
+}
+
 proc read_port {} {
     if {[catch {
+        print_rx "\n--read_port\n"
         s = [read $::port]
         print_rx $s
         scan_data $s
     } err]} {
         print_rx "\n-- rx error: $err\n"
     }
-    after 300 read_port
 }
 
 proc tx {msg} {
@@ -102,6 +110,7 @@ proc get4x {} {
     valu = 0
     if {[catch {
         s = [read $::port]
+        print_rx "\n--get4x\n"
         print_rx $s
         scan $s %4x valu
     } err]} {
@@ -216,25 +225,47 @@ proc to_list {ary} {
     return $ls
 }
 
+proc disable_status_report {} {
+    ::read_interval_enabled = 0
+    tx stoff
+    after [e $::read_interval_ms + 100] ;# allow plenty of time for an entire status report to arrive, assuming it had started just before stoff.
+    read_port
+}
+
+proc enable_status_report {} {
+    return ;#TODO: debugging only.
+    ::read_interval_enabled = 1
+    tx ston
+}
+
 proc send_row {cmd  seed  data_words  desc} {
     fletcher16_init local_sum
     if {$seed != -1} {
         fletcher16_input16 local_sum $seed
     }
+    tx $cmd
+    data = {}
     foreach v $data_words {
         fletcher16_input16 local_sum $v
-        append cmd [format %04x $v]
+        append data [format %04x $v]
     }
     sum = [fletcher16_result local_sum]
-    flush_rx ;# stop receiving since target is about to stop sending, and we need to capture its next output.
-    tx $cmd
-    remote_sum = [get4x]
+    tx $data
+    for {set i 0} {$i < 10} {incr i} {
+        after 100
+        update ;# required because evidently async I/O shares the same event loop with Wish GUI.
+        remote_sum = [get4x]
+        #print_rx "\n-- remote [format %04x $remote_sum]\n"
+        if {$remote_sum != 0} break
+    }
+    #print_rx "\n-- local [format %04x $sum] remote [format %04x $remote_sum]\n"
     if {$remote_sum != $sum} {
-        print_rx "\n-- ERROR: $desc should have had checksum $sum\n"
+        print_rx "\n-- ERROR: $desc should have had checksum [format %04x $sum]\n"
     }
 }
 
 proc send_afrc_map {} {
+    disable_status_report
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
         if {$row ni $::sent} {
             send_row  [format ldafrc%04x $row]  $row  [::afrc_map ^ $row]  "row $row"
@@ -243,16 +274,21 @@ proc send_afrc_map {} {
     }
     send_row  ldrpm  -1  $::rpm_ref  {RPM reference}
     send_row  ldmaf  -1  $::maf_ref  {MAF reference}
+    enable_status_report
 }
 
 proc send_block_temp_map {} {
+    disable_status_report
     send_row  ldbtref -1  [to_list ::block_temp_ref]  {Block temp reference}
     send_row  ldbtmap -1  [to_list ::block_temp_map]  {Block temp map}
+    enable_status_report
 }
 
 proc send_afterstart_map {} {
-    send_row  ldastref  -1  [to_list ::afterstart_ref]  {Afterstart reference}
-    send_row  ldastmap  -1  [to_list ::afterstart_map]  {Afterstart map}
+    disable_status_report
+    send_row  ldasref  -1  [to_list ::afterstart_ref]  {Afterstart reference}
+    send_row  ldasmap  -1  [to_list ::afterstart_map]  {Afterstart map}
+    enable_status_report
 }
 
 proc ::tcl::mathfunc::dist {x_aspect} {
