@@ -15,7 +15,7 @@ proc fletcher16_input8 {sum_var  input} {
     upvar $sum_var sum
     set sum(1) [e {($sum(1) + $input) % 0xff}]
     set sum(2) [e {($sum(2) + $sum(1)) % 0xff}]
-    puts "input8 $input = 0x[format %04x $input], sum now 0x[format %02x%02x $sum(2) $sum(1)]"
+    #puts "input8 $input = 0x[format %04x $input], sum now 0x[format %02x%02x $sum(2) $sum(1)]"
 }
 
 proc fletcher16_result {sum_var} {
