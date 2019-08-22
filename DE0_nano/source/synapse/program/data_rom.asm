@@ -1,4 +1,7 @@
 << 
+
+source maf_interpolate.tcl
+
 set ::asm::drom_vars [dict create] 
 set ::asm::drom_src_fn $::src_fn
 
@@ -48,20 +51,7 @@ proc write_drom_files {} {
     close $map
     
     # interpolate larger maf_ref from the low-res one in the map file.
-    # at run time the MCU will reduce the samples back down to the original size before indexing into the afrc map.
-    # the higher-res ref is used only to recover absolute flow.
-    set lo_res $content(maf_ref)
-    set existing [llength $lo_res]
-    set hi_res [list] 
-    set interps [expr {int($::asm::maf_ref_num_cells / $existing)}]
-    # extend lo_res with one more interpolation (same slope as the final one) to make hi_res long enough.
-    lappend lo_res [expr {[lindex $lo_res end] - [lindex $lo_res end-1] + [lindex $lo_res end]}]
-    for {set aidx 0; set bidx 1} {$bidx <= $existing} {incr aidx; incr bidx} {
-        for {set i 0} {$i < $interps} {incr i} {
-            lappend hi_res [linear_interp [lindex $lo_res $aidx] [lindex $lo_res $bidx] $i $interps]
-        }
-    }
-    set content(maf_ref) $hi_res
+    set content(maf_ref) [get_hi_res_maf_ref $content(maf_ref) $::asm::maf_ref_num_cells]
 
     # write mif file
     set len [ram_join $::asm::drom_counter]
@@ -96,6 +86,8 @@ setvar          afrc_maf_rows       64
 setvar          afrc_rpm_cols       16
 drom_define     ram_afrc_map        list_list       ($afrc_maf_rows * $afrc_rpm_cols * 2)
 
+// the higher-res MAF ref is used to recover absolute flow.
+// so it has more cells than afrc_maf_rows.
 setvar          maf_ref_num_cells   256
 drom_define     ram_maf_ref         list            ($maf_ref_num_cells * 2)
 

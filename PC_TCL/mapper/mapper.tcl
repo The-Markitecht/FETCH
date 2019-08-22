@@ -24,6 +24,11 @@ package require MityBuild
 
 #source [f+ $::builderDir trace.tcl]
 source [f+ $::builderDir fletcher16.tcl]
+source [f+ $::builderDir .. .. DE0_nano source synapse program maf_interpolate.tcl]
+
+# the higher-res MAF ref is used to recover absolute flow.
+# so it has more cells than afrc_maf_rows.
+::maf_ref_num_cells = 256
 
 proc init_port {port_num} {
     ::capture = [open [f+ $::builderDir port_capture.txt] w]
@@ -107,7 +112,7 @@ proc scan_data {data} {
 }
 
 proc get4x {} {
-    valu = 0
+    valu = -1
     if {[catch {
         s = [read $::port]
         print_rx $s
@@ -252,28 +257,30 @@ proc send_row {cmd  seed  data_words  desc} {
     sum = [fletcher16_result local_sum]
     tx $data
     for {set i 0} {$i < 10} {incr i} {
-        after 100
+        after 40
         update ;# required because evidently async I/O shares the same event loop with Wish GUI.
         remote_sum = [get4x]
         #print_rx "\n-- remote [format %04x $remote_sum]\n"
-        if {$remote_sum != 0} break
+        if {$remote_sum >= 0} break
     }
     #print_rx "\n-- local [format %04x $sum] remote [format %04x $remote_sum]\n"
     if {$remote_sum != $sum} {
         print_rx "\n-- ERROR: $desc should have had checksum [format %04x $sum]\n"
+        return 0
     }
+    return 1
 }
 
 proc send_afrc_map {} {
     disable_status_report
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
         if {$row ni $::sent} {
-            send_row  [format ldafrc%04x $row]  $row  [::afrc_map ^ $row]  "row $row"
+            if { ! [send_row  ldafrc  -1  [concat $row [::afrc_map ^ $row]]  "row $row"]} return
             lappend ::sent $row
         }
     }
     send_row  ldrpm  -1  $::rpm_ref  {RPM reference}
-    send_row  ldmaf  -1  $::maf_ref  {MAF reference}
+    send_row  ldmaf  -1  [get_hi_res_maf_ref $::maf_ref $::maf_ref_num_cells]  {MAF reference}
     enable_status_report
 }
 
