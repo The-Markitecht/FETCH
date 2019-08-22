@@ -9,7 +9,7 @@
 -- #########################################################################
 -- assembly source code.
 
---TODO: program that core to tokenize all input conditions.
+--TODO: tokenize all input conditions.
 -- continuously send the token stream up to the PC for buffering, reassembly, and pattern matching.
 -- format a token as words separated by spaces, ending in a newline.
 -- PC pass those directly to a Tcl interp?  easy to track test state that way, effectively operating
@@ -648,8 +648,8 @@
     01ac : 01ae ; -- <0014> "
     01ad : fc00 ; -- <0014> swapra = nop
 -- :mod255_greater -- = 0x01ae
-    01ae : 07a0 ; -- <0017> b = ([negate 0xfe])
-    01af : ff02 ; -- <0017> "
+    01ae : 07a0 ; -- <0017> b = ([negate 0xff])
+    01af : ff01 ; -- <0017> "
     01b0 : c800 ; -- <0018> a = a+b
     01b1 : 0300 ; -- <0018> "
     01b2 : e00f ; -- <0019> jmp :mod255_again
@@ -659,62 +659,78 @@
 
 -- accumulate a Fletcher16 checksum, given the next byte of data.
 -- ######## func fletcher16_input8 -- = 0x01b5
-    01b5 : 483e ; -- <0030> push rtna -- func fletcher16_input8
+    01b5 : 483e ; -- <0046> push rtna -- func fletcher16_input8
 
-    01b6 : 0410 ; -- <0024> b = $fletcher_sum1_reg
-    01b7 : c800 ; -- <0025> a = a+b
-    01b8 : 0300 ; -- <0025> "
-    01b9 : fba0 ; -- <0025> callx mod255  a+b  $fletcher_sum1_reg
-    01ba : 01aa ; -- <0025> "
-    01bb : fc00 ; -- <0025> "
-    01bc : 4000 ; -- <0025> pc = a
+--TODO: debug only.
+--x = a
+--putasc " "
+--a = x
+--call put4x
+--a = x
 
-    01bd : 0010 ; -- <0027> a = $fletcher_sum1_reg
-    01be : 0411 ; -- <0028> b = $fletcher_sum2_reg
-    01bf : c800 ; -- <0029> a = a+b
-    01c0 : 0300 ; -- <0029> "
-    01c1 : fba0 ; -- <0029> callx mod255  a+b  $fletcher_sum2_reg
-    01c2 : 01aa ; -- <0029> "
-    01c3 : fc00 ; -- <0029> "
-    01c4 : 4400 ; -- <0029> pd = a
+    01b6 : 0410 ; -- <0031> b = $fletcher_sum1_reg
+    01b7 : c800 ; -- <0032> a = a+b
+    01b8 : 0300 ; -- <0032> "
+    01b9 : fba0 ; -- <0032> callx mod255  a+b  $fletcher_sum1_reg
+    01ba : 01aa ; -- <0032> "
+    01bb : fc00 ; -- <0032> "
+    01bc : 4000 ; -- <0032> pc = a
 
-    01c5 : f812 ; -- <0031> pop rtna -- func fletcher16_input8
-    01c6 : fc00 ; -- <0031> swapra = nop
+    01bd : 0010 ; -- <0034> a = $fletcher_sum1_reg
+    01be : 0411 ; -- <0035> b = $fletcher_sum2_reg
+    01bf : c800 ; -- <0036> a = a+b
+    01c0 : 0300 ; -- <0036> "
+    01c1 : fba0 ; -- <0036> callx mod255  a+b  $fletcher_sum2_reg
+    01c2 : 01aa ; -- <0036> "
+    01c3 : fc00 ; -- <0036> "
+    01c4 : 4400 ; -- <0036> pd = a
+
+--TODO: debug only.
+--putasc " "
+--a =  $fletcher_sum2_reg
+--call put4x
+--putasc " "
+--a =  $fletcher_sum1_reg
+--call put4x
+--puteol
+
+    01c5 : f812 ; -- <0047> pop rtna -- func fletcher16_input8
+    01c6 : fc00 ; -- <0047> swapra = nop
 
 -- accumulate a Fletcher16 checksum, given the next word of data.
 -- ######## func fletcher16_input16 -- = 0x01c7
-    01c7 : 4802 ; -- <0039> push i -- func fletcher16_input16
-    01c8 : 483e ; -- <0039> push rtna -- "
+    01c7 : 4802 ; -- <0055> push i -- func fletcher16_input16
+    01c8 : 483e ; -- <0055> push rtna -- "
 
-    01c9 : 0b53 ; -- <0034> i = a>>4
-    01ca : 06ff ; -- <0035> b = 0xff
-    01cb : c800 ; -- <0036> a = and
-    01cc : 0330 ; -- <0036> "
-    01cd : fba0 ; -- <0036> callx fletcher16_input8  and
-    01ce : 01b5 ; -- <0036> "
-    01cf : fc00 ; -- <0036> "
-    01d0 : 0002 ; -- <0037> a = i
-    01d1 : 0353 ; -- <0038> a = a>>4
-    01d2 : fba0 ; -- <0038> callx fletcher16_input8  a>>4
-    01d3 : 01b5 ; -- <0038> "
-    01d4 : fc00 ; -- <0038> "
+    01c9 : 0b53 ; -- <0050> i = a>>4
+    01ca : 06ff ; -- <0051> b = 0xff
+    01cb : c800 ; -- <0052> a = and
+    01cc : 0330 ; -- <0052> "
+    01cd : fba0 ; -- <0052> callx fletcher16_input8  and
+    01ce : 01b5 ; -- <0052> "
+    01cf : fc00 ; -- <0052> "
+    01d0 : 0002 ; -- <0053> a = i
+    01d1 : 0353 ; -- <0054> a = a>>4
+    01d2 : fba0 ; -- <0054> callx fletcher16_input8  a>>4
+    01d3 : 01b5 ; -- <0054> "
+    01d4 : fc00 ; -- <0054> "
 
-    01d5 : f812 ; -- <0040> pop rtna -- func fletcher16_input16
-    01d6 : 0812 ; -- <0040> pop i -- "
-    01d7 : fc00 ; -- <0040> swapra = nop
+    01d5 : f812 ; -- <0056> pop rtna -- func fletcher16_input16
+    01d6 : 0812 ; -- <0056> pop i -- "
+    01d7 : fc00 ; -- <0056> swapra = nop
 
 -- return the combined 16-bit result of Fletcher16 checksum.
 -- ######## func fletcher16_result -- = 0x01d8
 
-    01d8 : 0011 ; -- <0043> a = $fletcher_sum2_reg
-    01d9 : 0352 ; -- <0044> a = a<<4
-    01da : 0352 ; -- <0045> a = a<<4
-    01db : 0410 ; -- <0046> b = $fletcher_sum1_reg
-    01dc : c800 ; -- <0047> result = or
-    01dd : 0334 ; -- <0047> "
-    01de : fc00 ; -- <0046> swapra = nop
+    01d8 : 0011 ; -- <0059> a = $fletcher_sum2_reg
+    01d9 : 0352 ; -- <0060> a = a<<4
+    01da : 0352 ; -- <0061> a = a<<4
+    01db : 0410 ; -- <0062> b = $fletcher_sum1_reg
+    01dc : c800 ; -- <0063> result = or
+    01dd : 0334 ; -- <0063> "
+    01de : fc00 ; -- <0062> swapra = nop
 
-    01df : fc00 ; -- <0049> swapra = nop
+    01df : fc00 ; -- <0065> swapra = nop
 
 
 
@@ -730,7 +746,7 @@
     01e5 : 6e19 ; -- <0109> power_duty = $power_duty_holding
 
 -- set up an engine running state.
-    01e6 : 73a0 ; -- <0112> ign_period = 700
+    01e6 : 73a0 ; -- <0112> ign_period = ([rpm_to_jf 1000])
     01e7 : 02bc ; -- <0112> "
 
 -- start handling events.

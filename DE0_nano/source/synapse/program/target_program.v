@@ -938,8 +938,8 @@ addr == 16'h231 ? 16'he006 :  // <0014> br gt :mod255_greater
 addr == 16'h232 ? 16'h0234 :  // <0014> "
 addr == 16'h233 ? 16'hfc00 :  // <0014> swapra = nop
 // :mod255_greater // = 0x0234
-addr == 16'h234 ? 16'h07a0 :  // <0017> b = ([negate 0xfe])
-addr == 16'h235 ? 16'hff02 :  // <0017> "
+addr == 16'h234 ? 16'h07a0 :  // <0017> b = ([negate 0xff])
+addr == 16'h235 ? 16'hff01 :  // <0017> "
 addr == 16'h236 ? 16'hc800 :  // <0018> a = a+b
 addr == 16'h237 ? 16'h0300 :  // <0018> "
 addr == 16'h238 ? 16'he00f :  // <0019> jmp :mod255_again
@@ -949,62 +949,78 @@ addr == 16'h23a ? 16'hfc00 :  // <0021> swapra = nop
 
 // accumulate a Fletcher16 checksum, given the next byte of data.
 // ######## func fletcher16_input8 // = 0x023b
-addr == 16'h23b ? 16'h303e :  // <0030> push rtna // func fletcher16_input8
+addr == 16'h23b ? 16'h303e :  // <0046> push rtna // func fletcher16_input8
 
-addr == 16'h23c ? 16'h040a :  // <0024> b = $fletcher_sum1_reg
-addr == 16'h23d ? 16'hc800 :  // <0025> a = a+b
-addr == 16'h23e ? 16'h0300 :  // <0025> "
-addr == 16'h23f ? 16'hfba0 :  // <0025> callx mod255  a+b  $fletcher_sum1_reg
-addr == 16'h240 ? 16'h0230 :  // <0025> "
-addr == 16'h241 ? 16'hfc00 :  // <0025> "
-addr == 16'h242 ? 16'h2800 :  // <0025> pc = a
+//TODO: debug only.
+//x = a
+//putasc " "
+//a = x
+//call put4x
+//a = x
 
-addr == 16'h243 ? 16'h000a :  // <0027> a = $fletcher_sum1_reg
-addr == 16'h244 ? 16'h040b :  // <0028> b = $fletcher_sum2_reg
-addr == 16'h245 ? 16'hc800 :  // <0029> a = a+b
-addr == 16'h246 ? 16'h0300 :  // <0029> "
-addr == 16'h247 ? 16'hfba0 :  // <0029> callx mod255  a+b  $fletcher_sum2_reg
-addr == 16'h248 ? 16'h0230 :  // <0029> "
-addr == 16'h249 ? 16'hfc00 :  // <0029> "
-addr == 16'h24a ? 16'h2c00 :  // <0029> pd = a
+addr == 16'h23c ? 16'h040a :  // <0031> b = $fletcher_sum1_reg
+addr == 16'h23d ? 16'hc800 :  // <0032> a = a+b
+addr == 16'h23e ? 16'h0300 :  // <0032> "
+addr == 16'h23f ? 16'hfba0 :  // <0032> callx mod255  a+b  $fletcher_sum1_reg
+addr == 16'h240 ? 16'h0230 :  // <0032> "
+addr == 16'h241 ? 16'hfc00 :  // <0032> "
+addr == 16'h242 ? 16'h2800 :  // <0032> pc = a
 
-addr == 16'h24b ? 16'hf80c :  // <0031> pop rtna // func fletcher16_input8
-addr == 16'h24c ? 16'hfc00 :  // <0031> swapra = nop
+addr == 16'h243 ? 16'h000a :  // <0034> a = $fletcher_sum1_reg
+addr == 16'h244 ? 16'h040b :  // <0035> b = $fletcher_sum2_reg
+addr == 16'h245 ? 16'hc800 :  // <0036> a = a+b
+addr == 16'h246 ? 16'h0300 :  // <0036> "
+addr == 16'h247 ? 16'hfba0 :  // <0036> callx mod255  a+b  $fletcher_sum2_reg
+addr == 16'h248 ? 16'h0230 :  // <0036> "
+addr == 16'h249 ? 16'hfc00 :  // <0036> "
+addr == 16'h24a ? 16'h2c00 :  // <0036> pd = a
+
+//TODO: debug only.
+//putasc " "
+//a =  $fletcher_sum2_reg
+//call put4x
+//putasc " "
+//a =  $fletcher_sum1_reg
+//call put4x
+//puteol
+
+addr == 16'h24b ? 16'hf80c :  // <0047> pop rtna // func fletcher16_input8
+addr == 16'h24c ? 16'hfc00 :  // <0047> swapra = nop
 
 // accumulate a Fletcher16 checksum, given the next word of data.
 // ######## func fletcher16_input16 // = 0x024d
-addr == 16'h24d ? 16'h3002 :  // <0039> push i // func fletcher16_input16
-addr == 16'h24e ? 16'h303e :  // <0039> push rtna // "
+addr == 16'h24d ? 16'h3002 :  // <0055> push i // func fletcher16_input16
+addr == 16'h24e ? 16'h303e :  // <0055> push rtna // "
 
-addr == 16'h24f ? 16'h0b53 :  // <0034> i = a>>4
-addr == 16'h250 ? 16'h06ff :  // <0035> b = 0xff
-addr == 16'h251 ? 16'hc800 :  // <0036> a = and
-addr == 16'h252 ? 16'h0330 :  // <0036> "
-addr == 16'h253 ? 16'hfba0 :  // <0036> callx fletcher16_input8  and
-addr == 16'h254 ? 16'h023b :  // <0036> "
-addr == 16'h255 ? 16'hfc00 :  // <0036> "
-addr == 16'h256 ? 16'h0002 :  // <0037> a = i
-addr == 16'h257 ? 16'h0353 :  // <0038> a = a>>4
-addr == 16'h258 ? 16'hfba0 :  // <0038> callx fletcher16_input8  a>>4
-addr == 16'h259 ? 16'h023b :  // <0038> "
-addr == 16'h25a ? 16'hfc00 :  // <0038> "
+addr == 16'h24f ? 16'h0b53 :  // <0050> i = a>>4
+addr == 16'h250 ? 16'h06ff :  // <0051> b = 0xff
+addr == 16'h251 ? 16'hc800 :  // <0052> a = and
+addr == 16'h252 ? 16'h0330 :  // <0052> "
+addr == 16'h253 ? 16'hfba0 :  // <0052> callx fletcher16_input8  and
+addr == 16'h254 ? 16'h023b :  // <0052> "
+addr == 16'h255 ? 16'hfc00 :  // <0052> "
+addr == 16'h256 ? 16'h0002 :  // <0053> a = i
+addr == 16'h257 ? 16'h0353 :  // <0054> a = a>>4
+addr == 16'h258 ? 16'hfba0 :  // <0054> callx fletcher16_input8  a>>4
+addr == 16'h259 ? 16'h023b :  // <0054> "
+addr == 16'h25a ? 16'hfc00 :  // <0054> "
 
-addr == 16'h25b ? 16'hf80c :  // <0040> pop rtna // func fletcher16_input16
-addr == 16'h25c ? 16'h080c :  // <0040> pop i // "
-addr == 16'h25d ? 16'hfc00 :  // <0040> swapra = nop
+addr == 16'h25b ? 16'hf80c :  // <0056> pop rtna // func fletcher16_input16
+addr == 16'h25c ? 16'h080c :  // <0056> pop i // "
+addr == 16'h25d ? 16'hfc00 :  // <0056> swapra = nop
 
 // return the combined 16-bit result of Fletcher16 checksum.
 // ######## func fletcher16_result // = 0x025e
 
-addr == 16'h25e ? 16'h000b :  // <0043> a = $fletcher_sum2_reg
-addr == 16'h25f ? 16'h0352 :  // <0044> a = a<<4
-addr == 16'h260 ? 16'h0352 :  // <0045> a = a<<4
-addr == 16'h261 ? 16'h040a :  // <0046> b = $fletcher_sum1_reg
-addr == 16'h262 ? 16'hc800 :  // <0047> result = or
-addr == 16'h263 ? 16'h0334 :  // <0047> "
-addr == 16'h264 ? 16'hfc00 :  // <0046> swapra = nop
+addr == 16'h25e ? 16'h000b :  // <0059> a = $fletcher_sum2_reg
+addr == 16'h25f ? 16'h0352 :  // <0060> a = a<<4
+addr == 16'h260 ? 16'h0352 :  // <0061> a = a<<4
+addr == 16'h261 ? 16'h040a :  // <0062> b = $fletcher_sum1_reg
+addr == 16'h262 ? 16'hc800 :  // <0063> result = or
+addr == 16'h263 ? 16'h0334 :  // <0063> "
+addr == 16'h264 ? 16'hfc00 :  // <0062> swapra = nop
 
-addr == 16'h265 ? 16'hfc00 :  // <0049> swapra = nop
+addr == 16'h265 ? 16'hfc00 :  // <0065> swapra = nop
 
 
 

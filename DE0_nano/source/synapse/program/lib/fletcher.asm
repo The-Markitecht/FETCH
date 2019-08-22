@@ -14,19 +14,35 @@ func mod255 {data in a} {modulus out a} {
     br gt :mod255_greater
     rtn
     :mod255_greater
-    b = ([negate 0xfe])
+    b = ([negate 0xff])
     a = a+b
     jmp :mod255_again
 }
 
 // accumulate a Fletcher16 checksum, given the next byte of data.    
 func fletcher16_input8 {data in a} {
+    //TODO: debug only.
+    //x = a
+    //putasc " "
+    //a = x
+    //call put4x
+    //a = x
+
     b = $fletcher_sum1_reg
     callx mod255  a+b  $fletcher_sum1_reg
 
     a = $fletcher_sum1_reg
     b = $fletcher_sum2_reg
     callx mod255  a+b  $fletcher_sum2_reg
+
+    //TODO: debug only.
+    //putasc " "
+    //a =  $fletcher_sum2_reg
+    //call put4x
+    //putasc " "
+    //a =  $fletcher_sum1_reg
+    //call put4x
+    //puteol
 }
 
 // accumulate a Fletcher16 checksum, given the next word of data.    

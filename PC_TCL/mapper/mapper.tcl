@@ -22,10 +22,11 @@ package ifneeded MityBuild 3.0 {
 package require Tk
 package require MityBuild
 
-#source [file join [file dirname [info script]] trace.tcl]
-source [file join [file dirname [info script]] fletcher16.tcl]
+#source [f+ $::builderDir trace.tcl]
+source [f+ $::builderDir fletcher16.tcl]
 
 proc init_port {port_num} {
+    ::capture = [open [f+ $::builderDir port_capture.txt] w]
     ::port = [open //./com$port_num r+]
     fconfigure $::port -blocking 0 -buffering none -mode 115200,n,8,1 -handshake none -translation cr
     ::read_interval_ms = 300
@@ -45,7 +46,6 @@ proc scheduled_read_port {} {
 
 proc read_port {} {
     if {[catch {
-        print_rx "\n--read_port\n"
         s = [read $::port]
         print_rx $s
         scan_data $s
@@ -110,7 +110,6 @@ proc get4x {} {
     valu = 0
     if {[catch {
         s = [read $::port]
-        print_rx "\n--get4x\n"
         print_rx $s
         scan $s %4x valu
     } err]} {
@@ -233,6 +232,7 @@ proc disable_status_report {} {
 }
 
 proc enable_status_report {} {
+    flush $::capture
     return ;#TODO: debugging only.
     ::read_interval_enabled = 1
     tx ston
@@ -451,6 +451,7 @@ proc refresh_show_tab {} {
 
 proc print_rx {msg} {
     # assumes the message already contains a newline; none is added here.
+    puts -nonewline $::capture $msg
     t = .win.tools.console.rx
     $t insert end $msg
     while {[$t count -displaylines 1.0 end] > 60} {

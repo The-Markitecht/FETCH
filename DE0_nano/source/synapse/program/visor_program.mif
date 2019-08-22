@@ -430,8 +430,8 @@
     0111 : 0113 ; -- <0014> "
     0112 : fc00 ; -- <0014> swapra = nop
 -- :mod255_greater -- = 0x0113
-    0113 : 07a0 ; -- <0017> b = ([negate 0xfe])
-    0114 : ff02 ; -- <0017> "
+    0113 : 07a0 ; -- <0017> b = ([negate 0xff])
+    0114 : ff01 ; -- <0017> "
     0115 : c800 ; -- <0018> a = a+b
     0116 : 0300 ; -- <0018> "
     0117 : e00f ; -- <0019> jmp :mod255_again
@@ -441,62 +441,78 @@
 
 -- accumulate a Fletcher16 checksum, given the next byte of data.
 -- ######## func fletcher16_input8 -- = 0x011a
-    011a : 203e ; -- <0030> push rtna -- func fletcher16_input8
+    011a : 203e ; -- <0046> push rtna -- func fletcher16_input8
 
-    011b : 0406 ; -- <0024> b = $fletcher_sum1_reg
-    011c : c800 ; -- <0025> a = a+b
-    011d : 0300 ; -- <0025> "
-    011e : fba0 ; -- <0025> callx mod255  a+b  $fletcher_sum1_reg
-    011f : 010f ; -- <0025> "
-    0120 : fc00 ; -- <0025> "
-    0121 : 1800 ; -- <0025> ga = a
+--TODO: debug only.
+--x = a
+--putasc " "
+--a = x
+--call put4x
+--a = x
 
-    0122 : 0006 ; -- <0027> a = $fletcher_sum1_reg
-    0123 : 0407 ; -- <0028> b = $fletcher_sum2_reg
-    0124 : c800 ; -- <0029> a = a+b
-    0125 : 0300 ; -- <0029> "
-    0126 : fba0 ; -- <0029> callx mod255  a+b  $fletcher_sum2_reg
-    0127 : 010f ; -- <0029> "
-    0128 : fc00 ; -- <0029> "
-    0129 : 1c00 ; -- <0029> gb = a
+    011b : 0406 ; -- <0031> b = $fletcher_sum1_reg
+    011c : c800 ; -- <0032> a = a+b
+    011d : 0300 ; -- <0032> "
+    011e : fba0 ; -- <0032> callx mod255  a+b  $fletcher_sum1_reg
+    011f : 010f ; -- <0032> "
+    0120 : fc00 ; -- <0032> "
+    0121 : 1800 ; -- <0032> ga = a
 
-    012a : f808 ; -- <0031> pop rtna -- func fletcher16_input8
-    012b : fc00 ; -- <0031> swapra = nop
+    0122 : 0006 ; -- <0034> a = $fletcher_sum1_reg
+    0123 : 0407 ; -- <0035> b = $fletcher_sum2_reg
+    0124 : c800 ; -- <0036> a = a+b
+    0125 : 0300 ; -- <0036> "
+    0126 : fba0 ; -- <0036> callx mod255  a+b  $fletcher_sum2_reg
+    0127 : 010f ; -- <0036> "
+    0128 : fc00 ; -- <0036> "
+    0129 : 1c00 ; -- <0036> gb = a
+
+--TODO: debug only.
+--putasc " "
+--a =  $fletcher_sum2_reg
+--call put4x
+--putasc " "
+--a =  $fletcher_sum1_reg
+--call put4x
+--puteol
+
+    012a : f808 ; -- <0047> pop rtna -- func fletcher16_input8
+    012b : fc00 ; -- <0047> swapra = nop
 
 -- accumulate a Fletcher16 checksum, given the next word of data.
 -- ######## func fletcher16_input16 -- = 0x012c
-    012c : 2002 ; -- <0039> push i -- func fletcher16_input16
-    012d : 203e ; -- <0039> push rtna -- "
+    012c : 2002 ; -- <0055> push i -- func fletcher16_input16
+    012d : 203e ; -- <0055> push rtna -- "
 
-    012e : 0b53 ; -- <0034> i = a>>4
-    012f : 06ff ; -- <0035> b = 0xff
-    0130 : c800 ; -- <0036> a = and
-    0131 : 0330 ; -- <0036> "
-    0132 : fba0 ; -- <0036> callx fletcher16_input8  and
-    0133 : 011a ; -- <0036> "
-    0134 : fc00 ; -- <0036> "
-    0135 : 0002 ; -- <0037> a = i
-    0136 : 0353 ; -- <0038> a = a>>4
-    0137 : fba0 ; -- <0038> callx fletcher16_input8  a>>4
-    0138 : 011a ; -- <0038> "
-    0139 : fc00 ; -- <0038> "
+    012e : 0b53 ; -- <0050> i = a>>4
+    012f : 06ff ; -- <0051> b = 0xff
+    0130 : c800 ; -- <0052> a = and
+    0131 : 0330 ; -- <0052> "
+    0132 : fba0 ; -- <0052> callx fletcher16_input8  and
+    0133 : 011a ; -- <0052> "
+    0134 : fc00 ; -- <0052> "
+    0135 : 0002 ; -- <0053> a = i
+    0136 : 0353 ; -- <0054> a = a>>4
+    0137 : fba0 ; -- <0054> callx fletcher16_input8  a>>4
+    0138 : 011a ; -- <0054> "
+    0139 : fc00 ; -- <0054> "
 
-    013a : f808 ; -- <0040> pop rtna -- func fletcher16_input16
-    013b : 0808 ; -- <0040> pop i -- "
-    013c : fc00 ; -- <0040> swapra = nop
+    013a : f808 ; -- <0056> pop rtna -- func fletcher16_input16
+    013b : 0808 ; -- <0056> pop i -- "
+    013c : fc00 ; -- <0056> swapra = nop
 
 -- return the combined 16-bit result of Fletcher16 checksum.
 -- ######## func fletcher16_result -- = 0x013d
 
-    013d : 0007 ; -- <0043> a = $fletcher_sum2_reg
-    013e : 0352 ; -- <0044> a = a<<4
-    013f : 0352 ; -- <0045> a = a<<4
-    0140 : 0406 ; -- <0046> b = $fletcher_sum1_reg
-    0141 : c800 ; -- <0047> result = or
-    0142 : 0334 ; -- <0047> "
-    0143 : fc00 ; -- <0046> swapra = nop
+    013d : 0007 ; -- <0059> a = $fletcher_sum2_reg
+    013e : 0352 ; -- <0060> a = a<<4
+    013f : 0352 ; -- <0061> a = a<<4
+    0140 : 0406 ; -- <0062> b = $fletcher_sum1_reg
+    0141 : c800 ; -- <0063> result = or
+    0142 : 0334 ; -- <0063> "
+    0143 : fc00 ; -- <0062> swapra = nop
 
-    0144 : fc00 ; -- <0049> swapra = nop
+    0144 : fc00 ; -- <0065> swapra = nop
 
 
 
