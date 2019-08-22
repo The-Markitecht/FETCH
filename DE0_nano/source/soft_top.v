@@ -315,7 +315,7 @@ cdpwm #(.WIDTH(6), .START(50)) power_relay_pwm_inst (
 // pulse length is fixed.
 std_reg ign_period_reg(sysclk, sim_reset, r[`SR_IGN_PERIOD], r_load_data, r_load[`DR_IGN_PERIOD]);
 reg[15:0] ign_pulse_gen = 0;
-assign sim_ign_coil_wht_lo = ign_pulse_gen == 0; 
+assign sim_ign_coil_wht_lo = ign_pulse_gen[15:4] == 0; 
 wire ign_pulse_end = (ign_pulse_gen == 16'd0) && pulse50k; // true on the final sysclk cycle of the ignition pulse.
 always_ff @(posedge sysclk) 
     if (sim_reset) 
