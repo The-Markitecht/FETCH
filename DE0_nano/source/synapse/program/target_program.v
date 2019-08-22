@@ -1035,324 +1035,324 @@ addr == 16'h265 ? 16'hfc00 :  // <0065> swapra = nop
 
 
 // ######## func init_drom // = 0x0266
-addr == 16'h266 ? 16'h3002 :  // <0117> push i // func init_drom
+addr == 16'h266 ? 16'h3002 :  // <0122> push i // func init_drom
 
 // copy entire ROM content to a shadow area in RAM.
-addr == 16'h267 ? 16'h67a0 :  // <0111> av_ad_hi = ($drom_shadow_base >> 16)
-addr == 16'h268 ? 16'h0100 :  // <0111> "
-addr == 16'h269 ? 16'h0a00 :  // <0116> i = 0
+addr == 16'h267 ? 16'h67a0 :  // <0116> av_ad_hi = ($drom_shadow_base >> 16)
+addr == 16'h268 ? 16'h0100 :  // <0116> "
+addr == 16'h269 ? 16'h0a00 :  // <0121> i = 0
 // :loop_617 // = 0x026a
 
-addr == 16'h26a ? 16'h6c02 :  // <0112> drom_ad = i
-addr == 16'h26b ? 16'h6802 :  // <0113> av_ad_lo = i
-addr == 16'h26c ? 16'h5c1c :  // <0114> av_write_data = drom_data
+addr == 16'h26a ? 16'h6c02 :  // <0117> drom_ad = i
+addr == 16'h26b ? 16'h6802 :  // <0118> av_ad_lo = i
+addr == 16'h26c ? 16'h5c1c :  // <0119> av_write_data = drom_data
 
 
-addr == 16'h26d ? 16'h0002 :  // <0116> a = i
-addr == 16'h26e ? 16'h0601 :  // <0116> b = 1
-addr == 16'h26f ? 16'hc800 :  // <0116> i = a+b
-addr == 16'h270 ? 16'h0b00 :  // <0116> "
+addr == 16'h26d ? 16'h0002 :  // <0121> a = i
+addr == 16'h26e ? 16'h0601 :  // <0121> b = 1
+addr == 16'h26f ? 16'hc800 :  // <0121> i = a+b
+addr == 16'h270 ? 16'h0b00 :  // <0121> "
 
 
-addr == 16'h271 ? 16'h0002 :  // <0116> a = i
-addr == 16'h272 ? 16'h07a0 :  // <0116> b = $drom_shadow_len_bytes
-addr == 16'h273 ? 16'h0b48 :  // <0116> "
-addr == 16'h274 ? 16'he005 :  // <0116> br lt :loop_617
-addr == 16'h275 ? 16'h026a :  // <0116> "
+addr == 16'h271 ? 16'h0002 :  // <0121> a = i
+addr == 16'h272 ? 16'h07a0 :  // <0121> b = $drom_shadow_len_bytes
+addr == 16'h273 ? 16'h0b48 :  // <0121> "
+addr == 16'h274 ? 16'he005 :  // <0121> br lt :loop_617
+addr == 16'h275 ? 16'h026a :  // <0121> "
 
 // :end_617 // = 0x0276
 
-addr == 16'h276 ? 16'h080c :  // <0118> pop i // func init_drom
-addr == 16'h277 ? 16'hfc00 :  // <0118> swapra = nop
+addr == 16'h276 ? 16'h080c :  // <0123> pop i // func init_drom
+addr == 16'h277 ? 16'hfc00 :  // <0123> swapra = nop
 
 // ######## func load_afrc_cmd // = 0x0278
-addr == 16'h278 ? 16'h3002 :  // <0153> push i // func load_afrc_cmd
-addr == 16'h279 ? 16'h3005 :  // <0153> push y // "
-addr == 16'h27a ? 16'h303e :  // <0153> push rtna // "
+addr == 16'h278 ? 16'h3002 :  // <0158> push i // func load_afrc_cmd
+addr == 16'h279 ? 16'h3005 :  // <0158> push y // "
+addr == 16'h27a ? 16'h303e :  // <0158> push rtna // "
 
 // loads 1 row only.
 
-addr == 16'h27b ? 16'hfba0 :  // <0122> callx fletcher16_init
-addr == 16'h27c ? 16'h022d :  // <0122> "
-addr == 16'h27d ? 16'hfc00 :  // <0122> "
+addr == 16'h27b ? 16'hfba0 :  // <0127> callx fletcher16_init
+addr == 16'h27c ? 16'h022d :  // <0127> "
+addr == 16'h27d ? 16'hfc00 :  // <0127> "
 // expect valid row index.
-addr == 16'h27e ? 16'hfba0 :  // <0124> call  get4x
-addr == 16'h27f ? 16'h010c :  // <0124> "
-addr == 16'h280 ? 16'hfc00 :  // <0124> "
-addr == 16'h281 ? 16'h1400 :  // <0125> y = a
-addr == 16'h282 ? 16'hfba0 :  // <0126> callx fletcher16_input16  a
-addr == 16'h283 ? 16'h024d :  // <0126> "
-addr == 16'h284 ? 16'hfc00 :  // <0126> "
+addr == 16'h27e ? 16'hfba0 :  // <0129> call  get4x
+addr == 16'h27f ? 16'h010c :  // <0129> "
+addr == 16'h280 ? 16'hfc00 :  // <0129> "
+addr == 16'h281 ? 16'h1400 :  // <0130> y = a
+addr == 16'h282 ? 16'hfba0 :  // <0131> callx fletcher16_input16  a
+addr == 16'h283 ? 16'h024d :  // <0131> "
+addr == 16'h284 ? 16'hfc00 :  // <0131> "
 
-addr == 16'h285 ? 16'h0005 :  // <0147> a = y
-addr == 16'h286 ? 16'h0640 :  // <0147> b = 64
+addr == 16'h285 ? 16'h0005 :  // <0152> a = y
+addr == 16'h286 ? 16'h0640 :  // <0152> b = 64
 
-addr == 16'h287 ? 16'he405 :  // <0127> bn lt :else_647
-addr == 16'h288 ? 16'h02ab :  // <0127> "
+addr == 16'h287 ? 16'he405 :  // <0132> bn lt :else_647
+addr == 16'h288 ? 16'h02ab :  // <0132> "
 
 // set RAM address to start of given row.  call struct_read for its side effect on Avalon address regs.
-addr == 16'h289 ? 16'h0005 :  // <0129> a = y
-addr == 16'h28a ? 16'h0610 :  // <0130> b = $afrc_rpm_cols
-addr == 16'h28b ? 16'hc800 :  // <0131> nop
-addr == 16'h28c ? 16'hc800 :  // <0132> nop
-addr == 16'h28d ? 16'hc800 :  // <0133> nop
-addr == 16'h28e ? 16'hc800 :  // <0134> nop
-addr == 16'h28f ? 16'h0410 :  // <0135> b = product_lo
+addr == 16'h289 ? 16'h0005 :  // <0134> a = y
+addr == 16'h28a ? 16'h0610 :  // <0135> b = $afrc_rpm_cols
+addr == 16'h28b ? 16'hc800 :  // <0136> nop
+addr == 16'h28c ? 16'hc800 :  // <0137> nop
+addr == 16'h28d ? 16'hc800 :  // <0138> nop
+addr == 16'h28e ? 16'hc800 :  // <0139> nop
+addr == 16'h28f ? 16'h0410 :  // <0140> b = product_lo
 
-addr == 16'h290 ? 16'h0351 :  // <0136> a = a<<1
-addr == 16'h291 ? 16'h0600 :  // <0136> b = 0
-addr == 16'h292 ? 16'h67a0 :  // <0136> av_ad_hi = 256
-addr == 16'h293 ? 16'h0100 :  // <0136> "
-addr == 16'h294 ? 16'h6b00 :  // <0136> av_ad_lo = ad0
-addr == 16'h295 ? 16'h0417 :  // <0136> b = av_begin_read
-addr == 16'h296 ? 16'h0418 :  // <0136> b = av_read_data
+addr == 16'h290 ? 16'h0351 :  // <0141> a = a<<1
+addr == 16'h291 ? 16'h0600 :  // <0141> b = 0
+addr == 16'h292 ? 16'h67a0 :  // <0141> av_ad_hi = 256
+addr == 16'h293 ? 16'h0100 :  // <0141> "
+addr == 16'h294 ? 16'h6b00 :  // <0141> av_ad_lo = ad0
+addr == 16'h295 ? 16'h0417 :  // <0141> b = av_begin_read
+addr == 16'h296 ? 16'h0418 :  // <0141> b = av_read_data
 
 
 // expect each cell value back-to-back.
-addr == 16'h297 ? 16'h0a00 :  // <0146> i = 0
+addr == 16'h297 ? 16'h0a00 :  // <0151> i = 0
 // :loop_663 // = 0x0298
 
-addr == 16'h298 ? 16'hfba0 :  // <0139> call  get4x
-addr == 16'h299 ? 16'h010c :  // <0139> "
-addr == 16'h29a ? 16'hfc00 :  // <0139> "
-addr == 16'h29b ? 16'h5c00 :  // <0140> av_write_data = a
-addr == 16'h29c ? 16'hfba0 :  // <0141> callx fletcher16_input16  a
-addr == 16'h29d ? 16'h024d :  // <0141> "
-addr == 16'h29e ? 16'hfc00 :  // <0141> "
-addr == 16'h29f ? 16'h001a :  // <0142> a = av_ad_lo
-addr == 16'h2a0 ? 16'h0602 :  // <0143> b = 2
-addr == 16'h2a1 ? 16'hc800 :  // <0144> av_ad_lo = a+b
-addr == 16'h2a2 ? 16'h6b00 :  // <0144> "
+addr == 16'h298 ? 16'hfba0 :  // <0144> call  get4x
+addr == 16'h299 ? 16'h010c :  // <0144> "
+addr == 16'h29a ? 16'hfc00 :  // <0144> "
+addr == 16'h29b ? 16'h5c00 :  // <0145> av_write_data = a
+addr == 16'h29c ? 16'hfba0 :  // <0146> callx fletcher16_input16  a
+addr == 16'h29d ? 16'h024d :  // <0146> "
+addr == 16'h29e ? 16'hfc00 :  // <0146> "
+addr == 16'h29f ? 16'h001a :  // <0147> a = av_ad_lo
+addr == 16'h2a0 ? 16'h0602 :  // <0148> b = 2
+addr == 16'h2a1 ? 16'hc800 :  // <0149> av_ad_lo = a+b
+addr == 16'h2a2 ? 16'h6b00 :  // <0149> "
 
 
-addr == 16'h2a3 ? 16'h0002 :  // <0146> a = i
-addr == 16'h2a4 ? 16'h0601 :  // <0146> b = 1
-addr == 16'h2a5 ? 16'hc800 :  // <0146> i = a+b
-addr == 16'h2a6 ? 16'h0b00 :  // <0146> "
+addr == 16'h2a3 ? 16'h0002 :  // <0151> a = i
+addr == 16'h2a4 ? 16'h0601 :  // <0151> b = 1
+addr == 16'h2a5 ? 16'hc800 :  // <0151> i = a+b
+addr == 16'h2a6 ? 16'h0b00 :  // <0151> "
 
 
-addr == 16'h2a7 ? 16'h0002 :  // <0146> a = i
-addr == 16'h2a8 ? 16'h0610 :  // <0146> b = $afrc_rpm_cols
-addr == 16'h2a9 ? 16'he005 :  // <0146> br lt :loop_663
-addr == 16'h2aa ? 16'h0298 :  // <0146> "
+addr == 16'h2a7 ? 16'h0002 :  // <0151> a = i
+addr == 16'h2a8 ? 16'h0610 :  // <0151> b = $afrc_rpm_cols
+addr == 16'h2a9 ? 16'he005 :  // <0151> br lt :loop_663
+addr == 16'h2aa ? 16'h0298 :  // <0151> "
 
 // :end_663 // = 0x02ab
 
 
 // reply with checksum
-addr == 16'h2ab ? 16'hfba0 :  // <0150> callx fletcher16_result a
-addr == 16'h2ac ? 16'h025e :  // <0150> "
-addr == 16'h2ad ? 16'hfc00 :  // <0150> "
-addr == 16'h2ae ? 16'hfba0 :  // <0151> call put4x
-addr == 16'h2af ? 16'h00d3 :  // <0151> "
-addr == 16'h2b0 ? 16'hfc00 :  // <0151> "
-addr == 16'h2b1 ? 16'h020d :  // <0152> a = 13 // puteol
-addr == 16'h2b2 ? 16'hfba0 :  // <0152> puteol
-addr == 16'h2b3 ? 16'h00ab :  // <0152> "
-addr == 16'h2b4 ? 16'hfc00 :  // <0152> "
-addr == 16'h2b5 ? 16'h020a :  // <0152> a = 10 // puteol
-addr == 16'h2b6 ? 16'hfba0 :  // <0152> puteol
-addr == 16'h2b7 ? 16'h00ab :  // <0152> "
-addr == 16'h2b8 ? 16'hfc00 :  // <0152> "
+addr == 16'h2ab ? 16'hfba0 :  // <0155> callx fletcher16_result a
+addr == 16'h2ac ? 16'h025e :  // <0155> "
+addr == 16'h2ad ? 16'hfc00 :  // <0155> "
+addr == 16'h2ae ? 16'hfba0 :  // <0156> call put4x
+addr == 16'h2af ? 16'h00d3 :  // <0156> "
+addr == 16'h2b0 ? 16'hfc00 :  // <0156> "
+addr == 16'h2b1 ? 16'h020d :  // <0157> a = 13 // puteol
+addr == 16'h2b2 ? 16'hfba0 :  // <0157> puteol
+addr == 16'h2b3 ? 16'h00ab :  // <0157> "
+addr == 16'h2b4 ? 16'hfc00 :  // <0157> "
+addr == 16'h2b5 ? 16'h020a :  // <0157> a = 10 // puteol
+addr == 16'h2b6 ? 16'hfba0 :  // <0157> puteol
+addr == 16'h2b7 ? 16'h00ab :  // <0157> "
+addr == 16'h2b8 ? 16'hfc00 :  // <0157> "
 
-addr == 16'h2b9 ? 16'hf80c :  // <0154> pop rtna // func load_afrc_cmd
-addr == 16'h2ba ? 16'h140c :  // <0154> pop y // "
-addr == 16'h2bb ? 16'h080c :  // <0154> pop i // "
-addr == 16'h2bc ? 16'hfc00 :  // <0154> swapra = nop
+addr == 16'h2b9 ? 16'hf80c :  // <0159> pop rtna // func load_afrc_cmd
+addr == 16'h2ba ? 16'h140c :  // <0159> pop y // "
+addr == 16'h2bb ? 16'h080c :  // <0159> pop i // "
+addr == 16'h2bc ? 16'hfc00 :  // <0159> swapra = nop
 
 // ######## func load_row_cmd // = 0x02bd
-addr == 16'h2bd ? 16'h3002 :  // <0175> push i // func load_row_cmd
-addr == 16'h2be ? 16'h303e :  // <0175> push rtna // "
+addr == 16'h2bd ? 16'h3002 :  // <0180> push i // func load_row_cmd
+addr == 16'h2be ? 16'h303e :  // <0180> push rtna // "
 
 // loads 1 row of data having the given number of words.
 // start of row address must be already loaded into av_ad_hi and av_ad_lo.
 
-addr == 16'h2bf ? 16'hfba0 :  // <0159> callx fletcher16_init
-addr == 16'h2c0 ? 16'h022d :  // <0159> "
-addr == 16'h2c1 ? 16'hfc00 :  // <0159> "
+addr == 16'h2bf ? 16'hfba0 :  // <0164> callx fletcher16_init
+addr == 16'h2c0 ? 16'h022d :  // <0164> "
+addr == 16'h2c1 ? 16'hfc00 :  // <0164> "
 
 // expect each cell value back-to-back.
-addr == 16'h2c2 ? 16'h0a00 :  // <0169> i = 0
+addr == 16'h2c2 ? 16'h0a00 :  // <0174> i = 0
 // :loop_706 // = 0x02c3
 
-addr == 16'h2c3 ? 16'hfba0 :  // <0162> call  get4x
-addr == 16'h2c4 ? 16'h010c :  // <0162> "
-addr == 16'h2c5 ? 16'hfc00 :  // <0162> "
-addr == 16'h2c6 ? 16'h5c00 :  // <0163> av_write_data = a
-addr == 16'h2c7 ? 16'hfba0 :  // <0164> callx fletcher16_input16  a
-addr == 16'h2c8 ? 16'h024d :  // <0164> "
-addr == 16'h2c9 ? 16'hfc00 :  // <0164> "
-addr == 16'h2ca ? 16'h001a :  // <0165> a = av_ad_lo
-addr == 16'h2cb ? 16'h0602 :  // <0166> b = 2
-addr == 16'h2cc ? 16'hc800 :  // <0167> av_ad_lo = a+b
-addr == 16'h2cd ? 16'h6b00 :  // <0167> "
+addr == 16'h2c3 ? 16'hfba0 :  // <0167> call  get4x
+addr == 16'h2c4 ? 16'h010c :  // <0167> "
+addr == 16'h2c5 ? 16'hfc00 :  // <0167> "
+addr == 16'h2c6 ? 16'h5c00 :  // <0168> av_write_data = a
+addr == 16'h2c7 ? 16'hfba0 :  // <0169> callx fletcher16_input16  a
+addr == 16'h2c8 ? 16'h024d :  // <0169> "
+addr == 16'h2c9 ? 16'hfc00 :  // <0169> "
+addr == 16'h2ca ? 16'h001a :  // <0170> a = av_ad_lo
+addr == 16'h2cb ? 16'h0602 :  // <0171> b = 2
+addr == 16'h2cc ? 16'hc800 :  // <0172> av_ad_lo = a+b
+addr == 16'h2cd ? 16'h6b00 :  // <0172> "
 
 
-addr == 16'h2ce ? 16'h0002 :  // <0169> a = i
-addr == 16'h2cf ? 16'h0601 :  // <0169> b = 1
-addr == 16'h2d0 ? 16'hc800 :  // <0169> i = a+b
-addr == 16'h2d1 ? 16'h0b00 :  // <0169> "
+addr == 16'h2ce ? 16'h0002 :  // <0174> a = i
+addr == 16'h2cf ? 16'h0601 :  // <0174> b = 1
+addr == 16'h2d0 ? 16'hc800 :  // <0174> i = a+b
+addr == 16'h2d1 ? 16'h0b00 :  // <0174> "
 
 
-addr == 16'h2d2 ? 16'h0002 :  // <0169> a = i
-addr == 16'h2d3 ? 16'h0408 :  // <0169> b = num_words
-addr == 16'h2d4 ? 16'he005 :  // <0169> br lt :loop_706
-addr == 16'h2d5 ? 16'h02c3 :  // <0169> "
+addr == 16'h2d2 ? 16'h0002 :  // <0174> a = i
+addr == 16'h2d3 ? 16'h0408 :  // <0174> b = num_words
+addr == 16'h2d4 ? 16'he005 :  // <0174> br lt :loop_706
+addr == 16'h2d5 ? 16'h02c3 :  // <0174> "
 
 // :end_706 // = 0x02d6
 
 // reply with checksum
-addr == 16'h2d6 ? 16'hfba0 :  // <0172> callx fletcher16_result a
-addr == 16'h2d7 ? 16'h025e :  // <0172> "
-addr == 16'h2d8 ? 16'hfc00 :  // <0172> "
-addr == 16'h2d9 ? 16'hfba0 :  // <0173> call put4x
-addr == 16'h2da ? 16'h00d3 :  // <0173> "
-addr == 16'h2db ? 16'hfc00 :  // <0173> "
-addr == 16'h2dc ? 16'h020d :  // <0174> a = 13 // puteol
-addr == 16'h2dd ? 16'hfba0 :  // <0174> puteol
-addr == 16'h2de ? 16'h00ab :  // <0174> "
-addr == 16'h2df ? 16'hfc00 :  // <0174> "
-addr == 16'h2e0 ? 16'h020a :  // <0174> a = 10 // puteol
-addr == 16'h2e1 ? 16'hfba0 :  // <0174> puteol
-addr == 16'h2e2 ? 16'h00ab :  // <0174> "
-addr == 16'h2e3 ? 16'hfc00 :  // <0174> "
+addr == 16'h2d6 ? 16'hfba0 :  // <0177> callx fletcher16_result a
+addr == 16'h2d7 ? 16'h025e :  // <0177> "
+addr == 16'h2d8 ? 16'hfc00 :  // <0177> "
+addr == 16'h2d9 ? 16'hfba0 :  // <0178> call put4x
+addr == 16'h2da ? 16'h00d3 :  // <0178> "
+addr == 16'h2db ? 16'hfc00 :  // <0178> "
+addr == 16'h2dc ? 16'h020d :  // <0179> a = 13 // puteol
+addr == 16'h2dd ? 16'hfba0 :  // <0179> puteol
+addr == 16'h2de ? 16'h00ab :  // <0179> "
+addr == 16'h2df ? 16'hfc00 :  // <0179> "
+addr == 16'h2e0 ? 16'h020a :  // <0179> a = 10 // puteol
+addr == 16'h2e1 ? 16'hfba0 :  // <0179> puteol
+addr == 16'h2e2 ? 16'h00ab :  // <0179> "
+addr == 16'h2e3 ? 16'hfc00 :  // <0179> "
 
-addr == 16'h2e4 ? 16'hf80c :  // <0176> pop rtna // func load_row_cmd
-addr == 16'h2e5 ? 16'h080c :  // <0176> pop i // "
-addr == 16'h2e6 ? 16'hfc00 :  // <0176> swapra = nop
+addr == 16'h2e4 ? 16'hf80c :  // <0181> pop rtna // func load_row_cmd
+addr == 16'h2e5 ? 16'h080c :  // <0181> pop i // "
+addr == 16'h2e6 ? 16'hfc00 :  // <0181> swapra = nop
 
 // ######## func load_rpm_ref_cmd // = 0x02e7
-addr == 16'h2e7 ? 16'h303e :  // <0181> push rtna // func load_rpm_ref_cmd
+addr == 16'h2e7 ? 16'h303e :  // <0186> push rtna // func load_rpm_ref_cmd
 
-addr == 16'h2e8 ? 16'h0600 :  // <0178> b = 0
+addr == 16'h2e8 ? 16'h0200 :  // <0183> a = 0
 
-addr == 16'h2e9 ? 16'h0351 :  // <0179> a = a<<1
-addr == 16'h2ea ? 16'h07a0 :  // <0179> b = 2560
-addr == 16'h2eb ? 16'h0a00 :  // <0179> "
-addr == 16'h2ec ? 16'h67a0 :  // <0179> av_ad_hi = 256
-addr == 16'h2ed ? 16'h0100 :  // <0179> "
-addr == 16'h2ee ? 16'h6b00 :  // <0179> av_ad_lo = ad0
-addr == 16'h2ef ? 16'h0417 :  // <0179> b = av_begin_read
-addr == 16'h2f0 ? 16'h0418 :  // <0179> b = av_read_data
+addr == 16'h2e9 ? 16'h0351 :  // <0184> a = a<<1
+addr == 16'h2ea ? 16'h07a0 :  // <0184> b = 2560
+addr == 16'h2eb ? 16'h0a00 :  // <0184> "
+addr == 16'h2ec ? 16'h67a0 :  // <0184> av_ad_hi = 256
+addr == 16'h2ed ? 16'h0100 :  // <0184> "
+addr == 16'h2ee ? 16'h6b00 :  // <0184> av_ad_lo = ad0
+addr == 16'h2ef ? 16'h0417 :  // <0184> b = av_begin_read
+addr == 16'h2f0 ? 16'h0418 :  // <0184> b = av_read_data
 
-addr == 16'h2f1 ? 16'h2210 :  // <0180> pa = 16
-addr == 16'h2f2 ? 16'hfba0 :  // <0180> callx load_row_cmd $rpm_ref_num_cells
-addr == 16'h2f3 ? 16'h02bd :  // <0180> "
-addr == 16'h2f4 ? 16'hfc00 :  // <0180> "
+addr == 16'h2f1 ? 16'h2210 :  // <0185> pa = 16
+addr == 16'h2f2 ? 16'hfba0 :  // <0185> callx load_row_cmd $rpm_ref_num_cells
+addr == 16'h2f3 ? 16'h02bd :  // <0185> "
+addr == 16'h2f4 ? 16'hfc00 :  // <0185> "
 
-addr == 16'h2f5 ? 16'hf80c :  // <0182> pop rtna // func load_rpm_ref_cmd
-addr == 16'h2f6 ? 16'hfc00 :  // <0182> swapra = nop
+addr == 16'h2f5 ? 16'hf80c :  // <0187> pop rtna // func load_rpm_ref_cmd
+addr == 16'h2f6 ? 16'hfc00 :  // <0187> swapra = nop
 
 // ######## func load_maf_ref_cmd // = 0x02f7
-addr == 16'h2f7 ? 16'h303e :  // <0187> push rtna // func load_maf_ref_cmd
+addr == 16'h2f7 ? 16'h303e :  // <0192> push rtna // func load_maf_ref_cmd
 
-addr == 16'h2f8 ? 16'h0600 :  // <0184> b = 0
+addr == 16'h2f8 ? 16'h0200 :  // <0189> a = 0
 
-addr == 16'h2f9 ? 16'h0351 :  // <0185> a = a<<1
-addr == 16'h2fa ? 16'h07a0 :  // <0185> b = 2048
-addr == 16'h2fb ? 16'h0800 :  // <0185> "
-addr == 16'h2fc ? 16'h67a0 :  // <0185> av_ad_hi = 256
-addr == 16'h2fd ? 16'h0100 :  // <0185> "
-addr == 16'h2fe ? 16'h6b00 :  // <0185> av_ad_lo = ad0
-addr == 16'h2ff ? 16'h0417 :  // <0185> b = av_begin_read
-addr == 16'h300 ? 16'h0418 :  // <0185> b = av_read_data
+addr == 16'h2f9 ? 16'h0351 :  // <0190> a = a<<1
+addr == 16'h2fa ? 16'h07a0 :  // <0190> b = 2048
+addr == 16'h2fb ? 16'h0800 :  // <0190> "
+addr == 16'h2fc ? 16'h67a0 :  // <0190> av_ad_hi = 256
+addr == 16'h2fd ? 16'h0100 :  // <0190> "
+addr == 16'h2fe ? 16'h6b00 :  // <0190> av_ad_lo = ad0
+addr == 16'h2ff ? 16'h0417 :  // <0190> b = av_begin_read
+addr == 16'h300 ? 16'h0418 :  // <0190> b = av_read_data
 
-addr == 16'h301 ? 16'h23a0 :  // <0186> pa = 256
-addr == 16'h302 ? 16'h0100 :  // <0186> "
-addr == 16'h303 ? 16'hfba0 :  // <0186> callx load_row_cmd $maf_ref_num_cells
-addr == 16'h304 ? 16'h02bd :  // <0186> "
-addr == 16'h305 ? 16'hfc00 :  // <0186> "
+addr == 16'h301 ? 16'h23a0 :  // <0191> pa = 256
+addr == 16'h302 ? 16'h0100 :  // <0191> "
+addr == 16'h303 ? 16'hfba0 :  // <0191> callx load_row_cmd $maf_ref_num_cells
+addr == 16'h304 ? 16'h02bd :  // <0191> "
+addr == 16'h305 ? 16'hfc00 :  // <0191> "
 
-addr == 16'h306 ? 16'hf80c :  // <0188> pop rtna // func load_maf_ref_cmd
-addr == 16'h307 ? 16'hfc00 :  // <0188> swapra = nop
+addr == 16'h306 ? 16'hf80c :  // <0193> pop rtna // func load_maf_ref_cmd
+addr == 16'h307 ? 16'hfc00 :  // <0193> swapra = nop
 
 // ######## func load_block_temp_ref_cmd // = 0x0308
-addr == 16'h308 ? 16'h303e :  // <0193> push rtna // func load_block_temp_ref_cmd
+addr == 16'h308 ? 16'h303e :  // <0198> push rtna // func load_block_temp_ref_cmd
 
-addr == 16'h309 ? 16'h0600 :  // <0190> b = 0
+addr == 16'h309 ? 16'h0200 :  // <0195> a = 0
 
-addr == 16'h30a ? 16'h0351 :  // <0191> a = a<<1
-addr == 16'h30b ? 16'h07a0 :  // <0191> b = 2592
-addr == 16'h30c ? 16'h0a20 :  // <0191> "
-addr == 16'h30d ? 16'h67a0 :  // <0191> av_ad_hi = 256
-addr == 16'h30e ? 16'h0100 :  // <0191> "
-addr == 16'h30f ? 16'h6b00 :  // <0191> av_ad_lo = ad0
-addr == 16'h310 ? 16'h0417 :  // <0191> b = av_begin_read
-addr == 16'h311 ? 16'h0418 :  // <0191> b = av_read_data
+addr == 16'h30a ? 16'h0351 :  // <0196> a = a<<1
+addr == 16'h30b ? 16'h07a0 :  // <0196> b = 2592
+addr == 16'h30c ? 16'h0a20 :  // <0196> "
+addr == 16'h30d ? 16'h67a0 :  // <0196> av_ad_hi = 256
+addr == 16'h30e ? 16'h0100 :  // <0196> "
+addr == 16'h30f ? 16'h6b00 :  // <0196> av_ad_lo = ad0
+addr == 16'h310 ? 16'h0417 :  // <0196> b = av_begin_read
+addr == 16'h311 ? 16'h0418 :  // <0196> b = av_read_data
 
-addr == 16'h312 ? 16'h2240 :  // <0192> pa = 64
-addr == 16'h313 ? 16'hfba0 :  // <0192> callx load_row_cmd $block_temp_num_cells
-addr == 16'h314 ? 16'h02bd :  // <0192> "
-addr == 16'h315 ? 16'hfc00 :  // <0192> "
+addr == 16'h312 ? 16'h2240 :  // <0197> pa = 64
+addr == 16'h313 ? 16'hfba0 :  // <0197> callx load_row_cmd $block_temp_num_cells
+addr == 16'h314 ? 16'h02bd :  // <0197> "
+addr == 16'h315 ? 16'hfc00 :  // <0197> "
 
-addr == 16'h316 ? 16'hf80c :  // <0194> pop rtna // func load_block_temp_ref_cmd
-addr == 16'h317 ? 16'hfc00 :  // <0194> swapra = nop
+addr == 16'h316 ? 16'hf80c :  // <0199> pop rtna // func load_block_temp_ref_cmd
+addr == 16'h317 ? 16'hfc00 :  // <0199> swapra = nop
 
 // ######## func load_block_temp_map_cmd // = 0x0318
-addr == 16'h318 ? 16'h303e :  // <0199> push rtna // func load_block_temp_map_cmd
+addr == 16'h318 ? 16'h303e :  // <0204> push rtna // func load_block_temp_map_cmd
 
-addr == 16'h319 ? 16'h0600 :  // <0196> b = 0
+addr == 16'h319 ? 16'h0200 :  // <0201> a = 0
 
-addr == 16'h31a ? 16'h0351 :  // <0197> a = a<<1
-addr == 16'h31b ? 16'h07a0 :  // <0197> b = 2720
-addr == 16'h31c ? 16'h0aa0 :  // <0197> "
-addr == 16'h31d ? 16'h67a0 :  // <0197> av_ad_hi = 256
-addr == 16'h31e ? 16'h0100 :  // <0197> "
-addr == 16'h31f ? 16'h6b00 :  // <0197> av_ad_lo = ad0
-addr == 16'h320 ? 16'h0417 :  // <0197> b = av_begin_read
-addr == 16'h321 ? 16'h0418 :  // <0197> b = av_read_data
+addr == 16'h31a ? 16'h0351 :  // <0202> a = a<<1
+addr == 16'h31b ? 16'h07a0 :  // <0202> b = 2720
+addr == 16'h31c ? 16'h0aa0 :  // <0202> "
+addr == 16'h31d ? 16'h67a0 :  // <0202> av_ad_hi = 256
+addr == 16'h31e ? 16'h0100 :  // <0202> "
+addr == 16'h31f ? 16'h6b00 :  // <0202> av_ad_lo = ad0
+addr == 16'h320 ? 16'h0417 :  // <0202> b = av_begin_read
+addr == 16'h321 ? 16'h0418 :  // <0202> b = av_read_data
 
-addr == 16'h322 ? 16'h2240 :  // <0198> pa = 64
-addr == 16'h323 ? 16'hfba0 :  // <0198> callx load_row_cmd $block_temp_num_cells
-addr == 16'h324 ? 16'h02bd :  // <0198> "
-addr == 16'h325 ? 16'hfc00 :  // <0198> "
+addr == 16'h322 ? 16'h2240 :  // <0203> pa = 64
+addr == 16'h323 ? 16'hfba0 :  // <0203> callx load_row_cmd $block_temp_num_cells
+addr == 16'h324 ? 16'h02bd :  // <0203> "
+addr == 16'h325 ? 16'hfc00 :  // <0203> "
 
-addr == 16'h326 ? 16'hf80c :  // <0200> pop rtna // func load_block_temp_map_cmd
-addr == 16'h327 ? 16'hfc00 :  // <0200> swapra = nop
+addr == 16'h326 ? 16'hf80c :  // <0205> pop rtna // func load_block_temp_map_cmd
+addr == 16'h327 ? 16'hfc00 :  // <0205> swapra = nop
 
 // ######## func load_afterstart_ref_cmd // = 0x0328
-addr == 16'h328 ? 16'h303e :  // <0205> push rtna // func load_afterstart_ref_cmd
+addr == 16'h328 ? 16'h303e :  // <0210> push rtna // func load_afterstart_ref_cmd
 
-addr == 16'h329 ? 16'h0600 :  // <0202> b = 0
+addr == 16'h329 ? 16'h0200 :  // <0207> a = 0
 
-addr == 16'h32a ? 16'h0351 :  // <0203> a = a<<1
-addr == 16'h32b ? 16'h07a0 :  // <0203> b = 2848
-addr == 16'h32c ? 16'h0b20 :  // <0203> "
-addr == 16'h32d ? 16'h67a0 :  // <0203> av_ad_hi = 256
-addr == 16'h32e ? 16'h0100 :  // <0203> "
-addr == 16'h32f ? 16'h6b00 :  // <0203> av_ad_lo = ad0
-addr == 16'h330 ? 16'h0417 :  // <0203> b = av_begin_read
-addr == 16'h331 ? 16'h0418 :  // <0203> b = av_read_data
+addr == 16'h32a ? 16'h0351 :  // <0208> a = a<<1
+addr == 16'h32b ? 16'h07a0 :  // <0208> b = 2848
+addr == 16'h32c ? 16'h0b20 :  // <0208> "
+addr == 16'h32d ? 16'h67a0 :  // <0208> av_ad_hi = 256
+addr == 16'h32e ? 16'h0100 :  // <0208> "
+addr == 16'h32f ? 16'h6b00 :  // <0208> av_ad_lo = ad0
+addr == 16'h330 ? 16'h0417 :  // <0208> b = av_begin_read
+addr == 16'h331 ? 16'h0418 :  // <0208> b = av_read_data
 
-addr == 16'h332 ? 16'h220a :  // <0204> pa = 10
-addr == 16'h333 ? 16'hfba0 :  // <0204> callx load_row_cmd $afterstart_num_cells
-addr == 16'h334 ? 16'h02bd :  // <0204> "
-addr == 16'h335 ? 16'hfc00 :  // <0204> "
+addr == 16'h332 ? 16'h220a :  // <0209> pa = 10
+addr == 16'h333 ? 16'hfba0 :  // <0209> callx load_row_cmd $afterstart_num_cells
+addr == 16'h334 ? 16'h02bd :  // <0209> "
+addr == 16'h335 ? 16'hfc00 :  // <0209> "
 
-addr == 16'h336 ? 16'hf80c :  // <0206> pop rtna // func load_afterstart_ref_cmd
-addr == 16'h337 ? 16'hfc00 :  // <0206> swapra = nop
+addr == 16'h336 ? 16'hf80c :  // <0211> pop rtna // func load_afterstart_ref_cmd
+addr == 16'h337 ? 16'hfc00 :  // <0211> swapra = nop
 
 // ######## func load_afterstart_map_cmd // = 0x0338
-addr == 16'h338 ? 16'h303e :  // <0211> push rtna // func load_afterstart_map_cmd
+addr == 16'h338 ? 16'h303e :  // <0216> push rtna // func load_afterstart_map_cmd
 
-addr == 16'h339 ? 16'h0600 :  // <0208> b = 0
+addr == 16'h339 ? 16'h0200 :  // <0213> a = 0
 
-addr == 16'h33a ? 16'h0351 :  // <0209> a = a<<1
-addr == 16'h33b ? 16'h07a0 :  // <0209> b = 2868
-addr == 16'h33c ? 16'h0b34 :  // <0209> "
-addr == 16'h33d ? 16'h67a0 :  // <0209> av_ad_hi = 256
-addr == 16'h33e ? 16'h0100 :  // <0209> "
-addr == 16'h33f ? 16'h6b00 :  // <0209> av_ad_lo = ad0
-addr == 16'h340 ? 16'h0417 :  // <0209> b = av_begin_read
-addr == 16'h341 ? 16'h0418 :  // <0209> b = av_read_data
+addr == 16'h33a ? 16'h0351 :  // <0214> a = a<<1
+addr == 16'h33b ? 16'h07a0 :  // <0214> b = 2868
+addr == 16'h33c ? 16'h0b34 :  // <0214> "
+addr == 16'h33d ? 16'h67a0 :  // <0214> av_ad_hi = 256
+addr == 16'h33e ? 16'h0100 :  // <0214> "
+addr == 16'h33f ? 16'h6b00 :  // <0214> av_ad_lo = ad0
+addr == 16'h340 ? 16'h0417 :  // <0214> b = av_begin_read
+addr == 16'h341 ? 16'h0418 :  // <0214> b = av_read_data
 
-addr == 16'h342 ? 16'h220a :  // <0210> pa = 10
-addr == 16'h343 ? 16'hfba0 :  // <0210> callx load_row_cmd $afterstart_num_cells
-addr == 16'h344 ? 16'h02bd :  // <0210> "
-addr == 16'h345 ? 16'hfc00 :  // <0210> "
+addr == 16'h342 ? 16'h220a :  // <0215> pa = 10
+addr == 16'h343 ? 16'hfba0 :  // <0215> callx load_row_cmd $afterstart_num_cells
+addr == 16'h344 ? 16'h02bd :  // <0215> "
+addr == 16'h345 ? 16'hfc00 :  // <0215> "
 
-addr == 16'h346 ? 16'hf80c :  // <0212> pop rtna // func load_afterstart_map_cmd
-addr == 16'h347 ? 16'hfc00 :  // <0212> swapra = nop
+addr == 16'h346 ? 16'hf80c :  // <0217> pop rtna // func load_afterstart_map_cmd
+addr == 16'h347 ? 16'hfc00 :  // <0217> swapra = nop
 
 
 

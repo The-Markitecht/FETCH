@@ -8,8 +8,13 @@ set ::asm::drom_src_fn $::src_fn
 proc drom_define  {lin  name  type  size_bytes} {
     # counter must increment after memorizing, because the size may vary from one call to the next.
     set short [string range $name 4 end]
+    
+    # track position in shadow RAM area.
     setvar $lin $name $::asm::drom_shadow_counter
+    dict set ::debugger_ram_names [ram_join $::asm::drom_shadow_counter] $name
     ram_incr ::asm::drom_shadow_counter $size_bytes
+    
+    # track position in data ROM device.
     dict set ::asm::drom_addresses $short $::asm::drom_counter
     ram_incr ::asm::drom_counter $size_bytes
     dict set ::asm::drom_type $short $type
@@ -175,37 +180,37 @@ func load_row_cmd {num_words in pa} {
 }
 
 func load_rpm_ref_cmd {
-    b = 0
+    a = 0
     struct_read $ram_rpm_ref
     callx load_row_cmd $rpm_ref_num_cells
 }
 
 func load_maf_ref_cmd {
-    b = 0
+    a = 0
     struct_read $ram_maf_ref
     callx load_row_cmd $maf_ref_num_cells
 }
 
 func load_block_temp_ref_cmd {
-    b = 0
+    a = 0
     struct_read $ram_block_temp_ref
     callx load_row_cmd $block_temp_num_cells
 }
 
 func load_block_temp_map_cmd {
-    b = 0
+    a = 0
     struct_read $ram_block_temp_map
     callx load_row_cmd $block_temp_num_cells
 }
 
 func load_afterstart_ref_cmd {
-    b = 0
+    a = 0
     struct_read $ram_afterstart_ref
     callx load_row_cmd $afterstart_num_cells
 }
 
 func load_afterstart_map_cmd {
-    b = 0
+    a = 0
     struct_read $ram_afterstart_map
     callx load_row_cmd $afterstart_num_cells
 }

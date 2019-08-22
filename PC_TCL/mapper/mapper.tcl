@@ -238,7 +238,7 @@ proc disable_status_report {} {
 
 proc enable_status_report {} {
     flush $::capture
-    return ;#TODO: debugging only.
+    #return ;# debugging only.
     ::read_interval_enabled = 1
     tx ston
 }

@@ -1034,324 +1034,324 @@
 
 
 -- ######## func init_drom -- = 0x0266
-    0266 : 3002 ; -- <0117> push i -- func init_drom
+    0266 : 3002 ; -- <0122> push i -- func init_drom
 
 -- copy entire ROM content to a shadow area in RAM.
-    0267 : 67a0 ; -- <0111> av_ad_hi = ($drom_shadow_base >> 16)
-    0268 : 0100 ; -- <0111> "
-    0269 : 0a00 ; -- <0116> i = 0
+    0267 : 67a0 ; -- <0116> av_ad_hi = ($drom_shadow_base >> 16)
+    0268 : 0100 ; -- <0116> "
+    0269 : 0a00 ; -- <0121> i = 0
 -- :loop_617 -- = 0x026a
 
-    026a : 6c02 ; -- <0112> drom_ad = i
-    026b : 6802 ; -- <0113> av_ad_lo = i
-    026c : 5c1c ; -- <0114> av_write_data = drom_data
+    026a : 6c02 ; -- <0117> drom_ad = i
+    026b : 6802 ; -- <0118> av_ad_lo = i
+    026c : 5c1c ; -- <0119> av_write_data = drom_data
 
 
-    026d : 0002 ; -- <0116> a = i
-    026e : 0601 ; -- <0116> b = 1
-    026f : c800 ; -- <0116> i = a+b
-    0270 : 0b00 ; -- <0116> "
+    026d : 0002 ; -- <0121> a = i
+    026e : 0601 ; -- <0121> b = 1
+    026f : c800 ; -- <0121> i = a+b
+    0270 : 0b00 ; -- <0121> "
 
 
-    0271 : 0002 ; -- <0116> a = i
-    0272 : 07a0 ; -- <0116> b = $drom_shadow_len_bytes
-    0273 : 0b48 ; -- <0116> "
-    0274 : e005 ; -- <0116> br lt :loop_617
-    0275 : 026a ; -- <0116> "
+    0271 : 0002 ; -- <0121> a = i
+    0272 : 07a0 ; -- <0121> b = $drom_shadow_len_bytes
+    0273 : 0b48 ; -- <0121> "
+    0274 : e005 ; -- <0121> br lt :loop_617
+    0275 : 026a ; -- <0121> "
 
 -- :end_617 -- = 0x0276
 
-    0276 : 080c ; -- <0118> pop i -- func init_drom
-    0277 : fc00 ; -- <0118> swapra = nop
+    0276 : 080c ; -- <0123> pop i -- func init_drom
+    0277 : fc00 ; -- <0123> swapra = nop
 
 -- ######## func load_afrc_cmd -- = 0x0278
-    0278 : 3002 ; -- <0153> push i -- func load_afrc_cmd
-    0279 : 3005 ; -- <0153> push y -- "
-    027a : 303e ; -- <0153> push rtna -- "
+    0278 : 3002 ; -- <0158> push i -- func load_afrc_cmd
+    0279 : 3005 ; -- <0158> push y -- "
+    027a : 303e ; -- <0158> push rtna -- "
 
 -- loads 1 row only.
 
-    027b : fba0 ; -- <0122> callx fletcher16_init
-    027c : 022d ; -- <0122> "
-    027d : fc00 ; -- <0122> "
+    027b : fba0 ; -- <0127> callx fletcher16_init
+    027c : 022d ; -- <0127> "
+    027d : fc00 ; -- <0127> "
 -- expect valid row index.
-    027e : fba0 ; -- <0124> call  get4x
-    027f : 010c ; -- <0124> "
-    0280 : fc00 ; -- <0124> "
-    0281 : 1400 ; -- <0125> y = a
-    0282 : fba0 ; -- <0126> callx fletcher16_input16  a
-    0283 : 024d ; -- <0126> "
-    0284 : fc00 ; -- <0126> "
+    027e : fba0 ; -- <0129> call  get4x
+    027f : 010c ; -- <0129> "
+    0280 : fc00 ; -- <0129> "
+    0281 : 1400 ; -- <0130> y = a
+    0282 : fba0 ; -- <0131> callx fletcher16_input16  a
+    0283 : 024d ; -- <0131> "
+    0284 : fc00 ; -- <0131> "
 
-    0285 : 0005 ; -- <0147> a = y
-    0286 : 0640 ; -- <0147> b = 64
+    0285 : 0005 ; -- <0152> a = y
+    0286 : 0640 ; -- <0152> b = 64
 
-    0287 : e405 ; -- <0127> bn lt :else_647
-    0288 : 02ab ; -- <0127> "
+    0287 : e405 ; -- <0132> bn lt :else_647
+    0288 : 02ab ; -- <0132> "
 
 -- set RAM address to start of given row.  call struct_read for its side effect on Avalon address regs.
-    0289 : 0005 ; -- <0129> a = y
-    028a : 0610 ; -- <0130> b = $afrc_rpm_cols
-    028b : c800 ; -- <0131> nop
-    028c : c800 ; -- <0132> nop
-    028d : c800 ; -- <0133> nop
-    028e : c800 ; -- <0134> nop
-    028f : 0410 ; -- <0135> b = product_lo
+    0289 : 0005 ; -- <0134> a = y
+    028a : 0610 ; -- <0135> b = $afrc_rpm_cols
+    028b : c800 ; -- <0136> nop
+    028c : c800 ; -- <0137> nop
+    028d : c800 ; -- <0138> nop
+    028e : c800 ; -- <0139> nop
+    028f : 0410 ; -- <0140> b = product_lo
 
-    0290 : 0351 ; -- <0136> a = a<<1
-    0291 : 0600 ; -- <0136> b = 0
-    0292 : 67a0 ; -- <0136> av_ad_hi = 256
-    0293 : 0100 ; -- <0136> "
-    0294 : 6b00 ; -- <0136> av_ad_lo = ad0
-    0295 : 0417 ; -- <0136> b = av_begin_read
-    0296 : 0418 ; -- <0136> b = av_read_data
+    0290 : 0351 ; -- <0141> a = a<<1
+    0291 : 0600 ; -- <0141> b = 0
+    0292 : 67a0 ; -- <0141> av_ad_hi = 256
+    0293 : 0100 ; -- <0141> "
+    0294 : 6b00 ; -- <0141> av_ad_lo = ad0
+    0295 : 0417 ; -- <0141> b = av_begin_read
+    0296 : 0418 ; -- <0141> b = av_read_data
 
 
 -- expect each cell value back-to-back.
-    0297 : 0a00 ; -- <0146> i = 0
+    0297 : 0a00 ; -- <0151> i = 0
 -- :loop_663 -- = 0x0298
 
-    0298 : fba0 ; -- <0139> call  get4x
-    0299 : 010c ; -- <0139> "
-    029a : fc00 ; -- <0139> "
-    029b : 5c00 ; -- <0140> av_write_data = a
-    029c : fba0 ; -- <0141> callx fletcher16_input16  a
-    029d : 024d ; -- <0141> "
-    029e : fc00 ; -- <0141> "
-    029f : 001a ; -- <0142> a = av_ad_lo
-    02a0 : 0602 ; -- <0143> b = 2
-    02a1 : c800 ; -- <0144> av_ad_lo = a+b
-    02a2 : 6b00 ; -- <0144> "
+    0298 : fba0 ; -- <0144> call  get4x
+    0299 : 010c ; -- <0144> "
+    029a : fc00 ; -- <0144> "
+    029b : 5c00 ; -- <0145> av_write_data = a
+    029c : fba0 ; -- <0146> callx fletcher16_input16  a
+    029d : 024d ; -- <0146> "
+    029e : fc00 ; -- <0146> "
+    029f : 001a ; -- <0147> a = av_ad_lo
+    02a0 : 0602 ; -- <0148> b = 2
+    02a1 : c800 ; -- <0149> av_ad_lo = a+b
+    02a2 : 6b00 ; -- <0149> "
 
 
-    02a3 : 0002 ; -- <0146> a = i
-    02a4 : 0601 ; -- <0146> b = 1
-    02a5 : c800 ; -- <0146> i = a+b
-    02a6 : 0b00 ; -- <0146> "
+    02a3 : 0002 ; -- <0151> a = i
+    02a4 : 0601 ; -- <0151> b = 1
+    02a5 : c800 ; -- <0151> i = a+b
+    02a6 : 0b00 ; -- <0151> "
 
 
-    02a7 : 0002 ; -- <0146> a = i
-    02a8 : 0610 ; -- <0146> b = $afrc_rpm_cols
-    02a9 : e005 ; -- <0146> br lt :loop_663
-    02aa : 0298 ; -- <0146> "
+    02a7 : 0002 ; -- <0151> a = i
+    02a8 : 0610 ; -- <0151> b = $afrc_rpm_cols
+    02a9 : e005 ; -- <0151> br lt :loop_663
+    02aa : 0298 ; -- <0151> "
 
 -- :end_663 -- = 0x02ab
 
 
 -- reply with checksum
-    02ab : fba0 ; -- <0150> callx fletcher16_result a
-    02ac : 025e ; -- <0150> "
-    02ad : fc00 ; -- <0150> "
-    02ae : fba0 ; -- <0151> call put4x
-    02af : 00d3 ; -- <0151> "
-    02b0 : fc00 ; -- <0151> "
-    02b1 : 020d ; -- <0152> a = 13 -- puteol
-    02b2 : fba0 ; -- <0152> puteol
-    02b3 : 00ab ; -- <0152> "
-    02b4 : fc00 ; -- <0152> "
-    02b5 : 020a ; -- <0152> a = 10 -- puteol
-    02b6 : fba0 ; -- <0152> puteol
-    02b7 : 00ab ; -- <0152> "
-    02b8 : fc00 ; -- <0152> "
+    02ab : fba0 ; -- <0155> callx fletcher16_result a
+    02ac : 025e ; -- <0155> "
+    02ad : fc00 ; -- <0155> "
+    02ae : fba0 ; -- <0156> call put4x
+    02af : 00d3 ; -- <0156> "
+    02b0 : fc00 ; -- <0156> "
+    02b1 : 020d ; -- <0157> a = 13 -- puteol
+    02b2 : fba0 ; -- <0157> puteol
+    02b3 : 00ab ; -- <0157> "
+    02b4 : fc00 ; -- <0157> "
+    02b5 : 020a ; -- <0157> a = 10 -- puteol
+    02b6 : fba0 ; -- <0157> puteol
+    02b7 : 00ab ; -- <0157> "
+    02b8 : fc00 ; -- <0157> "
 
-    02b9 : f80c ; -- <0154> pop rtna -- func load_afrc_cmd
-    02ba : 140c ; -- <0154> pop y -- "
-    02bb : 080c ; -- <0154> pop i -- "
-    02bc : fc00 ; -- <0154> swapra = nop
+    02b9 : f80c ; -- <0159> pop rtna -- func load_afrc_cmd
+    02ba : 140c ; -- <0159> pop y -- "
+    02bb : 080c ; -- <0159> pop i -- "
+    02bc : fc00 ; -- <0159> swapra = nop
 
 -- ######## func load_row_cmd -- = 0x02bd
-    02bd : 3002 ; -- <0175> push i -- func load_row_cmd
-    02be : 303e ; -- <0175> push rtna -- "
+    02bd : 3002 ; -- <0180> push i -- func load_row_cmd
+    02be : 303e ; -- <0180> push rtna -- "
 
 -- loads 1 row of data having the given number of words.
 -- start of row address must be already loaded into av_ad_hi and av_ad_lo.
 
-    02bf : fba0 ; -- <0159> callx fletcher16_init
-    02c0 : 022d ; -- <0159> "
-    02c1 : fc00 ; -- <0159> "
+    02bf : fba0 ; -- <0164> callx fletcher16_init
+    02c0 : 022d ; -- <0164> "
+    02c1 : fc00 ; -- <0164> "
 
 -- expect each cell value back-to-back.
-    02c2 : 0a00 ; -- <0169> i = 0
+    02c2 : 0a00 ; -- <0174> i = 0
 -- :loop_706 -- = 0x02c3
 
-    02c3 : fba0 ; -- <0162> call  get4x
-    02c4 : 010c ; -- <0162> "
-    02c5 : fc00 ; -- <0162> "
-    02c6 : 5c00 ; -- <0163> av_write_data = a
-    02c7 : fba0 ; -- <0164> callx fletcher16_input16  a
-    02c8 : 024d ; -- <0164> "
-    02c9 : fc00 ; -- <0164> "
-    02ca : 001a ; -- <0165> a = av_ad_lo
-    02cb : 0602 ; -- <0166> b = 2
-    02cc : c800 ; -- <0167> av_ad_lo = a+b
-    02cd : 6b00 ; -- <0167> "
+    02c3 : fba0 ; -- <0167> call  get4x
+    02c4 : 010c ; -- <0167> "
+    02c5 : fc00 ; -- <0167> "
+    02c6 : 5c00 ; -- <0168> av_write_data = a
+    02c7 : fba0 ; -- <0169> callx fletcher16_input16  a
+    02c8 : 024d ; -- <0169> "
+    02c9 : fc00 ; -- <0169> "
+    02ca : 001a ; -- <0170> a = av_ad_lo
+    02cb : 0602 ; -- <0171> b = 2
+    02cc : c800 ; -- <0172> av_ad_lo = a+b
+    02cd : 6b00 ; -- <0172> "
 
 
-    02ce : 0002 ; -- <0169> a = i
-    02cf : 0601 ; -- <0169> b = 1
-    02d0 : c800 ; -- <0169> i = a+b
-    02d1 : 0b00 ; -- <0169> "
+    02ce : 0002 ; -- <0174> a = i
+    02cf : 0601 ; -- <0174> b = 1
+    02d0 : c800 ; -- <0174> i = a+b
+    02d1 : 0b00 ; -- <0174> "
 
 
-    02d2 : 0002 ; -- <0169> a = i
-    02d3 : 0408 ; -- <0169> b = num_words
-    02d4 : e005 ; -- <0169> br lt :loop_706
-    02d5 : 02c3 ; -- <0169> "
+    02d2 : 0002 ; -- <0174> a = i
+    02d3 : 0408 ; -- <0174> b = num_words
+    02d4 : e005 ; -- <0174> br lt :loop_706
+    02d5 : 02c3 ; -- <0174> "
 
 -- :end_706 -- = 0x02d6
 
 -- reply with checksum
-    02d6 : fba0 ; -- <0172> callx fletcher16_result a
-    02d7 : 025e ; -- <0172> "
-    02d8 : fc00 ; -- <0172> "
-    02d9 : fba0 ; -- <0173> call put4x
-    02da : 00d3 ; -- <0173> "
-    02db : fc00 ; -- <0173> "
-    02dc : 020d ; -- <0174> a = 13 -- puteol
-    02dd : fba0 ; -- <0174> puteol
-    02de : 00ab ; -- <0174> "
-    02df : fc00 ; -- <0174> "
-    02e0 : 020a ; -- <0174> a = 10 -- puteol
-    02e1 : fba0 ; -- <0174> puteol
-    02e2 : 00ab ; -- <0174> "
-    02e3 : fc00 ; -- <0174> "
+    02d6 : fba0 ; -- <0177> callx fletcher16_result a
+    02d7 : 025e ; -- <0177> "
+    02d8 : fc00 ; -- <0177> "
+    02d9 : fba0 ; -- <0178> call put4x
+    02da : 00d3 ; -- <0178> "
+    02db : fc00 ; -- <0178> "
+    02dc : 020d ; -- <0179> a = 13 -- puteol
+    02dd : fba0 ; -- <0179> puteol
+    02de : 00ab ; -- <0179> "
+    02df : fc00 ; -- <0179> "
+    02e0 : 020a ; -- <0179> a = 10 -- puteol
+    02e1 : fba0 ; -- <0179> puteol
+    02e2 : 00ab ; -- <0179> "
+    02e3 : fc00 ; -- <0179> "
 
-    02e4 : f80c ; -- <0176> pop rtna -- func load_row_cmd
-    02e5 : 080c ; -- <0176> pop i -- "
-    02e6 : fc00 ; -- <0176> swapra = nop
+    02e4 : f80c ; -- <0181> pop rtna -- func load_row_cmd
+    02e5 : 080c ; -- <0181> pop i -- "
+    02e6 : fc00 ; -- <0181> swapra = nop
 
 -- ######## func load_rpm_ref_cmd -- = 0x02e7
-    02e7 : 303e ; -- <0181> push rtna -- func load_rpm_ref_cmd
+    02e7 : 303e ; -- <0186> push rtna -- func load_rpm_ref_cmd
 
-    02e8 : 0600 ; -- <0178> b = 0
+    02e8 : 0200 ; -- <0183> a = 0
 
-    02e9 : 0351 ; -- <0179> a = a<<1
-    02ea : 07a0 ; -- <0179> b = 2560
-    02eb : 0a00 ; -- <0179> "
-    02ec : 67a0 ; -- <0179> av_ad_hi = 256
-    02ed : 0100 ; -- <0179> "
-    02ee : 6b00 ; -- <0179> av_ad_lo = ad0
-    02ef : 0417 ; -- <0179> b = av_begin_read
-    02f0 : 0418 ; -- <0179> b = av_read_data
+    02e9 : 0351 ; -- <0184> a = a<<1
+    02ea : 07a0 ; -- <0184> b = 2560
+    02eb : 0a00 ; -- <0184> "
+    02ec : 67a0 ; -- <0184> av_ad_hi = 256
+    02ed : 0100 ; -- <0184> "
+    02ee : 6b00 ; -- <0184> av_ad_lo = ad0
+    02ef : 0417 ; -- <0184> b = av_begin_read
+    02f0 : 0418 ; -- <0184> b = av_read_data
 
-    02f1 : 2210 ; -- <0180> pa = 16
-    02f2 : fba0 ; -- <0180> callx load_row_cmd $rpm_ref_num_cells
-    02f3 : 02bd ; -- <0180> "
-    02f4 : fc00 ; -- <0180> "
+    02f1 : 2210 ; -- <0185> pa = 16
+    02f2 : fba0 ; -- <0185> callx load_row_cmd $rpm_ref_num_cells
+    02f3 : 02bd ; -- <0185> "
+    02f4 : fc00 ; -- <0185> "
 
-    02f5 : f80c ; -- <0182> pop rtna -- func load_rpm_ref_cmd
-    02f6 : fc00 ; -- <0182> swapra = nop
+    02f5 : f80c ; -- <0187> pop rtna -- func load_rpm_ref_cmd
+    02f6 : fc00 ; -- <0187> swapra = nop
 
 -- ######## func load_maf_ref_cmd -- = 0x02f7
-    02f7 : 303e ; -- <0187> push rtna -- func load_maf_ref_cmd
+    02f7 : 303e ; -- <0192> push rtna -- func load_maf_ref_cmd
 
-    02f8 : 0600 ; -- <0184> b = 0
+    02f8 : 0200 ; -- <0189> a = 0
 
-    02f9 : 0351 ; -- <0185> a = a<<1
-    02fa : 07a0 ; -- <0185> b = 2048
-    02fb : 0800 ; -- <0185> "
-    02fc : 67a0 ; -- <0185> av_ad_hi = 256
-    02fd : 0100 ; -- <0185> "
-    02fe : 6b00 ; -- <0185> av_ad_lo = ad0
-    02ff : 0417 ; -- <0185> b = av_begin_read
-    0300 : 0418 ; -- <0185> b = av_read_data
+    02f9 : 0351 ; -- <0190> a = a<<1
+    02fa : 07a0 ; -- <0190> b = 2048
+    02fb : 0800 ; -- <0190> "
+    02fc : 67a0 ; -- <0190> av_ad_hi = 256
+    02fd : 0100 ; -- <0190> "
+    02fe : 6b00 ; -- <0190> av_ad_lo = ad0
+    02ff : 0417 ; -- <0190> b = av_begin_read
+    0300 : 0418 ; -- <0190> b = av_read_data
 
-    0301 : 23a0 ; -- <0186> pa = 256
-    0302 : 0100 ; -- <0186> "
-    0303 : fba0 ; -- <0186> callx load_row_cmd $maf_ref_num_cells
-    0304 : 02bd ; -- <0186> "
-    0305 : fc00 ; -- <0186> "
+    0301 : 23a0 ; -- <0191> pa = 256
+    0302 : 0100 ; -- <0191> "
+    0303 : fba0 ; -- <0191> callx load_row_cmd $maf_ref_num_cells
+    0304 : 02bd ; -- <0191> "
+    0305 : fc00 ; -- <0191> "
 
-    0306 : f80c ; -- <0188> pop rtna -- func load_maf_ref_cmd
-    0307 : fc00 ; -- <0188> swapra = nop
+    0306 : f80c ; -- <0193> pop rtna -- func load_maf_ref_cmd
+    0307 : fc00 ; -- <0193> swapra = nop
 
 -- ######## func load_block_temp_ref_cmd -- = 0x0308
-    0308 : 303e ; -- <0193> push rtna -- func load_block_temp_ref_cmd
+    0308 : 303e ; -- <0198> push rtna -- func load_block_temp_ref_cmd
 
-    0309 : 0600 ; -- <0190> b = 0
+    0309 : 0200 ; -- <0195> a = 0
 
-    030a : 0351 ; -- <0191> a = a<<1
-    030b : 07a0 ; -- <0191> b = 2592
-    030c : 0a20 ; -- <0191> "
-    030d : 67a0 ; -- <0191> av_ad_hi = 256
-    030e : 0100 ; -- <0191> "
-    030f : 6b00 ; -- <0191> av_ad_lo = ad0
-    0310 : 0417 ; -- <0191> b = av_begin_read
-    0311 : 0418 ; -- <0191> b = av_read_data
+    030a : 0351 ; -- <0196> a = a<<1
+    030b : 07a0 ; -- <0196> b = 2592
+    030c : 0a20 ; -- <0196> "
+    030d : 67a0 ; -- <0196> av_ad_hi = 256
+    030e : 0100 ; -- <0196> "
+    030f : 6b00 ; -- <0196> av_ad_lo = ad0
+    0310 : 0417 ; -- <0196> b = av_begin_read
+    0311 : 0418 ; -- <0196> b = av_read_data
 
-    0312 : 2240 ; -- <0192> pa = 64
-    0313 : fba0 ; -- <0192> callx load_row_cmd $block_temp_num_cells
-    0314 : 02bd ; -- <0192> "
-    0315 : fc00 ; -- <0192> "
+    0312 : 2240 ; -- <0197> pa = 64
+    0313 : fba0 ; -- <0197> callx load_row_cmd $block_temp_num_cells
+    0314 : 02bd ; -- <0197> "
+    0315 : fc00 ; -- <0197> "
 
-    0316 : f80c ; -- <0194> pop rtna -- func load_block_temp_ref_cmd
-    0317 : fc00 ; -- <0194> swapra = nop
+    0316 : f80c ; -- <0199> pop rtna -- func load_block_temp_ref_cmd
+    0317 : fc00 ; -- <0199> swapra = nop
 
 -- ######## func load_block_temp_map_cmd -- = 0x0318
-    0318 : 303e ; -- <0199> push rtna -- func load_block_temp_map_cmd
+    0318 : 303e ; -- <0204> push rtna -- func load_block_temp_map_cmd
 
-    0319 : 0600 ; -- <0196> b = 0
+    0319 : 0200 ; -- <0201> a = 0
 
-    031a : 0351 ; -- <0197> a = a<<1
-    031b : 07a0 ; -- <0197> b = 2720
-    031c : 0aa0 ; -- <0197> "
-    031d : 67a0 ; -- <0197> av_ad_hi = 256
-    031e : 0100 ; -- <0197> "
-    031f : 6b00 ; -- <0197> av_ad_lo = ad0
-    0320 : 0417 ; -- <0197> b = av_begin_read
-    0321 : 0418 ; -- <0197> b = av_read_data
+    031a : 0351 ; -- <0202> a = a<<1
+    031b : 07a0 ; -- <0202> b = 2720
+    031c : 0aa0 ; -- <0202> "
+    031d : 67a0 ; -- <0202> av_ad_hi = 256
+    031e : 0100 ; -- <0202> "
+    031f : 6b00 ; -- <0202> av_ad_lo = ad0
+    0320 : 0417 ; -- <0202> b = av_begin_read
+    0321 : 0418 ; -- <0202> b = av_read_data
 
-    0322 : 2240 ; -- <0198> pa = 64
-    0323 : fba0 ; -- <0198> callx load_row_cmd $block_temp_num_cells
-    0324 : 02bd ; -- <0198> "
-    0325 : fc00 ; -- <0198> "
+    0322 : 2240 ; -- <0203> pa = 64
+    0323 : fba0 ; -- <0203> callx load_row_cmd $block_temp_num_cells
+    0324 : 02bd ; -- <0203> "
+    0325 : fc00 ; -- <0203> "
 
-    0326 : f80c ; -- <0200> pop rtna -- func load_block_temp_map_cmd
-    0327 : fc00 ; -- <0200> swapra = nop
+    0326 : f80c ; -- <0205> pop rtna -- func load_block_temp_map_cmd
+    0327 : fc00 ; -- <0205> swapra = nop
 
 -- ######## func load_afterstart_ref_cmd -- = 0x0328
-    0328 : 303e ; -- <0205> push rtna -- func load_afterstart_ref_cmd
+    0328 : 303e ; -- <0210> push rtna -- func load_afterstart_ref_cmd
 
-    0329 : 0600 ; -- <0202> b = 0
+    0329 : 0200 ; -- <0207> a = 0
 
-    032a : 0351 ; -- <0203> a = a<<1
-    032b : 07a0 ; -- <0203> b = 2848
-    032c : 0b20 ; -- <0203> "
-    032d : 67a0 ; -- <0203> av_ad_hi = 256
-    032e : 0100 ; -- <0203> "
-    032f : 6b00 ; -- <0203> av_ad_lo = ad0
-    0330 : 0417 ; -- <0203> b = av_begin_read
-    0331 : 0418 ; -- <0203> b = av_read_data
+    032a : 0351 ; -- <0208> a = a<<1
+    032b : 07a0 ; -- <0208> b = 2848
+    032c : 0b20 ; -- <0208> "
+    032d : 67a0 ; -- <0208> av_ad_hi = 256
+    032e : 0100 ; -- <0208> "
+    032f : 6b00 ; -- <0208> av_ad_lo = ad0
+    0330 : 0417 ; -- <0208> b = av_begin_read
+    0331 : 0418 ; -- <0208> b = av_read_data
 
-    0332 : 220a ; -- <0204> pa = 10
-    0333 : fba0 ; -- <0204> callx load_row_cmd $afterstart_num_cells
-    0334 : 02bd ; -- <0204> "
-    0335 : fc00 ; -- <0204> "
+    0332 : 220a ; -- <0209> pa = 10
+    0333 : fba0 ; -- <0209> callx load_row_cmd $afterstart_num_cells
+    0334 : 02bd ; -- <0209> "
+    0335 : fc00 ; -- <0209> "
 
-    0336 : f80c ; -- <0206> pop rtna -- func load_afterstart_ref_cmd
-    0337 : fc00 ; -- <0206> swapra = nop
+    0336 : f80c ; -- <0211> pop rtna -- func load_afterstart_ref_cmd
+    0337 : fc00 ; -- <0211> swapra = nop
 
 -- ######## func load_afterstart_map_cmd -- = 0x0338
-    0338 : 303e ; -- <0211> push rtna -- func load_afterstart_map_cmd
+    0338 : 303e ; -- <0216> push rtna -- func load_afterstart_map_cmd
 
-    0339 : 0600 ; -- <0208> b = 0
+    0339 : 0200 ; -- <0213> a = 0
 
-    033a : 0351 ; -- <0209> a = a<<1
-    033b : 07a0 ; -- <0209> b = 2868
-    033c : 0b34 ; -- <0209> "
-    033d : 67a0 ; -- <0209> av_ad_hi = 256
-    033e : 0100 ; -- <0209> "
-    033f : 6b00 ; -- <0209> av_ad_lo = ad0
-    0340 : 0417 ; -- <0209> b = av_begin_read
-    0341 : 0418 ; -- <0209> b = av_read_data
+    033a : 0351 ; -- <0214> a = a<<1
+    033b : 07a0 ; -- <0214> b = 2868
+    033c : 0b34 ; -- <0214> "
+    033d : 67a0 ; -- <0214> av_ad_hi = 256
+    033e : 0100 ; -- <0214> "
+    033f : 6b00 ; -- <0214> av_ad_lo = ad0
+    0340 : 0417 ; -- <0214> b = av_begin_read
+    0341 : 0418 ; -- <0214> b = av_read_data
 
-    0342 : 220a ; -- <0210> pa = 10
-    0343 : fba0 ; -- <0210> callx load_row_cmd $afterstart_num_cells
-    0344 : 02bd ; -- <0210> "
-    0345 : fc00 ; -- <0210> "
+    0342 : 220a ; -- <0215> pa = 10
+    0343 : fba0 ; -- <0215> callx load_row_cmd $afterstart_num_cells
+    0344 : 02bd ; -- <0215> "
+    0345 : fc00 ; -- <0215> "
 
-    0346 : f80c ; -- <0212> pop rtna -- func load_afterstart_map_cmd
-    0347 : fc00 ; -- <0212> swapra = nop
+    0346 : f80c ; -- <0217> pop rtna -- func load_afterstart_map_cmd
+    0347 : fc00 ; -- <0217> swapra = nop
 
 
 
@@ -4709,6 +4709,13 @@
 -- ram 00000090 ram_destroy_plan_func
 -- ram 00000092 ram_next_puff_len_us
 -- ram 00000094 ram_puff_count
+-- ram 01000000 ram_afrc_map
+-- ram 01000800 ram_maf_ref
+-- ram 01000a00 ram_rpm_ref
+-- ram 01000a20 ram_block_temp_ref
+-- ram 01000aa0 ram_block_temp_map
+-- ram 01000b20 ram_afterstart_ref
+-- ram 01000b34 ram_afterstart_map
 -- ram 00000096 ram_terminal_connected
 -- ram 00000098 ram_maf_valid
 -- ram 0000009a ram_maf_adc_filtered
