@@ -216,14 +216,14 @@ wire[`TOP_REG:0]          r_read;
 wire[`TOP_REG:0]          r_load;
 wire[15:0]                r_load_data;  
 //assign timer_enable = ! visor_break_mode;
-supervised_synapse316 supmcu(
+supervised_synapse316 #(.TARGET_MIF("sim_program.mif")) sim_visor (
     .sysclk          (sysclk      ) ,
     .sysreset        (sysreset    ) ,
     .clk_progmem     (clk_progmem),
     .clk_async       (clk_async),
     .mcu_wait_in     (0),
     .visor_break_mode(),
-    .boot_break      (0), 
+    .boot_break      (1), 
     .r               (r),
     .r_read          (r_read),
     .r_load          (r_load),
@@ -388,7 +388,7 @@ always_ff @(posedge sysclk)
     else if (puff1_fall)
         puff1timeout <= 'd200;
     else if (pulse1k && ! puff1timeout_detected)
-        puff1timeout <= puff1timeout - 16'd1;
+        puff1timeout <= puff1timeout - 8'd1;
 
 // injection puff length capture, in microseconds.
 //TODO: cope with injector PWM and/or peak-and-hold.

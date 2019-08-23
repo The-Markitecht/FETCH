@@ -164,7 +164,7 @@ wire[`TOP_REG:0]          r_load;
 wire[15:0]                r_load_data;  
 wire                      mcu_wait;
 assign timer_enable = ! visor_break_mode;
-supervised_synapse316 supmcu(
+supervised_synapse316 #(.TARGET_MIF("target_program.mif")) supmcu(
     .sysclk          (sysclk      ) ,
     .sysreset        (sysreset    ) ,
     .clk_progmem     (clk_progmem),

@@ -36,7 +36,13 @@
 // synopsys translate_off
 `timescale 1 ps / 1 ps
 // synopsys translate_on
-module ram2port (
+
+// MH modified by hand to support multiple supervised Synapse cores with distinct programs.
+module ram2port #(
+    parameter MIF // example: "target_program.mif"
+        // Quartus searches for the file in the project directory, 
+        // the project db directory, user libraries, and the current source file location.
+) (
 	address_a,
 	address_b,
 	clock_a,
@@ -104,7 +110,7 @@ module ram2port (
 		altsyncram_component.clock_enable_output_a = "BYPASS",
 		altsyncram_component.clock_enable_output_b = "BYPASS",
 		altsyncram_component.indata_reg_b = "CLOCK1",
-		altsyncram_component.init_file = "target_program.mif",
+		altsyncram_component.init_file = MIF,
 		altsyncram_component.intended_device_family = "Cyclone IV E",
 		altsyncram_component.lpm_type = "altsyncram",
 		altsyncram_component.numwords_a = 4096,

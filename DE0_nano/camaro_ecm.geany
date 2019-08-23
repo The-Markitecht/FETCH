@@ -28,19 +28,19 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=11
+current_page=4
 FILE_NAME_0=8594;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.asm;0;4
 FILE_NAME_1=6331;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csim_program.asm;0;4
 FILE_NAME_2=2040;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Chard_top.v;0;4
-FILE_NAME_3=3429;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csoft_top.v;0;4
-FILE_NAME_4=6012;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Cplatform.v;0;4
+FILE_NAME_3=7965;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csoft_top.v;0;4
+FILE_NAME_4=5722;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Cplatform.v;0;4
 FILE_NAME_5=21601;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cassemble.tcl;0;4
 FILE_NAME_6=9955;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csystem_macros.tcl;0;4
 FILE_NAME_7=4927;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cprogram_macros.tcl;0;4
 FILE_NAME_8=6776;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cstructured_control_macros.tcl;0;4
 FILE_NAME_9=3254;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Clib%5Cconsole.asm;0;4
 FILE_NAME_10=0;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program_defines.v;0;4
-FILE_NAME_11=33836;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csim_program.mif;0;4
+FILE_NAME_11=6561;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csim_program.mif;0;4
 FILE_NAME_12=41271;SQL;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.mif;0;4
 FILE_NAME_13=6886;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cmapper%5Cmapper.tcl;0;4
 FILE_NAME_14=50201;Tcl;0;EUTF-8;0;1;0;J%3A%5Ctemp%5CMityBuild%5ClibMityBuild;0;4
@@ -54,6 +54,8 @@ FILE_NAME_21=850;ASM;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%
 FILE_NAME_22=2745;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cmapper%5Cmaps%5Cdefault.map;0;4
 FILE_NAME_23=18343;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cmapper%5Cport_capture.txt;0;4
 FILE_NAME_24=344;ASM;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Clib%5Cstruct.asm;0;4
+FILE_NAME_25=558;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Csupervised_synapse316.v;0;4
+FILE_NAME_26=1901;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cram2port.v;0;4
 
 [build-menu]
 NF_00_LB=_Make

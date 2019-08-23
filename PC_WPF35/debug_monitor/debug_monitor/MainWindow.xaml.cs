@@ -43,7 +43,6 @@ namespace CVtool
         protected Dictionary<string,UInt32> ram_map = new Dictionary<string,UInt32>();
         protected Regex ipr_re = new Regex("\n([0-9a-f]{4}),([0-9a-f]{4}) >$", RegexOptions.Compiled);
         protected List<Paragraph> lines = new List<Paragraph>();
-        protected string source_fn = null;
         protected UInt16 last_known_hilite = 0;
         protected UInt16 last_known_ipr = 0;
         protected UInt16 lagged_ipr = 0;
@@ -55,11 +54,11 @@ namespace CVtool
             InitializeComponent();
         }
 
-        private void load_mif(string src_fn)
+        private void load_mif()
         {
             bool timer_on = rx_tmr.IsEnabled;
             rx_tmr.Stop();
-            log(src_fn);
+            log(mif_fn);
             string patn = @" ^ \s* ([0-9a-f]{4}) \s* : \s* ([0-9a-f]{4}) \s* ; \s* -- \s* <(\d\d\d\d)> ";
             Regex src_re = new Regex(patn, RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
             patn = @" ^ \s* -- \s* (src|dest) \s* reg \s* ([0-9a-f]{4}) \s+ (\w+) \s* $ ";
@@ -72,7 +71,7 @@ namespace CVtool
             src_reg_map.Clear();
             ram_map.Clear();
             src_doc.Blocks.Clear();
-            using (System.IO.StreamReader rdr = new System.IO.StreamReader(src_fn))
+            using (System.IO.StreamReader rdr = new System.IO.StreamReader(mif_fn))
             {                
                 while ( ! rdr.EndOfStream) 
                 {
@@ -130,7 +129,7 @@ namespace CVtool
             rx_tmr.Tick += rx_tmr_tick;
 
             // parse .mif file.  memorize line number of each address.
-            load_mif(mif_fn);
+            load_mif();
             rx_tmr.Start();
 
             this.WindowState = System.Windows.WindowState.Maximized;
@@ -292,7 +291,7 @@ rename some uses of "src" as "mif" instead.
             send("l");
             send(b, 0, b.Length);
 
-            load_mif(source_fn);
+            load_mif();
         }
 
         private void set_bp(int bpnum, TextBox tb)

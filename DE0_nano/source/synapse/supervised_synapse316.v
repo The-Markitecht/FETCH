@@ -6,7 +6,11 @@
 // Synapse316 with attached debugging supervisor.
 // supervisor is inserted between target Synapse316 MCU and its code memory.
 
-module supervised_synapse316 (
+module supervised_synapse316 #(
+    parameter TARGET_MIF // example: "target_program.mif"
+        // Quartus searches for the file in the project directory, 
+        // the project db directory, user libraries, and the current source file location.
+) (
      input wire                       sysclk            
     ,input wire                       sysreset          
     ,input wire                       clk_progmem
@@ -196,7 +200,7 @@ always_ff @(posedge sysreset, posedge sysclk) begin
     else
         m9k_wren <= vr_load[`DR_M9K_DATA];
 end
-ram2port	target_program (
+ram2port #(.MIF(TARGET_MIF)) target_program (
 	.address_a ( vr[`DR_M9K_ADDR][`CODE_ADDR_TOP:0] ),
 	.address_b ( tg_code_addr[`CODE_ADDR_TOP:0] ),
 	.clock_a ( clk_progmem ),
@@ -208,7 +212,5 @@ ram2port	target_program (
 	.q_a ( vr[`DR_M9K_DATA] ),
 	.q_b ( rom_code_in )
 	);
-// Quartus II software searches for the altsyncram init_file in the project directory, 
-// the project db directory, user libraries, and the current source file location.
 
 endmodule
