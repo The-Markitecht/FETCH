@@ -24,9 +24,13 @@ namespace CVtool
 {
     public partial class MainWindow : Window
     {
-        public string app_path = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        static public string app_path = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
         Action emptyDelegate = delegate { };
+
+        protected int port_num = int.Parse(Environment.GetCommandLineArgs()[1]);
+        protected string mif_fn = System.IO.Path.Combine(app_path, Environment.GetCommandLineArgs()[2]);
+        // in this version the command line argument should actually specify the target program .mif file, not the .asm source.
 
         protected SerialPort port = null;
         protected DispatcherTimer rx_tmr = null;
@@ -51,7 +55,7 @@ namespace CVtool
             InitializeComponent();
         }
 
-        private void load_source(string src_fn)
+        private void load_mif(string src_fn)
         {
             bool timer_on = rx_tmr.IsEnabled;
             rx_tmr.Stop();
@@ -114,7 +118,8 @@ namespace CVtool
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            port = new SerialPort("COM" + Environment.GetCommandLineArgs()[1], 115200, Parity.None, 8, StopBits.One);
+
+            port = new SerialPort("COM" + port_num.ToString(), 115200, Parity.None, 8, StopBits.One);
             port.WriteTimeout = 500;
             port.ReadTimeout = 1;
             port.ReadBufferSize = 128;
@@ -124,9 +129,8 @@ namespace CVtool
             rx_tmr.Interval = TimeSpan.FromMilliseconds(100);
             rx_tmr.Tick += rx_tmr_tick;
 
-            // parse source file.  memorize line number of each address.
-            source_fn = System.IO.Path.Combine(app_path, @"..\..\..\..\..\DE0_nano\source\synapse\program\target_program.mif");
-            load_source(source_fn);
+            // parse .mif file.  memorize line number of each address.
+            load_mif(mif_fn);
             rx_tmr.Start();
 
             this.WindowState = System.Windows.WindowState.Maximized;
@@ -265,11 +269,11 @@ rename some uses of "src" as "mif" instead.
             }
             
             // read new binary from disk.
-            string src_fn = System.IO.Path.Combine(app_path, @"..\..\..\..\..\DE0_nano\source\synapse\program\target_program.bin");
-            log(src_fn);
+            string bin_fn = System.IO.Path.ChangeExtension(mif_fn, "bin");
+            log(bin_fn);
             byte[] b;
             fletcher16 sum = new fletcher16();
-            using (System.IO.FileStream fs = new System.IO.FileStream(src_fn, System.IO.FileMode.Open, System.IO.FileAccess.Read))
+            using (System.IO.FileStream fs = new System.IO.FileStream(bin_fn, System.IO.FileMode.Open, System.IO.FileAccess.Read))
             {
                 b = new byte[fs.Length];
                 fs.Read(b, 0, b.Length);
@@ -288,7 +292,7 @@ rename some uses of "src" as "mif" instead.
             send("l");
             send(b, 0, b.Length);
 
-            load_source(source_fn);
+            load_mif(source_fn);
         }
 
         private void set_bp(int bpnum, TextBox tb)
