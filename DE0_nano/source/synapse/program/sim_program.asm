@@ -31,7 +31,7 @@
     alias_both ge                   10              "ge"
     alias_both gf                   11              "gf"
     alias_both gg                   12              "gg"
-    alias_both gh                   13              "gh"
+    alias_both puffing              13              "puffing"
     alias_both pa                   14              "pa"
     alias_both pb                   15              "pb"
     alias_both pc                   16              "pc"
@@ -108,6 +108,9 @@
     // keep the real hardware occupied and powered up during testing.
     power_duty = $power_duty_holding
     
+    // set up event capture logic.
+    puffing = 0
+    
     // set up an engine running state.
     ign_period = ([rpm_to_jf 1000])  
     
@@ -120,10 +123,12 @@
     // event 0 not used in this app anyway.
     :event_table    
     ([label :poll_events])
-    ([label :puff1_capture_handler])
     ([label :ustimer0_handler])
+    ([label :ign_pulse_done_handler])
+    ([label :puff1_capture_handler])
     ([label :spi_done_handler])
     ([label :mstimer0_handler])
+    ([label :puff1_timeout_handler])
     ([label :uart_rx_handler])
     ([label :uart_rx_overflow_handler])
     ([label :uart_tx_overflow_handler])
@@ -133,18 +138,48 @@
     ([label :softevent0_handler])
     
     // #########################################################################
+
+<<
+    proc send_tkn {lin addr} {
+        parse "
+            a = $addr
+            call print_nt
+            puteol
+        "
+    }
+>>
+    
+:start_puffing_tkn
+    "pufon"
     
 event puff1_capture_handler
     a = puff1cnt
     a = a>>4
-    if a eq 0 {
-        a = puff1cnt
-        call put4x
-        putasc { }
-        a = puff1len
-        call put4x
-        puteol
+    //if a eq 0 {
+        //a = puff1cnt
+        //call put4x
+        //putasc { }
+        //a = puff1len
+        //call put4x
+        //puteol
+    //}
+    if puffing eq 0 {
+        puffing = 1
+        send_tkn :start_puffing_tkn
     }
+end_event
+
+:stop_puffing_tkn
+    "pufof"
+
+event puff1_timeout_handler
+    if puffing eq 1 {
+        puffing = 0
+        send_tkn :stop_puffing_tkn
+    }
+end_event
+
+event ign_pulse_done_handler
 end_event
 
 event ustimer0_handler

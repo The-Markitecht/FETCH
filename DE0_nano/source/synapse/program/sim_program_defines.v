@@ -44,8 +44,8 @@
 `define DR_GF  11
 `define SR_GG  12
 `define DR_GG  12
-`define SR_GH  13
-`define DR_GH  13
+`define SR_PUFFING  13
+`define DR_PUFFING  13
 `define SR_PA  14
 `define DR_PA  14
 `define SR_PB  15

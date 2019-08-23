@@ -73,6 +73,8 @@ module soft_top (
     // soft_top specific pins.
     ,(* chip_pin = "J13" *) output wire  sim_async_tx_line
     ,(* chip_pin = "J16" *)  input wire  sim_async_rx_line
+    ,(* chip_pin = "M10" *) output wire  sim_dbg_async_tx_line
+    ,(* chip_pin = "L14" *)  input wire  sim_dbg_async_rx_line
 );
 
 // stubbed hardware signals.
@@ -157,6 +159,8 @@ wire sim_reset = sysreset || 1'b0; //TODO: add a way to soft reset the sim for t
 
 // ############################## car hardware simulator Synapse316 
 // with its own code RAM.  totally independent of the target MCU.
+
+/*
 wire[`CODE_ADDR_TOP:0]     code_addr;
 wire[`WMSB:0]              code_in;
 wire                       code_ready;
@@ -204,6 +208,29 @@ sim_code_ram	simulator_program (
 );
 // Quartus II software searches for the altsyncram init_file in the project directory, 
 // the project db directory, user libraries, and the current source file location.
+*/
+
+// sim MCU plus its own debugging supervisor and a code ROM for each.
+wire[15:0]                r[`TOP_REG:0];
+wire[`TOP_REG:0]          r_read;  
+wire[`TOP_REG:0]          r_load;
+wire[15:0]                r_load_data;  
+//assign timer_enable = ! visor_break_mode;
+supervised_synapse316 supmcu(
+    .sysclk          (sysclk      ) ,
+    .sysreset        (sysreset    ) ,
+    .clk_progmem     (clk_progmem),
+    .clk_async       (clk_async),
+    .mcu_wait_in     (0),
+    .visor_break_mode(),
+    .boot_break      (0), 
+    .r               (r),
+    .r_read          (r_read),
+    .r_load          (r_load),
+    .r_load_data     (r_load_data),
+    .dbg_async_rx_line   (sim_dbg_async_rx_line),
+    .dbg_async_tx_line   (sim_dbg_async_tx_line)
+);    
 
 // GP register file and a stack.
 std_reg gp_reg[`TOP_GP:0](sysclk, sim_reset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
@@ -352,12 +379,23 @@ always_ff @(posedge sysclk)
     else if (puff1_fall)
         puff1cnt <= puff1cnt + 16'd1;
 
+// injection puff timeout after 200 ms.
+reg[7:0] puff1timeout;
+wire puff1timeout_detected = puff1timeout == 0;
+always_ff @(posedge sysclk) 
+    if (sim_reset)
+        puff1timeout <= 0;
+    else if (puff1_fall)
+        puff1timeout <= 'd200;
+    else if (pulse1k && ! puff1timeout_detected)
+        puff1timeout <= puff1timeout - 16'd1;
+
 // injection puff length capture, in microseconds.
 //TODO: cope with injector PWM and/or peak-and-hold.
 reg[15:0] puff1len;
 assign r[`SR_PUFF1LEN] = puff1len;
 always_ff @(posedge sysclk) 
-    if (injector1_open)
+    if (injector1_open && pulse1m)
         puff1len <= puff1len + 16'd1;
 
 //TODO: connect these remaining simulated signals.
@@ -373,7 +411,7 @@ wire spi_busy = 0;
 // event controller is listed last to utilize wires from all other parts.
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.
 std_reg soft_event_reg(sysclk, sysreset, r[`SR_SOFT_EVENT], r_load_data, r_load[`DR_SOFT_EVENT]);
-event_controller #(.NUM_INPUTS(13)) events( 
+event_controller #(.NUM_INPUTS(14)) events( 
      .sysclk            (sysclk)
     ,.sysreset          (sysreset || r[`SR_SOFT_EVENT][`EVENT_CONTROLLER_RESET_BIT])
     ,.priority_out      (r[`SR_EVENT_PRIORITY])
@@ -387,6 +425,7 @@ event_controller #(.NUM_INPUTS(13)) events(
         ,puff1_fall // end of a puff.  good time to read its captured length.
         , ! spi_busy // END of a SPI transaction.
         ,mstimer0_expired
+        ,puff1timeout_detected
         , ! r[`SR_FDUART_STATUS][`ARX_FIFO_EMPTY_BIT]
         , r[`SR_FDUART_STATUS][`ARX_FIFO_FULL_BIT]
         , r[`SR_FDUART_STATUS][`ATX_FIFO_FULL_BIT]

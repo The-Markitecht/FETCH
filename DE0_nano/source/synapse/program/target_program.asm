@@ -160,7 +160,7 @@
     
     // ignition time capture.        
     // all ignition time vars are expressed in 20us "jiffies" or "jf".  
-    // 8750 RPM = about 80 jf between rising edges on chevy ignition white wire.  ignition counter noise blanking begins here in rev 627.
+    // 8750 RPM = about 80 jf between rising edges on chevy ignition white wire.  ignition counter noise blanking begins here in svn revision 627.
     // 5000 RPM = about 140 jf
     // 1000 RPM = about 700 jf 
     //  100 RPM = about 7000 jf
