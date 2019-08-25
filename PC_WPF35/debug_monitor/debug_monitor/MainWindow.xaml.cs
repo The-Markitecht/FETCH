@@ -20,21 +20,28 @@ using System.Xml;
 using System.Text.RegularExpressions;
 using debug_monitor;
 
-namespace CVtool
+namespace project
 {
+    public enum ops {
+        debug,
+        load
+    }
+
     public partial class MainWindow : Window
     {
         static public string app_path = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
         Action emptyDelegate = delegate { };
 
-        protected int port_num = int.Parse(Environment.GetCommandLineArgs()[1]);
-        protected string mif_fn = System.IO.Path.Combine(app_path, Environment.GetCommandLineArgs()[2]);
+        protected ops cmd_line_op = (ops)Enum.Parse(typeof(ops), Environment.GetCommandLineArgs()[1].Trim(), true);
+        protected int port_num = int.Parse(Environment.GetCommandLineArgs()[2]);
+        protected string mif_fn = System.IO.Path.Combine(app_path, Environment.GetCommandLineArgs()[3]);
         // in this version the command line argument should actually specify the target program .mif file, not the .asm source.
 
         protected SerialPort port = null;
         protected DispatcherTimer rx_tmr = null;
         protected const int RETAIN_CHARS = 500;
+        //protected BlockingQueue<string> msgq = new BlockingQueue<string>();
         protected StringBuilder rx_sbuf = new StringBuilder(RETAIN_CHARS * 2);
         //protected Dictionary<UInt16,UInt16> old_values = new Dictionary<UInt16,UInt16>();
         protected Dictionary<UInt16,UInt16> line_nums = new Dictionary<UInt16,UInt16>();
@@ -48,10 +55,15 @@ namespace CVtool
         protected UInt16 lagged_ipr = 0;
         protected UInt16 last_known_exr = 0;
         protected const UInt16 EXR_SPECIAL_INSTRUCTION_MASK = 0xc000;        
+        protected int prompt_count = 0;
 
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private bool special_instruction_in_progress() {
+            return (last_known_exr & EXR_SPECIAL_INSTRUCTION_MASK) == EXR_SPECIAL_INSTRUCTION_MASK;
         }
 
         private void load_mif()
@@ -115,9 +127,40 @@ namespace CVtool
                 rx_tmr.Start();
         }
 
+        private void do_events() {
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Render, new Action(emptyDelegate));
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(emptyDelegate));
+        }
+
+        private void send_and_wait(string s) {
+            Console.WriteLine(s);
+            int prev = prompt_count;
+            send(s);
+            while (prompt_count == prev) {
+                do_events();
+            }
+        }
+
+        private void load_and_exit() {
+            send_and_wait("n");
+            // avoid loading at any time that might send the target berserk.
+            if (special_instruction_in_progress()) {
+                send_and_wait("n");
+                if (special_instruction_in_progress()) {
+                    send_and_wait("n");
+                    if (special_instruction_in_progress()) {
+                        Console.WriteLine("Could not step into a safe state.");
+                        Environment.Exit(1);
+                    }
+                }
+            }
+            send_program();
+            send("r");
+            Environment.Exit(0);
+        }
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
             port = new SerialPort("COM" + port_num.ToString(), 115200, Parity.None, 8, StopBits.One);
             port.WriteTimeout = 500;
             port.ReadTimeout = 1;
@@ -132,7 +175,19 @@ namespace CVtool
             load_mif();
             rx_tmr.Start();
 
-            this.WindowState = System.Windows.WindowState.Maximized;
+            if (cmd_line_op == ops.load) {
+                // this approach doesn't work due to WPF threading requirements.
+                // porting this part to tcl instead 2019-08.
+                load_btn.IsEnabled = false;
+                step_btn.IsEnabled = false;
+                run_btn.IsEnabled = false;
+                src_txt.IsEnabled = false;
+                var thd = new Thread(load_and_exit);
+                thd.IsBackground = true;
+                thd.Start(); 
+            } else {
+                this.WindowState = System.Windows.WindowState.Maximized;
+            }
         }
 
         protected void show_hilite(UInt16 addr)
@@ -188,6 +243,7 @@ rename some uses of "src" as "mif" instead.
                     Match m = ipr_re.Match(s);
                     if (m.Success)
                     {
+                        prompt_count++;
                         lagged_ipr = last_known_ipr;
                         last_known_ipr = UInt16.Parse(m.Groups[1].Value, System.Globalization.NumberStyles.HexNumber);
                         last_known_exr = UInt16.Parse(m.Groups[2].Value, System.Globalization.NumberStyles.HexNumber);
@@ -209,7 +265,12 @@ rename some uses of "src" as "mif" instead.
                 sb.Append(b[i].ToString("X2")).Append(' ');
             return sb.ToString();
         }
-
+/*
+        protected static void log_thread(MainWindow win) {
+            foreach (string msg in msgq) {
+            }
+        }
+        */
         public void log(string s, bool newline = true)
         {
             if (newline)
@@ -258,15 +319,7 @@ rename some uses of "src" as "mif" instead.
             send("r");
         }
 
-
-        private void load_btn_Click(object sender, RoutedEventArgs e)
-        {
-            // avoid loading at any time that might send the target berserk.
-            if ((last_known_exr & EXR_SPECIAL_INSTRUCTION_MASK) == EXR_SPECIAL_INSTRUCTION_MASK) {
-                MessageBox.Show("This is a bad time for a load.  EXR contains a branching instruction or other special instruction.  Step past it first.", "Not Supported");
-                return;
-            }
-            
+        private void send_program() {
             // read new binary from disk.
             string bin_fn = System.IO.Path.ChangeExtension(mif_fn, "bin");
             log(bin_fn);
@@ -289,8 +342,17 @@ rename some uses of "src" as "mif" instead.
             logf("{0} = file sum", sum.result().ToString("x4"));
 
             send("l");
-            send(b, 0, b.Length);
+            send(b, 0, b.Length);        
+        }
 
+        private void load_btn_Click(object sender, RoutedEventArgs e)
+        {
+            // avoid loading at any time that might send the target berserk.
+            if (special_instruction_in_progress()) {
+                MessageBox.Show("This is a bad time for a load.  EXR contains a branching instruction or other special instruction.  Step past it first.", "Not Supported");
+                return;
+            }            
+            send_program();
             load_mif();
         }
 
