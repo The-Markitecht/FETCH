@@ -63,7 +63,9 @@ namespace project
         }
 
         private bool special_instruction_in_progress() {
-            return (last_known_exr & EXR_SPECIAL_INSTRUCTION_MASK) == EXR_SPECIAL_INSTRUCTION_MASK;
+            // this is no longer needed since the visor_program now takes care of it.
+            //return (last_known_exr & EXR_SPECIAL_INSTRUCTION_MASK) == EXR_SPECIAL_INSTRUCTION_MASK;
+            return false;
         }
 
         private void load_mif()

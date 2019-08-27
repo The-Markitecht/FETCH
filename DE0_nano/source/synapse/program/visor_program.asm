@@ -55,6 +55,7 @@
     alias_both m9k_data         [incr counter]  "m9k_data"
     
     alias_src  exr_shadow	    [incr counter]  {}
+        setvar exr_unsafe_mask 0xc000
     alias_src  tg_code_addr     [incr counter]  {}
     alias_src  peek_data        [incr counter]  {}
     alias_src  bp_status	    [incr counter]  {}
@@ -156,9 +157,7 @@
         // command = step next instruction.
         asc b = "n"
         bn eq :skip_step
-            bus_ctrl = $bp_step_mask
-            bp0_addr = bp0_addr
-            call :wait_for_bp
+            call :step_target
             jmp :cmd_loop
         :skip_step
         
@@ -176,6 +175,7 @@
         // command = load program.
         asc b = "l"
         bn eq :skip_load
+            call :step_until_safe
             call :load_program
             jmp :cmd_loop
         :skip_load
@@ -240,6 +240,41 @@
         
     jmp :main_loop
 } >>
+    
+func step_target
+    bus_ctrl = $bp_step_mask
+    bp0_addr = bp0_addr
+    call :wait_for_bp
+end_func
+    
+    
+:unsafe_msg
+    "\r\n!UNSAFE!\r\n"
+
+func step_until_safe
+    a = exr_shadow
+    b = $exr_unsafe_mask
+    if and eq $exr_unsafe_mask {
+        // exr shows a branch in progress.  not safe to load a new program right now.
+        call step_target
+    }
+
+    a = exr_shadow
+    b = $exr_unsafe_mask
+    if and eq $exr_unsafe_mask {
+        // exr shows a branch in progress.  not safe to load a new program right now.
+        call step_target
+    }
+
+    a = exr_shadow
+    b = $exr_unsafe_mask
+    if and eq $exr_unsafe_mask {
+        // failed to step to a safe state.
+        a = :unsafe_msg
+        call print_nt
+        puteol
+    }
+end_func
     
 func dump_avalon 
     // test case: u0010 0011 0013 0012 0000 0000 0080.
@@ -491,40 +526,39 @@ end_func
 // show target status display.
 func dump_target
     puteol
-    i = 0
-    j = 1
-    :next_reg
-        // fetch register name from table in target program.
-        // i = register number.
-        // peek is skipped for any reg name starting with 2 slashes (good for read-sensitive regs). 
-        a = i
-        a = a<<1
-        a = a<<1
-        b = 3
-        a = a+b
-        b = x
-        m9k_addr = a+b
-        a = m9k_data
-        b = 0x2f2f
-        br eq :no_peek
-            putasc " "
-            putasc " "
-            a = m9k_addr
-            b = 8
-            call :print_fixed_target
-            putasc "="
-            a = i
-            call :peek
-            a = peek_data
-            call :put4x
-            puteol
-        :no_peek
-        i = i+j
+    // verify sane number of registers in the target program's register name table.
+    m9k_addr = 2
+    x = m9k_data
+    if x gt $max_num_regs {
+        a = :unsafe_msg
+        call print_nt
+        puteol
+    } else {
         // loop up to the number of registers in the target program's register name table.
-        m9k_addr = 2
-        b = m9k_data
-        a = i
-    bn eq :next_reg
+        for {i = 0} {i lt x} step j = 1 {
+            // fetch register name from table in target program.
+            // i = register number.
+            // peek is skipped for any reg name starting with 2 slashes (good for read-sensitive regs). 
+            a = i
+            a = a<<1
+            a = a<<1
+            b = 3
+            m9k_addr = a+b
+            if m9k_data ne 0x2f2f {
+                putasc " "
+                putasc " "
+                a = m9k_addr
+                b = 8
+                call :print_fixed_target
+                putasc "="
+                a = i
+                call :peek
+                a = peek_data
+                call :put4x
+                puteol
+            }
+        }
+    }
 end_func
 
 // print a fixed-length string from packed words in TARGET program space.
