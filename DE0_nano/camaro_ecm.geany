@@ -57,10 +57,8 @@ FILE_NAME_24=344;ASM;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%
 FILE_NAME_25=558;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Csupervised_synapse316.v;0;4
 FILE_NAME_26=1901;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cram2port.v;0;4
 FILE_NAME_27=0;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Csynapse316.v;0;4
-FILE_NAME_28=452;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cdebugger%5Cdebugger.tcl;0;4
-FILE_NAME_29=408;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cdebugger%5Cfletcher16.tcl;0;4
-FILE_NAME_30=14294;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cvisor_program.asm;0;4
-FILE_NAME_31=1334;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cvisor_program.mif;0;4
+FILE_NAME_28=3246;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cdebugger%5Cdebugger.tcl;0;4
+FILE_NAME_29=16260;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cvisor_program.asm;0;4
 
 [build-menu]
 NF_00_LB=_Make
