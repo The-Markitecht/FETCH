@@ -32,7 +32,7 @@
     alias_both gd                   9               "gd"
     alias_both ge                   10              "ge"
     alias_both gf                   11              "gf"
-    alias_both accel_dir            12              "aceldir"
+    alias_both scroll_dir           12              "scroldr"
     alias_both puffing              13              "puffing"
     alias_both pa                   14              "pa"
     alias_both pb                   15              "pb"
@@ -72,32 +72,17 @@
     alias_both puff1cnt             [incr counter]  "pf1cnt"
     alias_src  puff1len             [incr counter]  "pf1len"
 
-    setvar     adc_num_channels        8
-    setvar     anmux_adc_channel       7
-    alias_both adc0                 [incr counter]  "adc0"
-    alias_both adc1                 [incr counter]  "adc1"
-    alias_both adc2                 [incr counter]  "adc2"
-    alias_both adc3                 [incr counter]  "adc3"
-    alias_both adc4                 [incr counter]  "//adc4"
-        alias_both adc_maf          [dest adc4]     "adcmaf"
-    alias_both adc5                 [incr counter]  "//adc5"
-        alias_both adc_o2           [dest adc5]     "adco2"
-    alias_both adc6                 [incr counter]  "//adc6"
-        alias_both adc_tps          [dest adc6]     "adctps"
-    alias_both adc7                 [incr counter]  "//adc7"
-        alias_both adc_anmux        [dest adc7]     "adcmux"
+    // ADC and anmux are represented sparesely here, to fit within Synapse external register space.
+    vdefine     adc_num_channels        8
+    vdefine     anmux_adc_channel       7
+    alias_both adc_maf              [incr counter]  "adcmaf"
+    alias_both adc_o2               [incr counter]  "adco2"
+    alias_both adc_tps              [incr counter]  "adctps"
     
-    setvar     anmux_num_channels      8
-    alias_both anmux0               [incr counter]  "anmux0"
-    alias_both anmux1               [incr counter]  "anmux1"
-    alias_both anmux2               [incr counter]  "//anmux2"
-        alias_both anmux_block_temp [dest anmux2]   "anblock"
-    alias_both anmux3               [incr counter]  "//anmux3"
-        alias_both anmux_trans_temp [dest anmux3]   "antrans"
-    alias_both anmux4               [incr counter]  "anmux4"
-    alias_both anmux5               [incr counter]  "anmux5"
-    alias_both anmux6               [incr counter]  "anmux6"
-    alias_both anmux7               [incr counter]  "anmux7"
+    vdefine     anmux_num_channels      8
+    alias_src  anmux_read           [incr counter]  "anmuxrd"
+    alias_both anmux_block_temp     [incr counter]  "anblock"
+    alias_both anmux_trans_temp     [incr counter]  "antrans"
 
     //alias_both code_write_addr      [incr counter]  "//cdwrad"
     //alias_both code_write_data      [incr counter]  "//cdwrdt"
@@ -151,7 +136,7 @@
     
     // set up an engine running state.
     ign_period = ([rpm_to_jf 1000])  
-    accel_dir = 1
+    scroll_dir = 1
     mstimer0 = 1
     
     // start handling events.
@@ -216,14 +201,15 @@ event ustimer0_handler
 end_event
 
 event mstimer0_handler
-    a = ign_period
-    b = accel_dir
-    ign_period = a+b
-    if ign_period gt ([rpm_to_jf 1000]) {
-        accel_dir = -1
+    a = scroll_dir
+    a = a<<4
+    b = anmux_trans_temp
+    anmux_trans_temp = a+b
+    if anmux_trans_temp gt 4000 {
+        scroll_dir = -1
     }
-    if ign_period lt ([rpm_to_jf 5000]) {
-        accel_dir = 1
+    if anmux_trans_temp lt 10 {
+        scroll_dir = 1
     }
     mstimer0 = 1
 end_event

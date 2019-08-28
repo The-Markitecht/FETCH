@@ -166,9 +166,9 @@ wire[`WMSB:0]              code_in;
 wire                       code_ready;
 wire[`DEBUG_IN_WIDTH-1:0]  debug_in = 'd0;
 wire[`DEBUG_OUT_WIDTH-1:0] debug_out; 
-wire[`WMSB:0]              r[`TOP_REG:0];
-wire[`TOP_REG:0]           r_read ;   
-wire[`TOP_REG:0]           r_load;
+wire[`WMSB:0]              r[`TOP_POPULATED_EXT_REG:0];
+wire[`TOP_POPULATED_EXT_REG:0]           r_read ;   
+wire[`TOP_POPULATED_EXT_REG:0]           r_load;
 wire[`WMSB:0]              r_load_data;
 synapse316 simulator_core (
     .sysclk          (sysclk      ) ,
@@ -211,10 +211,10 @@ sim_code_ram	simulator_program (
 */
 
 // sim MCU plus its own debugging supervisor and a code ROM for each.
-wire[15:0]                r[`TOP_REG:0];
-wire[`TOP_REG:0]          r_read;  
-wire[`TOP_REG:0]          r_load;
-wire[15:0]                r_load_data;  
+wire[15:0]                     r[`TOP_POPULATED_EXT_REG:0];
+wire[`TOP_POPULATED_EXT_REG:0] r_read;  
+wire[`TOP_POPULATED_EXT_REG:0] r_load;
+wire[15:0]                     r_load_data;  
 //assign timer_enable = ! visor_break_mode;
 supervised_synapse316 #(.TARGET_MIF("sim_program.mif")) sim_visor (
     .sysclk          (sysclk      ) ,
@@ -392,21 +392,99 @@ always_ff @(posedge sysclk)
 
 // injection puff length capture, in microseconds.
 //TODO: cope with injector PWM and/or peak-and-hold.
-reg[15:0] puff1len;
+reg[`WMSB:0] puff1len;
 assign r[`SR_PUFF1LEN] = puff1len;
 always_ff @(posedge sysclk) 
     if (injector1_open && pulse1m)
-        puff1len <= puff1len + 16'd1;
+        puff1len <= puff1len + `WW'd1;
+
+// simulated analog muxer.
+assign r[`SR_ANMUX_READ] = { {1'd0{`WW-4}}, anmux_ctrl };
+std_reg anmux_block_temp(sysclk, sim_reset, 
+    r[`SR_ANMUX_BLOCK_TEMP], r_load_data, r_load[`DR_ANMUX_BLOCK_TEMP]);
+std_reg anmux_trans_temp(sysclk, sim_reset, 
+    r[`SR_ANMUX_TRANS_TEMP], r_load_data, r_load[`DR_ANMUX_TRANS_TEMP]);
+`define  ANMUX_TOP  `ANMUX_NUM_CHANNELS-1
+wire[`WMSB:0] anmux_data[`ANMUX_TOP:0];
+assign anmux_data[7] = 'd0;
+assign anmux_data[6] = 'd0;
+assign anmux_data[5] = 'd0;
+assign anmux_data[4] = 'd0;
+assign anmux_data[3] = r[`SR_ANMUX_TRANS_TEMP];
+assign anmux_data[2] = r[`SR_ANMUX_BLOCK_TEMP];
+assign anmux_data[1] = 'd0;
+assign anmux_data[0] = 'd0;
+
+// simulated ADC with SPI slave.
+/* sim_adc adc(
+     .sysclk            (sysclk)
+    ,.sysreset          (sysreset)
+    ,.cs_n              (sim_adc_cs_n)
+    ,.saddr             (sim_adc_saddr)
+    ,.sclk              (sim_adc_sclk)
+    ,.sdat              (sim_adc_sdat)
+) */
+std_reg adc_maf(sysclk, sim_reset, r[`SR_ADC_MAF], r_load_data, r_load[`SR_ADC_MAF]);
+std_reg adc_o2 (sysclk, sim_reset, r[`SR_ADC_O2 ], r_load_data, r_load[`SR_ADC_O2 ]);
+std_reg adc_tps(sysclk, sim_reset, r[`SR_ADC_TPS], r_load_data, r_load[`SR_ADC_TPS]);
+`define  ADC_TOP  `ADC_NUM_CHANNELS-1
+wire[`WMSB:0] adc_data[`ADC_TOP:0];
+assign adc_data[7] = 'd0; // channel wired to anmux in real hardware.
+assign adc_data[6] = r[`SR_ADC_TPS];
+assign adc_data[5] = r[`SR_ADC_O2 ];
+assign adc_data[4] = r[`SR_ADC_MAF];
+assign adc_data[3] = 'd0;
+assign adc_data[2] = 'd0;
+assign adc_data[1] = 'd0;
+assign adc_data[0] = 'd0;
+
+reg prev_sck = 0;
+always_ff @(posedge sysclk)
+    prev_sck <= sim_adc_sclk;
+wire sck_rise = sim_adc_sclk && ! prev_sck;
+wire sck_fall = prev_sck && ! sim_adc_sclk;
+
+reg prev_csn = 0;
+always_ff @(posedge sysclk)
+    prev_csn <= sim_adc_cs_n;
+wire csn_rise = sim_adc_cs_n && ! prev_csn;
+wire csn_fall = prev_csn && ! sim_adc_cs_n;
+wire spi_busy = ! sim_adc_cs_n;
+
+`define SPIW 16
+`define SPIMSB `SPIW - 1
+reg[`SPIMSB:0] mi_shifter = 0; // for data OUTPUT from this slave.
+reg[`SPIMSB:0] mo_shifter = 0; // for data INPUT to this slave.
+assign sim_adc_sdat = mi_shifter[`SPIMSB];
+reg[2:0] adc_addr = 0;
+always_ff @(posedge sysclk) begin
+    if (sysreset || sim_adc_cs_n) begin
+        mo_shifter <= 'd0;
+        mi_shifter <= 'd0;
+    end else if (csn_fall) begin
+        mi_shifter <= adc_addr == `ANMUX_ADC_CHANNEL 
+            ? anmux_data[ r[`SR_ANMUX_READ] ]
+            : adc_data[adc_addr];
+    end else if (sck_rise) begin
+        mo_shifter <= { mo_shifter[`SPIMSB-1:0], sim_adc_saddr };
+    end else if (sck_fall) begin
+        mi_shifter <= { mi_shifter[`SPIMSB-1:0], 1'd0 };
+    end
+end
+always_ff @(posedge sysclk) begin
+    if (sysreset) 
+        adc_addr <= 'd0;
+    else if (csn_rise)
+        adc_addr <= mo_shifter[13:11];
+end
+
 
 //TODO: connect these remaining simulated signals.
-assign sim_adc_sdat = 1'b0;
-
 assign sim_dip_switch = 1'b0;
 
 assign sim_power_lost = 1'b0;
 assign sim_ignition_switch_off = 1'b0;
 
-wire spi_busy = 0;
 
 // event controller is listed last to utilize wires from all other parts.
 // its module can be reset by software, by writing EVENT_CONTROLLER_RESET_MASK to DR_SOFT_EVENT.

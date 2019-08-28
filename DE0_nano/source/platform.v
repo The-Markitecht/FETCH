@@ -158,10 +158,10 @@ wire ignition_switch_off_sync;
 syncer ignition_switch_syncer(sysclk, ignition_switch_off, ignition_switch_off_sync);
         
 // MCU target plus debugging supervisor and a code ROM for each.
-wire[15:0]                r[`TOP_REG:0];
-wire[`TOP_REG:0]          r_read;  
-wire[`TOP_REG:0]          r_load;
-wire[15:0]                r_load_data;  
+wire[15:0]                     r[`TOP_POPULATED_EXT_REG:0];
+wire[`TOP_POPULATED_EXT_REG:0] r_read;  
+wire[`TOP_POPULATED_EXT_REG:0] r_load;
+wire[15:0]                     r_load_data;  
 wire                      mcu_wait;
 assign timer_enable = ! visor_break_mode;
 supervised_synapse316 #(.TARGET_MIF("target_program.mif")) supmcu(

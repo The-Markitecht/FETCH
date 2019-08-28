@@ -79,8 +79,11 @@ proc scan_data {data} {
     
     # update GUI run marks 
     if {[info exists ::data(map)]} {
-        ::afrc_run_mark = [split $::data(map) ,]
-        eval refresh_afrc_run_mark $::afrc_run_mark
+        m = [split $::data(map) ,]
+        if {[llength $m] == 2} {
+            ::afrc_run_mark = $m
+            eval refresh_afrc_run_mark $::afrc_run_mark
+        }
     }
     if {[info exists ::data(bti)]} {
         if {[scan $::data(bti) %4x idx] == 1} {
@@ -169,7 +172,7 @@ proc load_maps {fn} {
     if {[file extension $fn] eq {}} {
         append fn .map
     }
-    fn = [file join maps $fn]
+    fn = [f+ $::builderDir maps $fn]
 
     f = [open $fn r]
     array set content [read $f]
@@ -205,7 +208,7 @@ proc sav {fn} {
     if {[file extension $fn] eq {}} {
         append fn .map
     }
-    fn = [file join maps $fn]
+    fn = [f+ $::builderDir maps $fn]
 #TODO: fix missing and confused equal signs in this proc??
     foreach lst {::afrc_map  ::maf_ref  ::rpm_ref} {
         content([string = trim $lst :]) [set $lst]

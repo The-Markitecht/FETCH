@@ -9,7 +9,7 @@ module synapse316 #(
      parameter IPR_WIDTH              = `IPR_WIDTH      
     ,parameter IPR_TOP                = IPR_WIDTH - 1       
     ,parameter NUM_POPULATED_EXT_REGS = `NUM_POPULATED_EXT_REGS       
-    ,parameter top_populated_ext_reg  = NUM_POPULATED_EXT_REGS - 1       
+    ,parameter TOP_POPULATED_EXT_REG  = NUM_POPULATED_EXT_REGS - 1       
 ) (
      input wire                  sysclk            
     ,input wire                  sysreset          
@@ -24,10 +24,10 @@ module synapse316 #(
     
     // register file, for any combination of general-purpose registers and i/o addressing.
     // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
-    ,input  wire[`WMSB:0]         r[TOP_REG:0] // r[] and r_read[] are addressed by the SR_ number space.  that may vary from DR_.
-    ,output wire[TOP_REG:0]           r_read    
-    ,output wire[TOP_REG:0]           r_load   // r_load[] is addressed by the DR_ number space.  that may vary from SR_.
-    ,output wire[`WMSB:0]         r_load_data  
+    ,input  wire[`WMSB:0]                 r[TOP_POPULATED_EXT_REG:0] // r[] and r_read[] are addressed by the SR_ number space.  that may vary from DR_.
+    ,output wire[TOP_POPULATED_EXT_REG:0] r_read    
+    ,output wire[TOP_POPULATED_EXT_REG:0] r_load   // r_load[] is addressed by the DR_ number space.  that may vary from SR_.
+    ,output wire[`WMSB:0]                 r_load_data  
 ); 
     // see Zim notes for Synapse316 MCU.
 

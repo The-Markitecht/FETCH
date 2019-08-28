@@ -22,7 +22,7 @@
 -- offer commands to enable/disable reporting of individual tokens, to limit bulk of output overwhelming uarts.
 
     0000 : e00f ; -- <0016> jmp :main
-    0001 : 0208 ; -- <0016> "
+    0001 : 01ec ; -- <0016> "
 
 
 -- Synapse instruction set architecture constants.
@@ -31,20 +31,25 @@
 
 -- debugging supervisor contants.  these are also required by implementation of the target MCU core.
 
+-- size of external register file.  all these registers are external to the Synapse316 core.
+-- min_populated_ext_regs <= num_populated_ext_regs <= max_populated_ext_regs <= 48 supported in the core's muxer and module ports.
+-- all those numbers are smaller than src_max and dest_max addresses of the architecture.
+-- from num_populated_ext_regs through max_populated_ext_regs the external address space
+-- is stubbed as "don't care" values by the Synapse core.
+-- that doesn't affect operator results and other addresses implemented internally by the Synapse core.
+--vdefine num_populated_ext_regs            32
+--vdefine top_populated_ext_reg             $num_populated_ext_regs - 1
+-- those 2 have been moved to the assembly program to be distinct for each core.
+
 -- register addresses of operators and their operands.
 
-
--- size of register file.  all registers are external to the Synapse316 core.
--- min_num_regs <= num_regs <= max_num_regs.
--- these numbers are arbitrarily smaller than either dest_max or src_max of the architecture.
---vdefine num_regs                32
---vdefine top_reg                 $num_regs - 1
--- those 2 have been moved to the assembly program to be distinct for each core.
 
 -- program code dimensions.
 
 
 -- register file configuration.
+-- beyond top_populated_ext_reg the external address space is stubbed as "don't care" values by the Synapse core.
+-- that doesn't affect operator results and other addresses implemented internally by the Synapse core.
 
 -- application-specific register aliases.
 
@@ -57,6 +62,7 @@
 
 
 
+-- ADC and anmux are represented sparesely here, to fit within Synapse external register space.
 
 
 --alias_both code_write_addr      [incr counter]  "--cdwrad"
@@ -64,285 +70,250 @@
 
 
 
-    0002 : 0030 ; -- <0105> emit_debugger_register_table  counter
+    0002 : 0029 ; -- <0095> emit_debugger_register_table  counter
 -- "       a"
-    0003 : 2020 ; -- <0105>   
-    0004 : 2020 ; -- <0105>   
-    0005 : 2020 ; -- <0105>   
-    0006 : 6120 ; -- <0105> a 
+    0003 : 2020 ; -- <0095>   
+    0004 : 2020 ; -- <0095>   
+    0005 : 2020 ; -- <0095>   
+    0006 : 6120 ; -- <0095> a 
 -- "       b"
-    0007 : 2020 ; -- <0105>   
-    0008 : 2020 ; -- <0105>   
-    0009 : 2020 ; -- <0105>   
-    000a : 6220 ; -- <0105> b 
+    0007 : 2020 ; -- <0095>   
+    0008 : 2020 ; -- <0095>   
+    0009 : 2020 ; -- <0095>   
+    000a : 6220 ; -- <0095> b 
 -- "       i"
-    000b : 2020 ; -- <0105>   
-    000c : 2020 ; -- <0105>   
-    000d : 2020 ; -- <0105>   
-    000e : 6920 ; -- <0105> i 
+    000b : 2020 ; -- <0095>   
+    000c : 2020 ; -- <0095>   
+    000d : 2020 ; -- <0095>   
+    000e : 6920 ; -- <0095> i 
 -- "       j"
-    000f : 2020 ; -- <0105>   
-    0010 : 2020 ; -- <0105>   
-    0011 : 2020 ; -- <0105>   
-    0012 : 6a20 ; -- <0105> j 
+    000f : 2020 ; -- <0095>   
+    0010 : 2020 ; -- <0095>   
+    0011 : 2020 ; -- <0095>   
+    0012 : 6a20 ; -- <0095> j 
 -- "       x"
-    0013 : 2020 ; -- <0105>   
-    0014 : 2020 ; -- <0105>   
-    0015 : 2020 ; -- <0105>   
-    0016 : 7820 ; -- <0105> x 
+    0013 : 2020 ; -- <0095>   
+    0014 : 2020 ; -- <0095>   
+    0015 : 2020 ; -- <0095>   
+    0016 : 7820 ; -- <0095> x 
 -- "       y"
-    0017 : 2020 ; -- <0105>   
-    0018 : 2020 ; -- <0105>   
-    0019 : 2020 ; -- <0105>   
-    001a : 7920 ; -- <0105> y 
+    0017 : 2020 ; -- <0095>   
+    0018 : 2020 ; -- <0095>   
+    0019 : 2020 ; -- <0095>   
+    001a : 7920 ; -- <0095> y 
 -- "      ga"
-    001b : 2020 ; -- <0105>   
-    001c : 2020 ; -- <0105>   
-    001d : 2020 ; -- <0105>   
-    001e : 6167 ; -- <0105> ag
+    001b : 2020 ; -- <0095>   
+    001c : 2020 ; -- <0095>   
+    001d : 2020 ; -- <0095>   
+    001e : 6167 ; -- <0095> ag
 -- "      gb"
-    001f : 2020 ; -- <0105>   
-    0020 : 2020 ; -- <0105>   
-    0021 : 2020 ; -- <0105>   
-    0022 : 6267 ; -- <0105> bg
+    001f : 2020 ; -- <0095>   
+    0020 : 2020 ; -- <0095>   
+    0021 : 2020 ; -- <0095>   
+    0022 : 6267 ; -- <0095> bg
 -- "      gc"
-    0023 : 2020 ; -- <0105>   
-    0024 : 2020 ; -- <0105>   
-    0025 : 2020 ; -- <0105>   
-    0026 : 6367 ; -- <0105> cg
+    0023 : 2020 ; -- <0095>   
+    0024 : 2020 ; -- <0095>   
+    0025 : 2020 ; -- <0095>   
+    0026 : 6367 ; -- <0095> cg
 -- "      gd"
-    0027 : 2020 ; -- <0105>   
-    0028 : 2020 ; -- <0105>   
-    0029 : 2020 ; -- <0105>   
-    002a : 6467 ; -- <0105> dg
+    0027 : 2020 ; -- <0095>   
+    0028 : 2020 ; -- <0095>   
+    0029 : 2020 ; -- <0095>   
+    002a : 6467 ; -- <0095> dg
 -- "      ge"
-    002b : 2020 ; -- <0105>   
-    002c : 2020 ; -- <0105>   
-    002d : 2020 ; -- <0105>   
-    002e : 6567 ; -- <0105> eg
+    002b : 2020 ; -- <0095>   
+    002c : 2020 ; -- <0095>   
+    002d : 2020 ; -- <0095>   
+    002e : 6567 ; -- <0095> eg
 -- "      gf"
-    002f : 2020 ; -- <0105>   
-    0030 : 2020 ; -- <0105>   
-    0031 : 2020 ; -- <0105>   
-    0032 : 6667 ; -- <0105> fg
--- " aceldir"
-    0033 : 6120 ; -- <0105> a 
-    0034 : 6563 ; -- <0105> ec
-    0035 : 646c ; -- <0105> dl
-    0036 : 7269 ; -- <0105> ri
+    002f : 2020 ; -- <0095>   
+    0030 : 2020 ; -- <0095>   
+    0031 : 2020 ; -- <0095>   
+    0032 : 6667 ; -- <0095> fg
+-- " scroldr"
+    0033 : 7320 ; -- <0095> s 
+    0034 : 7263 ; -- <0095> rc
+    0035 : 6c6f ; -- <0095> lo
+    0036 : 7264 ; -- <0095> rd
 -- " puffing"
-    0037 : 7020 ; -- <0105> p 
-    0038 : 6675 ; -- <0105> fu
-    0039 : 6966 ; -- <0105> if
-    003a : 676e ; -- <0105> gn
+    0037 : 7020 ; -- <0095> p 
+    0038 : 6675 ; -- <0095> fu
+    0039 : 6966 ; -- <0095> if
+    003a : 676e ; -- <0095> gn
 -- "      pa"
-    003b : 2020 ; -- <0105>   
-    003c : 2020 ; -- <0105>   
-    003d : 2020 ; -- <0105>   
-    003e : 6170 ; -- <0105> ap
+    003b : 2020 ; -- <0095>   
+    003c : 2020 ; -- <0095>   
+    003d : 2020 ; -- <0095>   
+    003e : 6170 ; -- <0095> ap
 -- "      pb"
-    003f : 2020 ; -- <0105>   
-    0040 : 2020 ; -- <0105>   
-    0041 : 2020 ; -- <0105>   
-    0042 : 6270 ; -- <0105> bp
+    003f : 2020 ; -- <0095>   
+    0040 : 2020 ; -- <0095>   
+    0041 : 2020 ; -- <0095>   
+    0042 : 6270 ; -- <0095> bp
 -- "      pc"
-    0043 : 2020 ; -- <0105>   
-    0044 : 2020 ; -- <0105>   
-    0045 : 2020 ; -- <0105>   
-    0046 : 6370 ; -- <0105> cp
+    0043 : 2020 ; -- <0095>   
+    0044 : 2020 ; -- <0095>   
+    0045 : 2020 ; -- <0095>   
+    0046 : 6370 ; -- <0095> cp
 -- "      pd"
-    0047 : 2020 ; -- <0105>   
-    0048 : 2020 ; -- <0105>   
-    0049 : 2020 ; -- <0105>   
-    004a : 6470 ; -- <0105> dp
+    0047 : 2020 ; -- <0095>   
+    0048 : 2020 ; -- <0095>   
+    0049 : 2020 ; -- <0095>   
+    004a : 6470 ; -- <0095> dp
 -- "--rstk  "
-    004b : 2f2f ; -- <0105> --
-    004c : 7372 ; -- <0105> sr
-    004d : 6b74 ; -- <0105> kt
-    004e : 2020 ; -- <0105>   
+    004b : 2f2f ; -- <0095> --
+    004c : 7372 ; -- <0095> sr
+    004d : 6b74 ; -- <0095> kt
+    004e : 2020 ; -- <0095>   
 -- "  ev_pri"
-    004f : 2020 ; -- <0105>   
-    0050 : 7665 ; -- <0105> ve
-    0051 : 705f ; -- <0105> p_
-    0052 : 6972 ; -- <0105> ir
+    004f : 2020 ; -- <0095>   
+    0050 : 7665 ; -- <0095> ve
+    0051 : 705f ; -- <0095> p_
+    0052 : 6972 ; -- <0095> ir
 -- "softevnt"
-    0053 : 6f73 ; -- <0105> os
-    0054 : 7466 ; -- <0105> tf
-    0055 : 7665 ; -- <0105> ve
-    0056 : 746e ; -- <0105> tn
+    0053 : 6f73 ; -- <0095> os
+    0054 : 7466 ; -- <0095> tf
+    0055 : 7665 ; -- <0095> ve
+    0056 : 746e ; -- <0095> tn
 -- " stamplo"
-    0057 : 7320 ; -- <0105> s 
-    0058 : 6174 ; -- <0105> at
-    0059 : 706d ; -- <0105> pm
-    005a : 6f6c ; -- <0105> ol
+    0057 : 7320 ; -- <0095> s 
+    0058 : 6174 ; -- <0095> at
+    0059 : 706d ; -- <0095> pm
+    005a : 6f6c ; -- <0095> ol
 -- " stamphi"
-    005b : 7320 ; -- <0105> s 
-    005c : 6174 ; -- <0105> at
-    005d : 706d ; -- <0105> pm
-    005e : 6968 ; -- <0105> ih
+    005b : 7320 ; -- <0095> s 
+    005c : 6174 ; -- <0095> at
+    005d : 706d ; -- <0095> pm
+    005e : 6968 ; -- <0095> ih
 -- "stampclo"
-    005f : 7473 ; -- <0105> ts
-    0060 : 6d61 ; -- <0105> ma
-    0061 : 6370 ; -- <0105> cp
-    0062 : 6f6c ; -- <0105> ol
+    005f : 7473 ; -- <0095> ts
+    0060 : 6d61 ; -- <0095> ma
+    0061 : 6370 ; -- <0095> cp
+    0062 : 6f6c ; -- <0095> ol
 -- "stampchi"
-    0063 : 7473 ; -- <0105> ts
-    0064 : 6d61 ; -- <0105> ma
-    0065 : 6370 ; -- <0105> cp
-    0066 : 6968 ; -- <0105> ih
+    0063 : 7473 ; -- <0095> ts
+    0064 : 6d61 ; -- <0095> ma
+    0065 : 6370 ; -- <0095> cp
+    0066 : 6968 ; -- <0095> ih
 -- "ustimer0"
-    0067 : 7375 ; -- <0105> su
-    0068 : 6974 ; -- <0105> it
-    0069 : 656d ; -- <0105> em
-    006a : 3072 ; -- <0105> 0r
+    0067 : 7375 ; -- <0095> su
+    0068 : 6974 ; -- <0095> it
+    0069 : 656d ; -- <0095> em
+    006a : 3072 ; -- <0095> 0r
 -- "mstimer0"
-    006b : 736d ; -- <0105> sm
-    006c : 6974 ; -- <0105> it
-    006d : 656d ; -- <0105> em
-    006e : 3072 ; -- <0105> 0r
+    006b : 736d ; -- <0095> sm
+    006c : 6974 ; -- <0095> it
+    006d : 656d ; -- <0095> em
+    006e : 3072 ; -- <0095> 0r
 -- "pwr_duty"
-    006f : 7770 ; -- <0105> wp
-    0070 : 5f72 ; -- <0105> _r
-    0071 : 7564 ; -- <0105> ud
-    0072 : 7974 ; -- <0105> yt
+    006f : 7770 ; -- <0095> wp
+    0070 : 5f72 ; -- <0095> _r
+    0071 : 7564 ; -- <0095> ud
+    0072 : 7974 ; -- <0095> yt
 -- " ignperd"
-    0073 : 6920 ; -- <0105> i 
-    0074 : 6e67 ; -- <0105> ng
-    0075 : 6570 ; -- <0105> ep
-    0076 : 6472 ; -- <0105> dr
+    0073 : 6920 ; -- <0095> i 
+    0074 : 6e67 ; -- <0095> ng
+    0075 : 6570 ; -- <0095> ep
+    0076 : 6472 ; -- <0095> dr
 -- "igncycnt"
-    0077 : 6769 ; -- <0105> gi
-    0078 : 636e ; -- <0105> cn
-    0079 : 6379 ; -- <0105> cy
-    007a : 746e ; -- <0105> tn
+    0077 : 6769 ; -- <0095> gi
+    0078 : 636e ; -- <0095> cn
+    0079 : 6379 ; -- <0095> cy
+    007a : 746e ; -- <0095> tn
 -- "  pf1cnt"
-    007b : 2020 ; -- <0105>   
-    007c : 6670 ; -- <0105> fp
-    007d : 6331 ; -- <0105> c1
-    007e : 746e ; -- <0105> tn
+    007b : 2020 ; -- <0095>   
+    007c : 6670 ; -- <0095> fp
+    007d : 6331 ; -- <0095> c1
+    007e : 746e ; -- <0095> tn
 -- "  pf1len"
-    007f : 2020 ; -- <0105>   
-    0080 : 6670 ; -- <0105> fp
-    0081 : 6c31 ; -- <0105> l1
-    0082 : 6e65 ; -- <0105> ne
--- "    adc0"
-    0083 : 2020 ; -- <0105>   
-    0084 : 2020 ; -- <0105>   
-    0085 : 6461 ; -- <0105> da
-    0086 : 3063 ; -- <0105> 0c
--- "    adc1"
-    0087 : 2020 ; -- <0105>   
-    0088 : 2020 ; -- <0105>   
-    0089 : 6461 ; -- <0105> da
-    008a : 3163 ; -- <0105> 1c
--- "    adc2"
-    008b : 2020 ; -- <0105>   
-    008c : 2020 ; -- <0105>   
-    008d : 6461 ; -- <0105> da
-    008e : 3263 ; -- <0105> 2c
--- "    adc3"
-    008f : 2020 ; -- <0105>   
-    0090 : 2020 ; -- <0105>   
-    0091 : 6461 ; -- <0105> da
-    0092 : 3363 ; -- <0105> 3c
+    007f : 2020 ; -- <0095>   
+    0080 : 6670 ; -- <0095> fp
+    0081 : 6c31 ; -- <0095> l1
+    0082 : 6e65 ; -- <0095> ne
 -- "  adcmaf"
-    0093 : 2020 ; -- <0105>   
-    0094 : 6461 ; -- <0105> da
-    0095 : 6d63 ; -- <0105> mc
-    0096 : 6661 ; -- <0105> fa
+    0083 : 2020 ; -- <0095>   
+    0084 : 6461 ; -- <0095> da
+    0085 : 6d63 ; -- <0095> mc
+    0086 : 6661 ; -- <0095> fa
 -- "   adco2"
-    0097 : 2020 ; -- <0105>   
-    0098 : 6120 ; -- <0105> a 
-    0099 : 6364 ; -- <0105> cd
-    009a : 326f ; -- <0105> 2o
+    0087 : 2020 ; -- <0095>   
+    0088 : 6120 ; -- <0095> a 
+    0089 : 6364 ; -- <0095> cd
+    008a : 326f ; -- <0095> 2o
 -- "  adctps"
-    009b : 2020 ; -- <0105>   
-    009c : 6461 ; -- <0105> da
-    009d : 7463 ; -- <0105> tc
-    009e : 7370 ; -- <0105> sp
--- "  adcmux"
-    009f : 2020 ; -- <0105>   
-    00a0 : 6461 ; -- <0105> da
-    00a1 : 6d63 ; -- <0105> mc
-    00a2 : 7875 ; -- <0105> xu
--- "  anmux0"
-    00a3 : 2020 ; -- <0105>   
-    00a4 : 6e61 ; -- <0105> na
-    00a5 : 756d ; -- <0105> um
-    00a6 : 3078 ; -- <0105> 0x
--- "  anmux1"
-    00a7 : 2020 ; -- <0105>   
-    00a8 : 6e61 ; -- <0105> na
-    00a9 : 756d ; -- <0105> um
-    00aa : 3178 ; -- <0105> 1x
+    008b : 2020 ; -- <0095>   
+    008c : 6461 ; -- <0095> da
+    008d : 7463 ; -- <0095> tc
+    008e : 7370 ; -- <0095> sp
+-- " anmuxrd"
+    008f : 6120 ; -- <0095> a 
+    0090 : 6d6e ; -- <0095> mn
+    0091 : 7875 ; -- <0095> xu
+    0092 : 6472 ; -- <0095> dr
 -- " anblock"
-    00ab : 6120 ; -- <0105> a 
-    00ac : 626e ; -- <0105> bn
-    00ad : 6f6c ; -- <0105> ol
-    00ae : 6b63 ; -- <0105> kc
+    0093 : 6120 ; -- <0095> a 
+    0094 : 626e ; -- <0095> bn
+    0095 : 6f6c ; -- <0095> ol
+    0096 : 6b63 ; -- <0095> kc
 -- " antrans"
-    00af : 6120 ; -- <0105> a 
-    00b0 : 746e ; -- <0105> tn
-    00b1 : 6172 ; -- <0105> ar
-    00b2 : 736e ; -- <0105> sn
--- "  anmux4"
-    00b3 : 2020 ; -- <0105>   
-    00b4 : 6e61 ; -- <0105> na
-    00b5 : 756d ; -- <0105> um
-    00b6 : 3478 ; -- <0105> 4x
+    0097 : 6120 ; -- <0095> a 
+    0098 : 746e ; -- <0095> tn
+    0099 : 6172 ; -- <0095> ar
+    009a : 736e ; -- <0095> sn
 -- "--uartdt"
-    00b7 : 2f2f ; -- <0105> --
-    00b8 : 6175 ; -- <0105> au
-    00b9 : 7472 ; -- <0105> tr
-    00ba : 7464 ; -- <0105> td
+    009b : 2f2f ; -- <0095> --
+    009c : 6175 ; -- <0095> au
+    009d : 7472 ; -- <0095> tr
+    009e : 7464 ; -- <0095> td
 -- "uartstat"
-    00bb : 6175 ; -- <0105> au
-    00bc : 7472 ; -- <0105> tr
-    00bd : 7473 ; -- <0105> ts
-    00be : 7461 ; -- <0105> ta
+    009f : 6175 ; -- <0095> au
+    00a0 : 7472 ; -- <0095> tr
+    00a1 : 7473 ; -- <0095> ts
+    00a2 : 7461 ; -- <0095> ta
 -- "    leds"
-    00bf : 2020 ; -- <0105>   
-    00c0 : 2020 ; -- <0105>   
-    00c1 : 656c ; -- <0105> el
-    00c2 : 7364 ; -- <0105> sd
+    00a3 : 2020 ; -- <0095>   
+    00a4 : 2020 ; -- <0095>   
+    00a5 : 656c ; -- <0095> el
+    00a6 : 7364 ; -- <0095> sd
 
 -- error code constants.
 
 -- string resources
--- :boot_msg -- = 0x00c3
+-- :boot_msg -- = 0x00a7
 -- "SIM\r\n\x0"
-    00c3 : 4953 ; -- <0113> IS
-    00c4 : 0d4d ; -- <0113>  M
-    00c5 : 000a ; -- <0113>   
+    00a7 : 4953 ; -- <0103> IS
+    00a8 : 0d4d ; -- <0103>  M
+    00a9 : 000a ; -- <0103>   
 
 -- libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
 
 -- event loop.  this infrastructure is assembled directly into the main program, not a func.
 -- first instruction of an event handler should be the 7th cycle after reading its priority from the event controller here.
--- :poll_events -- = 0x00c6
+-- :poll_events -- = 0x00aa
 -- initialize prior to polling loop, for minimum latency.
-    00c6 : 07a0 ; -- <0006> b = :event_table
-    00c7 : 0220 ; -- <0006> "
+    00aa : 07a0 ; -- <0006> b = :event_table
+    00ab : 0204 ; -- <0006> "
 -- 3-cycle polling loop.
--- :poll_events_again -- = 0x00c8
-    00c8 : 0013 ; -- <0009> a = event_priority
-    00c9 : e000 ; -- <0010> br 0z :poll_events_again
-    00ca : 00c8 ; -- <0010> "
+-- :poll_events_again -- = 0x00ac
+    00ac : 0013 ; -- <0009> a = event_priority
+    00ad : e000 ; -- <0010> br 0z :poll_events_again
+    00ae : 00ac ; -- <0010> "
 -- acknowledge the event to clear its capture register.  do this right away,
 -- so another occurrence of the same event can be captured right away in the controller.
-    00cb : 4c00 ; -- <0013> event_priority = a
+    00af : 4c00 ; -- <0013> event_priority = a
 -- compute an address in the event_table.  note the absence of a wait state for the adder here (not needed).
-    00cc : d300 ; -- <0015> fetch rtna from ad0
-    00cd : fbb0 ; -- <0015> "
+    00b0 : d300 ; -- <0015> fetch rtna from ad0
+    00b1 : fbb0 ; -- <0015> "
 -- jump to the address given in the event_table.  each handler MUST end with a end_event.
 -- each handler does NOT need to save ANY registers (e.g. no convention_gpx).  they can all be trashed.
 -- each handler is passed the event priority in a, in case the same handler is used on multiple priorities.
-    00ce : fc00 ; -- <0019> swapra = nop
+    00b2 : fc00 ; -- <0019> swapra = nop
 -- just returned here from the handler, in case the handler accidentally did a rtn.  this should NEVER happen.
-    00cf : bfa0 ; -- <0021> error_halt_code 0xffc0 -- leds = 0xffc0
-    00d0 : ffc0 ; -- <0021> "
-    00d1 : e00f ; -- <0021> error_halt_code 0xffc0
-    00d2 : 00d1 ; -- <0021> "
+    00b3 : a3a0 ; -- <0021> error_halt_code 0xffc0 -- leds = 0xffc0
+    00b4 : ffc0 ; -- <0021> "
+    00b5 : e00f ; -- <0021> error_halt_code 0xffc0
+    00b6 : 00b5 ; -- <0021> "
 
 
 -- driver library for synapse316_uart simple async transceiver.
@@ -353,47 +324,47 @@
 
 
 -- routine sends out the low byte from a to the UART.  blocks until the FIFO accepts the byte.
--- ######## func putchar_fduart -- = 0x00d3
-    00d3 : 4804 ; -- <0046> push x -- func putchar_fduart
+-- ######## func putchar_fduart -- = 0x00b7
+    00b7 : 4804 ; -- <0046> push x -- func putchar_fduart
 
-    00d4 : 1000 ; -- <0048> x = a
+    00b8 : 1000 ; -- <0048> x = a
 
 -- wait for FIFO to be available.
-    00d5 : 0202 ; -- <0051> a = $atx_fifo_full_mask
--- :pcfduart_wait_for_idle -- = 0x00d6
-    00d6 : 042e ; -- <0053> b = fduart_status
-    00d7 : e403 ; -- <0054> bn and0z :pcfduart_wait_for_idle
-    00d8 : 00d6 ; -- <0054> "
+    00b9 : 0202 ; -- <0051> a = $atx_fifo_full_mask
+-- :pcfduart_wait_for_idle -- = 0x00ba
+    00ba : 0427 ; -- <0053> b = fduart_status
+    00bb : e403 ; -- <0054> bn and0z :pcfduart_wait_for_idle
+    00bc : 00ba ; -- <0054> "
 
 -- push word to the UART.  its low byte is a character.
-    00d9 : b404 ; -- <0057> fduart_data = x
-    00da : 1012 ; -- <0058> pop x -- end_func
-    00db : fc00 ; -- <0057> swapra = nop
+    00bd : 9804 ; -- <0057> fduart_data = x
+    00be : 1012 ; -- <0058> pop x -- end_func
+    00bf : fc00 ; -- <0057> swapra = nop
 
 -- routine receives a byte from the UART.  blocks until the UART receives the byte.
 -- returns it in the low byte of a.
--- ######## func getchar_fduart -- = 0x00dc
+-- ######## func getchar_fduart -- = 0x00c0
 -- wait until FIFO is populated.
-    00dc : 0208 ; -- <0064> a = $arx_fifo_empty_mask
--- :wait_for_busy -- = 0x00dd
-    00dd : 042e ; -- <0066> b = fduart_status
-    00de : e403 ; -- <0067> bn and0z :wait_for_busy
-    00df : 00dd ; -- <0067> "
-    00e0 : 002d ; -- <0068> a = fduart_data
-    00e1 : fc00 ; -- <0068> swapra = nop
+    00c0 : 0208 ; -- <0064> a = $arx_fifo_empty_mask
+-- :wait_for_busy -- = 0x00c1
+    00c1 : 0427 ; -- <0066> b = fduart_status
+    00c2 : e403 ; -- <0067> bn and0z :wait_for_busy
+    00c3 : 00c1 ; -- <0067> "
+    00c4 : 0026 ; -- <0068> a = fduart_data
+    00c5 : fc00 ; -- <0068> swapra = nop
 
 -- returns a character in a, or -1 if none.
--- ######## func pollchar_fduart -- = 0x00e2
+-- ######## func pollchar_fduart -- = 0x00c6
 -- check for FIFO is populated.
-    00e2 : 0208 ; -- <0074> a = $arx_fifo_empty_mask
-    00e3 : 042e ; -- <0075> b = fduart_status
-    00e4 : e403 ; -- <0076> bn and0z :none
-    00e5 : 00e8 ; -- <0076> "
-    00e6 : 002d ; -- <0077> a = fduart_data
-    00e7 : fc00 ; -- <0077> swapra = nop
--- :none -- = 0x00e8
-    00e8 : 0360 ; -- <0080> a = -1
-    00e9 : fc00 ; -- <0080> swapra = nop
+    00c6 : 0208 ; -- <0074> a = $arx_fifo_empty_mask
+    00c7 : 0427 ; -- <0075> b = fduart_status
+    00c8 : e403 ; -- <0076> bn and0z :none
+    00c9 : 00cc ; -- <0076> "
+    00ca : 0026 ; -- <0077> a = fduart_data
+    00cb : fc00 ; -- <0077> swapra = nop
+-- :none -- = 0x00cc
+    00cc : 0360 ; -- <0080> a = -1
+    00cd : fc00 ; -- <0080> swapra = nop
 
 
 
@@ -401,250 +372,250 @@
 -- requires a console driver library to be included prior to including this.
 
 
--- :hexdigits -- = 0x00ea
+-- :hexdigits -- = 0x00ce
 -- "0123456789abcdef"
-    00ea : 3130 ; -- <0050> 10
-    00eb : 3332 ; -- <0050> 32
-    00ec : 3534 ; -- <0050> 54
-    00ed : 3736 ; -- <0050> 76
-    00ee : 3938 ; -- <0050> 98
-    00ef : 6261 ; -- <0050> ba
-    00f0 : 6463 ; -- <0050> dc
-    00f1 : 6665 ; -- <0050> fe
+    00ce : 3130 ; -- <0050> 10
+    00cf : 3332 ; -- <0050> 32
+    00d0 : 3534 ; -- <0050> 54
+    00d1 : 3736 ; -- <0050> 76
+    00d2 : 3938 ; -- <0050> 98
+    00d3 : 6261 ; -- <0050> ba
+    00d4 : 6463 ; -- <0050> dc
+    00d5 : 6665 ; -- <0050> fe
 
 -- function to print a 16-bit number formatted as 4 hex digits.
 -- pass number in a.
--- ######## func put4x -- = 0x00f2
-    00f2 : 4804 ; -- <0054> push x -- func put4x
-    00f3 : 4806 ; -- <0054> push ga -- "
-    00f4 : 483e ; -- <0054> push rtna -- "
-    00f5 : 13a0 ; -- <0055> x = :hexdigits
-    00f6 : 00ea ; -- <0055> "
+-- ######## func put4x -- = 0x00d6
+    00d6 : 4804 ; -- <0054> push x -- func put4x
+    00d7 : 4806 ; -- <0054> push ga -- "
+    00d8 : 483e ; -- <0054> push rtna -- "
+    00d9 : 13a0 ; -- <0055> x = :hexdigits
+    00da : 00ce ; -- <0055> "
 
-    00f7 : 1800 ; -- <0057> ga = a
-    00f8 : 07a0 ; -- <0058> b = 0xF000
-    00f9 : f000 ; -- <0058> "
-    00fa : c800 ; -- <0059> a = and
-    00fb : 0330 ; -- <0059> "
-    00fc : 0353 ; -- <0060> a = a>>4
-    00fd : 0353 ; -- <0061> a = a>>4
-    00fe : 0353 ; -- <0062> a = a>>4
-    00ff : fba0 ; -- <0063> call fetch_byte
-    0100 : 019f ; -- <0063> "
-    0101 : fc00 ; -- <0063> "
-    0102 : fba0 ; -- <0064> putchar a
-    0103 : 00d3 ; -- <0064> "
-    0104 : fc00 ; -- <0064> "
+    00db : 1800 ; -- <0057> ga = a
+    00dc : 07a0 ; -- <0058> b = 0xF000
+    00dd : f000 ; -- <0058> "
+    00de : c800 ; -- <0059> a = and
+    00df : 0330 ; -- <0059> "
+    00e0 : 0353 ; -- <0060> a = a>>4
+    00e1 : 0353 ; -- <0061> a = a>>4
+    00e2 : 0353 ; -- <0062> a = a>>4
+    00e3 : fba0 ; -- <0063> call fetch_byte
+    00e4 : 0183 ; -- <0063> "
+    00e5 : fc00 ; -- <0063> "
+    00e6 : fba0 ; -- <0064> putchar a
+    00e7 : 00b7 ; -- <0064> "
+    00e8 : fc00 ; -- <0064> "
 
-    0105 : 0006 ; -- <0066> a = ga
-    0106 : 07a0 ; -- <0067> b = 0x0F00
-    0107 : 0f00 ; -- <0067> "
-    0108 : c800 ; -- <0068> a = and
-    0109 : 0330 ; -- <0068> "
-    010a : 0353 ; -- <0069> a = a>>4
-    010b : 0353 ; -- <0070> a = a>>4
-    010c : fba0 ; -- <0071> call fetch_byte
-    010d : 019f ; -- <0071> "
-    010e : fc00 ; -- <0071> "
-    010f : fba0 ; -- <0072> putchar a
-    0110 : 00d3 ; -- <0072> "
-    0111 : fc00 ; -- <0072> "
+    00e9 : 0006 ; -- <0066> a = ga
+    00ea : 07a0 ; -- <0067> b = 0x0F00
+    00eb : 0f00 ; -- <0067> "
+    00ec : c800 ; -- <0068> a = and
+    00ed : 0330 ; -- <0068> "
+    00ee : 0353 ; -- <0069> a = a>>4
+    00ef : 0353 ; -- <0070> a = a>>4
+    00f0 : fba0 ; -- <0071> call fetch_byte
+    00f1 : 0183 ; -- <0071> "
+    00f2 : fc00 ; -- <0071> "
+    00f3 : fba0 ; -- <0072> putchar a
+    00f4 : 00b7 ; -- <0072> "
+    00f5 : fc00 ; -- <0072> "
 
-    0112 : 0006 ; -- <0074> a = ga
-    0113 : 06f0 ; -- <0075> b = 0x00F0
-    0114 : c800 ; -- <0076> a = and
-    0115 : 0330 ; -- <0076> "
-    0116 : 0353 ; -- <0077> a = a>>4
-    0117 : fba0 ; -- <0078> call fetch_byte
-    0118 : 019f ; -- <0078> "
-    0119 : fc00 ; -- <0078> "
-    011a : fba0 ; -- <0079> putchar a
-    011b : 00d3 ; -- <0079> "
-    011c : fc00 ; -- <0079> "
+    00f6 : 0006 ; -- <0074> a = ga
+    00f7 : 06f0 ; -- <0075> b = 0x00F0
+    00f8 : c800 ; -- <0076> a = and
+    00f9 : 0330 ; -- <0076> "
+    00fa : 0353 ; -- <0077> a = a>>4
+    00fb : fba0 ; -- <0078> call fetch_byte
+    00fc : 0183 ; -- <0078> "
+    00fd : fc00 ; -- <0078> "
+    00fe : fba0 ; -- <0079> putchar a
+    00ff : 00b7 ; -- <0079> "
+    0100 : fc00 ; -- <0079> "
 
-    011d : 0006 ; -- <0081> a = ga
-    011e : 060f ; -- <0082> b = 0x000F
-    011f : c800 ; -- <0083> a = and
-    0120 : 0330 ; -- <0083> "
-    0121 : fba0 ; -- <0084> call fetch_byte
-    0122 : 019f ; -- <0084> "
-    0123 : fc00 ; -- <0084> "
-    0124 : fba0 ; -- <0085> putchar a
-    0125 : 00d3 ; -- <0085> "
-    0126 : fc00 ; -- <0085> "
+    0101 : 0006 ; -- <0081> a = ga
+    0102 : 060f ; -- <0082> b = 0x000F
+    0103 : c800 ; -- <0083> a = and
+    0104 : 0330 ; -- <0083> "
+    0105 : fba0 ; -- <0084> call fetch_byte
+    0106 : 0183 ; -- <0084> "
+    0107 : fc00 ; -- <0084> "
+    0108 : fba0 ; -- <0085> putchar a
+    0109 : 00b7 ; -- <0085> "
+    010a : fc00 ; -- <0085> "
 
-    0127 : f812 ; -- <0087> pop rtna -- end_func
-    0128 : 1812 ; -- <0087> pop ga -- "
-    0129 : 1012 ; -- <0087> pop x -- "
-    012a : fc00 ; -- <0086> swapra = nop
+    010b : f812 ; -- <0087> pop rtna -- end_func
+    010c : 1812 ; -- <0087> pop ga -- "
+    010d : 1012 ; -- <0087> pop x -- "
+    010e : fc00 ; -- <0086> swapra = nop
 
 -- function to scan a 16-bit number formatted as 4 hex digits.
 -- return number in a.  return 0 for success in b.
--- ######## func get4x -- = 0x012b
-    012b : 4802 ; -- <0091> push i -- func get4x
-    012c : 4803 ; -- <0091> push j -- "
-    012d : 4804 ; -- <0091> push x -- "
-    012e : 4805 ; -- <0091> push y -- "
-    012f : 483e ; -- <0091> push rtna -- "
+-- ######## func get4x -- = 0x010f
+    010f : 4802 ; -- <0091> push i -- func get4x
+    0110 : 4803 ; -- <0091> push j -- "
+    0111 : 4804 ; -- <0091> push x -- "
+    0112 : 4805 ; -- <0091> push y -- "
+    0113 : 483e ; -- <0091> push rtna -- "
 -- y = digit counter
 -- j = sum
-    0130 : 1604 ; -- <0094> y = 4
--- :again -- = 0x0131
-    0131 : fba0 ; -- <0096> getchar
-    0132 : 00dc ; -- <0096> "
-    0133 : fc00 ; -- <0096> "
-    0134 : 13a0 ; -- <0097> x = :hexdigits
-    0135 : 00ea ; -- <0097> "
-    0136 : 0a10 ; -- <0098> i = 16
-    0137 : fba0 ; -- <0099> call :find_in_fetch
-    0138 : 01b3 ; -- <0099> "
-    0139 : fc00 ; -- <0099> "
-    013a : 0760 ; -- <0100> b = -1
-    013b : e007 ; -- <0101> br eq :fail
-    013c : 0150 ; -- <0101> "
-    013d : 0400 ; -- <0102> b = a
-    013e : 0003 ; -- <0103> a = j
-    013f : 0352 ; -- <0104> a = a<<4
-    0140 : c800 ; -- <0105> j = or
-    0141 : 0f34 ; -- <0105> "
-    0142 : 1360 ; -- <0106> x = -1
-    0143 : c800 ; -- <0107> y = x+y
-    0144 : 1720 ; -- <0107> "
-    0145 : 0005 ; -- <0108> a = y
-    0146 : e400 ; -- <0109> bn az :again
-    0147 : 0131 ; -- <0109> "
-    0148 : 0003 ; -- <0110> a = j
-    0149 : 0600 ; -- <0111> b = 0
-    014a : f812 ; -- <0112> pop rtna -- rtn
-    014b : 1412 ; -- <0112> pop y -- "
-    014c : 1012 ; -- <0112> pop x -- "
-    014d : 0c12 ; -- <0112> pop j -- "
-    014e : 0812 ; -- <0112> pop i -- "
-    014f : fc00 ; -- <0111> swapra = nop
--- :fail -- = 0x0150
-    0150 : 0760 ; -- <0114> b = -1
-    0151 : f812 ; -- <0115> pop rtna -- end_func
-    0152 : 1412 ; -- <0115> pop y -- "
-    0153 : 1012 ; -- <0115> pop x -- "
-    0154 : 0c12 ; -- <0115> pop j -- "
-    0155 : 0812 ; -- <0115> pop i -- "
-    0156 : fc00 ; -- <0114> swapra = nop
+    0114 : 1604 ; -- <0094> y = 4
+-- :again -- = 0x0115
+    0115 : fba0 ; -- <0096> getchar
+    0116 : 00c0 ; -- <0096> "
+    0117 : fc00 ; -- <0096> "
+    0118 : 13a0 ; -- <0097> x = :hexdigits
+    0119 : 00ce ; -- <0097> "
+    011a : 0a10 ; -- <0098> i = 16
+    011b : fba0 ; -- <0099> call :find_in_fetch
+    011c : 0197 ; -- <0099> "
+    011d : fc00 ; -- <0099> "
+    011e : 0760 ; -- <0100> b = -1
+    011f : e007 ; -- <0101> br eq :fail
+    0120 : 0134 ; -- <0101> "
+    0121 : 0400 ; -- <0102> b = a
+    0122 : 0003 ; -- <0103> a = j
+    0123 : 0352 ; -- <0104> a = a<<4
+    0124 : c800 ; -- <0105> j = or
+    0125 : 0f34 ; -- <0105> "
+    0126 : 1360 ; -- <0106> x = -1
+    0127 : c800 ; -- <0107> y = x+y
+    0128 : 1720 ; -- <0107> "
+    0129 : 0005 ; -- <0108> a = y
+    012a : e400 ; -- <0109> bn az :again
+    012b : 0115 ; -- <0109> "
+    012c : 0003 ; -- <0110> a = j
+    012d : 0600 ; -- <0111> b = 0
+    012e : f812 ; -- <0112> pop rtna -- rtn
+    012f : 1412 ; -- <0112> pop y -- "
+    0130 : 1012 ; -- <0112> pop x -- "
+    0131 : 0c12 ; -- <0112> pop j -- "
+    0132 : 0812 ; -- <0112> pop i -- "
+    0133 : fc00 ; -- <0111> swapra = nop
+-- :fail -- = 0x0134
+    0134 : 0760 ; -- <0114> b = -1
+    0135 : f812 ; -- <0115> pop rtna -- end_func
+    0136 : 1412 ; -- <0115> pop y -- "
+    0137 : 1012 ; -- <0115> pop x -- "
+    0138 : 0c12 ; -- <0115> pop j -- "
+    0139 : 0812 ; -- <0115> pop i -- "
+    013a : fc00 ; -- <0114> swapra = nop
 
 -- print a fixed-length string from packed words in program space.
 -- pass its word address (not its byte address) in a,  its length (bytes) in b.
 -- string must start on a word boundary.
 -- no newline or other delimiter is added automatically.
--- ######## func print_fixed -- = 0x0157
-    0157 : 4802 ; -- <0121> push i -- func print_fixed
-    0158 : 4803 ; -- <0121> push j -- "
-    0159 : 4804 ; -- <0121> push x -- "
-    015a : 4805 ; -- <0121> push y -- "
-    015b : 4806 ; -- <0121> push ga -- "
-    015c : 483e ; -- <0121> push rtna -- "
-    015d : 0800 ; -- <0122> i = a
-    015e : 0e01 ; -- <0123> j = 1
-    015f : 1001 ; -- <0124> x = b
-    0160 : 1760 ; -- <0125> y = -1
--- :next_word -- = 0x0161
-    0161 : e002 ; -- <0127> br xz :done
-    0162 : 0177 ; -- <0127> "
-    0163 : 1320 ; -- <0128> x = ad2
-    0164 : d002 ; -- <0129> fetch ga from i
-    0165 : 1bb0 ; -- <0129> "
+-- ######## func print_fixed -- = 0x013b
+    013b : 4802 ; -- <0121> push i -- func print_fixed
+    013c : 4803 ; -- <0121> push j -- "
+    013d : 4804 ; -- <0121> push x -- "
+    013e : 4805 ; -- <0121> push y -- "
+    013f : 4806 ; -- <0121> push ga -- "
+    0140 : 483e ; -- <0121> push rtna -- "
+    0141 : 0800 ; -- <0122> i = a
+    0142 : 0e01 ; -- <0123> j = 1
+    0143 : 1001 ; -- <0124> x = b
+    0144 : 1760 ; -- <0125> y = -1
+-- :next_word -- = 0x0145
+    0145 : e002 ; -- <0127> br xz :done
+    0146 : 015b ; -- <0127> "
+    0147 : 1320 ; -- <0128> x = ad2
+    0148 : d002 ; -- <0129> fetch ga from i
+    0149 : 1bb0 ; -- <0129> "
 -- now x = bytes remaining, i = current word address, ga = data word.
-    0166 : 0006 ; -- <0131> a = ga -- putchar ga
-    0167 : fba0 ; -- <0131> putchar ga
-    0168 : 00d3 ; -- <0131> "
-    0169 : fc00 ; -- <0131> "
-    016a : e002 ; -- <0132> br xz :done
-    016b : 0177 ; -- <0132> "
-    016c : 1320 ; -- <0133> x = ad2
-    016d : 0006 ; -- <0134> a = ga
-    016e : 0353 ; -- <0135> a = a>>4
-    016f : 0353 ; -- <0136> a = a>>4
-    0170 : fba0 ; -- <0137> putchar a
-    0171 : 00d3 ; -- <0137> "
-    0172 : fc00 ; -- <0137> "
-    0173 : c800 ; -- <0138> i = i+j
-    0174 : 0b10 ; -- <0138> "
-    0175 : e00f ; -- <0139> jmp :next_word
-    0176 : 0161 ; -- <0139> "
--- :done -- = 0x0177
-    0177 : f812 ; -- <0141> pop rtna -- end_func
-    0178 : 1812 ; -- <0141> pop ga -- "
-    0179 : 1412 ; -- <0141> pop y -- "
-    017a : 1012 ; -- <0141> pop x -- "
-    017b : 0c12 ; -- <0141> pop j -- "
-    017c : 0812 ; -- <0141> pop i -- "
-    017d : fc00 ; -- <0140> swapra = nop
+    014a : 0006 ; -- <0131> a = ga -- putchar ga
+    014b : fba0 ; -- <0131> putchar ga
+    014c : 00b7 ; -- <0131> "
+    014d : fc00 ; -- <0131> "
+    014e : e002 ; -- <0132> br xz :done
+    014f : 015b ; -- <0132> "
+    0150 : 1320 ; -- <0133> x = ad2
+    0151 : 0006 ; -- <0134> a = ga
+    0152 : 0353 ; -- <0135> a = a>>4
+    0153 : 0353 ; -- <0136> a = a>>4
+    0154 : fba0 ; -- <0137> putchar a
+    0155 : 00b7 ; -- <0137> "
+    0156 : fc00 ; -- <0137> "
+    0157 : c800 ; -- <0138> i = i+j
+    0158 : 0b10 ; -- <0138> "
+    0159 : e00f ; -- <0139> jmp :next_word
+    015a : 0145 ; -- <0139> "
+-- :done -- = 0x015b
+    015b : f812 ; -- <0141> pop rtna -- end_func
+    015c : 1812 ; -- <0141> pop ga -- "
+    015d : 1412 ; -- <0141> pop y -- "
+    015e : 1012 ; -- <0141> pop x -- "
+    015f : 0c12 ; -- <0141> pop j -- "
+    0160 : 0812 ; -- <0141> pop i -- "
+    0161 : fc00 ; -- <0140> swapra = nop
 
 -- print a null-terminated string from packed words in program space.
 -- pass its word address (not its byte address) in a.
 -- string must start on a word boundary.
 -- no newline or other delimiter is added automatically.
--- ######## func print_nt -- = 0x017e
-    017e : 4802 ; -- <0147> push i -- func print_nt
-    017f : 4803 ; -- <0147> push j -- "
-    0180 : 4804 ; -- <0147> push x -- "
-    0181 : 483e ; -- <0147> push rtna -- "
-    0182 : 0800 ; -- <0148> i = a
-    0183 : 0e01 ; -- <0149> j = 1
--- :next_word -- = 0x0184
-    0184 : d002 ; -- <0151> fetch x from i
-    0185 : 13b0 ; -- <0151> "
+-- ######## func print_nt -- = 0x0162
+    0162 : 4802 ; -- <0147> push i -- func print_nt
+    0163 : 4803 ; -- <0147> push j -- "
+    0164 : 4804 ; -- <0147> push x -- "
+    0165 : 483e ; -- <0147> push rtna -- "
+    0166 : 0800 ; -- <0148> i = a
+    0167 : 0e01 ; -- <0149> j = 1
+-- :next_word -- = 0x0168
+    0168 : d002 ; -- <0151> fetch x from i
+    0169 : 13b0 ; -- <0151> "
 -- now i = current word address, x = data word, b = low byte mask, a = data byte.
-    0186 : 0004 ; -- <0153> a = x
-    0187 : 06ff ; -- <0154> b = 0xff
-    0188 : e003 ; -- <0155> br and0z :done
-    0189 : 019a ; -- <0155> "
-    018a : fba0 ; -- <0156> putchar a
-    018b : 00d3 ; -- <0156> "
-    018c : fc00 ; -- <0156> "
-    018d : 0004 ; -- <0157> a = x
-    018e : 0353 ; -- <0158> a = a>>4
-    018f : 0353 ; -- <0159> a = a>>4
-    0190 : 06ff ; -- <0160> b = 0xff
-    0191 : e003 ; -- <0161> br and0z :done
-    0192 : 019a ; -- <0161> "
-    0193 : fba0 ; -- <0162> putchar a
-    0194 : 00d3 ; -- <0162> "
-    0195 : fc00 ; -- <0162> "
-    0196 : c800 ; -- <0163> i = i+j
-    0197 : 0b10 ; -- <0163> "
-    0198 : e00f ; -- <0164> jmp :next_word
-    0199 : 0184 ; -- <0164> "
--- :done -- = 0x019a
-    019a : f812 ; -- <0166> pop rtna -- end_func
-    019b : 1012 ; -- <0166> pop x -- "
-    019c : 0c12 ; -- <0166> pop j -- "
-    019d : 0812 ; -- <0166> pop i -- "
-    019e : fc00 ; -- <0165> swapra = nop
+    016a : 0004 ; -- <0153> a = x
+    016b : 06ff ; -- <0154> b = 0xff
+    016c : e003 ; -- <0155> br and0z :done
+    016d : 017e ; -- <0155> "
+    016e : fba0 ; -- <0156> putchar a
+    016f : 00b7 ; -- <0156> "
+    0170 : fc00 ; -- <0156> "
+    0171 : 0004 ; -- <0157> a = x
+    0172 : 0353 ; -- <0158> a = a>>4
+    0173 : 0353 ; -- <0159> a = a>>4
+    0174 : 06ff ; -- <0160> b = 0xff
+    0175 : e003 ; -- <0161> br and0z :done
+    0176 : 017e ; -- <0161> "
+    0177 : fba0 ; -- <0162> putchar a
+    0178 : 00b7 ; -- <0162> "
+    0179 : fc00 ; -- <0162> "
+    017a : c800 ; -- <0163> i = i+j
+    017b : 0b10 ; -- <0163> "
+    017c : e00f ; -- <0164> jmp :next_word
+    017d : 0168 ; -- <0164> "
+-- :done -- = 0x017e
+    017e : f812 ; -- <0166> pop rtna -- end_func
+    017f : 1012 ; -- <0166> pop x -- "
+    0180 : 0c12 ; -- <0166> pop j -- "
+    0181 : 0812 ; -- <0166> pop i -- "
+    0182 : fc00 ; -- <0165> swapra = nop
 
 
 -- pick a byte from an array of packed words in program space.  fetch & return it in a.
 -- pass array base address in x, byte offset in a.
--- ######## func fetch_byte -- = 0x019f
-    019f : 0601 ; -- <0005> b = 1
-    01a0 : e003 ; -- <0006> br and0z :pick_byte_even
-    01a1 : 01aa ; -- <0006> "
-    01a2 : 0350 ; -- <0007> a = a>>1
-    01a3 : 0404 ; -- <0008> b = x
-    01a4 : c800 ; -- <0009> fetch a from a+b
-    01a5 : d300 ; -- <0009> "
-    01a6 : 03b0 ; -- <0009> "
-    01a7 : 0353 ; -- <0010> a = a>>4
-    01a8 : 0353 ; -- <0011> a = a>>4
-    01a9 : fc00 ; -- <0011> swapra = nop
--- :pick_byte_even -- = 0x01aa
-    01aa : 0350 ; -- <0014> a = a>>1
-    01ab : 0404 ; -- <0015> b = x
-    01ac : c800 ; -- <0016> fetch a from a+b
-    01ad : d300 ; -- <0016> "
-    01ae : 03b0 ; -- <0016> "
-    01af : 06ff ; -- <0017> b = 0xff
-    01b0 : c800 ; -- <0018> a = and
-    01b1 : 0330 ; -- <0018> "
-    01b2 : fc00 ; -- <0018> swapra = nop
+-- ######## func fetch_byte -- = 0x0183
+    0183 : 0601 ; -- <0005> b = 1
+    0184 : e003 ; -- <0006> br and0z :pick_byte_even
+    0185 : 018e ; -- <0006> "
+    0186 : 0350 ; -- <0007> a = a>>1
+    0187 : 0404 ; -- <0008> b = x
+    0188 : c800 ; -- <0009> fetch a from a+b
+    0189 : d300 ; -- <0009> "
+    018a : 03b0 ; -- <0009> "
+    018b : 0353 ; -- <0010> a = a>>4
+    018c : 0353 ; -- <0011> a = a>>4
+    018d : fc00 ; -- <0011> swapra = nop
+-- :pick_byte_even -- = 0x018e
+    018e : 0350 ; -- <0014> a = a>>1
+    018f : 0404 ; -- <0015> b = x
+    0190 : c800 ; -- <0016> fetch a from a+b
+    0191 : d300 ; -- <0016> "
+    0192 : 03b0 ; -- <0016> "
+    0193 : 06ff ; -- <0017> b = 0xff
+    0194 : c800 ; -- <0018> a = and
+    0195 : 0330 ; -- <0018> "
+    0196 : fc00 ; -- <0018> swapra = nop
 
 -- find a byte in an array of packed words in program space.
 -- pass data byte in a.
@@ -652,71 +623,71 @@
 -- array length in i.
 -- returns found index in a (or -1 if not found).
 -- if the data byte occurs more than once, the final one's position is returned.
--- ######## func find_in_fetch -- = 0x01b3
-    01b3 : 4802 ; -- <0027> push i -- func find_in_fetch
-    01b4 : 4803 ; -- <0027> push j -- "
-    01b5 : 4805 ; -- <0027> push y -- "
-    01b6 : 483e ; -- <0027> push rtna -- "
-    01b7 : 1400 ; -- <0028> y = a
-    01b8 : 0f60 ; -- <0029> j = -1
--- :again -- = 0x01b9
-    01b9 : e001 ; -- <0031> br iz :fail
-    01ba : 01c9 ; -- <0031> "
-    01bb : 0b10 ; -- <0032> i = ad1
-    01bc : 0002 ; -- <0033> a = i
-    01bd : fba0 ; -- <0034> call :fetch_byte
-    01be : 019f ; -- <0034> "
-    01bf : fc00 ; -- <0034> "
-    01c0 : 0405 ; -- <0035> b = y
-    01c1 : e407 ; -- <0036> bn eq :again
-    01c2 : 01b9 ; -- <0036> "
--- :found -- = 0x01c3
-    01c3 : 0002 ; -- <0038> a = i
-    01c4 : f812 ; -- <0039> pop rtna -- rtn
-    01c5 : 1412 ; -- <0039> pop y -- "
-    01c6 : 0c12 ; -- <0039> pop j -- "
-    01c7 : 0812 ; -- <0039> pop i -- "
-    01c8 : fc00 ; -- <0038> swapra = nop
--- :fail -- = 0x01c9
-    01c9 : 0360 ; -- <0041> a = -1
-    01ca : f812 ; -- <0042> pop rtna -- end_func
-    01cb : 1412 ; -- <0042> pop y -- "
-    01cc : 0c12 ; -- <0042> pop j -- "
-    01cd : 0812 ; -- <0042> pop i -- "
-    01ce : fc00 ; -- <0041> swapra = nop
+-- ######## func find_in_fetch -- = 0x0197
+    0197 : 4802 ; -- <0027> push i -- func find_in_fetch
+    0198 : 4803 ; -- <0027> push j -- "
+    0199 : 4805 ; -- <0027> push y -- "
+    019a : 483e ; -- <0027> push rtna -- "
+    019b : 1400 ; -- <0028> y = a
+    019c : 0f60 ; -- <0029> j = -1
+-- :again -- = 0x019d
+    019d : e001 ; -- <0031> br iz :fail
+    019e : 01ad ; -- <0031> "
+    019f : 0b10 ; -- <0032> i = ad1
+    01a0 : 0002 ; -- <0033> a = i
+    01a1 : fba0 ; -- <0034> call :fetch_byte
+    01a2 : 0183 ; -- <0034> "
+    01a3 : fc00 ; -- <0034> "
+    01a4 : 0405 ; -- <0035> b = y
+    01a5 : e407 ; -- <0036> bn eq :again
+    01a6 : 019d ; -- <0036> "
+-- :found -- = 0x01a7
+    01a7 : 0002 ; -- <0038> a = i
+    01a8 : f812 ; -- <0039> pop rtna -- rtn
+    01a9 : 1412 ; -- <0039> pop y -- "
+    01aa : 0c12 ; -- <0039> pop j -- "
+    01ab : 0812 ; -- <0039> pop i -- "
+    01ac : fc00 ; -- <0038> swapra = nop
+-- :fail -- = 0x01ad
+    01ad : 0360 ; -- <0041> a = -1
+    01ae : f812 ; -- <0042> pop rtna -- end_func
+    01af : 1412 ; -- <0042> pop y -- "
+    01b0 : 0c12 ; -- <0042> pop j -- "
+    01b1 : 0812 ; -- <0042> pop i -- "
+    01b2 : fc00 ; -- <0041> swapra = nop
 
 
 
 
--- ######## func fletcher16_init -- = 0x01cf
+-- ######## func fletcher16_init -- = 0x01b3
 
-    01cf : 4200 ; -- <0005> $fletcher_sum1_reg = 0
-    01d0 : 4600 ; -- <0006> $fletcher_sum2_reg = 0
+    01b3 : 4200 ; -- <0005> $fletcher_sum1_reg = 0
+    01b4 : 4600 ; -- <0006> $fletcher_sum2_reg = 0
 
-    01d1 : fc00 ; -- <0008> swapra = nop
+    01b5 : fc00 ; -- <0008> swapra = nop
 
 -- return the modulus(255) of a given number.
--- ######## func mod255 -- = 0x01d2
+-- ######## func mod255 -- = 0x01b6
 
 -- while a is greater than 254, subtract 255.
--- :mod255_again -- = 0x01d2
-    01d2 : 06fe ; -- <0013> b = 0xfe
-    01d3 : e006 ; -- <0014> br gt :mod255_greater
-    01d4 : 01d6 ; -- <0014> "
-    01d5 : fc00 ; -- <0014> swapra = nop
--- :mod255_greater -- = 0x01d6
-    01d6 : 07a0 ; -- <0017> b = ([negate 0xff])
-    01d7 : ff01 ; -- <0017> "
-    01d8 : c800 ; -- <0018> a = a+b
-    01d9 : 0300 ; -- <0018> "
-    01da : e00f ; -- <0019> jmp :mod255_again
-    01db : 01d2 ; -- <0019> "
+-- :mod255_again -- = 0x01b6
+    01b6 : 06fe ; -- <0013> b = 0xfe
+    01b7 : e006 ; -- <0014> br gt :mod255_greater
+    01b8 : 01ba ; -- <0014> "
+    01b9 : fc00 ; -- <0014> swapra = nop
+-- :mod255_greater -- = 0x01ba
+    01ba : 07a0 ; -- <0017> b = ([negate 0xff])
+    01bb : ff01 ; -- <0017> "
+    01bc : c800 ; -- <0018> a = a+b
+    01bd : 0300 ; -- <0018> "
+    01be : e00f ; -- <0019> jmp :mod255_again
+    01bf : 01b6 ; -- <0019> "
 
-    01dc : fc00 ; -- <0021> swapra = nop
+    01c0 : fc00 ; -- <0021> swapra = nop
 
 -- accumulate a Fletcher16 checksum, given the next byte of data.
--- ######## func fletcher16_input8 -- = 0x01dd
-    01dd : 483e ; -- <0046> push rtna -- func fletcher16_input8
+-- ######## func fletcher16_input8 -- = 0x01c1
+    01c1 : 483e ; -- <0046> push rtna -- func fletcher16_input8
 
 --TODO: debug only.
 --x = a
@@ -725,22 +696,22 @@
 --call put4x
 --a = x
 
-    01de : 0410 ; -- <0031> b = $fletcher_sum1_reg
-    01df : c800 ; -- <0032> a = a+b
-    01e0 : 0300 ; -- <0032> "
-    01e1 : fba0 ; -- <0032> callx mod255  a+b  $fletcher_sum1_reg
-    01e2 : 01d2 ; -- <0032> "
-    01e3 : fc00 ; -- <0032> "
-    01e4 : 4000 ; -- <0032> pc = a
+    01c2 : 0410 ; -- <0031> b = $fletcher_sum1_reg
+    01c3 : c800 ; -- <0032> a = a+b
+    01c4 : 0300 ; -- <0032> "
+    01c5 : fba0 ; -- <0032> callx mod255  a+b  $fletcher_sum1_reg
+    01c6 : 01b6 ; -- <0032> "
+    01c7 : fc00 ; -- <0032> "
+    01c8 : 4000 ; -- <0032> pc = a
 
-    01e5 : 0010 ; -- <0034> a = $fletcher_sum1_reg
-    01e6 : 0411 ; -- <0035> b = $fletcher_sum2_reg
-    01e7 : c800 ; -- <0036> a = a+b
-    01e8 : 0300 ; -- <0036> "
-    01e9 : fba0 ; -- <0036> callx mod255  a+b  $fletcher_sum2_reg
-    01ea : 01d2 ; -- <0036> "
-    01eb : fc00 ; -- <0036> "
-    01ec : 4400 ; -- <0036> pd = a
+    01c9 : 0010 ; -- <0034> a = $fletcher_sum1_reg
+    01ca : 0411 ; -- <0035> b = $fletcher_sum2_reg
+    01cb : c800 ; -- <0036> a = a+b
+    01cc : 0300 ; -- <0036> "
+    01cd : fba0 ; -- <0036> callx mod255  a+b  $fletcher_sum2_reg
+    01ce : 01b6 ; -- <0036> "
+    01cf : fc00 ; -- <0036> "
+    01d0 : 4400 ; -- <0036> pd = a
 
 --TODO: debug only.
 --putasc " "
@@ -751,115 +722,115 @@
 --call put4x
 --puteol
 
-    01ed : f812 ; -- <0047> pop rtna -- func fletcher16_input8
-    01ee : fc00 ; -- <0047> swapra = nop
+    01d1 : f812 ; -- <0047> pop rtna -- func fletcher16_input8
+    01d2 : fc00 ; -- <0047> swapra = nop
 
 -- accumulate a Fletcher16 checksum, given the next word of data.
--- ######## func fletcher16_input16 -- = 0x01ef
-    01ef : 4802 ; -- <0055> push i -- func fletcher16_input16
-    01f0 : 483e ; -- <0055> push rtna -- "
+-- ######## func fletcher16_input16 -- = 0x01d3
+    01d3 : 4802 ; -- <0055> push i -- func fletcher16_input16
+    01d4 : 483e ; -- <0055> push rtna -- "
 
-    01f1 : 0b53 ; -- <0050> i = a>>4
-    01f2 : 06ff ; -- <0051> b = 0xff
-    01f3 : c800 ; -- <0052> a = and
-    01f4 : 0330 ; -- <0052> "
-    01f5 : fba0 ; -- <0052> callx fletcher16_input8  and
-    01f6 : 01dd ; -- <0052> "
-    01f7 : fc00 ; -- <0052> "
-    01f8 : 0002 ; -- <0053> a = i
-    01f9 : 0353 ; -- <0054> a = a>>4
-    01fa : fba0 ; -- <0054> callx fletcher16_input8  a>>4
-    01fb : 01dd ; -- <0054> "
-    01fc : fc00 ; -- <0054> "
+    01d5 : 0b53 ; -- <0050> i = a>>4
+    01d6 : 06ff ; -- <0051> b = 0xff
+    01d7 : c800 ; -- <0052> a = and
+    01d8 : 0330 ; -- <0052> "
+    01d9 : fba0 ; -- <0052> callx fletcher16_input8  and
+    01da : 01c1 ; -- <0052> "
+    01db : fc00 ; -- <0052> "
+    01dc : 0002 ; -- <0053> a = i
+    01dd : 0353 ; -- <0054> a = a>>4
+    01de : fba0 ; -- <0054> callx fletcher16_input8  a>>4
+    01df : 01c1 ; -- <0054> "
+    01e0 : fc00 ; -- <0054> "
 
-    01fd : f812 ; -- <0056> pop rtna -- func fletcher16_input16
-    01fe : 0812 ; -- <0056> pop i -- "
-    01ff : fc00 ; -- <0056> swapra = nop
+    01e1 : f812 ; -- <0056> pop rtna -- func fletcher16_input16
+    01e2 : 0812 ; -- <0056> pop i -- "
+    01e3 : fc00 ; -- <0056> swapra = nop
 
 -- return the combined 16-bit result of Fletcher16 checksum.
--- ######## func fletcher16_result -- = 0x0200
+-- ######## func fletcher16_result -- = 0x01e4
 
-    0200 : 0011 ; -- <0059> a = $fletcher_sum2_reg
-    0201 : 0352 ; -- <0060> a = a<<4
-    0202 : 0352 ; -- <0061> a = a<<4
-    0203 : 0410 ; -- <0062> b = $fletcher_sum1_reg
-    0204 : c800 ; -- <0063> result = or
-    0205 : 0334 ; -- <0063> "
-    0206 : fc00 ; -- <0062> swapra = nop
+    01e4 : 0011 ; -- <0059> a = $fletcher_sum2_reg
+    01e5 : 0352 ; -- <0060> a = a<<4
+    01e6 : 0352 ; -- <0061> a = a<<4
+    01e7 : 0410 ; -- <0062> b = $fletcher_sum1_reg
+    01e8 : c800 ; -- <0063> result = or
+    01e9 : 0334 ; -- <0063> "
+    01ea : fc00 ; -- <0062> swapra = nop
 
-    0207 : fc00 ; -- <0065> swapra = nop
+    01eb : fc00 ; -- <0065> swapra = nop
 
 
 
 
 -- #########################################################################
--- :main -- = 0x0208
+-- :main -- = 0x01ec
 
 -- keep the real hardware occupied and powered up during testing.
-    0208 : 6e19 ; -- <0139> power_duty = $power_duty_holding
+    01ec : 6e19 ; -- <0129> power_duty = $power_duty_holding
 
 -- signal boot-up
 
-    0209 : 03a0 ; -- <0142> a = :boot_msg
-    020a : 00c3 ; -- <0142> "
-    020b : fba0 ; -- <0142> call print_nt
-    020c : 017e ; -- <0142> "
-    020d : fc00 ; -- <0142> "
-    020e : 020d ; -- <0142> a = 13 -- puteol
-    020f : fba0 ; -- <0142> puteol
-    0210 : 00d3 ; -- <0142> "
-    0211 : fc00 ; -- <0142> "
-    0212 : 020a ; -- <0142> a = 10 -- puteol
-    0213 : fba0 ; -- <0142> puteol
-    0214 : 00d3 ; -- <0142> "
-    0215 : fc00 ; -- <0142> "
+    01ed : 03a0 ; -- <0132> a = :boot_msg
+    01ee : 00a7 ; -- <0132> "
+    01ef : fba0 ; -- <0132> call print_nt
+    01f0 : 0162 ; -- <0132> "
+    01f1 : fc00 ; -- <0132> "
+    01f2 : 020d ; -- <0132> a = 13 -- puteol
+    01f3 : fba0 ; -- <0132> puteol
+    01f4 : 00b7 ; -- <0132> "
+    01f5 : fc00 ; -- <0132> "
+    01f6 : 020a ; -- <0132> a = 10 -- puteol
+    01f7 : fba0 ; -- <0132> puteol
+    01f8 : 00b7 ; -- <0132> "
+    01f9 : fc00 ; -- <0132> "
 
 
 -- set up event capture logic.
-    0216 : 3600 ; -- <0145> puffing = 0
+    01fa : 3600 ; -- <0135> puffing = 0
 
 -- set up an engine running state.
-    0217 : 73a0 ; -- <0148> ign_period = ([rpm_to_jf 1000])
-    0218 : 02bc ; -- <0148> "
-    0219 : 3201 ; -- <0149> accel_dir = 1
-    021a : 6a01 ; -- <0150> mstimer0 = 1
+    01fb : 73a0 ; -- <0138> ign_period = ([rpm_to_jf 1000])
+    01fc : 02bc ; -- <0138> "
+    01fd : 3201 ; -- <0139> scroll_dir = 1
+    01fe : 6a01 ; -- <0140> mstimer0 = 1
 
 -- start handling events.
-    021b : 53a0 ; -- <0153> soft_event = $event_controller_reset_mask
-    021c : 8000 ; -- <0153> "
-    021d : 5200 ; -- <0154> soft_event = 0
-    021e : e00f ; -- <0155> jmp :poll_events
-    021f : 00c6 ; -- <0155> "
+    01ff : 53a0 ; -- <0143> soft_event = $event_controller_reset_mask
+    0200 : 8000 ; -- <0143> "
+    0201 : 5200 ; -- <0144> soft_event = 0
+    0202 : e00f ; -- <0145> jmp :poll_events
+    0203 : 00aa ; -- <0145> "
 
 -- event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.
 -- event 0 not used in this app anyway.
--- :event_table -- = 0x0220
-    0220 : 00c6 ; -- <0160> ([label :poll_events])
-    0221 : 0260 ; -- <0161> ([label :ustimer0_handler])
-    0222 : 025e ; -- <0162> ([label :ign_pulse_done_handler])
-    0223 : 0231 ; -- <0163> ([label :puff1_capture_handler])
-    0224 : 0299 ; -- <0164> ([label :spi_done_handler])
-    0225 : 0262 ; -- <0165> ([label :mstimer0_handler])
-    0226 : 024a ; -- <0166> ([label :puff1_timeout_handler])
-    0227 : 0275 ; -- <0167> ([label :uart_rx_handler])
-    0228 : 0287 ; -- <0168> ([label :uart_rx_overflow_handler])
-    0229 : 028f ; -- <0169> ([label :uart_tx_overflow_handler])
-    022a : 0291 ; -- <0170> ([label :softevent3_handler])
-    022b : 0293 ; -- <0171> ([label :softevent2_handler])
-    022c : 0295 ; -- <0172> ([label :softevent1_handler])
-    022d : 0297 ; -- <0173> ([label :softevent0_handler])
+-- :event_table -- = 0x0204
+    0204 : 00aa ; -- <0150> ([label :poll_events])
+    0205 : 0244 ; -- <0151> ([label :ustimer0_handler])
+    0206 : 0242 ; -- <0152> ([label :ign_pulse_done_handler])
+    0207 : 0215 ; -- <0153> ([label :puff1_capture_handler])
+    0208 : 027e ; -- <0154> ([label :spi_done_handler])
+    0209 : 0246 ; -- <0155> ([label :mstimer0_handler])
+    020a : 022e ; -- <0156> ([label :puff1_timeout_handler])
+    020b : 025a ; -- <0157> ([label :uart_rx_handler])
+    020c : 026c ; -- <0158> ([label :uart_rx_overflow_handler])
+    020d : 0274 ; -- <0159> ([label :uart_tx_overflow_handler])
+    020e : 0276 ; -- <0160> ([label :softevent3_handler])
+    020f : 0278 ; -- <0161> ([label :softevent2_handler])
+    0210 : 027a ; -- <0162> ([label :softevent1_handler])
+    0211 : 027c ; -- <0163> ([label :softevent0_handler])
 
 -- #########################################################################
 
--- :start_puffing_tkn -- = 0x022e
+-- :start_puffing_tkn -- = 0x0212
 -- "pufon"
-    022e : 7570 ; -- <0178> up
-    022f : 6f66 ; -- <0178> of
-    0230 : 006e ; -- <0178>  n
+    0212 : 7570 ; -- <0168> up
+    0213 : 6f66 ; -- <0168> of
+    0214 : 006e ; -- <0168>  n
 
--- ######## event puff1_capture_handler -- = 0x0231
-    0231 : 001e ; -- <0181> a = puff1cnt
-    0232 : 0353 ; -- <0182> a = a>>4
+-- ######## event puff1_capture_handler -- = 0x0215
+    0215 : 001e ; -- <0171> a = puff1cnt
+    0216 : 0353 ; -- <0172> a = a>>4
 --if a eq 0 {
 --a = puff1cnt
 --call put4x
@@ -869,169 +840,170 @@
 --puteol
 --}
 
-    0233 : 000d ; -- <0194> a = puffing
-    0234 : 0600 ; -- <0194> b = 0
+    0217 : 000d ; -- <0184> a = puffing
+    0218 : 0600 ; -- <0184> b = 0
 
-    0235 : e407 ; -- <0191> bn eq :else_565
-    0236 : 0245 ; -- <0191> "
+    0219 : e407 ; -- <0181> bn eq :else_537
+    021a : 0229 ; -- <0181> "
 
-    0237 : 3601 ; -- <0192> puffing = 1
+    021b : 3601 ; -- <0182> puffing = 1
 
-    0238 : 03a0 ; -- <0193> a = :start_puffing_tkn
-    0239 : 022e ; -- <0193> "
-    023a : fba0 ; -- <0193> call print_nt
-    023b : 017e ; -- <0193> "
-    023c : fc00 ; -- <0193> "
-    023d : 020d ; -- <0193> a = 13 -- puteol
-    023e : fba0 ; -- <0193> puteol
-    023f : 00d3 ; -- <0193> "
-    0240 : fc00 ; -- <0193> "
-    0241 : 020a ; -- <0193> a = 10 -- puteol
-    0242 : fba0 ; -- <0193> puteol
-    0243 : 00d3 ; -- <0193> "
-    0244 : fc00 ; -- <0193> "
+    021c : 03a0 ; -- <0183> a = :start_puffing_tkn
+    021d : 0212 ; -- <0183> "
+    021e : fba0 ; -- <0183> call print_nt
+    021f : 0162 ; -- <0183> "
+    0220 : fc00 ; -- <0183> "
+    0221 : 020d ; -- <0183> a = 13 -- puteol
+    0222 : fba0 ; -- <0183> puteol
+    0223 : 00b7 ; -- <0183> "
+    0224 : fc00 ; -- <0183> "
+    0225 : 020a ; -- <0183> a = 10 -- puteol
+    0226 : fba0 ; -- <0183> puteol
+    0227 : 00b7 ; -- <0183> "
+    0228 : fc00 ; -- <0183> "
 
 
-    0245 : e00f ; -- <0195> end_event
-    0246 : 00c6 ; -- <0195> "
+    0229 : e00f ; -- <0185> end_event
+    022a : 00aa ; -- <0185> "
 
--- :stop_puffing_tkn -- = 0x0247
+-- :stop_puffing_tkn -- = 0x022b
 -- "pufof"
-    0247 : 7570 ; -- <0198> up
-    0248 : 6f66 ; -- <0198> of
-    0249 : 0066 ; -- <0198>  f
+    022b : 7570 ; -- <0188> up
+    022c : 6f66 ; -- <0188> of
+    022d : 0066 ; -- <0188>  f
 
--- ######## event puff1_timeout_handler -- = 0x024a
+-- ######## event puff1_timeout_handler -- = 0x022e
 
-    024a : 000d ; -- <0204> a = puffing
-    024b : 0601 ; -- <0204> b = 1
+    022e : 000d ; -- <0194> a = puffing
+    022f : 0601 ; -- <0194> b = 1
 
-    024c : e407 ; -- <0201> bn eq :else_588
-    024d : 025c ; -- <0201> "
+    0230 : e407 ; -- <0191> bn eq :else_560
+    0231 : 0240 ; -- <0191> "
 
-    024e : 3600 ; -- <0202> puffing = 0
+    0232 : 3600 ; -- <0192> puffing = 0
 
-    024f : 03a0 ; -- <0203> a = :stop_puffing_tkn
-    0250 : 0247 ; -- <0203> "
-    0251 : fba0 ; -- <0203> call print_nt
-    0252 : 017e ; -- <0203> "
-    0253 : fc00 ; -- <0203> "
-    0254 : 020d ; -- <0203> a = 13 -- puteol
-    0255 : fba0 ; -- <0203> puteol
-    0256 : 00d3 ; -- <0203> "
-    0257 : fc00 ; -- <0203> "
-    0258 : 020a ; -- <0203> a = 10 -- puteol
-    0259 : fba0 ; -- <0203> puteol
-    025a : 00d3 ; -- <0203> "
-    025b : fc00 ; -- <0203> "
-
-
-    025c : e00f ; -- <0205> end_event
-    025d : 00c6 ; -- <0205> "
-
--- ######## event ign_pulse_done_handler -- = 0x025e
-    025e : e00f ; -- <0208> end_event
-    025f : 00c6 ; -- <0208> "
-
--- ######## event ustimer0_handler -- = 0x0260
-    0260 : e00f ; -- <0211> end_event
-    0261 : 00c6 ; -- <0211> "
-
--- ######## event mstimer0_handler -- = 0x0262
-    0262 : 001c ; -- <0214> a = ign_period
-    0263 : 040c ; -- <0215> b = accel_dir
-    0264 : c800 ; -- <0216> ign_period = a+b
-    0265 : 7300 ; -- <0216> "
-
-    0266 : 001c ; -- <0219> a = ign_period
-    0267 : 07a0 ; -- <0219> b = (700)
-    0268 : 02bc ; -- <0219> "
-
-    0269 : e406 ; -- <0217> bn gt :else_617
-    026a : 026c ; -- <0217> "
-
-    026b : 3360 ; -- <0218> accel_dir = -1
+    0233 : 03a0 ; -- <0193> a = :stop_puffing_tkn
+    0234 : 022b ; -- <0193> "
+    0235 : fba0 ; -- <0193> call print_nt
+    0236 : 0162 ; -- <0193> "
+    0237 : fc00 ; -- <0193> "
+    0238 : 020d ; -- <0193> a = 13 -- puteol
+    0239 : fba0 ; -- <0193> puteol
+    023a : 00b7 ; -- <0193> "
+    023b : fc00 ; -- <0193> "
+    023c : 020a ; -- <0193> a = 10 -- puteol
+    023d : fba0 ; -- <0193> puteol
+    023e : 00b7 ; -- <0193> "
+    023f : fc00 ; -- <0193> "
 
 
-    026c : 001c ; -- <0222> a = ign_period
-    026d : 068c ; -- <0222> b = (140)
+    0240 : e00f ; -- <0195> end_event
+    0241 : 00aa ; -- <0195> "
 
-    026e : e405 ; -- <0220> bn lt :else_622
-    026f : 0271 ; -- <0220> "
+-- ######## event ign_pulse_done_handler -- = 0x0242
+    0242 : e00f ; -- <0198> end_event
+    0243 : 00aa ; -- <0198> "
 
-    0270 : 3201 ; -- <0221> accel_dir = 1
+-- ######## event ustimer0_handler -- = 0x0244
+    0244 : e00f ; -- <0201> end_event
+    0245 : 00aa ; -- <0201> "
 
-    0271 : 6a01 ; -- <0223> mstimer0 = 1
-    0272 : e00f ; -- <0224> end_event
-    0273 : 00c6 ; -- <0224> "
+-- ######## event mstimer0_handler -- = 0x0246
+    0246 : 000c ; -- <0204> a = scroll_dir
+    0247 : 0352 ; -- <0205> a = a<<4
+    0248 : 0425 ; -- <0206> b = anmux_trans_temp
+    0249 : c800 ; -- <0207> anmux_trans_temp = a+b
+    024a : 9700 ; -- <0207> "
 
--- ######## func parse_key -- = 0x0274
+    024b : 0025 ; -- <0210> a = anmux_trans_temp
+    024c : 07a0 ; -- <0210> b = 4000
+    024d : 0fa0 ; -- <0210> "
+
+    024e : e406 ; -- <0208> bn gt :else_590
+    024f : 0251 ; -- <0208> "
+
+    0250 : 3360 ; -- <0209> scroll_dir = -1
 
 
-    0274 : fc00 ; -- <0228> swapra = nop
+    0251 : 0025 ; -- <0213> a = anmux_trans_temp
+    0252 : 060a ; -- <0213> b = 10
 
--- ######## event uart_rx_handler -- = 0x0275
--- :again -- = 0x0275
-    0275 : fba0 ; -- <0231> pollchar
-    0276 : 00e2 ; -- <0231> "
-    0277 : fc00 ; -- <0231> "
-    0278 : 1000 ; -- <0232> x = a
+    0253 : e405 ; -- <0211> bn lt :else_595
+    0254 : 0256 ; -- <0211> "
 
-    0279 : 0004 ; -- <0235> a = x
-    027a : 0760 ; -- <0235> b = -1
+    0255 : 3201 ; -- <0212> scroll_dir = 1
 
-    027b : e407 ; -- <0233> bn eq :else_635
-    027c : 027f ; -- <0233> "
+    0256 : 6a01 ; -- <0214> mstimer0 = 1
+    0257 : e00f ; -- <0215> end_event
+    0258 : 00aa ; -- <0215> "
 
-    027d : e00f ; -- <0234> event_return
-    027e : 00c6 ; -- <0234> "
+-- ######## func parse_key -- = 0x0259
 
-    027f : 3804 ; -- <0236> pa = x
-    0280 : fba0 ; -- <0236> callx  parse_key  x
-    0281 : 0274 ; -- <0236> "
-    0282 : fc00 ; -- <0236> "
-    0283 : e00f ; -- <0237> jmp :again
-    0284 : 0275 ; -- <0237> "
-    0285 : e00f ; -- <0238> end_event
-    0286 : 00c6 ; -- <0238> "
 
--- ######## event uart_rx_overflow_handler -- = 0x0287
-    0287 : bfa0 ; -- <0241> error_halt_code $err_rx_overflow -- leds = 0xfffe
-    0288 : fffe ; -- <0241> "
-    0289 : e00f ; -- <0241> error_halt_code $err_rx_overflow
-    028a : 0289 ; -- <0241> "
-    028b : e00f ; -- <0242> end_event
-    028c : 00c6 ; -- <0242> "
+    0259 : fc00 ; -- <0219> swapra = nop
 
--- :tx_overflow_msg -- = 0x028d
+-- ######## event uart_rx_handler -- = 0x025a
+-- :again -- = 0x025a
+    025a : fba0 ; -- <0222> pollchar
+    025b : 00c6 ; -- <0222> "
+    025c : fc00 ; -- <0222> "
+    025d : 1000 ; -- <0223> x = a
+
+    025e : 0004 ; -- <0226> a = x
+    025f : 0760 ; -- <0226> b = -1
+
+    0260 : e407 ; -- <0224> bn eq :else_608
+    0261 : 0264 ; -- <0224> "
+
+    0262 : e00f ; -- <0225> event_return
+    0263 : 00aa ; -- <0225> "
+
+    0264 : 3804 ; -- <0227> pa = x
+    0265 : fba0 ; -- <0227> callx  parse_key  x
+    0266 : 0259 ; -- <0227> "
+    0267 : fc00 ; -- <0227> "
+    0268 : e00f ; -- <0228> jmp :again
+    0269 : 025a ; -- <0228> "
+    026a : e00f ; -- <0229> end_event
+    026b : 00aa ; -- <0229> "
+
+-- ######## event uart_rx_overflow_handler -- = 0x026c
+    026c : a3a0 ; -- <0232> error_halt_code $err_rx_overflow -- leds = 0xfffe
+    026d : fffe ; -- <0232> "
+    026e : e00f ; -- <0232> error_halt_code $err_rx_overflow
+    026f : 026e ; -- <0232> "
+    0270 : e00f ; -- <0233> end_event
+    0271 : 00aa ; -- <0233> "
+
+-- :tx_overflow_msg -- = 0x0272
 -- "TXO\x0"
-    028d : 5854 ; -- <0245> XT
-    028e : 004f ; -- <0245>  O
+    0272 : 5854 ; -- <0236> XT
+    0273 : 004f ; -- <0236>  O
 
--- ######## event uart_tx_overflow_handler -- = 0x028f
+-- ######## event uart_tx_overflow_handler -- = 0x0274
 -- error_halt_code $err_tx_overflow
-    028f : e00f ; -- <0249> end_event
-    0290 : 00c6 ; -- <0249> "
+    0274 : e00f ; -- <0240> end_event
+    0275 : 00aa ; -- <0240> "
 
--- ######## event softevent3_handler -- = 0x0291
-    0291 : e00f ; -- <0252> end_event
-    0292 : 00c6 ; -- <0252> "
+-- ######## event softevent3_handler -- = 0x0276
+    0276 : e00f ; -- <0243> end_event
+    0277 : 00aa ; -- <0243> "
 
--- ######## event softevent2_handler -- = 0x0293
-    0293 : e00f ; -- <0255> end_event
-    0294 : 00c6 ; -- <0255> "
+-- ######## event softevent2_handler -- = 0x0278
+    0278 : e00f ; -- <0246> end_event
+    0279 : 00aa ; -- <0246> "
 
--- ######## event softevent1_handler -- = 0x0295
-    0295 : e00f ; -- <0258> end_event
-    0296 : 00c6 ; -- <0258> "
+-- ######## event softevent1_handler -- = 0x027a
+    027a : e00f ; -- <0249> end_event
+    027b : 00aa ; -- <0249> "
 
--- ######## event softevent0_handler -- = 0x0297
-    0297 : e00f ; -- <0261> end_event
-    0298 : 00c6 ; -- <0261> "
+-- ######## event softevent0_handler -- = 0x027c
+    027c : e00f ; -- <0252> end_event
+    027d : 00aa ; -- <0252> "
 
--- ######## event spi_done_handler -- = 0x0299
-    0299 : e00f ; -- <0264> end_event
-    029a : 00c6 ; -- <0264> "
+-- ######## event spi_done_handler -- = 0x027e
+    027e : e00f ; -- <0255> end_event
+    027f : 00aa ; -- <0255> "
 
 
 -- src reg 0000 a
@@ -1057,7 +1029,7 @@
 -- src reg 0009 gd
 -- src reg 000a ge
 -- src reg 000b gf
--- src reg 000c accel_dir
+-- src reg 000c scroll_dir
 -- src reg 000d puffing
 -- src reg 000e pa
 -- src reg 000f pb
@@ -1077,22 +1049,15 @@
 -- src reg 001d ign_cycle_cnt
 -- src reg 001e puff1cnt
 -- src reg 001f puff1len
--- src reg 0020 adc0
--- src reg 0021 adc1
--- src reg 0022 adc2
--- src reg 0023 adc3
--- src reg 0024 adc_maf
--- src reg 0025 adc_o2
--- src reg 0026 adc_tps
--- src reg 0027 adc_anmux
--- src reg 0028 anmux0
--- src reg 0029 anmux1
--- src reg 002a anmux_block_temp
--- src reg 002b anmux_trans_temp
--- src reg 002c anmux4
--- src reg 002d fduart_data
--- src reg 002e fduart_status
--- src reg 002f leds
+-- src reg 0020 adc_maf
+-- src reg 0021 adc_o2
+-- src reg 0022 adc_tps
+-- src reg 0023 anmux_read
+-- src reg 0024 anmux_block_temp
+-- src reg 0025 anmux_trans_temp
+-- src reg 0026 fduart_data
+-- src reg 0027 fduart_status
+-- src reg 0028 leds
 -- dest reg 0000 a
 -- dest reg 0001 b
 -- dest reg 0002 i
@@ -1105,7 +1070,7 @@
 -- dest reg 0009 gd
 -- dest reg 000a ge
 -- dest reg 000b gf
--- dest reg 000c accel_dir
+-- dest reg 000c scroll_dir
 -- dest reg 000d puffing
 -- dest reg 000e pa
 -- dest reg 000f pb
@@ -1124,21 +1089,13 @@
 -- dest reg 001c ign_period
 -- dest reg 001d ign_cycle_cnt
 -- dest reg 001e puff1cnt
--- dest reg 0020 adc0
--- dest reg 0021 adc1
--- dest reg 0022 adc2
--- dest reg 0023 adc3
--- dest reg 0024 adc_maf
--- dest reg 0025 adc_o2
--- dest reg 0026 adc_tps
--- dest reg 0027 adc_anmux
--- dest reg 0028 anmux0
--- dest reg 0029 anmux1
--- dest reg 002a anmux_block_temp
--- dest reg 002b anmux_trans_temp
--- dest reg 002c anmux4
--- dest reg 002d fduart_data
--- dest reg 002e fduart_status
--- dest reg 002f leds
+-- dest reg 0020 adc_maf
+-- dest reg 0021 adc_o2
+-- dest reg 0022 adc_tps
+-- dest reg 0024 anmux_block_temp
+-- dest reg 0025 anmux_trans_temp
+-- dest reg 0026 fduart_data
+-- dest reg 0027 fduart_status
+-- dest reg 0028 leds
 
 END;

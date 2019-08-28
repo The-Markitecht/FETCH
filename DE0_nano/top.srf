@@ -152,6 +152,7 @@
 { "" "" "" "Pin \"sim_power_lost\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Pin \"sim_ignition_switch_off\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "Pin \"sim_adc_sdat\" is stuck at GND" {  } {  } 0 13410 "" 0 0 "Quartus II" 0 -1 0 ""}
+{ "" "" "" "Net \"vr\[31..26\]\" at supervised_synapse316.v(63) has no driver or initial value, using a default initial value '0'" {  } {  } 0 10030 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 20028 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 14285 "" 0 0 "Quartus II" 0 -1 0 ""}
 { "" "" "" "*" {  } {  } 0 292013 "" 0 0 "Quartus II" 0 -1 0 ""}

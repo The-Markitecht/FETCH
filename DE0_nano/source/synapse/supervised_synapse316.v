@@ -23,10 +23,10 @@ module supervised_synapse316 #(
     
     // register file, for any combination of general-purpose registers and i/o addressing.
     // these ports can run as a 2-dimensional in Quartus or ModelSim.  but that's a syntax error in Icarus, regardless of options.
-    ,input wire[`WMSB:0]          r[`TOP_REG:0]
-    ,output wire[`TOP_REG:0]          r_read    
-    ,output wire[`TOP_REG:0]          r_load
-    ,output wire[`WMSB:0]         r_load_data    
+    ,input wire[`WMSB:0]                   r[`TOP_POPULATED_EXT_REG:0]
+    ,output wire[`TOP_POPULATED_EXT_REG:0] r_read    
+    ,output wire[`TOP_POPULATED_EXT_REG:0] r_load
+    ,output wire[`WMSB:0]                  r_load_data    
 
     // visor async interface.
     ,input wire                       dbg_async_rx_line
@@ -60,16 +60,16 @@ synapse316 target (
 
 wire[`WMSB:0] code_addr;
 wire[`WMSB:0] code_fetched;
-wire[`WMSB:0] vr[`VISOR_TOP_REG:0];
-wire[`VISOR_TOP_REG:0]    vr_read;  
-wire[`VISOR_TOP_REG:0]    vr_load;
+wire[`WMSB:0] vr[`VISOR_TOP_POPULATED_EXT_REG:0];
+wire[`VISOR_TOP_POPULATED_EXT_REG:0]    vr_read;  
+wire[`VISOR_TOP_POPULATED_EXT_REG:0]    vr_load;
 wire[`WMSB:0]         vr_load_data;  
 visor_pgm visor_rom(
     .clock(clk_progmem),
     .address(code_addr[`VISOR_CODE_ADDR_TOP:0]),
     .q(code_fetched)
 );
-synapse316 #(.NUM_REGS(`VISOR_NUM_REGS)) visor (
+synapse316 #(.NUM_POPULATED_EXT_REGS(`VISOR_NUM_POPULATED_EXT_REGS)) visor (
     .sysclk          (sysclk      ) ,
     .sysreset        (sysreset   ) ,
     .code_addr       (code_addr   ) ,
