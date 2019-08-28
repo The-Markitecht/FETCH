@@ -30,7 +30,7 @@
     alias_both gd                   9               "gd"
     alias_both ge                   10              "ge"
     alias_both gf                   11              "gf"
-    alias_both gg                   12              "gg"
+    alias_both accel_dir            12              "aceldir"
     alias_both puffing              13              "puffing"
     alias_both pa                   14              "pa"
     alias_both pb                   15              "pb"
@@ -99,20 +99,33 @@
     setvar fletcher_sum1_reg pc
     setvar fletcher_sum2_reg pd
     include lib/fletcher.asm
-        
+
+<<
+    proc send_tkn {lin addr} {
+        parse "
+            a = $addr
+            call print_nt
+            puteol
+        "
+    }
+>>
+            
     // #########################################################################
     :main  
-    a = :boot_msg
-    call :print_nt 
     
     // keep the real hardware occupied and powered up during testing.
     power_duty = $power_duty_holding
+    
+    // signal boot-up
+    send_tkn :boot_msg
     
     // set up event capture logic.
     puffing = 0
     
     // set up an engine running state.
     ign_period = ([rpm_to_jf 1000])  
+    accel_dir = 1
+    mstimer0 = 1
     
     // start handling events.
     soft_event = $event_controller_reset_mask
@@ -139,16 +152,6 @@
     
     // #########################################################################
 
-<<
-    proc send_tkn {lin addr} {
-        parse "
-            a = $addr
-            call print_nt
-            puteol
-        "
-    }
->>
-    
 :start_puffing_tkn
     "pufon"
     
@@ -186,6 +189,16 @@ event ustimer0_handler
 end_event
 
 event mstimer0_handler
+    a = ign_period
+    b = accel_dir
+    ign_period = a+b
+    if ign_period gt ([rpm_to_jf 1000]) {
+        accel_dir = -1
+    }
+    if ign_period lt ([rpm_to_jf 5000]) {
+        accel_dir = 1
+    }
+    mstimer0 = 1
 end_event
 
 func parse_key {key in pa} {

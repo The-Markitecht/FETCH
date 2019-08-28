@@ -118,11 +118,11 @@
     0030 : 2020 ; -- <0083>   
     0031 : 2020 ; -- <0083>   
     0032 : 6667 ; -- <0083> fg
--- "      gg"
-    0033 : 2020 ; -- <0083>   
-    0034 : 2020 ; -- <0083>   
-    0035 : 2020 ; -- <0083>   
-    0036 : 6767 ; -- <0083> gg
+-- " aceldir"
+    0033 : 6120 ; -- <0083> a 
+    0034 : 6563 ; -- <0083> ec
+    0035 : 646c ; -- <0083> dl
+    0036 : 7269 ; -- <0083> ri
 -- " puffing"
     0037 : 7020 ; -- <0083> p 
     0038 : 6675 ; -- <0083> fu
@@ -265,7 +265,7 @@
 -- :poll_events -- = 0x009e
 -- initialize prior to polling loop, for minimum latency.
     009e : 07a0 ; -- <0006> b = :event_table
-    009f : 01ee ; -- <0006> "
+    009f : 01f8 ; -- <0006> "
 -- 3-cycle polling loop.
 -- :poll_events_again -- = 0x00a0
     00a0 : 0013 ; -- <0009> a = event_priority
@@ -734,61 +734,75 @@
 
 
 
+
 -- #########################################################################
 -- :main -- = 0x01e0
-    01e0 : 03a0 ; -- <0105> a = :boot_msg
-    01e1 : 009b ; -- <0105> "
-    01e2 : fba0 ; -- <0106> call :print_nt
-    01e3 : 0156 ; -- <0106> "
-    01e4 : fc00 ; -- <0106> "
 
 -- keep the real hardware occupied and powered up during testing.
-    01e5 : 6e19 ; -- <0109> power_duty = $power_duty_holding
+    01e0 : 6e19 ; -- <0117> power_duty = $power_duty_holding
+
+-- signal boot-up
+
+    01e1 : 03a0 ; -- <0120> a = :boot_msg
+    01e2 : 009b ; -- <0120> "
+    01e3 : fba0 ; -- <0120> call print_nt
+    01e4 : 0156 ; -- <0120> "
+    01e5 : fc00 ; -- <0120> "
+    01e6 : 020d ; -- <0120> a = 13 -- puteol
+    01e7 : fba0 ; -- <0120> puteol
+    01e8 : 00ab ; -- <0120> "
+    01e9 : fc00 ; -- <0120> "
+    01ea : 020a ; -- <0120> a = 10 -- puteol
+    01eb : fba0 ; -- <0120> puteol
+    01ec : 00ab ; -- <0120> "
+    01ed : fc00 ; -- <0120> "
+
 
 -- set up event capture logic.
-    01e6 : 3600 ; -- <0112> puffing = 0
+    01ee : 3600 ; -- <0123> puffing = 0
 
 -- set up an engine running state.
-    01e7 : 73a0 ; -- <0115> ign_period = ([rpm_to_jf 1000])
-    01e8 : 02bc ; -- <0115> "
+    01ef : 73a0 ; -- <0126> ign_period = ([rpm_to_jf 1000])
+    01f0 : 02bc ; -- <0126> "
+    01f1 : 3201 ; -- <0127> accel_dir = 1
+    01f2 : 6a01 ; -- <0128> mstimer0 = 1
 
 -- start handling events.
-    01e9 : 53a0 ; -- <0118> soft_event = $event_controller_reset_mask
-    01ea : 8000 ; -- <0118> "
-    01eb : 5200 ; -- <0119> soft_event = 0
-    01ec : e00f ; -- <0120> jmp :poll_events
-    01ed : 009e ; -- <0120> "
+    01f3 : 53a0 ; -- <0131> soft_event = $event_controller_reset_mask
+    01f4 : 8000 ; -- <0131> "
+    01f5 : 5200 ; -- <0132> soft_event = 0
+    01f6 : e00f ; -- <0133> jmp :poll_events
+    01f7 : 009e ; -- <0133> "
 
 -- event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.
 -- event 0 not used in this app anyway.
--- :event_table -- = 0x01ee
-    01ee : 009e ; -- <0125> ([label :poll_events])
-    01ef : 022e ; -- <0126> ([label :ustimer0_handler])
-    01f0 : 022c ; -- <0127> ([label :ign_pulse_done_handler])
-    01f1 : 01ff ; -- <0128> ([label :puff1_capture_handler])
-    01f2 : 0257 ; -- <0129> ([label :spi_done_handler])
-    01f3 : 0230 ; -- <0130> ([label :mstimer0_handler])
-    01f4 : 0218 ; -- <0131> ([label :puff1_timeout_handler])
-    01f5 : 0233 ; -- <0132> ([label :uart_rx_handler])
-    01f6 : 0245 ; -- <0133> ([label :uart_rx_overflow_handler])
-    01f7 : 024d ; -- <0134> ([label :uart_tx_overflow_handler])
-    01f8 : 024f ; -- <0135> ([label :softevent3_handler])
-    01f9 : 0251 ; -- <0136> ([label :softevent2_handler])
-    01fa : 0253 ; -- <0137> ([label :softevent1_handler])
-    01fb : 0255 ; -- <0138> ([label :softevent0_handler])
+-- :event_table -- = 0x01f8
+    01f8 : 009e ; -- <0138> ([label :poll_events])
+    01f9 : 0238 ; -- <0139> ([label :ustimer0_handler])
+    01fa : 0236 ; -- <0140> ([label :ign_pulse_done_handler])
+    01fb : 0209 ; -- <0141> ([label :puff1_capture_handler])
+    01fc : 0271 ; -- <0142> ([label :spi_done_handler])
+    01fd : 023a ; -- <0143> ([label :mstimer0_handler])
+    01fe : 0222 ; -- <0144> ([label :puff1_timeout_handler])
+    01ff : 024d ; -- <0145> ([label :uart_rx_handler])
+    0200 : 025f ; -- <0146> ([label :uart_rx_overflow_handler])
+    0201 : 0267 ; -- <0147> ([label :uart_tx_overflow_handler])
+    0202 : 0269 ; -- <0148> ([label :softevent3_handler])
+    0203 : 026b ; -- <0149> ([label :softevent2_handler])
+    0204 : 026d ; -- <0150> ([label :softevent1_handler])
+    0205 : 026f ; -- <0151> ([label :softevent0_handler])
 
 -- #########################################################################
 
-
--- :start_puffing_tkn -- = 0x01fc
+-- :start_puffing_tkn -- = 0x0206
 -- "pufon"
-    01fc : 7570 ; -- <0153> up
-    01fd : 6f66 ; -- <0153> of
-    01fe : 006e ; -- <0153>  n
+    0206 : 7570 ; -- <0156> up
+    0207 : 6f66 ; -- <0156> of
+    0208 : 006e ; -- <0156>  n
 
--- ######## event puff1_capture_handler -- = 0x01ff
-    01ff : 001e ; -- <0156> a = puff1cnt
-    0200 : 0353 ; -- <0157> a = a>>4
+-- ######## event puff1_capture_handler -- = 0x0209
+    0209 : 001e ; -- <0159> a = puff1cnt
+    020a : 0353 ; -- <0160> a = a>>4
 --if a eq 0 {
 --a = puff1cnt
 --call put4x
@@ -798,145 +812,169 @@
 --puteol
 --}
 
-    0201 : 000d ; -- <0169> a = puffing
-    0202 : 0600 ; -- <0169> b = 0
+    020b : 000d ; -- <0172> a = puffing
+    020c : 0600 ; -- <0172> b = 0
 
-    0203 : e407 ; -- <0166> bn eq :else_515
-    0204 : 0213 ; -- <0166> "
+    020d : e407 ; -- <0169> bn eq :else_525
+    020e : 021d ; -- <0169> "
 
-    0205 : 3601 ; -- <0167> puffing = 1
+    020f : 3601 ; -- <0170> puffing = 1
 
-    0206 : 03a0 ; -- <0168> a = :start_puffing_tkn
-    0207 : 01fc ; -- <0168> "
-    0208 : fba0 ; -- <0168> call print_nt
-    0209 : 0156 ; -- <0168> "
-    020a : fc00 ; -- <0168> "
-    020b : 020d ; -- <0168> a = 13 -- puteol
-    020c : fba0 ; -- <0168> puteol
-    020d : 00ab ; -- <0168> "
-    020e : fc00 ; -- <0168> "
-    020f : 020a ; -- <0168> a = 10 -- puteol
-    0210 : fba0 ; -- <0168> puteol
-    0211 : 00ab ; -- <0168> "
-    0212 : fc00 ; -- <0168> "
+    0210 : 03a0 ; -- <0171> a = :start_puffing_tkn
+    0211 : 0206 ; -- <0171> "
+    0212 : fba0 ; -- <0171> call print_nt
+    0213 : 0156 ; -- <0171> "
+    0214 : fc00 ; -- <0171> "
+    0215 : 020d ; -- <0171> a = 13 -- puteol
+    0216 : fba0 ; -- <0171> puteol
+    0217 : 00ab ; -- <0171> "
+    0218 : fc00 ; -- <0171> "
+    0219 : 020a ; -- <0171> a = 10 -- puteol
+    021a : fba0 ; -- <0171> puteol
+    021b : 00ab ; -- <0171> "
+    021c : fc00 ; -- <0171> "
 
 
-    0213 : e00f ; -- <0170> end_event
-    0214 : 009e ; -- <0170> "
+    021d : e00f ; -- <0173> end_event
+    021e : 009e ; -- <0173> "
 
--- :stop_puffing_tkn -- = 0x0215
+-- :stop_puffing_tkn -- = 0x021f
 -- "pufof"
-    0215 : 7570 ; -- <0173> up
-    0216 : 6f66 ; -- <0173> of
-    0217 : 0066 ; -- <0173>  f
+    021f : 7570 ; -- <0176> up
+    0220 : 6f66 ; -- <0176> of
+    0221 : 0066 ; -- <0176>  f
 
--- ######## event puff1_timeout_handler -- = 0x0218
+-- ######## event puff1_timeout_handler -- = 0x0222
 
-    0218 : 000d ; -- <0179> a = puffing
-    0219 : 0601 ; -- <0179> b = 1
+    0222 : 000d ; -- <0182> a = puffing
+    0223 : 0601 ; -- <0182> b = 1
 
-    021a : e407 ; -- <0176> bn eq :else_538
-    021b : 022a ; -- <0176> "
+    0224 : e407 ; -- <0179> bn eq :else_548
+    0225 : 0234 ; -- <0179> "
 
-    021c : 3600 ; -- <0177> puffing = 0
+    0226 : 3600 ; -- <0180> puffing = 0
 
-    021d : 03a0 ; -- <0178> a = :stop_puffing_tkn
-    021e : 0215 ; -- <0178> "
-    021f : fba0 ; -- <0178> call print_nt
-    0220 : 0156 ; -- <0178> "
-    0221 : fc00 ; -- <0178> "
-    0222 : 020d ; -- <0178> a = 13 -- puteol
-    0223 : fba0 ; -- <0178> puteol
-    0224 : 00ab ; -- <0178> "
-    0225 : fc00 ; -- <0178> "
-    0226 : 020a ; -- <0178> a = 10 -- puteol
-    0227 : fba0 ; -- <0178> puteol
-    0228 : 00ab ; -- <0178> "
-    0229 : fc00 ; -- <0178> "
-
-
-    022a : e00f ; -- <0180> end_event
-    022b : 009e ; -- <0180> "
-
--- ######## event ign_pulse_done_handler -- = 0x022c
-    022c : e00f ; -- <0183> end_event
-    022d : 009e ; -- <0183> "
-
--- ######## event ustimer0_handler -- = 0x022e
-    022e : e00f ; -- <0186> end_event
-    022f : 009e ; -- <0186> "
-
--- ######## event mstimer0_handler -- = 0x0230
-    0230 : e00f ; -- <0189> end_event
-    0231 : 009e ; -- <0189> "
-
--- ######## func parse_key -- = 0x0232
+    0227 : 03a0 ; -- <0181> a = :stop_puffing_tkn
+    0228 : 021f ; -- <0181> "
+    0229 : fba0 ; -- <0181> call print_nt
+    022a : 0156 ; -- <0181> "
+    022b : fc00 ; -- <0181> "
+    022c : 020d ; -- <0181> a = 13 -- puteol
+    022d : fba0 ; -- <0181> puteol
+    022e : 00ab ; -- <0181> "
+    022f : fc00 ; -- <0181> "
+    0230 : 020a ; -- <0181> a = 10 -- puteol
+    0231 : fba0 ; -- <0181> puteol
+    0232 : 00ab ; -- <0181> "
+    0233 : fc00 ; -- <0181> "
 
 
-    0232 : fc00 ; -- <0193> swapra = nop
+    0234 : e00f ; -- <0183> end_event
+    0235 : 009e ; -- <0183> "
 
--- ######## event uart_rx_handler -- = 0x0233
--- :again -- = 0x0233
-    0233 : fba0 ; -- <0196> pollchar
-    0234 : 00ba ; -- <0196> "
-    0235 : fc00 ; -- <0196> "
-    0236 : 1000 ; -- <0197> x = a
+-- ######## event ign_pulse_done_handler -- = 0x0236
+    0236 : e00f ; -- <0186> end_event
+    0237 : 009e ; -- <0186> "
 
-    0237 : 0004 ; -- <0200> a = x
-    0238 : 0760 ; -- <0200> b = -1
+-- ######## event ustimer0_handler -- = 0x0238
+    0238 : e00f ; -- <0189> end_event
+    0239 : 009e ; -- <0189> "
 
-    0239 : e407 ; -- <0198> bn eq :else_569
-    023a : 023d ; -- <0198> "
+-- ######## event mstimer0_handler -- = 0x023a
+    023a : 001c ; -- <0192> a = ign_period
+    023b : 040c ; -- <0193> b = accel_dir
+    023c : c800 ; -- <0194> ign_period = a+b
+    023d : 7300 ; -- <0194> "
 
-    023b : e00f ; -- <0199> event_return
-    023c : 009e ; -- <0199> "
+    023e : 001c ; -- <0197> a = ign_period
+    023f : 07a0 ; -- <0197> b = (700)
+    0240 : 02bc ; -- <0197> "
 
-    023d : 3804 ; -- <0201> pa = x
-    023e : fba0 ; -- <0201> callx  parse_key  x
-    023f : 0232 ; -- <0201> "
-    0240 : fc00 ; -- <0201> "
-    0241 : e00f ; -- <0202> jmp :again
-    0242 : 0233 ; -- <0202> "
-    0243 : e00f ; -- <0203> end_event
-    0244 : 009e ; -- <0203> "
+    0241 : e406 ; -- <0195> bn gt :else_577
+    0242 : 0244 ; -- <0195> "
 
--- ######## event uart_rx_overflow_handler -- = 0x0245
-    0245 : 97a0 ; -- <0206> error_halt_code $err_rx_overflow -- leds = 0xfffe
-    0246 : fffe ; -- <0206> "
-    0247 : e00f ; -- <0206> error_halt_code $err_rx_overflow
-    0248 : 0247 ; -- <0206> "
-    0249 : e00f ; -- <0207> end_event
-    024a : 009e ; -- <0207> "
+    0243 : 3360 ; -- <0196> accel_dir = -1
 
--- :tx_overflow_msg -- = 0x024b
+
+    0244 : 001c ; -- <0200> a = ign_period
+    0245 : 068c ; -- <0200> b = (140)
+
+    0246 : e405 ; -- <0198> bn lt :else_582
+    0247 : 0249 ; -- <0198> "
+
+    0248 : 3201 ; -- <0199> accel_dir = 1
+
+    0249 : 6a01 ; -- <0201> mstimer0 = 1
+    024a : e00f ; -- <0202> end_event
+    024b : 009e ; -- <0202> "
+
+-- ######## func parse_key -- = 0x024c
+
+
+    024c : fc00 ; -- <0206> swapra = nop
+
+-- ######## event uart_rx_handler -- = 0x024d
+-- :again -- = 0x024d
+    024d : fba0 ; -- <0209> pollchar
+    024e : 00ba ; -- <0209> "
+    024f : fc00 ; -- <0209> "
+    0250 : 1000 ; -- <0210> x = a
+
+    0251 : 0004 ; -- <0213> a = x
+    0252 : 0760 ; -- <0213> b = -1
+
+    0253 : e407 ; -- <0211> bn eq :else_595
+    0254 : 0257 ; -- <0211> "
+
+    0255 : e00f ; -- <0212> event_return
+    0256 : 009e ; -- <0212> "
+
+    0257 : 3804 ; -- <0214> pa = x
+    0258 : fba0 ; -- <0214> callx  parse_key  x
+    0259 : 024c ; -- <0214> "
+    025a : fc00 ; -- <0214> "
+    025b : e00f ; -- <0215> jmp :again
+    025c : 024d ; -- <0215> "
+    025d : e00f ; -- <0216> end_event
+    025e : 009e ; -- <0216> "
+
+-- ######## event uart_rx_overflow_handler -- = 0x025f
+    025f : 97a0 ; -- <0219> error_halt_code $err_rx_overflow -- leds = 0xfffe
+    0260 : fffe ; -- <0219> "
+    0261 : e00f ; -- <0219> error_halt_code $err_rx_overflow
+    0262 : 0261 ; -- <0219> "
+    0263 : e00f ; -- <0220> end_event
+    0264 : 009e ; -- <0220> "
+
+-- :tx_overflow_msg -- = 0x0265
 -- "TXO\x0"
-    024b : 5854 ; -- <0210> XT
-    024c : 004f ; -- <0210>  O
+    0265 : 5854 ; -- <0223> XT
+    0266 : 004f ; -- <0223>  O
 
--- ######## event uart_tx_overflow_handler -- = 0x024d
+-- ######## event uart_tx_overflow_handler -- = 0x0267
 -- error_halt_code $err_tx_overflow
-    024d : e00f ; -- <0214> end_event
-    024e : 009e ; -- <0214> "
+    0267 : e00f ; -- <0227> end_event
+    0268 : 009e ; -- <0227> "
 
--- ######## event softevent3_handler -- = 0x024f
-    024f : e00f ; -- <0217> end_event
-    0250 : 009e ; -- <0217> "
+-- ######## event softevent3_handler -- = 0x0269
+    0269 : e00f ; -- <0230> end_event
+    026a : 009e ; -- <0230> "
 
--- ######## event softevent2_handler -- = 0x0251
-    0251 : e00f ; -- <0220> end_event
-    0252 : 009e ; -- <0220> "
+-- ######## event softevent2_handler -- = 0x026b
+    026b : e00f ; -- <0233> end_event
+    026c : 009e ; -- <0233> "
 
--- ######## event softevent1_handler -- = 0x0253
-    0253 : e00f ; -- <0223> end_event
-    0254 : 009e ; -- <0223> "
+-- ######## event softevent1_handler -- = 0x026d
+    026d : e00f ; -- <0236> end_event
+    026e : 009e ; -- <0236> "
 
--- ######## event softevent0_handler -- = 0x0255
-    0255 : e00f ; -- <0226> end_event
-    0256 : 009e ; -- <0226> "
+-- ######## event softevent0_handler -- = 0x026f
+    026f : e00f ; -- <0239> end_event
+    0270 : 009e ; -- <0239> "
 
--- ######## event spi_done_handler -- = 0x0257
-    0257 : e00f ; -- <0229> end_event
-    0258 : 009e ; -- <0229> "
+-- ######## event spi_done_handler -- = 0x0271
+    0271 : e00f ; -- <0242> end_event
+    0272 : 009e ; -- <0242> "
 
 
 -- src reg 0000 a
@@ -962,7 +1000,7 @@
 -- src reg 0009 gd
 -- src reg 000a ge
 -- src reg 000b gf
--- src reg 000c gg
+-- src reg 000c accel_dir
 -- src reg 000d puffing
 -- src reg 000e pa
 -- src reg 000f pb
@@ -1000,7 +1038,7 @@
 -- dest reg 0009 gd
 -- dest reg 000a ge
 -- dest reg 000b gf
--- dest reg 000c gg
+-- dest reg 000c accel_dir
 -- dest reg 000d puffing
 -- dest reg 000e pa
 -- dest reg 000f pb

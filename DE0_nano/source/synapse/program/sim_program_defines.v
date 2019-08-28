@@ -42,8 +42,8 @@
 `define DR_GE  10
 `define SR_GF  11
 `define DR_GF  11
-`define SR_GG  12
-`define DR_GG  12
+`define SR_ACCEL_DIR  12
+`define DR_ACCEL_DIR  12
 `define SR_PUFFING  13
 `define DR_PUFFING  13
 `define SR_PA  14
