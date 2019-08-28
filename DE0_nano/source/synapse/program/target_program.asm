@@ -6,8 +6,10 @@
     declare_system_dimensions
     
     // register file configuration.
-    vdefine num_regs 48
-    vdefine top_reg ($num_regs - 1)
+    // beyond top_populated_ext_reg the external address space is stubbed as "don't care" values by the Synapse core.
+    // that doesn't affect operator results and other addresses implemented internally by the Synapse core.
+    vdefine num_populated_ext_regs 48
+    vdefine top_populated_ext_reg ($num_populated_ext_regs - 1)
     vdefine num_gp 12
     vdefine top_gp ($num_gp - 1)
 

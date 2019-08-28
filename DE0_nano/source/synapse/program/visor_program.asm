@@ -10,9 +10,11 @@
     vdefine visor_code_size_max_words   (1 << $visor_code_addr_width)      
     setvar assembler_max_words          $visor_code_size_max_words
 
-    // register file configuration
-    vdefine visor_num_regs 32
-    vdefine visor_top_reg ($visor_num_regs - 1)
+    // register file configuration.
+    // beyond top_populated_ext_reg the external address space is stubbed as "don't care" values by the Synapse core.
+    // that doesn't affect operator results and other addresses implemented internally by the Synapse core.
+    vdefine visor_num_populated_ext_regs 32
+    vdefine visor_top_populated_ext_reg ($visor_num_populated_ext_regs - 1)
     vdefine visor_num_gp 8
     vdefine visor_top_gp ($visor_num_gp - 1)
     setvar num_gp $visor_num_gp
@@ -529,7 +531,7 @@ func dump_target
     // verify sane number of registers in the target program's register name table.
     m9k_addr = 2
     x = m9k_data
-    if x gt $max_num_regs {
+    if x gt $max_populated_ext_regs {
         a = :unsafe_msg
         call print_nt
         puteol

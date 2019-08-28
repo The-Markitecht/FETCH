@@ -18,8 +18,10 @@
     declare_system_dimensions
     
     // register file configuration.
-    vdefine num_regs 48
-    vdefine top_reg ($num_regs - 1)
+    // beyond top_populated_ext_reg the external address space is stubbed as "don't care" values by the Synapse core.
+    // that doesn't affect operator results and other addresses implemented internally by the Synapse core.
+    vdefine num_populated_ext_regs 48
+    vdefine top_populated_ext_reg ($num_populated_ext_regs - 1)
     vdefine num_gp 18
     vdefine top_gp ($num_gp - 1)
 
@@ -69,11 +71,36 @@
 
     alias_both puff1cnt             [incr counter]  "pf1cnt"
     alias_src  puff1len             [incr counter]  "pf1len"
-                
-    alias_both spi_data             [incr counter]  "spi_data"
+
+    setvar     adc_num_channels        8
+    setvar     anmux_adc_channel       7
+    alias_both adc0                 [incr counter]  "adc0"
+    alias_both adc1                 [incr counter]  "adc1"
+    alias_both adc2                 [incr counter]  "adc2"
+    alias_both adc3                 [incr counter]  "adc3"
+    alias_both adc4                 [incr counter]  "//adc4"
+        alias_both adc_maf          [dest adc4]     "adcmaf"
+    alias_both adc5                 [incr counter]  "//adc5"
+        alias_both adc_o2           [dest adc5]     "adco2"
+    alias_both adc6                 [incr counter]  "//adc6"
+        alias_both adc_tps          [dest adc6]     "adctps"
+    alias_both adc7                 [incr counter]  "//adc7"
+        alias_both adc_anmux        [dest adc7]     "adcmux"
     
-    alias_both code_write_addr      [incr counter]  "//cdwrad"
-    alias_both code_write_data      [incr counter]  "//cdwrdt"
+    setvar     anmux_num_channels      8
+    alias_both anmux0               [incr counter]  "anmux0"
+    alias_both anmux1               [incr counter]  "anmux1"
+    alias_both anmux2               [incr counter]  "//anmux2"
+        alias_both anmux_block_temp [dest anmux2]   "anblock"
+    alias_both anmux3               [incr counter]  "//anmux3"
+        alias_both anmux_trans_temp [dest anmux3]   "antrans"
+    alias_both anmux4               [incr counter]  "anmux4"
+    alias_both anmux5               [incr counter]  "anmux5"
+    alias_both anmux6               [incr counter]  "anmux6"
+    alias_both anmux7               [incr counter]  "anmux7"
+
+    //alias_both code_write_addr      [incr counter]  "//cdwrad"
+    //alias_both code_write_data      [incr counter]  "//cdwrdt"
 
     alias_both fduart_data          [incr counter]  "//uartdt"
     alias_both fduart_status        [incr counter]  "uartstat"

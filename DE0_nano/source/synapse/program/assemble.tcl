@@ -1,40 +1,42 @@
 
 # assembler library for Synapse316 mcu.
 
+interp alias {} e {} expr
+
 # #########################################################################
 # muxer source & destination maps.
 set ::asrc [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     r8 8 r9 9 r10 10 r11 11 r12 12 r13 13 r14 14 r15 15 \
-    rtna 0x3e \
-    ad0     0x300   \
-    ad1     0x310   \
-    ad2     0x320   \
-    and0    0x330   \
-    or0     0x334   \
-    xor0    0x338   \
-    sh1r0   0x350   \
-    sh1l0   0x351   \
-    sh4l0   0x352   \
-    sh4r0   0x353   \
-    -1      0x360   \
-    _imm16_ 0x3a0   \
-    fetchd  0x3b0   \
-    dbgpoke 0x3c0   \
+    rtna    [e  0x3e]   \
+    ad0     [e 0x300]   \
+    ad1     [e 0x310]   \
+    ad2     [e 0x320]   \
+    and0    [e 0x330]   \
+    or0     [e 0x334]   \
+    xor0    [e 0x338]   \
+    sh1r0   [e 0x350]   \
+    sh1l0   [e 0x351]   \
+    sh4l0   [e 0x352]   \
+    sh4r0   [e 0x353]   \
+    -1      [e 0x360]   \
+    _imm16_ [e 0x3a0]   \
+    fetchd  [e 0x3b0]   \
+    dbgpoke [e 0x3c0]   \
     nop     0       \
     ]
 #    flags   0x340   \
 
 set ::adest [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     r8 8 r9 9 r10 10 r11 11 r12 12 r13 13 r14 14 r15 15 \
-    clrf    0x30    \
-    setf    0x31    \
-    nop     0x32    \
-    fetcha  0x34    \
-    breakpt 0x35    \
-    br      0x38    \
-    bn      0x39    \
-    rtna    0x3e    \
-    swapra  0x3f    \
+    clrf    [e 0x30]    \
+    setf    [e 0x31]    \
+    nop     [e 0x32]    \
+    fetcha  [e 0x34]    \
+    breakpt [e 0x35]    \
+    br      [e 0x38]    \
+    bn      [e 0x39]    \
+    rtna    [e 0x3e]    \
+    swapra  [e 0x3f]    \
     ]    
 
 set ::flagsrc [dict create always 15 \
@@ -74,7 +76,7 @@ proc flag {flag_name} {
 }
 
 proc is_expander_reference {reference} {
-    return [expr [string first {@} $reference] >= 0]
+    return [e [string first {@} $reference] >= 0]
 }
 
 proc expander_name {reference} {
@@ -169,7 +171,7 @@ proc parse_assignment {dest eq src} {
                 # insert nop's to allow for operator result latency.  
                 # to override this, program can use proper names of result registers instead of shorthand aliases.
                 # also fewer nop's are needed if some opcodes are already packed e.g. expander accesses.
-                set num_nops [expr [dict get $::latency $src] - [llength $opcodes]]
+                set num_nops [e [dict get $::latency $src] - [llength $opcodes]]
                 for {set i 0} {$i < $num_nops} {incr i} {
                     lappend opcodes [pack [dest nop] [src nop]]
                 }
@@ -203,7 +205,7 @@ proc parse_assignment {dest eq src} {
         if {[string equal -length 1 $addr {:}]} {
             set addr [label $addr]
         }
-        lappend opcodes [expr ([dict get $::flagsrc $flagname] << $::flagsrc_shift) | ([dest $instruction] << $::dest_shift)]
+        lappend opcodes [e ([dict get $::flagsrc $flagname] << $::flagsrc_shift) | ([dest $instruction] << $::dest_shift)]
         lappend opcodes $addr
     } else {
         error "syntax error: $dest $eq $src"
@@ -230,7 +232,7 @@ proc parse_expressions {lin} {
             error "expression missing final parenthesis: $lin"
         }
         set result [namespace eval ::asm "expr {[string range $lin $f $l]}"]
-        set lin "[string range $lin 0 [expr $f - 1]]$result[string range $lin [expr $l + 1] end]"
+        set lin "[string range $lin 0 [e $f - 1]]$result[string range $lin [e $l + 1] end]"
     }
     return $lin
 }
@@ -240,8 +242,8 @@ proc parse_line {lin} {
     set lin [string trim $lin]
     #puts "parse_line $::asm_pass $::src_fn : $::lnum : $lin"
     console "<[format %04d ${::lnum}]> <${::ml_state}> $lin"
-    set open_brace  [expr {[string index $lin end] eq "\{" }]
-    set close_brace [expr {[string index $lin   0] eq "\}" }]
+    set open_brace  [e {[string index $lin end] eq "\{" }]
+    set close_brace [e {[string index $lin   0] eq "\}" }]
     set comment     [string equal -length 2 $lin {//}]
     if {$::ml_state eq {tcl}} {
         # continuing a Tcl block in angle brackets.
@@ -287,7 +289,7 @@ proc parse_line {lin} {
         }
         foreach {lo_char hi_char} [split $lin {}] {
             scan "$lo_char$hi_char" %c%c lo hi
-            set w [expr {(($hi & 0xff) << 8) | ($lo & 0xff)}]
+            set w [e {(($hi & 0xff) << 8) | ($lo & 0xff)}]
             set echo {} ;# eliminate newlines, tabs, etc from the echo.
             if {[string is print $hi_char]} {append echo $hi_char} else {append echo { }}
             if {[string is print $lo_char]} {append echo $lo_char} else {append echo { }}
@@ -369,19 +371,19 @@ proc emit_mif {txt} {
 proc emit_bin {w} {
     # "puts" given 16-bit Tcl integer into the binary file.
     if {$::asm_pass == $::pass(emit)} {
-        set lo [expr {$w & 0xff}]
-        set hi [expr {($w >> 8) & 0xff}]
+        set lo [e {$w & 0xff}]
+        set hi [e {($w >> 8) & 0xff}]
         puts -nonewline $::bin_file [format %c%c $lo $hi ]
     }
 }
 
 proc pack {dest_addr src_addr} {
     # pack the given dest and src into a 16-bit assignment opcode (a Tcl integer).
-    return [expr ($src_addr << $::src_shift) | ($dest_addr << $::dest_shift)]
+    return [e ($src_addr << $::src_shift) | ($dest_addr << $::dest_shift)]
 }
 
 proc pack_small_constant {dest_addr constant} {
-    return [pack $dest_addr [expr $::small_const_opcode | ($constant << $::small_const_shift)]]
+    return [pack $dest_addr [e $::small_const_opcode | ($constant << $::small_const_shift)]]
 }
 
 namespace eval ::asm {
@@ -544,7 +546,7 @@ proc assemble_file {src_fn rom_fn} {
     set ::mif_file [open_mif $::mif_fn $::asm::assembler_max_words]
     set ::bin_file [open $::bin_fn w]
     fconfigure $::bin_file -translation binary
-    puts -nonewline $::bin_file [format %c%c [expr {$len_words & 0xff}] [expr {($len_words >> 8) & 0xff}] ]
+    puts -nonewline $::bin_file [format %c%c [e {$len_words & 0xff}] [e {($len_words >> 8) & 0xff}] ]
     parse_pass $asm_lines $::pass(emit)
     puts $::rom_file {        
                 16'hxxxx;

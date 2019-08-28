@@ -7,9 +7,15 @@ namespace eval ::asm {
 
     # verilog integration macros & functions.
     proc vdefine {lin name valu} {
-        # this can be redefined elsewhere to do application-specific work.
-    }
+        # each vdefine name is auto-generated into a _defines.v file.
+        # so they're visible in Verilog as well as assembly source.
 
+        if {$::asm_pass == $::pass(emit)} {
+            puts $::vdefines "`define [string toupper $name]  [expr $valu]"
+        }
+        setvar $lin $name $valu
+    }
+    
     proc vdefine32 {lin name valu} {
         set hi [expr {($valu >> 16) & 0xffff}]
         set lo [expr {$valu & 0xffff}]
@@ -37,6 +43,9 @@ namespace eval ::asm {
 
     # common register aliases.
     proc alias_src {lin name addr visor_name} {
+        if {$addr > $::asm::src_max} {
+            error "source register $name declared at $addr is outside the architecture's usable range."
+        }
         dict set ::asrc $name $addr
         if {[is_expander_reference $addr]} {
             vdefine $lin "esr_$name" [indirect_reg $addr]
@@ -54,6 +63,9 @@ namespace eval ::asm {
         dict set ::latency $name $latency_cycles
     }
     proc alias_dest {lin name addr visor_name} {
+        if {$addr > $::asm::dest_max} {
+            error "destination register $name declared at $addr is outside the architecture's usable range."
+        }
         dict set ::adest $name $addr
         if {[is_expander_reference $addr]} {
             vdefine $lin "edr_$name" [indirect_reg $addr]
@@ -73,30 +85,82 @@ namespace eval ::asm {
     proc alias_flag {lin name addr} {
         dict set ::flagsrc $name $addr
     }
-    alias_both         {} a         0               {a}
-    alias_both         {} b         1               {b}
-    alias_both         {} i         2               {i}
-    alias_both         {} j         3               {j}
-    alias_both         {} x         4               {x}
-    alias_both         {} y         5               {y}
-    alias_src_latency  {} a+b       [src ad0]       {}      1
-    alias_src_latency  {} i+j       [src ad1]       {}      1
-    alias_src_latency  {} x+y       [src ad2]       {}      1
-    alias_src_latency  {} and       [src and0]      {}      1
-    alias_src_latency  {} or        [src or0]       {}      1
-    alias_src_latency  {} xor       [src xor0]      {}      1
-    alias_src          {} a>>1      [src sh1r0]     {}
-    alias_src          {} a<<1      [src sh1l0]     {}
-    alias_src          {} a<<4      [src sh4l0]     {}
-    alias_src          {} a>>4      [src sh4r0]     {}
-    alias_src          {} 0xffff    [src -1]        {}
-    alias_flag         {} c         [flag ad0c]
-    alias_flag         {} az        [flag 0z]  
-    alias_flag         {} iz        [flag 2z]  
-    alias_flag         {} xz        [flag 4z]  
-    alias_flag         {} eq        [flag eq0] 
-    alias_flag         {} gt        [flag gt0] 
-    alias_flag         {} lt        [flag lt0] 
+    
+    proc declare_architecture_dimensions {} {
+        # each vdefine here is auto-generated into a _defines.v file.
+        # so they're visible in Verilog as well as assembly source.
+
+        parse {
+            // Synapse instruction set architecture constants.
+            vdefine word_width              16
+            vdefine ww                      $word_width
+            vdefine word_msb                15
+            vdefine wmsb                    $word_msb
+            vdefine dest_lsb                $::dest_shift
+            vdefine dest_width              ($word_width - $dest_lsb)
+            vdefine dest_max                ((1 << $dest_width) - 1)
+            vdefine src_msb                 9
+            vdefine src_width               ($src_msb + 1)
+            vdefine src_max                 ((1 << $src_width) - 1)
+            vdefine ipr_width               $word_width
+            vdefine ipr_top                 ($ipr_width - 1)
+            
+            // Synapse instruction set codes.
+            vdefine dest_nop                [dest nop]
+            
+            // debugging supervisor contants.  these are also required by implementation of the target MCU core.
+            vdefine debug_in_width          19
+                vdefine debug_force_exec_bit        18
+                vdefine debug_force_load_exr_bit    17
+                vdefine debug_force_hold_state_bit  16
+            vdefine debug_out_width         7
+                vdefine debug_prg_break_op_bit      6
+                vdefine debug_branching_cycle_bit   5
+                vdefine debug_const16_cycle1_bit    4
+                vdefine debug_fetch_cycle1_bit      3
+                vdefine debug_fetch_cycle2_bit      2
+                vdefine debug_load_exr_bit          1
+                vdefine debug_enable_exec_bit       0
+
+            // size of external register file.  all these registers are external to the Synapse316 core.
+            // min_populated_ext_regs <= num_populated_ext_regs <= max_populated_ext_regs <= 48 supported in the core's muxer and module ports.
+            // all those numbers are smaller than src_max and dest_max addresses of the architecture.
+            // from num_populated_ext_regs through max_populated_ext_regs the external address space 
+            // is stubbed as "don't care" values by the Synapse core.
+            // that doesn't affect operator results and other addresses implemented internally by the Synapse core.
+            vdefine min_populated_ext_regs            2
+            vdefine max_populated_ext_regs            48
+            //vdefine num_populated_ext_regs            32
+            //vdefine top_populated_ext_reg             $num_populated_ext_regs - 1
+            // those 2 have been moved to the assembly program to be distinct for each core.
+
+            // register addresses of operators and their operands.
+            alias_both         a         0               {a}
+            alias_both         b         1               {b}
+            alias_both         i         2               {i}
+            alias_both         j         3               {j}
+            alias_both         x         4               {x}
+            alias_both         y         5               {y}
+            alias_src_latency  a+b       [src ad0]       {}      1
+            alias_src_latency  i+j       [src ad1]       {}      1
+            alias_src_latency  x+y       [src ad2]       {}      1
+            alias_src_latency  and       [src and0]      {}      1
+            alias_src_latency  or        [src or0]       {}      1
+            alias_src_latency  xor       [src xor0]      {}      1
+            alias_src          a>>1      [src sh1r0]     {}
+            alias_src          a<<1      [src sh1l0]     {}
+            alias_src          a<<4      [src sh4l0]     {}
+            alias_src          a>>4      [src sh4r0]     {}
+            alias_src          0xffff    [src -1]        {}
+            alias_flag         c         [flag ad0c]
+            alias_flag         az        [flag 0z]  
+            alias_flag         iz        [flag 2z]  
+            alias_flag         xz        [flag 4z]  
+            alias_flag         eq        [flag eq0] 
+            alias_flag         gt        [flag gt0] 
+            alias_flag         lt        [flag lt0] 
+        }
+    }
 
     # Tcl integration macros.
     proc setvar {lin varname value} {
@@ -328,7 +392,7 @@ set obsolete {
         set expected [expr {[set "::asm::$counter_var_name"] + 1}]
         emit_word $expected $lin
         set found 0
-        for {set i 0} {$i < $::asm::num_regs} {incr i} {
+        for {set i 0} {$i < $::asm::num_populated_ext_regs} {incr i} {
             if [dict exists $::visor_names $i] {
                 incr found
                 # truncate & pad.  right-justify, unless it's marked unreadable, then left-justify to preserve the mark.
@@ -341,7 +405,7 @@ set obsolete {
             }
         }
         if {[string length $counter_var_name] > 0 && $found != $expected} {
-            error "mismatch in debugger register table: expected $expected found $found names"            
+            error "Mismatch in debugger register table: expected $expected found $found names.  This may be caused by exceeding $::asm::max_populated_ext_regs external registers, or by accidentally duplicating register names."            
         }
     }
 }
