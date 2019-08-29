@@ -28,9 +28,9 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=1
+current_page=14
 FILE_NAME_0=6501;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.asm;0;4
-FILE_NAME_1=7661;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csim_program.asm;0;4
+FILE_NAME_1=7685;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csim_program.asm;0;4
 FILE_NAME_2=2040;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Chard_top.v;0;4
 FILE_NAME_3=16590;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csoft_top.v;0;4
 FILE_NAME_4=5758;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Cplatform.v;0;4
@@ -43,7 +43,7 @@ FILE_NAME_10=3254;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5
 FILE_NAME_11=2494;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program_defines.v;0;4
 FILE_NAME_12=29547;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csim_program.mif;0;4
 FILE_NAME_13=0;SQL;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.mif;0;4
-FILE_NAME_14=3969;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cmapper%5Cmapper.tcl;0;4
+FILE_NAME_14=15362;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cmapper%5Cmapper.tcl;0;4
 FILE_NAME_15=590;Tcl;0;EUTF-8;0;1;0;J%3A%5Ctemp%5CMityBuild%5ClibMityBuild;0;4
 FILE_NAME_16=7611;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_run.asm;0;4
 FILE_NAME_17=0;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_stop.asm;0;4
@@ -55,6 +55,7 @@ FILE_NAME_22=850;ASM;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%
 FILE_NAME_23=2745;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cmapper%5Cmaps%5Cdefault.map;0;4
 FILE_NAME_24=18180;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cmapper%5Cport_capture.txt;0;4
 FILE_NAME_25=0;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csim_program_defines.v;0;4
+FILE_NAME_26=4282;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cdebugger%5Cdebugger.tcl;0;4
 
 [build-menu]
 NF_00_LB=_Make

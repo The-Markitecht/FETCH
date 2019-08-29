@@ -274,6 +274,12 @@ proc send_row {cmd  seed  data_words  desc} {
     return 1
 }
 
+proc send_all_maps {} {
+    send_afrc_map
+    send_block_temp_map
+    send_afterstart_map
+}
+
 proc send_afrc_map {} {
     disable_status_report
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
@@ -522,23 +528,16 @@ proc btest_run_chunk {body} {
 }
 
 proc suite1 {} {
-    ::show_tab = terms
-    refresh_show_tab
+    load_maps default
+    send_all_maps
+    
+    load_sim sim_program
+}
 
-    ::show_tab = btest
-    refresh_show_tab
-
-    ::show_tab = refs
-    refresh_show_tab
-
-    ::show_tab = btest
-    refresh_show_tab
-
-    ::show_tab = none
-    refresh_show_tab
-
-    ::show_tab = btest
-    refresh_show_tab
+proc load_sim {bare_fn} {
+    print_rx [x tclsh [f+ $::builderDir .. debugger debugger.tcl] 24 \
+        [f+ $::builderDir .. .. DE0_nano source synapse program ${bare_fn}.mif] \
+        <@ stdin]
 }
 
 proc init_gui {} {
