@@ -59,16 +59,20 @@ proc get4x {} {
     return $valu
 }
 
+#proc wait_prompt {timeout_ms} {
+    #prev = $::prompt_count
+    #while {$timeout_ms > 0} {
+        #after 40
+        #incr timeout_ms -40
+        ##update ;# required because evidently async I/O shares the same event loop with Wish GUI.
+        #read_port
+        #if {$::prompt_count > $prev} {return 1}
+    #}
+    #return 0
+#}
+
 proc wait_prompt {timeout_ms} {
-    prev = $::prompt_count
-    while {$timeout_ms > 0} {
-        after 40
-        incr timeout_ms -40
-        #update ;# required because evidently async I/O shares the same event loop with Wish GUI.
-        read_port
-        if {$::prompt_count > $prev} {return 1}
-    }
-    return 0
+    return [wait_delim > $timeout_ms]
 }
 
 proc get4x_wait {timeout_ms} {
@@ -89,12 +93,20 @@ proc wait_delim {delimiter timeout_ms} {
         incr timeout_ms -40
         #update ;# required because evidently async I/O shares the same event loop with Wish GUI.
         s = [read $::port]
-        puts -nonewline $s
         append buf $s
         if {[string match -nocase *$delimiter $buf]} {
-            return [list 1 $buf]
+            # delete each line containing equal sign; those are the register dump.
+            small = {}
+            foreach ln [split $buf \n] {
+                if {[string first = $ln] == -1} {
+                    append small $ln \n
+                }
+            }            
+            puts $small
+            return [list 1 $small]
         }
     }
+    puts -nonewline $buf
     return [list 0 $buf]
 }
 
@@ -131,7 +143,7 @@ proc send_program {mif_fn} {
     re = { \m L[[:xdigit:]]{4} [\r\n]+ [.]+ [\r\n]+ ([[:xdigit:]]{4}) [\r\n]+ }
     if { ! [regexp -expanded -nocase $re $buf junk sum_txt]} {
         puts "\n-- ERROR: could not locate checksum\n"
-        puts "set buf {$buf}"
+        #puts "set buf {$buf}"
         return 0
     }
     if { ! [scan $sum_txt %4x remote_sum]} {
@@ -152,6 +164,6 @@ mif_fn = [::argv ^ 1]
 init_port $port_num
 
 send_and_wait n 500
-send_program $mif_fn
-
+if { ! [send_program $mif_fn]} {exit 1}
 tx r
+exit 0
