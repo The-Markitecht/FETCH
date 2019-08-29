@@ -52,7 +52,7 @@
         // all Avalon addresses are BYTE addresses.  all Avalon sizes are in BYTES.
         vdefine32 sdram_base                 0x00000000
         vdefine32 sdram_size                 0x02000000
-        setvar ram_counter          [ram_split $sdram_base]
+        setvar ram_counter          [ram_from_int $sdram_base]
         // SDRAM notes:
         // - all addresses are BYTE addresses.  all must be divisible by 2, because this
         // system only supports 16-bit word accesses.  writes to an odd-numbered address
@@ -230,6 +230,8 @@
     // clear the first 64k of RAM.
     callx  clear_ram_page  0
     
+struct_test_case
+    
     callx  init_drom
 
     // init fuel injection.
@@ -306,8 +308,7 @@ event ign_capture_handler
     b = $ign_history_idx_mask
     a = and    
     ram $ram_ign_history_idx = a
-    b = g6
-    struct_write $ram_ign_history_jf 
+    struct $ram_ign_history_jf . a = g6
     
     // ////////// compute new jiffy estimate.
     // average entire history.
@@ -315,9 +316,7 @@ event ign_capture_handler
     x = 0
     g6 = 0
     for {i = 0} {i lt $ign_history_len} step j = 1 {
-        a = i
-        struct_read $ram_ign_history_jf  
-        y = b
+        struct y = $ram_ign_history_jf . i  
         if y eq 0 {
             a = g6
             b = 1
@@ -351,8 +350,7 @@ event ign_capture_handler
         // find RPM column in AFRC map.
         ram gb = $ram_avg_rpm
         for {i = 0} {i lt $rpm_ref_num_cells} step j = 1 {
-            a = i
-            struct_read $ram_rpm_ref
+            struct b = $ram_rpm_ref . i
             if b gt gb {
                 ram $ram_afrc_rpm_col_idx = i
                 jmp :rpm_found
@@ -370,9 +368,7 @@ func clear_ign_history {
     // clear the history so it won't be valid again until several more valid samples are collected.
     ram $ram_ign_bad_samples = $ign_history_len
     for {i = 0} {i lt $ign_history_len} step j = 1 {
-        a = i
-        b = 0
-        struct_write $ram_ign_history_jf
+        struct $ram_ign_history_jf . i = 0
     }
 }
 
@@ -558,9 +554,7 @@ func start_daq_pass {
         
         a = :o2_msg
         call :print_nt 
-        a = $o2_adc_channel
-        struct_read $ram_last_adc_data
-        a = b
+        struct a = $ram_last_adc_data . $o2_adc_channel
         call :put4x    
         
         a = :maf_msg
@@ -570,9 +564,7 @@ func start_daq_pass {
         
         a = :tps_msg
         call :print_nt 
-        a = $tps_adc_channel
-        struct_read $ram_last_adc_data
-        a = b
+        struct_read a = $ram_last_adc_data . $tps_adc_channel
         call :put4x    
         putasc ","
         ram a = $ram_tps_avg
@@ -656,9 +648,7 @@ event spi_done_handler
     // memorize an actual ADC reading.
     ram i = $ram_adc_chn_pending
     ram $ram_adc_chn_pending = 0
-    a = i
-    b = spi_data
-    struct_write $ram_last_adc_data
+    struct $ram_last_adc_data . i = spi_data
     
     // react to ADC reading.
     if i eq $tps_adc_channel {
@@ -686,8 +676,7 @@ event spi_done_handler
         
         // memorize anmux reading.
         call :anmux_get_chn
-        b = spi_data
-        struct_write $ram_last_anmux_data
+        struct $ram_last_anmux_data . a = spi_data
         
         // decrement anmux channel & start waiting again.
         call :anmux_get_chn
@@ -872,10 +861,10 @@ func clear_ram_page {page in av_ad_hi} {
 }
 
 func set_text_flag {flag_addr in pa} {
-    b = flag_addr
     ram a = $ram_next_tfp_idx
-    struct_write $ram_text_flag_pointers 
+    struct $ram_text_flag_pointers . a = flag_addr
     a = flag_addr
+//TODO: ^^^ is this a bug?  should be ram a = $ram_next_tfp_idx instead??
     b = -1
     a = a+b
     b = $tfp_mask
@@ -884,8 +873,7 @@ func set_text_flag {flag_addr in pa} {
 
 func unique_text_flag {flag_addr in pa} {
     for {i = 0} {i lt $num_text_flag_pointers} step j = 1 {
-        a = i        
-        struct_read $ram_text_flag_pointers
+        struct b = $ram_text_flag_pointers . i
         if b eq flag_addr {
             jmp :skip
         }  
@@ -901,14 +889,11 @@ func report_text_flags {
     a = :text_flags_msg
     call :print_nt
     for {i = 0} {i lt $num_text_flag_pointers} step j = 1 {
-        a = i        
-        struct_read $ram_text_flag_pointers
+        struct b = $ram_text_flag_pointers . i
         if b ne 0 {
             call :print_nt
             putasc ","
-            a = i
-            b = 0
-            struct_write $ram_text_flag_pointers 
+            struct $ram_text_flag_pointers . i = 0
         }  
     }
 }
@@ -931,10 +916,10 @@ func report_plan {
 }
     
 func interpret_maf {
+    // range 0 to 1023 = 0x3ff at the ADC.
+
     // offset and clamp the MAF ADC count to 0..511.
-    a = $maf_adc_channel
-    struct_read $ram_last_adc_data
-    a = b
+    struct a = $ram_last_adc_data . $maf_adc_channel
     a = a>>1
     b = 0x01ff
     //patch: do some averaging here, like interpret_tps.
@@ -947,8 +932,7 @@ func interpret_maf {
     // or 5% of ignition cycle at max RPM.
     ram $ram_maf_valid = 0
     for {i = 0} {i lt $maf_ref_num_cells} step j = 1 {
-        a = i
-        struct_read $ram_maf_ref
+        struct b = $ram_maf_ref . i
         if b gt x {
             ram $ram_maf_flow_hi_res = i
             ram $ram_maf_valid = 1
@@ -965,8 +949,7 @@ func interpret_maf {
 }
 
 func interpret_tps {
-    a = $tps_adc_channel
-    struct_read $ram_last_adc_data
+    struct b = $ram_last_adc_data . $tps_adc_channel
     // reverse the scale.
     a = 0x0fff
     b = xor
@@ -974,14 +957,10 @@ func interpret_tps {
     ga = b
     x = 0
     for {i = 0} {i lt $tps_history_len} step j = 1 {
-        a = i
-        struct_read $ram_tps_history
-        gb = b
-        y = b
+        struct gb = $ram_tps_history . i
+        y = gb
         x = x+y
-        a = i
-        b = ga
-        struct_write $ram_tps_history
+        struct $ram_tps_history . i = ga
         ga = gb
     }
     // memorize average.

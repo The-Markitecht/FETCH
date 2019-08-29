@@ -149,9 +149,8 @@ func fetch_afrc {maf_row_idx in pa} {rpm_col_idx in pb} {afrc out pa} {
     b = product_lo
     // index columns by RPM.
     a = rpm_col_idx
-    a = a+b
-    struct_read $ram_afrc_map
-    rtn b
+    struct av_read_data = $ram_afrc_map . a+b
+    rtn av_read_data
 }
 
 func puff_len_run {
@@ -244,16 +243,12 @@ func leave_run {
 
 func interpret_block_temp {
     // look up block temperature map trim factor.
-    a = $anmux_engine_block_temp
-    struct_read $ram_last_anmux_data
-    gb = b
+    struct gb = $ram_last_anmux_data . $anmux_engine_block_temp
     for {i = 0} {i lt $block_temp_num_cells} step j = 1 {
-        a = i
-        struct_read $ram_block_temp_ref
+        struct b = $ram_block_temp_ref . i
         if b gt gb {
             ram $ram_block_temp_map_idx = i
-            a = i
-            struct_read $ram_block_temp_map
+            struct b = $ram_block_temp_map . i
             ram $ram_block_temp_trim = b
             jmp :temp_done
         }
@@ -265,19 +260,16 @@ func interpret_puff_count {
     // look up afterstart trim factor.
     ram gb = $ram_puff_count
     for {i = 0} {i lt $afterstart_num_cells} step j = 1 {
-        a = i
-        struct_read $ram_afterstart_ref
+        struct b = $ram_afterstart_ref . i
         if b gt gb {
             j = -1
             ram $ram_afterstart_map_idx = i+j
-            a = i
-            struct_read $ram_afterstart_map
+            struct b = $ram_afterstart_map . i
             ram $ram_afterstart_trim = b
             jmp :done
         }
     }
-    a = ($afterstart_num_cells - 1)
-    struct_read $ram_afterstart_map
+    struct b = $ram_afterstart_map . ($afterstart_num_cells - 1)
     ram $ram_afterstart_trim = b    
     :done
 }
@@ -286,8 +278,8 @@ func dump_afrc_cmd {
     puteol
     ram ga = $ram_afrc_maf_row_idx
     ram gb = $ram_afrc_rpm_col_idx
-    av_ad_hi = ([ram_join $ram_afrc_map] >> 16)
-    av_ad_lo = ([ram_join $ram_afrc_map] & 0xffff)
+    av_ad_hi = ([ram_to_int $ram_afrc_map] >> 16)
+    av_ad_lo = ([ram_to_int $ram_afrc_map] & 0xffff)
     for {i = 0} {i lt $afrc_maf_rows} step j = 1 {
         for {x = 0} {x lt $afrc_rpm_cols} step y = 1 {
             a = av_begin_read

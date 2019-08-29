@@ -53,12 +53,8 @@ func parse_key {key in pa} {
     // memorize into ram_key_buf, pushing down existing content.
     x = key
     for {i = $key_buf_max} {i ge 0} step j = -1 {
-        a = i
-        struct_read $ram_key_buf
-        y = b            
-        a = i
-        b = x
-        struct_write $ram_key_buf                        
+        struct y = $ram_key_buf . i
+        struct $ram_key_buf . i = x
         x = y
     }
     if key eq 13 {
@@ -84,8 +80,7 @@ func parse_command {
                 //asc b = "*"
                 //br eq :matched  
                     //// parameter character.  succeed early.
-                a = i
-                struct_read $ram_key_buf
+                struct b = $ram_key_buf . i
                 a = y
                 bn eq :no_match
             }

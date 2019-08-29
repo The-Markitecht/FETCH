@@ -76,6 +76,7 @@
     vdefine     adc_num_channels        8
     vdefine     anmux_adc_channel       7
     alias_both adc_maf              [incr counter]  "adcmaf"
+        // range 0 to 1023 = 0x3ff at the ADC.
     alias_both adc_o2               [incr counter]  "adco2"
     alias_both adc_tps              [incr counter]  "adctps"
     
@@ -202,16 +203,16 @@ end_event
 
 event mstimer0_handler
     a = scroll_dir
-    a = a<<4
-    b = anmux_trans_temp
-    anmux_trans_temp = a+b
-    if anmux_trans_temp gt 4000 {
+//    a = a<<4
+    b = adc_maf
+    adc_maf = a+b
+    if adc_maf gt 900 {
         scroll_dir = -1
     }
-    if anmux_trans_temp lt 10 {
+    if adc_maf lt 100 {
         scroll_dir = 1
     }
-    mstimer0 = 1
+    mstimer0 = 10
 end_event
 
 func parse_key {key in pa} {

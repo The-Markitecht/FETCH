@@ -64,6 +64,7 @@ addr == 16'h01 ? 16'h01ec :  // <0016> "
 
 
 // ADC and anmux are represented sparesely here, to fit within Synapse external register space.
+// range 0 to 1023 = 0x3ff at the ADC.
 
 
 //alias_both code_write_addr      [incr counter]  "//cdwrad"
@@ -71,221 +72,221 @@ addr == 16'h01 ? 16'h01ec :  // <0016> "
 
 
 
-addr == 16'h02 ? 16'h0029 :  // <0095> emit_debugger_register_table  counter
+addr == 16'h02 ? 16'h0029 :  // <0096> emit_debugger_register_table  counter
 // "       a"
-addr == 16'h03 ? 16'h2020 :  // <0095>   
-addr == 16'h04 ? 16'h2020 :  // <0095>   
-addr == 16'h05 ? 16'h2020 :  // <0095>   
-addr == 16'h06 ? 16'h6120 :  // <0095> a 
+addr == 16'h03 ? 16'h2020 :  // <0096>   
+addr == 16'h04 ? 16'h2020 :  // <0096>   
+addr == 16'h05 ? 16'h2020 :  // <0096>   
+addr == 16'h06 ? 16'h6120 :  // <0096> a 
 // "       b"
-addr == 16'h07 ? 16'h2020 :  // <0095>   
-addr == 16'h08 ? 16'h2020 :  // <0095>   
-addr == 16'h09 ? 16'h2020 :  // <0095>   
-addr == 16'h0a ? 16'h6220 :  // <0095> b 
+addr == 16'h07 ? 16'h2020 :  // <0096>   
+addr == 16'h08 ? 16'h2020 :  // <0096>   
+addr == 16'h09 ? 16'h2020 :  // <0096>   
+addr == 16'h0a ? 16'h6220 :  // <0096> b 
 // "       i"
-addr == 16'h0b ? 16'h2020 :  // <0095>   
-addr == 16'h0c ? 16'h2020 :  // <0095>   
-addr == 16'h0d ? 16'h2020 :  // <0095>   
-addr == 16'h0e ? 16'h6920 :  // <0095> i 
+addr == 16'h0b ? 16'h2020 :  // <0096>   
+addr == 16'h0c ? 16'h2020 :  // <0096>   
+addr == 16'h0d ? 16'h2020 :  // <0096>   
+addr == 16'h0e ? 16'h6920 :  // <0096> i 
 // "       j"
-addr == 16'h0f ? 16'h2020 :  // <0095>   
-addr == 16'h10 ? 16'h2020 :  // <0095>   
-addr == 16'h11 ? 16'h2020 :  // <0095>   
-addr == 16'h12 ? 16'h6a20 :  // <0095> j 
+addr == 16'h0f ? 16'h2020 :  // <0096>   
+addr == 16'h10 ? 16'h2020 :  // <0096>   
+addr == 16'h11 ? 16'h2020 :  // <0096>   
+addr == 16'h12 ? 16'h6a20 :  // <0096> j 
 // "       x"
-addr == 16'h13 ? 16'h2020 :  // <0095>   
-addr == 16'h14 ? 16'h2020 :  // <0095>   
-addr == 16'h15 ? 16'h2020 :  // <0095>   
-addr == 16'h16 ? 16'h7820 :  // <0095> x 
+addr == 16'h13 ? 16'h2020 :  // <0096>   
+addr == 16'h14 ? 16'h2020 :  // <0096>   
+addr == 16'h15 ? 16'h2020 :  // <0096>   
+addr == 16'h16 ? 16'h7820 :  // <0096> x 
 // "       y"
-addr == 16'h17 ? 16'h2020 :  // <0095>   
-addr == 16'h18 ? 16'h2020 :  // <0095>   
-addr == 16'h19 ? 16'h2020 :  // <0095>   
-addr == 16'h1a ? 16'h7920 :  // <0095> y 
+addr == 16'h17 ? 16'h2020 :  // <0096>   
+addr == 16'h18 ? 16'h2020 :  // <0096>   
+addr == 16'h19 ? 16'h2020 :  // <0096>   
+addr == 16'h1a ? 16'h7920 :  // <0096> y 
 // "      ga"
-addr == 16'h1b ? 16'h2020 :  // <0095>   
-addr == 16'h1c ? 16'h2020 :  // <0095>   
-addr == 16'h1d ? 16'h2020 :  // <0095>   
-addr == 16'h1e ? 16'h6167 :  // <0095> ag
+addr == 16'h1b ? 16'h2020 :  // <0096>   
+addr == 16'h1c ? 16'h2020 :  // <0096>   
+addr == 16'h1d ? 16'h2020 :  // <0096>   
+addr == 16'h1e ? 16'h6167 :  // <0096> ag
 // "      gb"
-addr == 16'h1f ? 16'h2020 :  // <0095>   
-addr == 16'h20 ? 16'h2020 :  // <0095>   
-addr == 16'h21 ? 16'h2020 :  // <0095>   
-addr == 16'h22 ? 16'h6267 :  // <0095> bg
+addr == 16'h1f ? 16'h2020 :  // <0096>   
+addr == 16'h20 ? 16'h2020 :  // <0096>   
+addr == 16'h21 ? 16'h2020 :  // <0096>   
+addr == 16'h22 ? 16'h6267 :  // <0096> bg
 // "      gc"
-addr == 16'h23 ? 16'h2020 :  // <0095>   
-addr == 16'h24 ? 16'h2020 :  // <0095>   
-addr == 16'h25 ? 16'h2020 :  // <0095>   
-addr == 16'h26 ? 16'h6367 :  // <0095> cg
+addr == 16'h23 ? 16'h2020 :  // <0096>   
+addr == 16'h24 ? 16'h2020 :  // <0096>   
+addr == 16'h25 ? 16'h2020 :  // <0096>   
+addr == 16'h26 ? 16'h6367 :  // <0096> cg
 // "      gd"
-addr == 16'h27 ? 16'h2020 :  // <0095>   
-addr == 16'h28 ? 16'h2020 :  // <0095>   
-addr == 16'h29 ? 16'h2020 :  // <0095>   
-addr == 16'h2a ? 16'h6467 :  // <0095> dg
+addr == 16'h27 ? 16'h2020 :  // <0096>   
+addr == 16'h28 ? 16'h2020 :  // <0096>   
+addr == 16'h29 ? 16'h2020 :  // <0096>   
+addr == 16'h2a ? 16'h6467 :  // <0096> dg
 // "      ge"
-addr == 16'h2b ? 16'h2020 :  // <0095>   
-addr == 16'h2c ? 16'h2020 :  // <0095>   
-addr == 16'h2d ? 16'h2020 :  // <0095>   
-addr == 16'h2e ? 16'h6567 :  // <0095> eg
+addr == 16'h2b ? 16'h2020 :  // <0096>   
+addr == 16'h2c ? 16'h2020 :  // <0096>   
+addr == 16'h2d ? 16'h2020 :  // <0096>   
+addr == 16'h2e ? 16'h6567 :  // <0096> eg
 // "      gf"
-addr == 16'h2f ? 16'h2020 :  // <0095>   
-addr == 16'h30 ? 16'h2020 :  // <0095>   
-addr == 16'h31 ? 16'h2020 :  // <0095>   
-addr == 16'h32 ? 16'h6667 :  // <0095> fg
+addr == 16'h2f ? 16'h2020 :  // <0096>   
+addr == 16'h30 ? 16'h2020 :  // <0096>   
+addr == 16'h31 ? 16'h2020 :  // <0096>   
+addr == 16'h32 ? 16'h6667 :  // <0096> fg
 // " scroldr"
-addr == 16'h33 ? 16'h7320 :  // <0095> s 
-addr == 16'h34 ? 16'h7263 :  // <0095> rc
-addr == 16'h35 ? 16'h6c6f :  // <0095> lo
-addr == 16'h36 ? 16'h7264 :  // <0095> rd
+addr == 16'h33 ? 16'h7320 :  // <0096> s 
+addr == 16'h34 ? 16'h7263 :  // <0096> rc
+addr == 16'h35 ? 16'h6c6f :  // <0096> lo
+addr == 16'h36 ? 16'h7264 :  // <0096> rd
 // " puffing"
-addr == 16'h37 ? 16'h7020 :  // <0095> p 
-addr == 16'h38 ? 16'h6675 :  // <0095> fu
-addr == 16'h39 ? 16'h6966 :  // <0095> if
-addr == 16'h3a ? 16'h676e :  // <0095> gn
+addr == 16'h37 ? 16'h7020 :  // <0096> p 
+addr == 16'h38 ? 16'h6675 :  // <0096> fu
+addr == 16'h39 ? 16'h6966 :  // <0096> if
+addr == 16'h3a ? 16'h676e :  // <0096> gn
 // "      pa"
-addr == 16'h3b ? 16'h2020 :  // <0095>   
-addr == 16'h3c ? 16'h2020 :  // <0095>   
-addr == 16'h3d ? 16'h2020 :  // <0095>   
-addr == 16'h3e ? 16'h6170 :  // <0095> ap
+addr == 16'h3b ? 16'h2020 :  // <0096>   
+addr == 16'h3c ? 16'h2020 :  // <0096>   
+addr == 16'h3d ? 16'h2020 :  // <0096>   
+addr == 16'h3e ? 16'h6170 :  // <0096> ap
 // "      pb"
-addr == 16'h3f ? 16'h2020 :  // <0095>   
-addr == 16'h40 ? 16'h2020 :  // <0095>   
-addr == 16'h41 ? 16'h2020 :  // <0095>   
-addr == 16'h42 ? 16'h6270 :  // <0095> bp
+addr == 16'h3f ? 16'h2020 :  // <0096>   
+addr == 16'h40 ? 16'h2020 :  // <0096>   
+addr == 16'h41 ? 16'h2020 :  // <0096>   
+addr == 16'h42 ? 16'h6270 :  // <0096> bp
 // "      pc"
-addr == 16'h43 ? 16'h2020 :  // <0095>   
-addr == 16'h44 ? 16'h2020 :  // <0095>   
-addr == 16'h45 ? 16'h2020 :  // <0095>   
-addr == 16'h46 ? 16'h6370 :  // <0095> cp
+addr == 16'h43 ? 16'h2020 :  // <0096>   
+addr == 16'h44 ? 16'h2020 :  // <0096>   
+addr == 16'h45 ? 16'h2020 :  // <0096>   
+addr == 16'h46 ? 16'h6370 :  // <0096> cp
 // "      pd"
-addr == 16'h47 ? 16'h2020 :  // <0095>   
-addr == 16'h48 ? 16'h2020 :  // <0095>   
-addr == 16'h49 ? 16'h2020 :  // <0095>   
-addr == 16'h4a ? 16'h6470 :  // <0095> dp
+addr == 16'h47 ? 16'h2020 :  // <0096>   
+addr == 16'h48 ? 16'h2020 :  // <0096>   
+addr == 16'h49 ? 16'h2020 :  // <0096>   
+addr == 16'h4a ? 16'h6470 :  // <0096> dp
 // "//rstk  "
-addr == 16'h4b ? 16'h2f2f :  // <0095> //
-addr == 16'h4c ? 16'h7372 :  // <0095> sr
-addr == 16'h4d ? 16'h6b74 :  // <0095> kt
-addr == 16'h4e ? 16'h2020 :  // <0095>   
+addr == 16'h4b ? 16'h2f2f :  // <0096> //
+addr == 16'h4c ? 16'h7372 :  // <0096> sr
+addr == 16'h4d ? 16'h6b74 :  // <0096> kt
+addr == 16'h4e ? 16'h2020 :  // <0096>   
 // "  ev_pri"
-addr == 16'h4f ? 16'h2020 :  // <0095>   
-addr == 16'h50 ? 16'h7665 :  // <0095> ve
-addr == 16'h51 ? 16'h705f :  // <0095> p_
-addr == 16'h52 ? 16'h6972 :  // <0095> ir
+addr == 16'h4f ? 16'h2020 :  // <0096>   
+addr == 16'h50 ? 16'h7665 :  // <0096> ve
+addr == 16'h51 ? 16'h705f :  // <0096> p_
+addr == 16'h52 ? 16'h6972 :  // <0096> ir
 // "softevnt"
-addr == 16'h53 ? 16'h6f73 :  // <0095> os
-addr == 16'h54 ? 16'h7466 :  // <0095> tf
-addr == 16'h55 ? 16'h7665 :  // <0095> ve
-addr == 16'h56 ? 16'h746e :  // <0095> tn
+addr == 16'h53 ? 16'h6f73 :  // <0096> os
+addr == 16'h54 ? 16'h7466 :  // <0096> tf
+addr == 16'h55 ? 16'h7665 :  // <0096> ve
+addr == 16'h56 ? 16'h746e :  // <0096> tn
 // " stamplo"
-addr == 16'h57 ? 16'h7320 :  // <0095> s 
-addr == 16'h58 ? 16'h6174 :  // <0095> at
-addr == 16'h59 ? 16'h706d :  // <0095> pm
-addr == 16'h5a ? 16'h6f6c :  // <0095> ol
+addr == 16'h57 ? 16'h7320 :  // <0096> s 
+addr == 16'h58 ? 16'h6174 :  // <0096> at
+addr == 16'h59 ? 16'h706d :  // <0096> pm
+addr == 16'h5a ? 16'h6f6c :  // <0096> ol
 // " stamphi"
-addr == 16'h5b ? 16'h7320 :  // <0095> s 
-addr == 16'h5c ? 16'h6174 :  // <0095> at
-addr == 16'h5d ? 16'h706d :  // <0095> pm
-addr == 16'h5e ? 16'h6968 :  // <0095> ih
+addr == 16'h5b ? 16'h7320 :  // <0096> s 
+addr == 16'h5c ? 16'h6174 :  // <0096> at
+addr == 16'h5d ? 16'h706d :  // <0096> pm
+addr == 16'h5e ? 16'h6968 :  // <0096> ih
 // "stampclo"
-addr == 16'h5f ? 16'h7473 :  // <0095> ts
-addr == 16'h60 ? 16'h6d61 :  // <0095> ma
-addr == 16'h61 ? 16'h6370 :  // <0095> cp
-addr == 16'h62 ? 16'h6f6c :  // <0095> ol
+addr == 16'h5f ? 16'h7473 :  // <0096> ts
+addr == 16'h60 ? 16'h6d61 :  // <0096> ma
+addr == 16'h61 ? 16'h6370 :  // <0096> cp
+addr == 16'h62 ? 16'h6f6c :  // <0096> ol
 // "stampchi"
-addr == 16'h63 ? 16'h7473 :  // <0095> ts
-addr == 16'h64 ? 16'h6d61 :  // <0095> ma
-addr == 16'h65 ? 16'h6370 :  // <0095> cp
-addr == 16'h66 ? 16'h6968 :  // <0095> ih
+addr == 16'h63 ? 16'h7473 :  // <0096> ts
+addr == 16'h64 ? 16'h6d61 :  // <0096> ma
+addr == 16'h65 ? 16'h6370 :  // <0096> cp
+addr == 16'h66 ? 16'h6968 :  // <0096> ih
 // "ustimer0"
-addr == 16'h67 ? 16'h7375 :  // <0095> su
-addr == 16'h68 ? 16'h6974 :  // <0095> it
-addr == 16'h69 ? 16'h656d :  // <0095> em
-addr == 16'h6a ? 16'h3072 :  // <0095> 0r
+addr == 16'h67 ? 16'h7375 :  // <0096> su
+addr == 16'h68 ? 16'h6974 :  // <0096> it
+addr == 16'h69 ? 16'h656d :  // <0096> em
+addr == 16'h6a ? 16'h3072 :  // <0096> 0r
 // "mstimer0"
-addr == 16'h6b ? 16'h736d :  // <0095> sm
-addr == 16'h6c ? 16'h6974 :  // <0095> it
-addr == 16'h6d ? 16'h656d :  // <0095> em
-addr == 16'h6e ? 16'h3072 :  // <0095> 0r
+addr == 16'h6b ? 16'h736d :  // <0096> sm
+addr == 16'h6c ? 16'h6974 :  // <0096> it
+addr == 16'h6d ? 16'h656d :  // <0096> em
+addr == 16'h6e ? 16'h3072 :  // <0096> 0r
 // "pwr_duty"
-addr == 16'h6f ? 16'h7770 :  // <0095> wp
-addr == 16'h70 ? 16'h5f72 :  // <0095> _r
-addr == 16'h71 ? 16'h7564 :  // <0095> ud
-addr == 16'h72 ? 16'h7974 :  // <0095> yt
+addr == 16'h6f ? 16'h7770 :  // <0096> wp
+addr == 16'h70 ? 16'h5f72 :  // <0096> _r
+addr == 16'h71 ? 16'h7564 :  // <0096> ud
+addr == 16'h72 ? 16'h7974 :  // <0096> yt
 // " ignperd"
-addr == 16'h73 ? 16'h6920 :  // <0095> i 
-addr == 16'h74 ? 16'h6e67 :  // <0095> ng
-addr == 16'h75 ? 16'h6570 :  // <0095> ep
-addr == 16'h76 ? 16'h6472 :  // <0095> dr
+addr == 16'h73 ? 16'h6920 :  // <0096> i 
+addr == 16'h74 ? 16'h6e67 :  // <0096> ng
+addr == 16'h75 ? 16'h6570 :  // <0096> ep
+addr == 16'h76 ? 16'h6472 :  // <0096> dr
 // "igncycnt"
-addr == 16'h77 ? 16'h6769 :  // <0095> gi
-addr == 16'h78 ? 16'h636e :  // <0095> cn
-addr == 16'h79 ? 16'h6379 :  // <0095> cy
-addr == 16'h7a ? 16'h746e :  // <0095> tn
+addr == 16'h77 ? 16'h6769 :  // <0096> gi
+addr == 16'h78 ? 16'h636e :  // <0096> cn
+addr == 16'h79 ? 16'h6379 :  // <0096> cy
+addr == 16'h7a ? 16'h746e :  // <0096> tn
 // "  pf1cnt"
-addr == 16'h7b ? 16'h2020 :  // <0095>   
-addr == 16'h7c ? 16'h6670 :  // <0095> fp
-addr == 16'h7d ? 16'h6331 :  // <0095> c1
-addr == 16'h7e ? 16'h746e :  // <0095> tn
+addr == 16'h7b ? 16'h2020 :  // <0096>   
+addr == 16'h7c ? 16'h6670 :  // <0096> fp
+addr == 16'h7d ? 16'h6331 :  // <0096> c1
+addr == 16'h7e ? 16'h746e :  // <0096> tn
 // "  pf1len"
-addr == 16'h7f ? 16'h2020 :  // <0095>   
-addr == 16'h80 ? 16'h6670 :  // <0095> fp
-addr == 16'h81 ? 16'h6c31 :  // <0095> l1
-addr == 16'h82 ? 16'h6e65 :  // <0095> ne
+addr == 16'h7f ? 16'h2020 :  // <0096>   
+addr == 16'h80 ? 16'h6670 :  // <0096> fp
+addr == 16'h81 ? 16'h6c31 :  // <0096> l1
+addr == 16'h82 ? 16'h6e65 :  // <0096> ne
 // "  adcmaf"
-addr == 16'h83 ? 16'h2020 :  // <0095>   
-addr == 16'h84 ? 16'h6461 :  // <0095> da
-addr == 16'h85 ? 16'h6d63 :  // <0095> mc
-addr == 16'h86 ? 16'h6661 :  // <0095> fa
+addr == 16'h83 ? 16'h2020 :  // <0096>   
+addr == 16'h84 ? 16'h6461 :  // <0096> da
+addr == 16'h85 ? 16'h6d63 :  // <0096> mc
+addr == 16'h86 ? 16'h6661 :  // <0096> fa
 // "   adco2"
-addr == 16'h87 ? 16'h2020 :  // <0095>   
-addr == 16'h88 ? 16'h6120 :  // <0095> a 
-addr == 16'h89 ? 16'h6364 :  // <0095> cd
-addr == 16'h8a ? 16'h326f :  // <0095> 2o
+addr == 16'h87 ? 16'h2020 :  // <0096>   
+addr == 16'h88 ? 16'h6120 :  // <0096> a 
+addr == 16'h89 ? 16'h6364 :  // <0096> cd
+addr == 16'h8a ? 16'h326f :  // <0096> 2o
 // "  adctps"
-addr == 16'h8b ? 16'h2020 :  // <0095>   
-addr == 16'h8c ? 16'h6461 :  // <0095> da
-addr == 16'h8d ? 16'h7463 :  // <0095> tc
-addr == 16'h8e ? 16'h7370 :  // <0095> sp
+addr == 16'h8b ? 16'h2020 :  // <0096>   
+addr == 16'h8c ? 16'h6461 :  // <0096> da
+addr == 16'h8d ? 16'h7463 :  // <0096> tc
+addr == 16'h8e ? 16'h7370 :  // <0096> sp
 // " anmuxrd"
-addr == 16'h8f ? 16'h6120 :  // <0095> a 
-addr == 16'h90 ? 16'h6d6e :  // <0095> mn
-addr == 16'h91 ? 16'h7875 :  // <0095> xu
-addr == 16'h92 ? 16'h6472 :  // <0095> dr
+addr == 16'h8f ? 16'h6120 :  // <0096> a 
+addr == 16'h90 ? 16'h6d6e :  // <0096> mn
+addr == 16'h91 ? 16'h7875 :  // <0096> xu
+addr == 16'h92 ? 16'h6472 :  // <0096> dr
 // " anblock"
-addr == 16'h93 ? 16'h6120 :  // <0095> a 
-addr == 16'h94 ? 16'h626e :  // <0095> bn
-addr == 16'h95 ? 16'h6f6c :  // <0095> ol
-addr == 16'h96 ? 16'h6b63 :  // <0095> kc
+addr == 16'h93 ? 16'h6120 :  // <0096> a 
+addr == 16'h94 ? 16'h626e :  // <0096> bn
+addr == 16'h95 ? 16'h6f6c :  // <0096> ol
+addr == 16'h96 ? 16'h6b63 :  // <0096> kc
 // " antrans"
-addr == 16'h97 ? 16'h6120 :  // <0095> a 
-addr == 16'h98 ? 16'h746e :  // <0095> tn
-addr == 16'h99 ? 16'h6172 :  // <0095> ar
-addr == 16'h9a ? 16'h736e :  // <0095> sn
+addr == 16'h97 ? 16'h6120 :  // <0096> a 
+addr == 16'h98 ? 16'h746e :  // <0096> tn
+addr == 16'h99 ? 16'h6172 :  // <0096> ar
+addr == 16'h9a ? 16'h736e :  // <0096> sn
 // "//uartdt"
-addr == 16'h9b ? 16'h2f2f :  // <0095> //
-addr == 16'h9c ? 16'h6175 :  // <0095> au
-addr == 16'h9d ? 16'h7472 :  // <0095> tr
-addr == 16'h9e ? 16'h7464 :  // <0095> td
+addr == 16'h9b ? 16'h2f2f :  // <0096> //
+addr == 16'h9c ? 16'h6175 :  // <0096> au
+addr == 16'h9d ? 16'h7472 :  // <0096> tr
+addr == 16'h9e ? 16'h7464 :  // <0096> td
 // "uartstat"
-addr == 16'h9f ? 16'h6175 :  // <0095> au
-addr == 16'ha0 ? 16'h7472 :  // <0095> tr
-addr == 16'ha1 ? 16'h7473 :  // <0095> ts
-addr == 16'ha2 ? 16'h7461 :  // <0095> ta
+addr == 16'h9f ? 16'h6175 :  // <0096> au
+addr == 16'ha0 ? 16'h7472 :  // <0096> tr
+addr == 16'ha1 ? 16'h7473 :  // <0096> ts
+addr == 16'ha2 ? 16'h7461 :  // <0096> ta
 // "    leds"
-addr == 16'ha3 ? 16'h2020 :  // <0095>   
-addr == 16'ha4 ? 16'h2020 :  // <0095>   
-addr == 16'ha5 ? 16'h656c :  // <0095> el
-addr == 16'ha6 ? 16'h7364 :  // <0095> sd
+addr == 16'ha3 ? 16'h2020 :  // <0096>   
+addr == 16'ha4 ? 16'h2020 :  // <0096>   
+addr == 16'ha5 ? 16'h656c :  // <0096> el
+addr == 16'ha6 ? 16'h7364 :  // <0096> sd
 
 // error code constants.
 
 // string resources
 // :boot_msg // = 0x00a7
 // "SIM\r\n\x0"
-addr == 16'ha7 ? 16'h4953 :  // <0103> IS
-addr == 16'ha8 ? 16'h0d4d :  // <0103>  M
-addr == 16'ha9 ? 16'h000a :  // <0103>   
+addr == 16'ha7 ? 16'h4953 :  // <0104> IS
+addr == 16'ha8 ? 16'h0d4d :  // <0104>  M
+addr == 16'ha9 ? 16'h000a :  // <0104>   
 
 // libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
 
@@ -768,70 +769,70 @@ addr == 16'h1eb ? 16'hfc00 :  // <0065> swapra = nop
 // :main // = 0x01ec
 
 // keep the real hardware occupied and powered up during testing.
-addr == 16'h1ec ? 16'h6e19 :  // <0129> power_duty = $power_duty_holding
+addr == 16'h1ec ? 16'h6e19 :  // <0130> power_duty = $power_duty_holding
 
 // signal boot-up
 
-addr == 16'h1ed ? 16'h03a0 :  // <0132> a = :boot_msg
-addr == 16'h1ee ? 16'h00a7 :  // <0132> "
-addr == 16'h1ef ? 16'hfba0 :  // <0132> call print_nt
-addr == 16'h1f0 ? 16'h0162 :  // <0132> "
-addr == 16'h1f1 ? 16'hfc00 :  // <0132> "
-addr == 16'h1f2 ? 16'h020d :  // <0132> a = 13 // puteol
-addr == 16'h1f3 ? 16'hfba0 :  // <0132> puteol
-addr == 16'h1f4 ? 16'h00b7 :  // <0132> "
-addr == 16'h1f5 ? 16'hfc00 :  // <0132> "
-addr == 16'h1f6 ? 16'h020a :  // <0132> a = 10 // puteol
-addr == 16'h1f7 ? 16'hfba0 :  // <0132> puteol
-addr == 16'h1f8 ? 16'h00b7 :  // <0132> "
-addr == 16'h1f9 ? 16'hfc00 :  // <0132> "
+addr == 16'h1ed ? 16'h03a0 :  // <0133> a = :boot_msg
+addr == 16'h1ee ? 16'h00a7 :  // <0133> "
+addr == 16'h1ef ? 16'hfba0 :  // <0133> call print_nt
+addr == 16'h1f0 ? 16'h0162 :  // <0133> "
+addr == 16'h1f1 ? 16'hfc00 :  // <0133> "
+addr == 16'h1f2 ? 16'h020d :  // <0133> a = 13 // puteol
+addr == 16'h1f3 ? 16'hfba0 :  // <0133> puteol
+addr == 16'h1f4 ? 16'h00b7 :  // <0133> "
+addr == 16'h1f5 ? 16'hfc00 :  // <0133> "
+addr == 16'h1f6 ? 16'h020a :  // <0133> a = 10 // puteol
+addr == 16'h1f7 ? 16'hfba0 :  // <0133> puteol
+addr == 16'h1f8 ? 16'h00b7 :  // <0133> "
+addr == 16'h1f9 ? 16'hfc00 :  // <0133> "
 
 
 // set up event capture logic.
-addr == 16'h1fa ? 16'h3600 :  // <0135> puffing = 0
+addr == 16'h1fa ? 16'h3600 :  // <0136> puffing = 0
 
 // set up an engine running state.
-addr == 16'h1fb ? 16'h73a0 :  // <0138> ign_period = ([rpm_to_jf 1000])
-addr == 16'h1fc ? 16'h02bc :  // <0138> "
-addr == 16'h1fd ? 16'h3201 :  // <0139> scroll_dir = 1
-addr == 16'h1fe ? 16'h6a01 :  // <0140> mstimer0 = 1
+addr == 16'h1fb ? 16'h73a0 :  // <0139> ign_period = ([rpm_to_jf 1000])
+addr == 16'h1fc ? 16'h02bc :  // <0139> "
+addr == 16'h1fd ? 16'h3201 :  // <0140> scroll_dir = 1
+addr == 16'h1fe ? 16'h6a01 :  // <0141> mstimer0 = 1
 
 // start handling events.
-addr == 16'h1ff ? 16'h53a0 :  // <0143> soft_event = $event_controller_reset_mask
-addr == 16'h200 ? 16'h8000 :  // <0143> "
-addr == 16'h201 ? 16'h5200 :  // <0144> soft_event = 0
-addr == 16'h202 ? 16'he00f :  // <0145> jmp :poll_events
-addr == 16'h203 ? 16'h00aa :  // <0145> "
+addr == 16'h1ff ? 16'h53a0 :  // <0144> soft_event = $event_controller_reset_mask
+addr == 16'h200 ? 16'h8000 :  // <0144> "
+addr == 16'h201 ? 16'h5200 :  // <0145> soft_event = 0
+addr == 16'h202 ? 16'he00f :  // <0146> jmp :poll_events
+addr == 16'h203 ? 16'h00aa :  // <0146> "
 
 // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.
 // event 0 not used in this app anyway.
 // :event_table // = 0x0204
-addr == 16'h204 ? 16'h00aa :  // <0150> ([label :poll_events])
-addr == 16'h205 ? 16'h0244 :  // <0151> ([label :ustimer0_handler])
-addr == 16'h206 ? 16'h0242 :  // <0152> ([label :ign_pulse_done_handler])
-addr == 16'h207 ? 16'h0215 :  // <0153> ([label :puff1_capture_handler])
-addr == 16'h208 ? 16'h027e :  // <0154> ([label :spi_done_handler])
-addr == 16'h209 ? 16'h0246 :  // <0155> ([label :mstimer0_handler])
-addr == 16'h20a ? 16'h022e :  // <0156> ([label :puff1_timeout_handler])
-addr == 16'h20b ? 16'h025a :  // <0157> ([label :uart_rx_handler])
-addr == 16'h20c ? 16'h026c :  // <0158> ([label :uart_rx_overflow_handler])
-addr == 16'h20d ? 16'h0274 :  // <0159> ([label :uart_tx_overflow_handler])
-addr == 16'h20e ? 16'h0276 :  // <0160> ([label :softevent3_handler])
-addr == 16'h20f ? 16'h0278 :  // <0161> ([label :softevent2_handler])
-addr == 16'h210 ? 16'h027a :  // <0162> ([label :softevent1_handler])
-addr == 16'h211 ? 16'h027c :  // <0163> ([label :softevent0_handler])
+addr == 16'h204 ? 16'h00aa :  // <0151> ([label :poll_events])
+addr == 16'h205 ? 16'h0244 :  // <0152> ([label :ustimer0_handler])
+addr == 16'h206 ? 16'h0242 :  // <0153> ([label :ign_pulse_done_handler])
+addr == 16'h207 ? 16'h0215 :  // <0154> ([label :puff1_capture_handler])
+addr == 16'h208 ? 16'h027d :  // <0155> ([label :spi_done_handler])
+addr == 16'h209 ? 16'h0246 :  // <0156> ([label :mstimer0_handler])
+addr == 16'h20a ? 16'h022e :  // <0157> ([label :puff1_timeout_handler])
+addr == 16'h20b ? 16'h0259 :  // <0158> ([label :uart_rx_handler])
+addr == 16'h20c ? 16'h026b :  // <0159> ([label :uart_rx_overflow_handler])
+addr == 16'h20d ? 16'h0273 :  // <0160> ([label :uart_tx_overflow_handler])
+addr == 16'h20e ? 16'h0275 :  // <0161> ([label :softevent3_handler])
+addr == 16'h20f ? 16'h0277 :  // <0162> ([label :softevent2_handler])
+addr == 16'h210 ? 16'h0279 :  // <0163> ([label :softevent1_handler])
+addr == 16'h211 ? 16'h027b :  // <0164> ([label :softevent0_handler])
 
 // #########################################################################
 
 // :start_puffing_tkn // = 0x0212
 // "pufon"
-addr == 16'h212 ? 16'h7570 :  // <0168> up
-addr == 16'h213 ? 16'h6f66 :  // <0168> of
-addr == 16'h214 ? 16'h006e :  // <0168>  n
+addr == 16'h212 ? 16'h7570 :  // <0169> up
+addr == 16'h213 ? 16'h6f66 :  // <0169> of
+addr == 16'h214 ? 16'h006e :  // <0169>  n
 
 // ######## event puff1_capture_handler // = 0x0215
-addr == 16'h215 ? 16'h001e :  // <0171> a = puff1cnt
-addr == 16'h216 ? 16'h0353 :  // <0172> a = a>>4
+addr == 16'h215 ? 16'h001e :  // <0172> a = puff1cnt
+addr == 16'h216 ? 16'h0353 :  // <0173> a = a>>4
 //if a eq 0 {
 //a = puff1cnt
 //call put4x
@@ -841,170 +842,170 @@ addr == 16'h216 ? 16'h0353 :  // <0172> a = a>>4
 //puteol
 //}
 
-addr == 16'h217 ? 16'h000d :  // <0184> a = puffing
-addr == 16'h218 ? 16'h0600 :  // <0184> b = 0
+addr == 16'h217 ? 16'h000d :  // <0185> a = puffing
+addr == 16'h218 ? 16'h0600 :  // <0185> b = 0
 
-addr == 16'h219 ? 16'he407 :  // <0181> bn eq :else_537
-addr == 16'h21a ? 16'h0229 :  // <0181> "
+addr == 16'h219 ? 16'he407 :  // <0182> bn eq :else_537
+addr == 16'h21a ? 16'h0229 :  // <0182> "
 
-addr == 16'h21b ? 16'h3601 :  // <0182> puffing = 1
+addr == 16'h21b ? 16'h3601 :  // <0183> puffing = 1
 
-addr == 16'h21c ? 16'h03a0 :  // <0183> a = :start_puffing_tkn
-addr == 16'h21d ? 16'h0212 :  // <0183> "
-addr == 16'h21e ? 16'hfba0 :  // <0183> call print_nt
-addr == 16'h21f ? 16'h0162 :  // <0183> "
-addr == 16'h220 ? 16'hfc00 :  // <0183> "
-addr == 16'h221 ? 16'h020d :  // <0183> a = 13 // puteol
-addr == 16'h222 ? 16'hfba0 :  // <0183> puteol
-addr == 16'h223 ? 16'h00b7 :  // <0183> "
-addr == 16'h224 ? 16'hfc00 :  // <0183> "
-addr == 16'h225 ? 16'h020a :  // <0183> a = 10 // puteol
-addr == 16'h226 ? 16'hfba0 :  // <0183> puteol
-addr == 16'h227 ? 16'h00b7 :  // <0183> "
-addr == 16'h228 ? 16'hfc00 :  // <0183> "
+addr == 16'h21c ? 16'h03a0 :  // <0184> a = :start_puffing_tkn
+addr == 16'h21d ? 16'h0212 :  // <0184> "
+addr == 16'h21e ? 16'hfba0 :  // <0184> call print_nt
+addr == 16'h21f ? 16'h0162 :  // <0184> "
+addr == 16'h220 ? 16'hfc00 :  // <0184> "
+addr == 16'h221 ? 16'h020d :  // <0184> a = 13 // puteol
+addr == 16'h222 ? 16'hfba0 :  // <0184> puteol
+addr == 16'h223 ? 16'h00b7 :  // <0184> "
+addr == 16'h224 ? 16'hfc00 :  // <0184> "
+addr == 16'h225 ? 16'h020a :  // <0184> a = 10 // puteol
+addr == 16'h226 ? 16'hfba0 :  // <0184> puteol
+addr == 16'h227 ? 16'h00b7 :  // <0184> "
+addr == 16'h228 ? 16'hfc00 :  // <0184> "
 
 
-addr == 16'h229 ? 16'he00f :  // <0185> end_event
-addr == 16'h22a ? 16'h00aa :  // <0185> "
+addr == 16'h229 ? 16'he00f :  // <0186> end_event
+addr == 16'h22a ? 16'h00aa :  // <0186> "
 
 // :stop_puffing_tkn // = 0x022b
 // "pufof"
-addr == 16'h22b ? 16'h7570 :  // <0188> up
-addr == 16'h22c ? 16'h6f66 :  // <0188> of
-addr == 16'h22d ? 16'h0066 :  // <0188>  f
+addr == 16'h22b ? 16'h7570 :  // <0189> up
+addr == 16'h22c ? 16'h6f66 :  // <0189> of
+addr == 16'h22d ? 16'h0066 :  // <0189>  f
 
 // ######## event puff1_timeout_handler // = 0x022e
 
-addr == 16'h22e ? 16'h000d :  // <0194> a = puffing
-addr == 16'h22f ? 16'h0601 :  // <0194> b = 1
+addr == 16'h22e ? 16'h000d :  // <0195> a = puffing
+addr == 16'h22f ? 16'h0601 :  // <0195> b = 1
 
-addr == 16'h230 ? 16'he407 :  // <0191> bn eq :else_560
-addr == 16'h231 ? 16'h0240 :  // <0191> "
+addr == 16'h230 ? 16'he407 :  // <0192> bn eq :else_560
+addr == 16'h231 ? 16'h0240 :  // <0192> "
 
-addr == 16'h232 ? 16'h3600 :  // <0192> puffing = 0
+addr == 16'h232 ? 16'h3600 :  // <0193> puffing = 0
 
-addr == 16'h233 ? 16'h03a0 :  // <0193> a = :stop_puffing_tkn
-addr == 16'h234 ? 16'h022b :  // <0193> "
-addr == 16'h235 ? 16'hfba0 :  // <0193> call print_nt
-addr == 16'h236 ? 16'h0162 :  // <0193> "
-addr == 16'h237 ? 16'hfc00 :  // <0193> "
-addr == 16'h238 ? 16'h020d :  // <0193> a = 13 // puteol
-addr == 16'h239 ? 16'hfba0 :  // <0193> puteol
-addr == 16'h23a ? 16'h00b7 :  // <0193> "
-addr == 16'h23b ? 16'hfc00 :  // <0193> "
-addr == 16'h23c ? 16'h020a :  // <0193> a = 10 // puteol
-addr == 16'h23d ? 16'hfba0 :  // <0193> puteol
-addr == 16'h23e ? 16'h00b7 :  // <0193> "
-addr == 16'h23f ? 16'hfc00 :  // <0193> "
+addr == 16'h233 ? 16'h03a0 :  // <0194> a = :stop_puffing_tkn
+addr == 16'h234 ? 16'h022b :  // <0194> "
+addr == 16'h235 ? 16'hfba0 :  // <0194> call print_nt
+addr == 16'h236 ? 16'h0162 :  // <0194> "
+addr == 16'h237 ? 16'hfc00 :  // <0194> "
+addr == 16'h238 ? 16'h020d :  // <0194> a = 13 // puteol
+addr == 16'h239 ? 16'hfba0 :  // <0194> puteol
+addr == 16'h23a ? 16'h00b7 :  // <0194> "
+addr == 16'h23b ? 16'hfc00 :  // <0194> "
+addr == 16'h23c ? 16'h020a :  // <0194> a = 10 // puteol
+addr == 16'h23d ? 16'hfba0 :  // <0194> puteol
+addr == 16'h23e ? 16'h00b7 :  // <0194> "
+addr == 16'h23f ? 16'hfc00 :  // <0194> "
 
 
-addr == 16'h240 ? 16'he00f :  // <0195> end_event
-addr == 16'h241 ? 16'h00aa :  // <0195> "
+addr == 16'h240 ? 16'he00f :  // <0196> end_event
+addr == 16'h241 ? 16'h00aa :  // <0196> "
 
 // ######## event ign_pulse_done_handler // = 0x0242
-addr == 16'h242 ? 16'he00f :  // <0198> end_event
-addr == 16'h243 ? 16'h00aa :  // <0198> "
+addr == 16'h242 ? 16'he00f :  // <0199> end_event
+addr == 16'h243 ? 16'h00aa :  // <0199> "
 
 // ######## event ustimer0_handler // = 0x0244
-addr == 16'h244 ? 16'he00f :  // <0201> end_event
-addr == 16'h245 ? 16'h00aa :  // <0201> "
+addr == 16'h244 ? 16'he00f :  // <0202> end_event
+addr == 16'h245 ? 16'h00aa :  // <0202> "
 
 // ######## event mstimer0_handler // = 0x0246
-addr == 16'h246 ? 16'h000c :  // <0204> a = scroll_dir
-addr == 16'h247 ? 16'h0352 :  // <0205> a = a<<4
-addr == 16'h248 ? 16'h0425 :  // <0206> b = anmux_trans_temp
-addr == 16'h249 ? 16'hc800 :  // <0207> anmux_trans_temp = a+b
-addr == 16'h24a ? 16'h9700 :  // <0207> "
+addr == 16'h246 ? 16'h000c :  // <0205> a = scroll_dir
+//    a = a<<4
+addr == 16'h247 ? 16'h0420 :  // <0207> b = adc_maf
+addr == 16'h248 ? 16'hc800 :  // <0208> adc_maf = a+b
+addr == 16'h249 ? 16'h8300 :  // <0208> "
 
-addr == 16'h24b ? 16'h0025 :  // <0210> a = anmux_trans_temp
-addr == 16'h24c ? 16'h07a0 :  // <0210> b = 4000
-addr == 16'h24d ? 16'h0fa0 :  // <0210> "
+addr == 16'h24a ? 16'h0020 :  // <0211> a = adc_maf
+addr == 16'h24b ? 16'h07a0 :  // <0211> b = 900
+addr == 16'h24c ? 16'h0384 :  // <0211> "
 
-addr == 16'h24e ? 16'he406 :  // <0208> bn gt :else_590
-addr == 16'h24f ? 16'h0251 :  // <0208> "
+addr == 16'h24d ? 16'he406 :  // <0209> bn gt :else_589
+addr == 16'h24e ? 16'h0250 :  // <0209> "
 
-addr == 16'h250 ? 16'h3360 :  // <0209> scroll_dir = -1
-
-
-addr == 16'h251 ? 16'h0025 :  // <0213> a = anmux_trans_temp
-addr == 16'h252 ? 16'h060a :  // <0213> b = 10
-
-addr == 16'h253 ? 16'he405 :  // <0211> bn lt :else_595
-addr == 16'h254 ? 16'h0256 :  // <0211> "
-
-addr == 16'h255 ? 16'h3201 :  // <0212> scroll_dir = 1
-
-addr == 16'h256 ? 16'h6a01 :  // <0214> mstimer0 = 1
-addr == 16'h257 ? 16'he00f :  // <0215> end_event
-addr == 16'h258 ? 16'h00aa :  // <0215> "
-
-// ######## func parse_key // = 0x0259
+addr == 16'h24f ? 16'h3360 :  // <0210> scroll_dir = -1
 
 
-addr == 16'h259 ? 16'hfc00 :  // <0219> swapra = nop
+addr == 16'h250 ? 16'h0020 :  // <0214> a = adc_maf
+addr == 16'h251 ? 16'h0664 :  // <0214> b = 100
 
-// ######## event uart_rx_handler // = 0x025a
-// :again // = 0x025a
-addr == 16'h25a ? 16'hfba0 :  // <0222> pollchar
-addr == 16'h25b ? 16'h00c6 :  // <0222> "
-addr == 16'h25c ? 16'hfc00 :  // <0222> "
-addr == 16'h25d ? 16'h1000 :  // <0223> x = a
+addr == 16'h252 ? 16'he405 :  // <0212> bn lt :else_594
+addr == 16'h253 ? 16'h0255 :  // <0212> "
 
-addr == 16'h25e ? 16'h0004 :  // <0226> a = x
-addr == 16'h25f ? 16'h0760 :  // <0226> b = -1
+addr == 16'h254 ? 16'h3201 :  // <0213> scroll_dir = 1
 
-addr == 16'h260 ? 16'he407 :  // <0224> bn eq :else_608
-addr == 16'h261 ? 16'h0264 :  // <0224> "
+addr == 16'h255 ? 16'h6a0a :  // <0215> mstimer0 = 10
+addr == 16'h256 ? 16'he00f :  // <0216> end_event
+addr == 16'h257 ? 16'h00aa :  // <0216> "
 
-addr == 16'h262 ? 16'he00f :  // <0225> event_return
-addr == 16'h263 ? 16'h00aa :  // <0225> "
+// ######## func parse_key // = 0x0258
 
-addr == 16'h264 ? 16'h3804 :  // <0227> pa = x
-addr == 16'h265 ? 16'hfba0 :  // <0227> callx  parse_key  x
-addr == 16'h266 ? 16'h0259 :  // <0227> "
-addr == 16'h267 ? 16'hfc00 :  // <0227> "
-addr == 16'h268 ? 16'he00f :  // <0228> jmp :again
-addr == 16'h269 ? 16'h025a :  // <0228> "
-addr == 16'h26a ? 16'he00f :  // <0229> end_event
-addr == 16'h26b ? 16'h00aa :  // <0229> "
 
-// ######## event uart_rx_overflow_handler // = 0x026c
-addr == 16'h26c ? 16'ha3a0 :  // <0232> error_halt_code $err_rx_overflow // leds = 0xfffe
-addr == 16'h26d ? 16'hfffe :  // <0232> "
-addr == 16'h26e ? 16'he00f :  // <0232> error_halt_code $err_rx_overflow
-addr == 16'h26f ? 16'h026e :  // <0232> "
-addr == 16'h270 ? 16'he00f :  // <0233> end_event
-addr == 16'h271 ? 16'h00aa :  // <0233> "
+addr == 16'h258 ? 16'hfc00 :  // <0220> swapra = nop
 
-// :tx_overflow_msg // = 0x0272
+// ######## event uart_rx_handler // = 0x0259
+// :again // = 0x0259
+addr == 16'h259 ? 16'hfba0 :  // <0223> pollchar
+addr == 16'h25a ? 16'h00c6 :  // <0223> "
+addr == 16'h25b ? 16'hfc00 :  // <0223> "
+addr == 16'h25c ? 16'h1000 :  // <0224> x = a
+
+addr == 16'h25d ? 16'h0004 :  // <0227> a = x
+addr == 16'h25e ? 16'h0760 :  // <0227> b = -1
+
+addr == 16'h25f ? 16'he407 :  // <0225> bn eq :else_607
+addr == 16'h260 ? 16'h0263 :  // <0225> "
+
+addr == 16'h261 ? 16'he00f :  // <0226> event_return
+addr == 16'h262 ? 16'h00aa :  // <0226> "
+
+addr == 16'h263 ? 16'h3804 :  // <0228> pa = x
+addr == 16'h264 ? 16'hfba0 :  // <0228> callx  parse_key  x
+addr == 16'h265 ? 16'h0258 :  // <0228> "
+addr == 16'h266 ? 16'hfc00 :  // <0228> "
+addr == 16'h267 ? 16'he00f :  // <0229> jmp :again
+addr == 16'h268 ? 16'h0259 :  // <0229> "
+addr == 16'h269 ? 16'he00f :  // <0230> end_event
+addr == 16'h26a ? 16'h00aa :  // <0230> "
+
+// ######## event uart_rx_overflow_handler // = 0x026b
+addr == 16'h26b ? 16'ha3a0 :  // <0233> error_halt_code $err_rx_overflow // leds = 0xfffe
+addr == 16'h26c ? 16'hfffe :  // <0233> "
+addr == 16'h26d ? 16'he00f :  // <0233> error_halt_code $err_rx_overflow
+addr == 16'h26e ? 16'h026d :  // <0233> "
+addr == 16'h26f ? 16'he00f :  // <0234> end_event
+addr == 16'h270 ? 16'h00aa :  // <0234> "
+
+// :tx_overflow_msg // = 0x0271
 // "TXO\x0"
-addr == 16'h272 ? 16'h5854 :  // <0236> XT
-addr == 16'h273 ? 16'h004f :  // <0236>  O
+addr == 16'h271 ? 16'h5854 :  // <0237> XT
+addr == 16'h272 ? 16'h004f :  // <0237>  O
 
-// ######## event uart_tx_overflow_handler // = 0x0274
+// ######## event uart_tx_overflow_handler // = 0x0273
 // error_halt_code $err_tx_overflow
-addr == 16'h274 ? 16'he00f :  // <0240> end_event
-addr == 16'h275 ? 16'h00aa :  // <0240> "
+addr == 16'h273 ? 16'he00f :  // <0241> end_event
+addr == 16'h274 ? 16'h00aa :  // <0241> "
 
-// ######## event softevent3_handler // = 0x0276
-addr == 16'h276 ? 16'he00f :  // <0243> end_event
-addr == 16'h277 ? 16'h00aa :  // <0243> "
+// ######## event softevent3_handler // = 0x0275
+addr == 16'h275 ? 16'he00f :  // <0244> end_event
+addr == 16'h276 ? 16'h00aa :  // <0244> "
 
-// ######## event softevent2_handler // = 0x0278
-addr == 16'h278 ? 16'he00f :  // <0246> end_event
-addr == 16'h279 ? 16'h00aa :  // <0246> "
+// ######## event softevent2_handler // = 0x0277
+addr == 16'h277 ? 16'he00f :  // <0247> end_event
+addr == 16'h278 ? 16'h00aa :  // <0247> "
 
-// ######## event softevent1_handler // = 0x027a
-addr == 16'h27a ? 16'he00f :  // <0249> end_event
-addr == 16'h27b ? 16'h00aa :  // <0249> "
+// ######## event softevent1_handler // = 0x0279
+addr == 16'h279 ? 16'he00f :  // <0250> end_event
+addr == 16'h27a ? 16'h00aa :  // <0250> "
 
-// ######## event softevent0_handler // = 0x027c
-addr == 16'h27c ? 16'he00f :  // <0252> end_event
-addr == 16'h27d ? 16'h00aa :  // <0252> "
+// ######## event softevent0_handler // = 0x027b
+addr == 16'h27b ? 16'he00f :  // <0253> end_event
+addr == 16'h27c ? 16'h00aa :  // <0253> "
 
-// ######## event spi_done_handler // = 0x027e
-addr == 16'h27e ? 16'he00f :  // <0255> end_event
-addr == 16'h27f ? 16'h00aa :  // <0255> "
+// ######## event spi_done_handler // = 0x027d
+addr == 16'h27d ? 16'he00f :  // <0256> end_event
+addr == 16'h27e ? 16'h00aa :  // <0256> "
 
 
         

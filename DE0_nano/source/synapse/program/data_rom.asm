@@ -11,7 +11,7 @@ proc drom_define  {lin  name  type  size_bytes} {
     
     # track position in shadow RAM area.
     setvar $lin $name $::asm::drom_shadow_counter
-    dict set ::debugger_ram_names [ram_join $::asm::drom_shadow_counter] $name
+    dict set ::debugger_ram_names [ram_to_int $::asm::drom_shadow_counter] $name
     ram_incr ::asm::drom_shadow_counter $size_bytes
     
     # track position in data ROM device.
@@ -59,12 +59,12 @@ proc write_drom_files {} {
     set content(maf_ref) [get_hi_res_maf_ref $content(maf_ref) $::asm::maf_ref_num_cells]
 
     # write mif file
-    set len [ram_join $::asm::drom_counter]
+    set len [ram_to_int $::asm::drom_counter]
     set miffn [file join [file dirname $::src_fn] data_rom.mif]
     set mif [open_mif $miffn $len]
     set mifcnt 0
     foreach var $::asm::drom_order {
-        set assigned [ram_join [dict get $::asm::drom_addresses $var]]
+        set assigned [ram_to_int [dict get $::asm::drom_addresses $var]]
         if {$mifcnt != $assigned} {
             error "Data rom field $var should be at address $assigned but is at $mifcnt instead."
         }
@@ -84,7 +84,7 @@ proc write_drom_files {} {
 >>
 
 setvar     drom_shadow_base         ($sdram_size / 2 + $sdram_base)
-setvar     drom_shadow_counter      [ram_split $drom_shadow_base]
+setvar     drom_shadow_counter      [ram_from_int $drom_shadow_base]
 setvar     drom_counter             0'0
 
 setvar          afrc_maf_rows       64
@@ -107,7 +107,7 @@ setvar          afterstart_num_cells    10
 drom_define     ram_afterstart_ref      array       ($afterstart_num_cells * 2)
 drom_define     ram_afterstart_map      array       ($afterstart_num_cells * 2)
 
-setvar     drom_shadow_len_bytes    ([ram_join $drom_shadow_counter] - $drom_shadow_base)
+setvar     drom_shadow_len_bytes    ([ram_to_int $drom_shadow_counter] - $drom_shadow_base)
 << if {$drom_shadow_len_bytes > 65536} {error "Data ROM too long."} >>
 
 
@@ -138,7 +138,7 @@ func load_afrc_cmd {
         nop
         nop
         b = product_lo
-        struct_read $ram_afrc_map
+        struct a = $ram_afrc_map . 0
         
         // expect each cell value back-to-back.
         for {i = 0} {i lt $afrc_rpm_cols} step j = 1 {
@@ -180,38 +180,32 @@ func load_row_cmd {num_words in pa} {
 }
 
 func load_rpm_ref_cmd {
-    a = 0
-    struct_read $ram_rpm_ref
+    struct a = $ram_rpm_ref . 0
     callx load_row_cmd $rpm_ref_num_cells
 }
 
 func load_maf_ref_cmd {
-    a = 0
-    struct_read $ram_maf_ref
+    struct a = $ram_maf_ref . 0
     callx load_row_cmd $maf_ref_num_cells
 }
 
 func load_block_temp_ref_cmd {
-    a = 0
-    struct_read $ram_block_temp_ref
+    struct a = $ram_block_temp_ref . 0
     callx load_row_cmd $block_temp_num_cells
 }
 
 func load_block_temp_map_cmd {
-    a = 0
-    struct_read $ram_block_temp_map
+    struct a = $ram_block_temp_map . 0
     callx load_row_cmd $block_temp_num_cells
 }
 
 func load_afterstart_ref_cmd {
-    a = 0
-    struct_read $ram_afterstart_ref
+    struct a = $ram_afterstart_ref . 0
     callx load_row_cmd $afterstart_num_cells
 }
 
 func load_afterstart_map_cmd {
-    a = 0
-    struct_read $ram_afterstart_map
+    struct a = $ram_afterstart_map . 0
     callx load_row_cmd $afterstart_num_cells
 }
 

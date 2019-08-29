@@ -36,13 +36,13 @@ namespace eval ::asm {
     proc ram_define {lin name {size_bytes 2}} {
         # ram_counter must increment after memorizing, because the size may vary from one call to the next.
         setvar $lin $name $::asm::ram_counter
-        dict set ::debugger_ram_names [ram_join $::asm::ram_counter] $name
+        dict set ::debugger_ram_names [ram_to_int $::asm::ram_counter] $name
         ram_incr ::asm::ram_counter $size_bytes
     }
 
     proc ram_incr {var_name  increment} {
         upvar $var_name v
-        set v [ram_split [expr {[ram_join $v] + $increment}]]
+        set v [ram_from_int [expr {[ram_to_int $v] + $increment}]]
     }
 
     proc ram {lin left eq right} {
@@ -72,7 +72,7 @@ namespace eval ::asm {
         parse3 av_write_data $eq $reg_name "$lin // av_write_data = $reg_name"
     }
 
-    proc ram_split {addr} {
+    proc ram_from_int {addr} {
         # pass an address in Tcl integer format.
         # returns the address in hi'lo format, for use with other macros.
         
@@ -81,7 +81,7 @@ namespace eval ::asm {
         return ${hi}'$lo
     }
     
-    proc ram_join {addr} {
+    proc ram_to_int {addr} {
         # pass an address in hi'lo format.  (Tcl integer is also acceptable.)
         # returns the address in Tcl integer format.        
         if {[string first {'} $addr] < 0} {return [expr {$addr}]}
