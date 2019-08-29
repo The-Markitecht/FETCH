@@ -114,16 +114,46 @@ proc scan_data {data} {
     }
 }
 
-proc get4x {} {
-    valu = -1
-    if {[catch {
-        s = [read $::port]
-        print_rx $s
-        scan $s %4x valu
-    } err]} {
-        print_rx "\n-- rx error: $err\n"
-    }    
+proc wait_prompt {timeout_ms} {
+    return [wait_delim > $timeout_ms]
+}
+
+proc get4x_wait {delim  timeout_ms} {
+    lassign [wait_delim $delim $timeout_ms] ok buf
+    if { ! $ok } {return -1}
+    if {[scan $buf %4x valu] != 1} {
+        puts -nonewline $buf
+        return -1
+    }
+    puts "get4x_wait $valu = 0x[format %04x $valu]"
     return $valu
+}
+
+proc wait_delim {delimiter timeout_ms} {
+    #puts "-- wait_delim timeout=$timeout_ms"
+    match_start = end-[e [string length $delimiter] - 1]
+    buf = {}
+    while {$timeout_ms > 0} {
+        after 40
+        incr timeout_ms -40
+        update ;# required because evidently async I/O shares the same event loop with Wish GUI.
+        s = [read $::port]
+        #binary scan $s c* dump
+        #puts "-- wait_delim rx [string length $s] $dump '$s'"
+        append buf $s
+        if {$delimiter eq [string range $buf $match_start end]} {
+            #puts "-- wait_delim matched"
+            # delete each line containing equal sign; those are the register dump.
+            return [list 1 $buf]
+        }
+    }
+    puts -nonewline $buf
+    return [list 0 $buf]
+}
+
+proc send_and_wait {msg  timeout_ms} {
+    tx  $msg
+    return [wait_prompt $timeout_ms]
 }
 
 proc adc_to_degf {adc} {
@@ -259,14 +289,8 @@ proc send_row {cmd  seed  data_words  desc} {
     }
     sum = [fletcher16_result local_sum]
     tx $data
-    for {set i 0} {$i < 10} {incr i} {
-        after 40
-        update ;# required because evidently async I/O shares the same event loop with Wish GUI.
-        remote_sum = [get4x]
-        #print_rx "\n-- remote [format %04x $remote_sum]\n"
-        if {$remote_sum >= 0} break
-    }
-    #print_rx "\n-- local [format %04x $sum] remote [format %04x $remote_sum]\n"
+    remote_sum = [get4x_wait \n 500]
+    print_rx "\n-- local [format %04x $sum] remote [format %04x $remote_sum]\n"
     if {$remote_sum != $sum} {
         print_rx "\n-- ERROR: $desc should have had checksum [format %04x $sum]\n"
         return 0
@@ -275,6 +299,8 @@ proc send_row {cmd  seed  data_words  desc} {
 }
 
 proc send_all_maps {} {
+    tx hello
+    clear_sent
     send_afrc_map
     send_block_temp_map
     send_afterstart_map
@@ -619,15 +645,19 @@ $c bind $id <Button-1> "
     grid $b -row 1 -column 1 -sticky w
     
     b = ${btns}.calc
-    button $b -text Calculate -font "-size 24" -command calc_afrc_map
+    button $b -text Calculate -font "-size 20" -command calc_afrc_map
     pack $b -side left -expand no -fill none -padx 2
     
     b = ${btns}.send
-    button $b -text Send -font "-size 24" -command send_afrc_map
+    button $b -text {Send AFRC} -font "-size 20" -command send_afrc_map
+    pack $b -side left -expand no -fill none -padx 2
+
+    b = ${btns}.send_all
+    button $b -text {Send All Maps} -font "-size 20" -command send_all_maps
     pack $b -side left -expand no -fill none -padx 2
 
     b = ${btns}.enable_all
-    button $b -text All -font "-size 14" -command "enable_all_terms select"
+    button $b -text {All Terms} -font "-size 14" -command "enable_all_terms select"
     pack $b -side left -expand no -fill none -padx 2
     
     b = ${btns}.disable_all

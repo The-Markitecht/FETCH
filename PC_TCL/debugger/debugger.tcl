@@ -46,44 +46,19 @@ proc scan_data {data} {
     if {[string first {>} $data] >= 0} {incr ::prompt_count}
 }
 
-proc get4x {} {
-    valu = -1
-    if {[catch {
-        s = [read $::port]
-        puts -nonewline "<< $s"
-        scan $s %4x valu
-    } err]} {
-        puts "\n-- rx error: $err\n"
-    }    
-    puts "get4x $valu [format %04x $valu]"
-    return $valu
-}
-
-#proc wait_prompt {timeout_ms} {
-    #prev = $::prompt_count
-    #while {$timeout_ms > 0} {
-        #after 40
-        #incr timeout_ms -40
-        ##update ;# required because evidently async I/O shares the same event loop with Wish GUI.
-        #read_port
-        #if {$::prompt_count > $prev} {return 1}
-    #}
-    #return 0
-#}
-
 proc wait_prompt {timeout_ms} {
     return [wait_delim > $timeout_ms]
 }
 
-proc get4x_wait {timeout_ms} {
-    while {$timeout_ms > 0} {
-        after 40
-        incr timeout_ms -40
-        #update ;# required because evidently async I/O shares the same event loop with Wish GUI.
-        v = [get4x]
-        if {$v >= 0} {return $v}
+proc get4x_wait {delim  timeout_ms} {
+    lassign [wait_delim $delim $timeout_ms] ok buf
+    if { ! $ok } {return -1}
+    if {[scan $buf %4x valu] != 1} {
+        puts -nonewline $buf
+        return -1
     }
-    return -1
+    puts "get4x_wait $valu = 0x[format %04x $valu]"
+    return $valu
 }
 
 proc wait_delim {delimiter timeout_ms} {
