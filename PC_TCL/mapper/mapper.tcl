@@ -451,7 +451,7 @@ proc refresh_afrc_run_mark {col_hex row_hex} {
 }
 
 proc refresh_show_tab {} {
-    foreach tab {terms refs none} {
+    foreach tab {terms refs btest none} {
         pack forget .win.tools.$tab
     }
     if {$::show_tab ne {none}} {
@@ -496,6 +496,49 @@ proc run_tcl {} {
         print_tcl \n$result\n$::prompt
     }
     return -code break ;# don't run the built-in handler to honor the Return keypress in the usual way.
+}
+
+proc btest_start {suite} {
+    namespace eval ::bt {}
+    namespace delete ::bt
+    btest_run_chunk [info body $suite]
+}
+
+proc btest_run_chunk {body} {
+    delim = [string first \n\n $body]
+    if {$delim == -1} {
+        chunk = $body
+        body = {}
+    } else {
+        chunk = [string range $body 0 ${delim}-1]
+        body =  [string range $body ${delim}+1 end]
+    }
+    
+    namespace eval ::bt $chunk
+    
+    if {[string length $body] > 0} {
+        after 100 [list btest_run_chunk $body]
+    }
+}
+
+proc suite1 {} {
+    ::show_tab = terms
+    refresh_show_tab
+
+    ::show_tab = btest
+    refresh_show_tab
+
+    ::show_tab = refs
+    refresh_show_tab
+
+    ::show_tab = btest
+    refresh_show_tab
+
+    ::show_tab = none
+    refresh_show_tab
+
+    ::show_tab = btest
+    refresh_show_tab
 }
 
 proc init_gui {} {
@@ -571,8 +614,8 @@ $c bind $id <Button-1> "
     grid $b -row 0 -column 0 -sticky w
     b = [radiobutton $ts.refs -text Refs -font "-size 18" -command refresh_show_tab -variable ::show_tab -value refs]
     grid $b -row 1 -column 0 -sticky w
-#    set b [radiobutton $ts.sens -text Sensors -font "-size 18" -command show_tab -variable ::show_tab -value sens]
-#    grid $b -row 0 -column 1 -sticky w
+    set b [radiobutton $ts.btest -text {Bench Test} -font "-size 18" -command refresh_show_tab -variable ::show_tab -value btest]
+    grid $b -row 0 -column 1 -sticky w
     b = [radiobutton $ts.none -text None -font "-size 18" -command refresh_show_tab -variable ::show_tab -value none]
     grid $b -row 1 -column 1 -sticky w
     
@@ -704,6 +747,13 @@ bind $lbl <Button-1> {
 }
     }
     
+    # bench test controls
+    btest = ${tools}.btest
+    frame $btest -relief sunken -borderwidth 2
+#    pack $btest -side top -expand no -fill x
+    button $btest.suite1 -text {Start suite 1} -command {btest_start suite1}
+    pack $btest.suite1 -side left -expand no -fill none
+    
     # serial display & Tcl console
     cnsl = ${tools}.console
     frame $cnsl -relief sunken -borderwidth 2
@@ -721,7 +771,7 @@ bind $lbl <Button-1> {
     text $rx -font {Courier 11} -wrap char
     pack $rx -side top -expand yes -fill both
 
-    ::show_tab = refs
+    ::show_tab = btest
     refresh_show_tab
 }
 
