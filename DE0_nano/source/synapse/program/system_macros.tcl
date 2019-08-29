@@ -10,10 +10,11 @@ namespace eval ::asm {
         # each vdefine name is auto-generated into a _defines.v file.
         # so they're visible in Verilog as well as assembly source.
 
-        if {$::asm_pass == $::pass(emit)} {
+        setvar $lin $name $valu
+        set ok [regexp -nocase {^[a-z0-9_]+$} $name]
+        if {$::asm_pass == $::pass(emit) && $ok} {
             puts $::vdefines "`define [string toupper $name]  [expr $valu]"
         }
-        setvar $lin $name $valu
     }
     
     proc vdefine32 {lin name valu} {

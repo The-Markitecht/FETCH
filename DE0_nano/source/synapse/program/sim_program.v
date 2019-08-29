@@ -811,16 +811,16 @@ addr == 16'h204 ? 16'h00aa :  // <0151> ([label :poll_events])
 addr == 16'h205 ? 16'h0244 :  // <0152> ([label :ustimer0_handler])
 addr == 16'h206 ? 16'h0242 :  // <0153> ([label :ign_pulse_done_handler])
 addr == 16'h207 ? 16'h0215 :  // <0154> ([label :puff1_capture_handler])
-addr == 16'h208 ? 16'h027d :  // <0155> ([label :spi_done_handler])
+addr == 16'h208 ? 16'h027e :  // <0155> ([label :spi_done_handler])
 addr == 16'h209 ? 16'h0246 :  // <0156> ([label :mstimer0_handler])
 addr == 16'h20a ? 16'h022e :  // <0157> ([label :puff1_timeout_handler])
-addr == 16'h20b ? 16'h0259 :  // <0158> ([label :uart_rx_handler])
-addr == 16'h20c ? 16'h026b :  // <0159> ([label :uart_rx_overflow_handler])
-addr == 16'h20d ? 16'h0273 :  // <0160> ([label :uart_tx_overflow_handler])
-addr == 16'h20e ? 16'h0275 :  // <0161> ([label :softevent3_handler])
-addr == 16'h20f ? 16'h0277 :  // <0162> ([label :softevent2_handler])
-addr == 16'h210 ? 16'h0279 :  // <0163> ([label :softevent1_handler])
-addr == 16'h211 ? 16'h027b :  // <0164> ([label :softevent0_handler])
+addr == 16'h20b ? 16'h025a :  // <0158> ([label :uart_rx_handler])
+addr == 16'h20c ? 16'h026c :  // <0159> ([label :uart_rx_overflow_handler])
+addr == 16'h20d ? 16'h0274 :  // <0160> ([label :uart_tx_overflow_handler])
+addr == 16'h20e ? 16'h0276 :  // <0161> ([label :softevent3_handler])
+addr == 16'h20f ? 16'h0278 :  // <0162> ([label :softevent2_handler])
+addr == 16'h210 ? 16'h027a :  // <0163> ([label :softevent1_handler])
+addr == 16'h211 ? 16'h027c :  // <0164> ([label :softevent0_handler])
 
 // #########################################################################
 
@@ -928,84 +928,85 @@ addr == 16'h24f ? 16'h3360 :  // <0210> scroll_dir = -1
 
 
 addr == 16'h250 ? 16'h0020 :  // <0214> a = adc_maf
-addr == 16'h251 ? 16'h0664 :  // <0214> b = 100
+addr == 16'h251 ? 16'h07a0 :  // <0214> b = 600
+addr == 16'h252 ? 16'h0258 :  // <0214> "
 
-addr == 16'h252 ? 16'he405 :  // <0212> bn lt :else_594
-addr == 16'h253 ? 16'h0255 :  // <0212> "
+addr == 16'h253 ? 16'he405 :  // <0212> bn lt :else_595
+addr == 16'h254 ? 16'h0256 :  // <0212> "
 
-addr == 16'h254 ? 16'h3201 :  // <0213> scroll_dir = 1
+addr == 16'h255 ? 16'h3201 :  // <0213> scroll_dir = 1
 
-addr == 16'h255 ? 16'h6a0a :  // <0215> mstimer0 = 10
-addr == 16'h256 ? 16'he00f :  // <0216> end_event
-addr == 16'h257 ? 16'h00aa :  // <0216> "
+addr == 16'h256 ? 16'h6a14 :  // <0215> mstimer0 = 20
+addr == 16'h257 ? 16'he00f :  // <0216> end_event
+addr == 16'h258 ? 16'h00aa :  // <0216> "
 
-// ######## func parse_key // = 0x0258
+// ######## func parse_key // = 0x0259
 
 
-addr == 16'h258 ? 16'hfc00 :  // <0220> swapra = nop
+addr == 16'h259 ? 16'hfc00 :  // <0220> swapra = nop
 
-// ######## event uart_rx_handler // = 0x0259
-// :again // = 0x0259
-addr == 16'h259 ? 16'hfba0 :  // <0223> pollchar
-addr == 16'h25a ? 16'h00c6 :  // <0223> "
-addr == 16'h25b ? 16'hfc00 :  // <0223> "
-addr == 16'h25c ? 16'h1000 :  // <0224> x = a
+// ######## event uart_rx_handler // = 0x025a
+// :again // = 0x025a
+addr == 16'h25a ? 16'hfba0 :  // <0223> pollchar
+addr == 16'h25b ? 16'h00c6 :  // <0223> "
+addr == 16'h25c ? 16'hfc00 :  // <0223> "
+addr == 16'h25d ? 16'h1000 :  // <0224> x = a
 
-addr == 16'h25d ? 16'h0004 :  // <0227> a = x
-addr == 16'h25e ? 16'h0760 :  // <0227> b = -1
+addr == 16'h25e ? 16'h0004 :  // <0227> a = x
+addr == 16'h25f ? 16'h0760 :  // <0227> b = -1
 
-addr == 16'h25f ? 16'he407 :  // <0225> bn eq :else_607
-addr == 16'h260 ? 16'h0263 :  // <0225> "
+addr == 16'h260 ? 16'he407 :  // <0225> bn eq :else_608
+addr == 16'h261 ? 16'h0264 :  // <0225> "
 
-addr == 16'h261 ? 16'he00f :  // <0226> event_return
-addr == 16'h262 ? 16'h00aa :  // <0226> "
+addr == 16'h262 ? 16'he00f :  // <0226> event_return
+addr == 16'h263 ? 16'h00aa :  // <0226> "
 
-addr == 16'h263 ? 16'h3804 :  // <0228> pa = x
-addr == 16'h264 ? 16'hfba0 :  // <0228> callx  parse_key  x
-addr == 16'h265 ? 16'h0258 :  // <0228> "
-addr == 16'h266 ? 16'hfc00 :  // <0228> "
-addr == 16'h267 ? 16'he00f :  // <0229> jmp :again
-addr == 16'h268 ? 16'h0259 :  // <0229> "
-addr == 16'h269 ? 16'he00f :  // <0230> end_event
-addr == 16'h26a ? 16'h00aa :  // <0230> "
+addr == 16'h264 ? 16'h3804 :  // <0228> pa = x
+addr == 16'h265 ? 16'hfba0 :  // <0228> callx  parse_key  x
+addr == 16'h266 ? 16'h0259 :  // <0228> "
+addr == 16'h267 ? 16'hfc00 :  // <0228> "
+addr == 16'h268 ? 16'he00f :  // <0229> jmp :again
+addr == 16'h269 ? 16'h025a :  // <0229> "
+addr == 16'h26a ? 16'he00f :  // <0230> end_event
+addr == 16'h26b ? 16'h00aa :  // <0230> "
 
-// ######## event uart_rx_overflow_handler // = 0x026b
-addr == 16'h26b ? 16'ha3a0 :  // <0233> error_halt_code $err_rx_overflow // leds = 0xfffe
-addr == 16'h26c ? 16'hfffe :  // <0233> "
-addr == 16'h26d ? 16'he00f :  // <0233> error_halt_code $err_rx_overflow
-addr == 16'h26e ? 16'h026d :  // <0233> "
-addr == 16'h26f ? 16'he00f :  // <0234> end_event
-addr == 16'h270 ? 16'h00aa :  // <0234> "
+// ######## event uart_rx_overflow_handler // = 0x026c
+addr == 16'h26c ? 16'ha3a0 :  // <0233> error_halt_code $err_rx_overflow // leds = 0xfffe
+addr == 16'h26d ? 16'hfffe :  // <0233> "
+addr == 16'h26e ? 16'he00f :  // <0233> error_halt_code $err_rx_overflow
+addr == 16'h26f ? 16'h026e :  // <0233> "
+addr == 16'h270 ? 16'he00f :  // <0234> end_event
+addr == 16'h271 ? 16'h00aa :  // <0234> "
 
-// :tx_overflow_msg // = 0x0271
+// :tx_overflow_msg // = 0x0272
 // "TXO\x0"
-addr == 16'h271 ? 16'h5854 :  // <0237> XT
-addr == 16'h272 ? 16'h004f :  // <0237>  O
+addr == 16'h272 ? 16'h5854 :  // <0237> XT
+addr == 16'h273 ? 16'h004f :  // <0237>  O
 
-// ######## event uart_tx_overflow_handler // = 0x0273
+// ######## event uart_tx_overflow_handler // = 0x0274
 // error_halt_code $err_tx_overflow
-addr == 16'h273 ? 16'he00f :  // <0241> end_event
-addr == 16'h274 ? 16'h00aa :  // <0241> "
+addr == 16'h274 ? 16'he00f :  // <0241> end_event
+addr == 16'h275 ? 16'h00aa :  // <0241> "
 
-// ######## event softevent3_handler // = 0x0275
-addr == 16'h275 ? 16'he00f :  // <0244> end_event
-addr == 16'h276 ? 16'h00aa :  // <0244> "
+// ######## event softevent3_handler // = 0x0276
+addr == 16'h276 ? 16'he00f :  // <0244> end_event
+addr == 16'h277 ? 16'h00aa :  // <0244> "
 
-// ######## event softevent2_handler // = 0x0277
-addr == 16'h277 ? 16'he00f :  // <0247> end_event
-addr == 16'h278 ? 16'h00aa :  // <0247> "
+// ######## event softevent2_handler // = 0x0278
+addr == 16'h278 ? 16'he00f :  // <0247> end_event
+addr == 16'h279 ? 16'h00aa :  // <0247> "
 
-// ######## event softevent1_handler // = 0x0279
-addr == 16'h279 ? 16'he00f :  // <0250> end_event
-addr == 16'h27a ? 16'h00aa :  // <0250> "
+// ######## event softevent1_handler // = 0x027a
+addr == 16'h27a ? 16'he00f :  // <0250> end_event
+addr == 16'h27b ? 16'h00aa :  // <0250> "
 
-// ######## event softevent0_handler // = 0x027b
-addr == 16'h27b ? 16'he00f :  // <0253> end_event
-addr == 16'h27c ? 16'h00aa :  // <0253> "
+// ######## event softevent0_handler // = 0x027c
+addr == 16'h27c ? 16'he00f :  // <0253> end_event
+addr == 16'h27d ? 16'h00aa :  // <0253> "
 
-// ######## event spi_done_handler // = 0x027d
-addr == 16'h27d ? 16'he00f :  // <0256> end_event
-addr == 16'h27e ? 16'h00aa :  // <0256> "
+// ######## event spi_done_handler // = 0x027e
+addr == 16'h27e ? 16'he00f :  // <0256> end_event
+addr == 16'h27f ? 16'h00aa :  // <0256> "
 
 
         

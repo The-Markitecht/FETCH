@@ -10,6 +10,7 @@ proc struct_read {lin  result_reg  eq  base_addr  dot  offset_reg} {
     
     if {$eq ne {=}} {error "struct read syntax error; expected '='"}
     if {$dot ne {.}} {error "struct read syntax error; expected '.'"}
+    emit_comment "// $lin"
     lassign [split $base_addr {'}] hi lo
     if {[string is integer -strict $offset_reg]} {
         parse "a = $offset_reg"
@@ -41,6 +42,7 @@ proc struct_write {lin  base_addr  dot  offset_reg  eq  content_reg} {
 
     if {$eq ne {=}} {error "struct write syntax error; expected '='"}
     if {$dot ne {.}} {error "struct write syntax error; expected '.'"}
+    emit_comment "// $lin"
     lassign [split $base_addr {'}] hi lo
     set constant_data [string is integer -strict $content_reg]
     if { ! $constant_data} {

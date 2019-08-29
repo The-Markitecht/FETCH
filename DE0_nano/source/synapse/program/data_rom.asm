@@ -137,8 +137,7 @@ func load_afrc_cmd {
         nop
         nop
         nop
-        b = product_lo
-        struct a = $ram_afrc_map . 0
+        struct a = $ram_afrc_map . product_lo
         
         // expect each cell value back-to-back.
         for {i = 0} {i lt $afrc_rpm_cols} step j = 1 {

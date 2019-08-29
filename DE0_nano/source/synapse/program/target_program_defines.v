@@ -37,16 +37,9 @@
 `define DR_X  4
 `define SR_Y  5
 `define DR_Y  5
-`define SR_A+B  768
-`define SR_I+J  784
-`define SR_X+Y  800
 `define SR_AND  816
 `define SR_OR  820
 `define SR_XOR  824
-`define SR_A>>1  848
-`define SR_A<<1  849
-`define SR_A<<4  850
-`define SR_A>>4  851
 `define SR_0XFFFF  864
 `define CODE_ADDR_WIDTH  12
 `define CODE_ADDR_TOP  11

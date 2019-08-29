@@ -209,10 +209,10 @@ event mstimer0_handler
     if adc_maf gt 900 {
         scroll_dir = -1
     }
-    if adc_maf lt 100 {
+    if adc_maf lt 600 {
         scroll_dir = 1
     }
-    mstimer0 = 10
+    mstimer0 = 20
 end_event
 
 func parse_key {key in pa} {

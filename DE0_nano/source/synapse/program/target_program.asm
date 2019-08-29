@@ -230,8 +230,6 @@
     // clear the first 64k of RAM.
     callx  clear_ram_page  0
     
-struct_test_case
-    
     callx  init_drom
 
     // init fuel injection.
@@ -918,13 +916,9 @@ func report_plan {
 func interpret_maf {
     // range 0 to 1023 = 0x3ff at the ADC.
 
-    // offset and clamp the MAF ADC count to 0..511.
-    struct a = $ram_last_adc_data . $maf_adc_channel
-    a = a>>1
-    b = 0x01ff
+    struct x = $ram_last_adc_data . $maf_adc_channel
     //patch: do some averaging here, like interpret_tps.
-    x = and
-    ram $ram_maf_adc_filtered = and
+    ram $ram_maf_adc_filtered = x
     
     // recover linear flow from MAF ADC count using hi-res method, 
     // for actual flow feeding into final puff multiply later.  

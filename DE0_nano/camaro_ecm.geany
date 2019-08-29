@@ -28,7 +28,7 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=15
+current_page=22
 FILE_NAME_0=1588;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Ctarget_program.asm;0;4
 FILE_NAME_1=7936;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Csim_program.asm;0;4
 FILE_NAME_2=2040;Verilog;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Chard_top.v;0;4
@@ -51,7 +51,7 @@ FILE_NAME_18=0;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csy
 FILE_NAME_19=1290;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cplan_crank.asm;0;4
 FILE_NAME_20=2377;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cterminal_commands.asm;0;4
 FILE_NAME_21=155;Tcl;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cmaf_interpolate.tcl;0;4
-FILE_NAME_22=4800;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cdata_rom.asm;0;4
+FILE_NAME_22=4875;C;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cprogram%5Cdata_rom.asm;0;4
 FILE_NAME_23=850;ASM;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CDE0_nano%5Csource%5Csynapse%5Cperipheral%5Cdriver%5Cfduart.asm;0;4
 FILE_NAME_24=2473;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cmapper%5Cmaps%5Cdefault.map;0;4
 FILE_NAME_25=10993;None;0;EUTF-8;0;1;0;J%3A%5Ccamaro_ecm%5Cgit%5CPC_TCL%5Cmapper%5Cport_capture.txt;0;4

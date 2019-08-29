@@ -186,15 +186,13 @@ supervised_synapse316 #(.TARGET_MIF("target_program.mif")) supmcu(
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
 stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`SR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`SR_RSTK]);
 
-/* commented out to clean up the build 2019-08-03
 // Altera 16x16=32 multiplier.  see settings for latency.
 multiplier	multiplier_inst (
     .clock ( sysclk ),
-    .dataa ( r[0] ),
-    .datab ( r[1] ),
+    .dataa ( r[`SR_A] ),
+    .datab ( r[`SR_B] ),
     .result ( {r[`SR_PRODUCT_HI], r[`SR_PRODUCT_LO]} )
 );
-*/
 
 // ADC SPI.  SPI_CLOCK_DIVISOR(50) = 1mhz spi_sck = 16us/read.
 wire spi_busy;

@@ -810,16 +810,16 @@
     0205 : 0244 ; -- <0152> ([label :ustimer0_handler])
     0206 : 0242 ; -- <0153> ([label :ign_pulse_done_handler])
     0207 : 0215 ; -- <0154> ([label :puff1_capture_handler])
-    0208 : 027d ; -- <0155> ([label :spi_done_handler])
+    0208 : 027e ; -- <0155> ([label :spi_done_handler])
     0209 : 0246 ; -- <0156> ([label :mstimer0_handler])
     020a : 022e ; -- <0157> ([label :puff1_timeout_handler])
-    020b : 0259 ; -- <0158> ([label :uart_rx_handler])
-    020c : 026b ; -- <0159> ([label :uart_rx_overflow_handler])
-    020d : 0273 ; -- <0160> ([label :uart_tx_overflow_handler])
-    020e : 0275 ; -- <0161> ([label :softevent3_handler])
-    020f : 0277 ; -- <0162> ([label :softevent2_handler])
-    0210 : 0279 ; -- <0163> ([label :softevent1_handler])
-    0211 : 027b ; -- <0164> ([label :softevent0_handler])
+    020b : 025a ; -- <0158> ([label :uart_rx_handler])
+    020c : 026c ; -- <0159> ([label :uart_rx_overflow_handler])
+    020d : 0274 ; -- <0160> ([label :uart_tx_overflow_handler])
+    020e : 0276 ; -- <0161> ([label :softevent3_handler])
+    020f : 0278 ; -- <0162> ([label :softevent2_handler])
+    0210 : 027a ; -- <0163> ([label :softevent1_handler])
+    0211 : 027c ; -- <0164> ([label :softevent0_handler])
 
 -- #########################################################################
 
@@ -927,84 +927,85 @@
 
 
     0250 : 0020 ; -- <0214> a = adc_maf
-    0251 : 0664 ; -- <0214> b = 100
+    0251 : 07a0 ; -- <0214> b = 600
+    0252 : 0258 ; -- <0214> "
 
-    0252 : e405 ; -- <0212> bn lt :else_594
-    0253 : 0255 ; -- <0212> "
+    0253 : e405 ; -- <0212> bn lt :else_595
+    0254 : 0256 ; -- <0212> "
 
-    0254 : 3201 ; -- <0213> scroll_dir = 1
+    0255 : 3201 ; -- <0213> scroll_dir = 1
 
-    0255 : 6a0a ; -- <0215> mstimer0 = 10
-    0256 : e00f ; -- <0216> end_event
-    0257 : 00aa ; -- <0216> "
+    0256 : 6a14 ; -- <0215> mstimer0 = 20
+    0257 : e00f ; -- <0216> end_event
+    0258 : 00aa ; -- <0216> "
 
--- ######## func parse_key -- = 0x0258
+-- ######## func parse_key -- = 0x0259
 
 
-    0258 : fc00 ; -- <0220> swapra = nop
+    0259 : fc00 ; -- <0220> swapra = nop
 
--- ######## event uart_rx_handler -- = 0x0259
--- :again -- = 0x0259
-    0259 : fba0 ; -- <0223> pollchar
-    025a : 00c6 ; -- <0223> "
-    025b : fc00 ; -- <0223> "
-    025c : 1000 ; -- <0224> x = a
+-- ######## event uart_rx_handler -- = 0x025a
+-- :again -- = 0x025a
+    025a : fba0 ; -- <0223> pollchar
+    025b : 00c6 ; -- <0223> "
+    025c : fc00 ; -- <0223> "
+    025d : 1000 ; -- <0224> x = a
 
-    025d : 0004 ; -- <0227> a = x
-    025e : 0760 ; -- <0227> b = -1
+    025e : 0004 ; -- <0227> a = x
+    025f : 0760 ; -- <0227> b = -1
 
-    025f : e407 ; -- <0225> bn eq :else_607
-    0260 : 0263 ; -- <0225> "
+    0260 : e407 ; -- <0225> bn eq :else_608
+    0261 : 0264 ; -- <0225> "
 
-    0261 : e00f ; -- <0226> event_return
-    0262 : 00aa ; -- <0226> "
+    0262 : e00f ; -- <0226> event_return
+    0263 : 00aa ; -- <0226> "
 
-    0263 : 3804 ; -- <0228> pa = x
-    0264 : fba0 ; -- <0228> callx  parse_key  x
-    0265 : 0258 ; -- <0228> "
-    0266 : fc00 ; -- <0228> "
-    0267 : e00f ; -- <0229> jmp :again
-    0268 : 0259 ; -- <0229> "
-    0269 : e00f ; -- <0230> end_event
-    026a : 00aa ; -- <0230> "
+    0264 : 3804 ; -- <0228> pa = x
+    0265 : fba0 ; -- <0228> callx  parse_key  x
+    0266 : 0259 ; -- <0228> "
+    0267 : fc00 ; -- <0228> "
+    0268 : e00f ; -- <0229> jmp :again
+    0269 : 025a ; -- <0229> "
+    026a : e00f ; -- <0230> end_event
+    026b : 00aa ; -- <0230> "
 
--- ######## event uart_rx_overflow_handler -- = 0x026b
-    026b : a3a0 ; -- <0233> error_halt_code $err_rx_overflow -- leds = 0xfffe
-    026c : fffe ; -- <0233> "
-    026d : e00f ; -- <0233> error_halt_code $err_rx_overflow
-    026e : 026d ; -- <0233> "
-    026f : e00f ; -- <0234> end_event
-    0270 : 00aa ; -- <0234> "
+-- ######## event uart_rx_overflow_handler -- = 0x026c
+    026c : a3a0 ; -- <0233> error_halt_code $err_rx_overflow -- leds = 0xfffe
+    026d : fffe ; -- <0233> "
+    026e : e00f ; -- <0233> error_halt_code $err_rx_overflow
+    026f : 026e ; -- <0233> "
+    0270 : e00f ; -- <0234> end_event
+    0271 : 00aa ; -- <0234> "
 
--- :tx_overflow_msg -- = 0x0271
+-- :tx_overflow_msg -- = 0x0272
 -- "TXO\x0"
-    0271 : 5854 ; -- <0237> XT
-    0272 : 004f ; -- <0237>  O
+    0272 : 5854 ; -- <0237> XT
+    0273 : 004f ; -- <0237>  O
 
--- ######## event uart_tx_overflow_handler -- = 0x0273
+-- ######## event uart_tx_overflow_handler -- = 0x0274
 -- error_halt_code $err_tx_overflow
-    0273 : e00f ; -- <0241> end_event
-    0274 : 00aa ; -- <0241> "
+    0274 : e00f ; -- <0241> end_event
+    0275 : 00aa ; -- <0241> "
 
--- ######## event softevent3_handler -- = 0x0275
-    0275 : e00f ; -- <0244> end_event
-    0276 : 00aa ; -- <0244> "
+-- ######## event softevent3_handler -- = 0x0276
+    0276 : e00f ; -- <0244> end_event
+    0277 : 00aa ; -- <0244> "
 
--- ######## event softevent2_handler -- = 0x0277
-    0277 : e00f ; -- <0247> end_event
-    0278 : 00aa ; -- <0247> "
+-- ######## event softevent2_handler -- = 0x0278
+    0278 : e00f ; -- <0247> end_event
+    0279 : 00aa ; -- <0247> "
 
--- ######## event softevent1_handler -- = 0x0279
-    0279 : e00f ; -- <0250> end_event
-    027a : 00aa ; -- <0250> "
+-- ######## event softevent1_handler -- = 0x027a
+    027a : e00f ; -- <0250> end_event
+    027b : 00aa ; -- <0250> "
 
--- ######## event softevent0_handler -- = 0x027b
-    027b : e00f ; -- <0253> end_event
-    027c : 00aa ; -- <0253> "
+-- ######## event softevent0_handler -- = 0x027c
+    027c : e00f ; -- <0253> end_event
+    027d : 00aa ; -- <0253> "
 
--- ######## event spi_done_handler -- = 0x027d
-    027d : e00f ; -- <0256> end_event
-    027e : 00aa ; -- <0256> "
+-- ######## event spi_done_handler -- = 0x027e
+    027e : e00f ; -- <0256> end_event
+    027f : 00aa ; -- <0256> "
 
 
 -- src reg 0000 a
