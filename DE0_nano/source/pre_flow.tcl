@@ -1,3 +1,25 @@
+# FETCH
+# Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+# http://www.TheMarkitecht.com
+#
+# Project home:  http://github.com/The-Markitecht/FETCH
+# FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+#
+# This file is part of FETCH.
+#
+# FETCH is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# FETCH is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
 
 # to make Quartus 8.1 invoke this script at the beginning of the "Compile" flow,
 # add this in the project's .qsf file:
@@ -22,7 +44,7 @@ proc shell {args} {
     set efn [file join $::project_dir output stderr.txt]
     catch {
         eval exec -ignorestderr $args >$ofn 2>$efn
-    } result 
+    } result
     # discard the result variable, and the return value of catch.  use only the dump files.
     set f [open $ofn r]
     dump info [read $f]
@@ -40,12 +62,12 @@ proc shell {args} {
 post_message -type info "Assembling MCU programs."
 
 cd [file join $::project_dir source]
-shell tclsh.exe build.tcl 
+shell tclsh.exe build.tcl
 
 # build only the visor program from the source_old.
 # this is for using an older version of Synapse and its libs & toolchain as the visor.
 #cd [file join $::project_dir source_old]
-#shell tclsh.exe build.tcl 
+#shell tclsh.exe build.tcl
 
 # run Icarus simulator.
 # post_message -type info "Simulating design."
@@ -64,6 +86,6 @@ shell tclsh.exe build.tcl
 
 # modelsim:
 # do ../../source/modelsim.tcl
-    
+
 post_message -type info "Pre-flow script done."
 

@@ -1,3 +1,26 @@
+# FETCH
+# Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+# http://www.TheMarkitecht.com
+#
+# Project home:  http://github.com/The-Markitecht/FETCH
+# FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+#
+# This file is part of FETCH.
+#
+# FETCH is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# FETCH is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
+
 
 # abbreviate the expr command for readability.
 interp alias {} e {} expr
@@ -42,7 +65,7 @@ proc compile_class {class_fn} {
         set bc [next]
         set dic [dict get $::java::bytecodes $bc]
         console [format %04x=%02x=%s $::java::jip $bc [dict get $dic name]]
-        parse_count_list [dict get $dic body] 
+        parse_count_list [dict get $dic body]
     }
     close $::java::class_file
 }

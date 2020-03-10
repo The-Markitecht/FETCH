@@ -1,3 +1,26 @@
+# FETCH
+# Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+# http://www.TheMarkitecht.com
+#
+# Project home:  http://github.com/The-Markitecht/FETCH
+# FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+#
+# This file is part of FETCH.
+#
+# FETCH is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# FETCH is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
+
 # #########################################################################
 # macro routines for calling in assembly source code.
 
@@ -16,7 +39,7 @@ namespace eval ::asm {
             puts $::vdefines "`define [string toupper $name]  [expr $valu]"
         }
     }
-    
+
     proc vdefine32 {lin name valu} {
         set hi [expr {($valu >> 16) & 0xffff}]
         set lo [expr {$valu & 0xffff}]
@@ -40,7 +63,7 @@ namespace eval ::asm {
     # source code editor integration macros & functions.
     proc ::set_editor_tag {name  return_type  parms} {
         # this can be redefined elsewhere to do application-specific work.
-    }        
+    }
 
     # common register aliases.
     proc alias_src {lin name addr visor_name} {
@@ -86,7 +109,7 @@ namespace eval ::asm {
     proc alias_flag {lin name addr} {
         dict set ::flagsrc $name $addr
     }
-    
+
     proc declare_architecture_dimensions {} {
         # each vdefine here is auto-generated into a _defines.v file.
         # so they're visible in Verilog as well as assembly source.
@@ -105,10 +128,10 @@ namespace eval ::asm {
             vdefine src_max                 ((1 << $src_width) - 1)
             vdefine ipr_width               $word_width
             vdefine ipr_top                 ($ipr_width - 1)
-            
+
             // Synapse instruction set codes.
             vdefine dest_nop                [dest nop]
-            
+
             // debugging supervisor contants.  these are also required by implementation of the target MCU core.
             vdefine debug_in_width          19
                 vdefine debug_force_exec_bit        18
@@ -126,7 +149,7 @@ namespace eval ::asm {
             // size of external register file.  all these registers are external to the Synapse316 core.
             // min_populated_ext_regs <= num_populated_ext_regs <= max_populated_ext_regs <= 48 supported in the core's muxer and module ports.
             // all those numbers are smaller than src_max and dest_max addresses of the architecture.
-            // from num_populated_ext_regs through max_populated_ext_regs the external address space 
+            // from num_populated_ext_regs through max_populated_ext_regs the external address space
             // is stubbed as "don't care" values by the Synapse core.
             // that doesn't affect operator results and other addresses implemented internally by the Synapse core.
             vdefine min_populated_ext_regs            2
@@ -154,19 +177,19 @@ namespace eval ::asm {
             alias_src          a>>4      [src sh4r0]     {}
             alias_src          0xffff    [src -1]        {}
             alias_flag         c         [flag ad0c]
-            alias_flag         az        [flag 0z]  
-            alias_flag         iz        [flag 2z]  
-            alias_flag         xz        [flag 4z]  
-            alias_flag         eq        [flag eq0] 
-            alias_flag         gt        [flag gt0] 
-            alias_flag         lt        [flag lt0] 
+            alias_flag         az        [flag 0z]
+            alias_flag         iz        [flag 2z]
+            alias_flag         xz        [flag 4z]
+            alias_flag         eq        [flag eq0]
+            alias_flag         gt        [flag gt0]
+            alias_flag         lt        [flag lt0]
         }
     }
 
     # Tcl integration macros.
     proc setvar {lin varname value} {
         namespace eval ::asm [list set $varname $value]
-        set_editor_tag $varname 
+        set_editor_tag $varname
     }
 
     # subroutine macros.
@@ -183,9 +206,9 @@ namespace eval ::asm {
     proc call_indirect {lin} {
         # call the func whose address is already in rtna register.
         uses_reg rtna
-        parse_count {swapra = nop}        
+        parse_count {swapra = nop}
     }
-set obsolete {    
+set obsolete {
     proc rtn {lin} {
         auto_pop $lin
         parse_count {swapra = nop}
@@ -195,7 +218,7 @@ set obsolete {
         verify_func_closure
         set label [string trim $label {: }]
         set_label $label
-        set_editor_tag $label 
+        set_editor_tag $label
         emit_comment "// ######## $lin // = 0x[format %04x $::ipr]"
         set ::func $label
         if { $::asm_pass == $::pass(func) } {
@@ -208,13 +231,13 @@ set obsolete {
         rtn $lin
         set ::func {}
     }
-    
+
     proc verify_func_closure {} {
         if {[string length $::func] > 0} {
             error "expected end_func"
         }
     }
-    
+
     proc push {lin reg} {
         parse3 rstk = $reg "push $reg // $lin"
     }
@@ -235,7 +258,7 @@ set obsolete {
     }
 
     proc find_stackable {order func_name} {
-        set sa [list] 
+        set sa [list]
         foreach reg $::stackable {
             lappend sa [src $reg]
         }
@@ -295,7 +318,7 @@ set obsolete {
         }
         if { ! [dict exists $::adest rstk]} {
             error "calling convention requires a return stack 'rstk': $lin"
-        }    
+        }
         stackable $lin rtna
         for {set i [expr [src y] + 1]} {$i < $::asm::num_gp} {incr i} {
             stackable $lin g$i
@@ -318,7 +341,7 @@ set obsolete {
         }
         if { ! [dict exists $::adest rstk]} {
             error "calling convention requires a return stack 'rstk': $lin"
-        }    
+        }
         stackable $lin rtna
         stackable $lin i
         stackable $lin j
@@ -330,7 +353,7 @@ set obsolete {
             }
         }
     }
-    
+
     # branching macros.
     proc jmp {lin label} {
         parse3 br always $label $lin
@@ -354,7 +377,7 @@ set obsolete {
         # 16-bit two's complement negation.
         return [expr {(($valu ^ 0xffff) + 1) & 0xffff}]
     }
-    
+
     # assembler and source-handling macros.
     proc include {lin fn} {
         console "assembling include: $fn"
@@ -371,7 +394,7 @@ set obsolete {
         set parent_fn $::src_fn
         set ::src_fn $fn
         start_file_handler
-        parse_count_list $asm_lines 
+        parse_count_list $asm_lines
         end_file_handler
         cd $parent_dir
         set ::ml_state {}
@@ -387,7 +410,7 @@ set obsolete {
     proc end_file_handler {} {
         verify_func_closure
     }
-    
+
     proc emit_debugger_register_table {lin counter_var_name} {
         # emit a table of register names for use by the debugger.
         set expected [expr {[set "::asm::$counter_var_name"] + 1}]
@@ -406,7 +429,7 @@ set obsolete {
             }
         }
         if {[string length $counter_var_name] > 0 && $found != $expected} {
-            error "Mismatch in debugger register table: expected $expected found $found names.  This may be caused by exceeding $::asm::max_populated_ext_regs external registers, or by accidentally duplicating register names."            
+            error "Mismatch in debugger register table: expected $expected found $found names.  This may be caused by exceeding $::asm::max_populated_ext_regs external registers, or by accidentally duplicating register names."
         }
     }
 }

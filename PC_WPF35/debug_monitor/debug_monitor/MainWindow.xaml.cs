@@ -1,4 +1,28 @@
-﻿using System;
+﻿/*
+FETCH
+Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+http://www.TheMarkitecht.com
+
+Project home:  http://github.com/The-Markitecht/FETCH
+FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+
+This file is part of FETCH.
+
+FETCH is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FETCH is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+using System;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,7 +78,7 @@ namespace project
         protected UInt16 last_known_ipr = 0;
         protected UInt16 lagged_ipr = 0;
         protected UInt16 last_known_exr = 0;
-        protected const UInt16 EXR_SPECIAL_INSTRUCTION_MASK = 0xc000;        
+        protected const UInt16 EXR_SPECIAL_INSTRUCTION_MASK = 0xc000;
         protected int prompt_count = 0;
 
         public MainWindow()
@@ -86,8 +110,8 @@ namespace project
             ram_map.Clear();
             src_doc.Blocks.Clear();
             using (System.IO.StreamReader rdr = new System.IO.StreamReader(mif_fn))
-            {                
-                while ( ! rdr.EndOfStream) 
+            {
+                while ( ! rdr.EndOfStream)
                 {
                     string lin = rdr.ReadLine();
 
@@ -123,7 +147,7 @@ namespace project
                     src_doc.Blocks.Add(p);
                     lnum++;
                 }
-            }            
+            }
             show_ipr();
             if (timer_on)
                 rx_tmr.Start();
@@ -186,7 +210,7 @@ namespace project
                 src_txt.IsEnabled = false;
                 var thd = new Thread(load_and_exit);
                 thd.IsBackground = true;
-                thd.Start(); 
+                thd.Start();
             } else {
                 this.WindowState = System.Windows.WindowState.Maximized;
             }
@@ -204,7 +228,7 @@ populate it with a line (document block) counter instead of the <> source line m
 instead memorize those in one field of a new collection of source reference objects.
 each ref includes a pointer to the file.
 populate refs according to a table of source files used, which is dumped at the bottom of the mif.
-number each of those.  mention one of those file numbers with every <> source line number.                
+number each of those.  mention one of those file numbers with every <> source line number.
 use refs to open & show actual source in another pane next to the mif.
 rename some uses of "src" as "mif" instead.
 */
@@ -214,12 +238,12 @@ rename some uses of "src" as "mif" instead.
                 lin.BringIntoView();
                 src_txt.Selection.Select(lin.ContentStart, lin.ContentEnd);
                 last_known_hilite = addr;
-            }            
+            }
         }
 
         protected void show_ipr()
         {
-            if ((bool)ipr_chk.IsChecked) 
+            if ((bool)ipr_chk.IsChecked)
                 show_hilite(last_known_ipr);
             else
                 show_hilite(lagged_ipr); // guesses which instruction is in the EXR right now, based on where the IPR was pointed in the previous step.
@@ -237,7 +261,7 @@ rename some uses of "src" as "mif" instead.
                 if (actual > 0)
                 {
                     string s = Encoding.ASCII.GetString(b, 0, actual);
-                    log(s, false); 
+                    log(s, false);
                     rx_sbuf.Append(s);
                     if (rx_sbuf.Length > RETAIN_CHARS)
                         rx_sbuf.Remove(0, rx_sbuf.Length - RETAIN_CHARS);
@@ -282,7 +306,7 @@ rename some uses of "src" as "mif" instead.
             //journal.SelectionLength = 0;
             //journal.SelectionStart = journal.Text.Length;
             journal.ScrollToEnd();
-            journal.Dispatcher.Invoke(emptyDelegate, DispatcherPriority.Render); 
+            journal.Dispatcher.Invoke(emptyDelegate, DispatcherPriority.Render);
         }
 
         public void logf(string patn, params object[] args)
@@ -344,7 +368,7 @@ rename some uses of "src" as "mif" instead.
             logf("{0} = file sum", sum.result().ToString("x4"));
 
             send("l");
-            send(b, 0, b.Length);        
+            send(b, 0, b.Length);
         }
 
         private void load_btn_Click(object sender, RoutedEventArgs e)
@@ -353,7 +377,7 @@ rename some uses of "src" as "mif" instead.
             if (special_instruction_in_progress()) {
                 MessageBox.Show("This is a bad time for a load.  EXR contains a branching instruction or other special instruction.  Step past it first.", "Not Supported");
                 return;
-            }            
+            }
             send_program();
             load_mif();
         }
@@ -361,10 +385,10 @@ rename some uses of "src" as "mif" instead.
         private void set_bp(int bpnum, TextBox tb)
         {
             try
-            {                
+            {
                 string s = tb.Text.Trim().ToLower();
                 UInt16 addr = UInt16.Parse(s, System.Globalization.NumberStyles.HexNumber);
-                send("b" + bpnum + "=" + addr.ToString("x4"));            
+                send("b" + bpnum + "=" + addr.ToString("x4"));
             }
             catch (Exception ex)
             {
@@ -439,18 +463,18 @@ rename some uses of "src" as "mif" instead.
         private void dump(TextBox addr_txt, TextBox len_txt)
         {
             try
-            {                
+            {
                 string s = addr_txt.Text.Trim().ToLower();
                 UInt32 addr = UInt32.Parse(s, System.Globalization.NumberStyles.HexNumber);
                 UInt16 addr_hi = (UInt16)(addr >> 16);
                 UInt16 addr_lo = (UInt16)(addr & 0xffff);
                 s = len_txt.Text.Trim().ToLower();
                 UInt16 len = UInt16.Parse(s, System.Globalization.NumberStyles.HexNumber);
-                s = "u" + dest_reg_map["av_write_data"].ToString("x4") + " " + src_reg_map["av_read_data"].ToString("x4") 
-                    + " " + src_reg_map["av_ad_lo"].ToString("x4") + " " + src_reg_map["av_ad_hi"].ToString("x4") 
+                s = "u" + dest_reg_map["av_write_data"].ToString("x4") + " " + src_reg_map["av_read_data"].ToString("x4")
+                    + " " + src_reg_map["av_ad_lo"].ToString("x4") + " " + src_reg_map["av_ad_hi"].ToString("x4")
                     + " " + addr_hi.ToString("x4") + " " + addr_lo.ToString("x4") + " " + len.ToString("x4") + ".";
                 log("\n" + s);
-                send(s);            
+                send(s);
             }
             catch (Exception ex)
             {

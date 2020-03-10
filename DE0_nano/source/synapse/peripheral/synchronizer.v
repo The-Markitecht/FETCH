@@ -1,3 +1,27 @@
+/*
+FETCH
+Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+http://www.TheMarkitecht.com
+
+Project home:  http://github.com/The-Markitecht/FETCH
+FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+
+This file is part of FETCH.
+
+FETCH is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FETCH is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 
 // this file corrected 9/2011 to utilize opposing clock edges.
 
@@ -18,12 +42,12 @@ module synchronizer3
     // 3 stages MUST be used if the sender is a combinational circuit,
     // as it may glitch while the receiver is sampling, even if a 2-stage
     // synchronizer appears in between.
-    
+
     // this is the full-featured version.
 
     reg[msb:0] in_sync;
-    always @(posedge in_clk) 
-        in_sync <= reset ? {width{reset_level}} : in;    
+    always @(posedge in_clk)
+        in_sync <= reset ? {width{reset_level}} : in;
     reg[msb:0] r0;
     always @(negedge out_clk)
         r0 <= reset ? {width{reset_level}} : in_sync;

@@ -1,3 +1,26 @@
+# FETCH
+# Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+# http://www.TheMarkitecht.com
+#
+# Project home:  http://github.com/The-Markitecht/FETCH
+# FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+#
+# This file is part of FETCH.
+#
+# FETCH is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# FETCH is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
+
 
 # math testing and modeling, in Tcl.
 
@@ -43,10 +66,10 @@ proc divide {dividend divisor} {
     if {$divisor > $dividend || $divisor == 0 || $dividend == 0} {
         return 0
     }
-    
+
     # shift "temp" divisor left until it exceeds dividend, then right 1.
     #puts "sor [dump16 $divisor]"
-    set temp $divisor    
+    set temp $divisor
     set i 0
     while {$temp <= $dividend} {
         set temp [e $temp << 1]
@@ -57,7 +80,7 @@ proc divide {dividend divisor} {
     # that's exactly what i needs for correctness.
 
     set q 0
-    #while {$dividend >= $divisor} 
+    #while {$dividend >= $divisor}
     for {} {$i > 0} {incr i -1} {
         #puts "    [dump16 $dividend]\n    [dump16 $temp]"
         if {$temp > $dividend} {
@@ -87,7 +110,7 @@ assert {divide 43805 1} 43805
     # for {set i 0} {$i < 1000} {incr i} {
         # set a [e int(65536 * rand())]
         # set b [e int(65535 * rand()) + 1]
-        # assert [list divide $a $b] [e $a / $b]    
+        # assert [list divide $a $b] [e $a / $b]
     # }
     # puts -nonewline .
 # }
@@ -124,7 +147,7 @@ assert {mul 200 200} 40000
     # for {set i 0} {$i < 1000} {incr i} {
         # set a [e int(256 * rand())]
         # set b [e int(256 * rand())]
-        # assert [list mul $a $b] [e $a * $b]    
+        # assert [list mul $a $b] [e $a * $b]
     # }
     # puts -nonewline .
 # }

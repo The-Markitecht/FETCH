@@ -1,3 +1,27 @@
+/*
+FETCH
+Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+http://www.TheMarkitecht.com
+
+Project home:  http://github.com/The-Markitecht/FETCH
+FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+
+This file is part of FETCH.
+
+FETCH is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FETCH is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 `include <header.v>
 
 module puff_timer (
@@ -18,20 +42,20 @@ module puff_timer (
     // injector opens after the 4th rising edge of signal from ignition coil.
     // also then puff_reload pulses 1 sysclk cycle to restart the injection timing cycle.
     // puff_reload freq = 1 to 10,000 Hz.
-    
+
     // parent MUST SET ign_timeout_len_jf BEFORE puff_enable POSEDGE!
     // otherwise the module latches up in an always-off state.
-    
-    //patch: HOW TO KNOW WHERE TO BEGIN COUNTING IGNITION PULSES?? 
+
+    //patch: HOW TO KNOW WHERE TO BEGIN COUNTING IGNITION PULSES??
     // which of the 4 is the correct one to start on?
     // there MUST be a sensor on the camshaft etc..
     // maybe it doesn't matter.  each bank has 4 injectors in parallel anyway.
-        
+
     //patch: split this into 2 modules: puff_timer and ignition_capture.
-        
+
     wire[31:0] junk;
     wire[7:0] capdata;
-        
+
     wire ign_coil_sync;
     wire ign_coil_debounced;
     wire ign_4th_rise;
@@ -39,7 +63,7 @@ module puff_timer (
     wire puff_trigger_comb = ign_4th_rise || (ign_timeout && puff_on_timeout);
     reg puff_trigger_last = 0;
     always_ff @(posedge sysclk)
-        puff_trigger_last <= puff_trigger_comb; 
+        puff_trigger_last <= puff_trigger_comb;
     wire puff_trigger_rise = puff_trigger_comb && ! puff_trigger_last;
     wire puff_closed;
     wire puff_reload = (puff_trigger_rise && puff_enable) || ! puff_enable;
@@ -52,28 +76,28 @@ module puff_timer (
         ,.debounced   (ign_coil_debounced)
     );
     down_counter ign_pulse_cnt (
-         .sysclk          ( sysclk )  
-        ,.sysreset        ( sysreset )  
+         .sysclk          ( sysclk )
+        ,.sysreset        ( sysreset )
         ,.counter_data_out( {junk[15:3], leds[2:0]} )
-        ,.data_in         ( 16'd4 )  
+        ,.data_in         ( 16'd4 )
         ,.counter_load    ( puff_reload )
         ,.counter_tick   ( ign_coil_debounced )
         ,.expired         ( ign_4th_rise )
     );
     down_counter ign_timeout_cnt (
-         .sysclk          ( sysclk )  
-        ,.sysreset        ( sysreset )  
+         .sysclk          ( sysclk )
+        ,.sysreset        ( sysreset )
         ,.counter_data_out(  )
-        ,.data_in         ( ign_timeout_len_jf )  
+        ,.data_in         ( ign_timeout_len_jf )
         ,.counter_load    ( puff_reload )
         ,.counter_tick   ( pulse50k )
         ,.expired         ( ign_timeout )
     );
     down_counter puff_open_cnt (
-         .sysclk          ( sysclk )  
-        ,.sysreset        ( sysreset )  
+         .sysclk          ( sysclk )
+        ,.sysreset        ( sysreset )
         ,.counter_data_out(  )
-        ,.data_in         ( puff_len_us )  
+        ,.data_in         ( puff_len_us )
         ,.counter_load    ( puff_trigger_rise )
         ,.counter_tick   ( pulse1m )
         ,.expired         ( puff_closed )
@@ -88,7 +112,7 @@ module puff_timer (
     //assign leds[3] = pulse50k;
     //assign leds[4] = pulse1m;
     // reg[7:0] cap = 0;
-    // assign capdata = {puff_reload, ign_4th_rise, ign_timeout, puff_trigger_comb, 
+    // assign capdata = {puff_reload, ign_4th_rise, ign_timeout, puff_trigger_comb,
         // puff_trigger_rise, 3'd0};
     // always_ff @(posedge sysclk)
         // cap <= cap | capdata;
@@ -100,5 +124,5 @@ module puff_timer (
     assign leds[5] = len_ms >= 5'd4;
     assign leds[4] = len_ms >= 5'd2;
     assign leds[3] = len_ms >= 5'd1;
-    
+
 endmodule

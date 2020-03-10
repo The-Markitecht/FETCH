@@ -1,3 +1,26 @@
+// FETCH
+// Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+// http://www.TheMarkitecht.com
+//
+// Project home:  http://github.com/The-Markitecht/FETCH
+// FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+//
+// This file is part of FETCH.
+//
+// FETCH is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// FETCH is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
+
 <<
 proc struct_read {lin  result_reg  eq  base_addr  dot  offset_reg} {
     # pass offset (in WORDS) in register offset_reg.
@@ -7,7 +30,7 @@ proc struct_read {lin  result_reg  eq  base_addr  dot  offset_reg} {
     # structure member must be word-aligned in RAM.
     # structure must not cross a 64k boundary.
     # registers a, b, and avalon registers are destroyed.
-    
+
     if {$eq ne {=}} {error "struct read syntax error; expected '='"}
     if {$dot ne {.}} {error "struct read syntax error; expected '.'"}
     emit_comment "// $lin"
@@ -30,7 +53,7 @@ proc struct_read {lin  result_reg  eq  base_addr  dot  offset_reg} {
 }
 
 proc struct_write {lin  base_addr  dot  offset_reg  eq  content_reg} {
-    # pass offset (in WORDS) in register offset_reg.  
+    # pass offset (in WORDS) in register offset_reg.
     # offset_reg may also be a numeric constant.
     # pass data value in content_reg.
     # content_reg may also be a numeric constant.
@@ -68,7 +91,7 @@ proc struct_write {lin  base_addr  dot  offset_reg  eq  content_reg} {
 
 proc struct {lin  args} {
     # struct_read or struct_write, depending on the position of equal sign.
-    
+
     if {[lindex $args 3] eq {=}} {
         struct_write  $lin  {*}$args
     } else {
@@ -79,7 +102,7 @@ proc struct {lin  args} {
 proc struct_test_case {lin} {
     parse {
         setvar base 1'8192
-        
+
         // write has 6 cases:
         //  offset in a.
         //  offset in some other register.
@@ -98,7 +121,7 @@ proc struct_test_case {lin} {
         y = 0x42
         struct $base . y = 0x72
         struct $base . 0x43 = 0x73
-        
+
         // read has the same 3 cases of offset.
         // test all those using the first case of write.
         a = 0x31
@@ -115,7 +138,7 @@ proc struct_test_case {lin} {
         if i ne 0x61 {
             jmp :struct_test_error
         }
-        
+
         // use read to verify all cases of write.
         struct i = $base . 0x32
         if i ne 0x62 {
@@ -153,11 +176,11 @@ proc struct_test_case {lin} {
         if i ne 0x71 {
             jmp :struct_test_error
         }
-        
+
         :struct_test_ok
         nop
         jmp :struct_test_ok
-        
+
         :struct_test_error
         nop
         jmp :struct_test_error

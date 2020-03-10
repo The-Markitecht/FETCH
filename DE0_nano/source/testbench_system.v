@@ -1,18 +1,42 @@
+/*
+FETCH
+Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+http://www.TheMarkitecht.com
+
+Project home:  http://github.com/The-Markitecht/FETCH
+FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+
+This file is part of FETCH.
+
+FETCH is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FETCH is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 `include <header.v>
 `include "target_program_defines.v"
 
 module testbench ();
 
-wire		    [12:0]		DRAM_ADDR;
-wire		     [1:0]		DRAM_BA;
-wire		          		DRAM_CAS_N;
-wire		          		DRAM_CKE;
-wire		          		DRAM_CLK;
-wire		          		DRAM_CS_N;
-wire		    [15:0]		DRAM_DQ;
-wire		     [1:0]		DRAM_DQM;
-wire		          		DRAM_RAS_N;
-wire		          		DRAM_WE_N;
+wire            [12:0]      DRAM_ADDR;
+wire             [1:0]      DRAM_BA;
+wire                        DRAM_CAS_N;
+wire                        DRAM_CKE;
+wire                        DRAM_CLK;
+wire                        DRAM_CS_N;
+wire            [15:0]      DRAM_DQ;
+wire             [1:0]      DRAM_DQM;
+wire                        DRAM_RAS_N;
+wire                        DRAM_WE_N;
 wire async_out;
 
 reg clk50m = 0;
@@ -43,9 +67,9 @@ wire sysreset = rst2;
 //reg                       mcu_wait = 0;
 wire                      mcu_wait;
 wire[15:0]                r[`TOP_REG:0];
-wire[`TOP_REG:0]          r_read;  
+wire[`TOP_REG:0]          r_read;
 wire[`TOP_REG:0]          r_load;
-wire[15:0]                r_load_data;  
+wire[15:0]                r_load_data;
 wire[15:0]                dbg_av_address;
 wire                      dbg_av_waitrequest;
 wire[15:0]                dbg_av_writedata;
@@ -68,23 +92,23 @@ supervised_synapse316 supmcu(
     .dbg_av_waitrequest  (dbg_av_waitrequest),
     .dbg_av_writedata    (dbg_av_writedata),
     .dbg_av_write        (dbg_av_write)
-);    
+);
 
 std_reg gp_reg[`TOP_GP:0](sysclk, sysreset, r[`TOP_GP:0], r_load_data, r_load[`TOP_GP:0]);
 
 stack_reg #(.DEPTH(32)) rstk(sysclk, sysreset, r[`DR_RSTK], r_load_data, r_load[`DR_RSTK], r_read[`DR_RSTK]);
 
 reg[1:0] KEY = 0;
-assign r[`SR_KEYS] = {14'h0, KEY}; 
+assign r[`SR_KEYS] = {14'h0, KEY};
 
 // plumbing of target MCU outputs.
 std_reg #(.WIDTH(8)) led_reg(sysclk, sysreset, r[`DR_LEDS], r_load_data[7:0], r_load[`DR_LEDS]);
 
 
-integer serial_file; 
-integer trace_file; 
+integer serial_file;
+integer trace_file;
 integer trace_compare_file;
-initial	begin
+initial begin
     $dumpfile("testbench.vcd");
     $dumpvars;
 
@@ -110,44 +134,44 @@ always begin
     #5 // clk_progmem = 0;
     #5 clk50m = 1; // clk_progmem = 1;
     #5 // clk_progmem = 0;
-        
+
     #2
     if (code_ready_cnt == 0)
         code_ready_cnt = 5;
     else
         code_ready_cnt = code_ready_cnt - 1;
 //    mcu_wait = 0; // code_ready_cnt == 0;
-        
-    #3 clk50m = 0;  // clk_progmem = 1;  
+
+    #3 clk50m = 0;  // clk_progmem = 1;
 end
-   
+
 // always begin
     // // run at actual 460,800 Hz for 115,200 bps.  4x desired bit rate.
     // #1085 clk_async = ! clk_async;
 // end
-    
+
 // always_ff @(posedge clk_async) begin
     // // write output and check for trouble.
-    
+
     // if ( utx.load_data && ! txbsy )
-        // $fwrite(serial_file, "%c", utx.parallel_in);   
+        // $fwrite(serial_file, "%c", utx.parallel_in);
 // end
 
 reg[15:0] compare_addr, compare_exr;
 integer junk;
 always_ff @(posedge clk50m) begin
     // write output and check for trouble.
-    
+
     if ( supmcu.target.enable_exec ) begin
-        // this is an executing instruction cycle.  trace it.    
+        // this is an executing instruction cycle.  trace it.
         if (supmcu.tg_code_addr != 0)
-            junk = $fscanf(trace_compare_file, "%x : %x\n", compare_addr, compare_exr); 
-        $fwrite(trace_file, "%04x : %04x     vs. %04x : %04x\n", supmcu.tg_code_addr, supmcu.target.exr, compare_addr, compare_exr);   
+            junk = $fscanf(trace_compare_file, "%x : %x\n", compare_addr, compare_exr);
+        $fwrite(trace_file, "%04x : %04x     vs. %04x : %04x\n", supmcu.tg_code_addr, supmcu.target.exr, compare_addr, compare_exr);
         if (supmcu.tg_code_addr != 0) begin
-            if( supmcu.target.exr == 16'hffff ) 
-                $fwrite(trace_file, "       ^^^^ ERROR INVALID INSTRUCTION\n");   
+            if( supmcu.target.exr == 16'hffff )
+                $fwrite(trace_file, "       ^^^^ ERROR INVALID INSTRUCTION\n");
             if (supmcu.tg_code_addr != compare_addr || supmcu.target.exr != compare_exr)
-                $fwrite(trace_file, "       ^^^^ ERROR TRACE MISMATCH\n");   
+                $fwrite(trace_file, "       ^^^^ ERROR TRACE MISMATCH\n");
         end
     end
 end
@@ -171,10 +195,10 @@ always_ff @(posedge sysclk) begin
         av_write <= 0; // write transaction has ended.
     end else if (r_load[`DR_AV_WRITE_DATA]) begin
         av_write <= 1; // begin write transaction.
-    end else if (av_read_capture) begin 
+    end else if (av_read_capture) begin
         av_read <= 0; // read transaction has ended.  will capture data on the next cycle.
     end else if (r_read[`DR_AV_WRITE_DATA]) begin
-        av_read <= 1; // begin read transaction. 
+        av_read <= 1; // begin read transaction.
     end
 end
 wire av_busy = (av_write || av_read || av_read_capture); // && av_waitrequest; // considering av_waitrequest avoids 1 needless wait cycle at the end of every transaction. NO - it turns out that cycle is needed, at least for correct reads.  back-to-back writes might be risky too.
@@ -183,14 +207,14 @@ assign mcu_wait = av_busy;
 // Qsys system including JTAG UART.
 // in a Nios II Command Shell, type nios2-terminal --help, or just nios2-terminal.
 qsys2 u0 (
-    .clk_clk                      (sysclk),                      
-    .reset_reset_n                ( ! sysreset),                
-    .m0_address                   ({r[`DR_AV_AD_HI], r[`DR_AV_AD_LO]}),                   
-    .m0_read                      (av_read),                      
-    .m0_waitrequest               (av_waitrequest),               
-    .m0_readdata                  (m0_readdata),                  
-    .m0_write                     (av_write),                     
-    .m0_writedata                 (r[`DR_AV_WRITE_DATA]),                 
+    .clk_clk                      (sysclk),
+    .reset_reset_n                ( ! sysreset),
+    .m0_address                   ({r[`DR_AV_AD_HI], r[`DR_AV_AD_LO]}),
+    .m0_read                      (av_read),
+    .m0_waitrequest               (av_waitrequest),
+    .m0_readdata                  (m0_readdata),
+    .m0_write                     (av_write),
+    .m0_writedata                 (r[`DR_AV_WRITE_DATA]),
     .generic_master_1_reset_reset ()  ,
     .sdramc_addr                  (DRAM_ADDR),
     .sdramc_ba                    (DRAM_BA),
@@ -200,8 +224,8 @@ qsys2 u0 (
     .sdramc_dq                    (DRAM_DQ),
     .sdramc_dqm                   (DRAM_DQM),
     .sdramc_ras_n                 (DRAM_RAS_N),
-    .sdramc_we_n                  (DRAM_WE_N)    
+    .sdramc_we_n                  (DRAM_WE_N)
 );
 assign DRAM_CLK = clk_sdram;
-    
-endmodule    
+
+endmodule

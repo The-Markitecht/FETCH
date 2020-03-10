@@ -1,3 +1,26 @@
+// FETCH
+// Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+// http://www.TheMarkitecht.com
+//
+// Project home:  http://github.com/The-Markitecht/FETCH
+// FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+//
+// This file is part of FETCH.
+//
+// FETCH is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// FETCH is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
+
 
 setvar      num_rpm_cells           13
 :rpm_cells
@@ -17,13 +40,13 @@ setvar      num_rpm_cells           13
     0xffff
 
 ram_define  ram_smap                ($num_rpm_cells * 2)
-setvar      lrns_map_step           200      
+setvar      lrns_map_step           200
 
 ram_define  ram_last_learn_second
 
 setvar      num_tps_cells           $num_rpm_cells
 ram_define  ram_tps_reference       ($num_tps_cells * 2)
-ram_define  ram_tps_state           
+ram_define  ram_tps_state
     setvar  tps_state_closed        0
     setvar  tps_state_cruise        1
     setvar  tps_state_accel1        2
@@ -35,11 +58,11 @@ ram_define  ram_tps_cruise_enrich_us ($num_tps_cells * 2)
 ram_define  ram_tps_accel1_enrich_us ($num_tps_cells * 2)
 ram_define  ram_tps_accel2_enrich_us ($num_tps_cells * 2)
 ram_define  ram_tps_open_enrich_us   ($num_tps_cells * 2)
-    
+
 // trim puff length by o2 sensor every 200 ms.
 setvar      lrns_ticks_per_o2_trim  (int(200 / $plan_tick_ms))
 ram_define  ram_lrns_ticks_remain
-    
+
 // trim puff length as needed.
 setvar      lrns_puff_step_up_us     600
 setvar      lrns_puff_step_down_us   (0xffff - 32)
@@ -71,14 +94,14 @@ setvar      o2_rich_thresh_adc      700
     0x0540
     0x0540
     0x0b00
-    
+
 :plan_name_learn_stoich
     "LN\x0"
-        
+
 func init_plan_learn_stoich {
     // set up the learn_stoich plan.
     ram $ram_lrns_ticks_remain = $lrns_ticks_per_o2_trim
-    
+
     // memorize state.
     ram $ram_plan_name = :plan_name_learn_stoich
     ram $ram_puff_len_func = :puff_len_learn_stoich
@@ -88,7 +111,7 @@ func init_plan_learn_stoich {
 
 func destroy_plan_learn_stoich {
 }
-        
+
 :lrns_trim_up_msg
     "trR\x0"
 :lrns_trim_down_msg
@@ -101,13 +124,13 @@ func puff_len_learn_stoich {
         ram $ram_lrns_ticks_remain = i+j
     } else {
         ram $ram_lrns_ticks_remain = $lrns_ticks_per_o2_trim
-        
+
         // i = old puff length, j = puff length increment.
         ram i = $ram_next_puff_len_us
         j = 0
         ram g6 = $ram_o2_state
         callx  interpret_o2
-        ram g7 = $ram_o2_state        
+        ram g7 = $ram_o2_state
         if g7 eq $o2_state_lean {
             // sensing a lean condition.  trim up to enrich.
             if i lt $lrns_puff_max_us {
@@ -126,7 +149,7 @@ func puff_len_learn_stoich {
             callx  set_text_flag  :lrns_trim_down_msg
         }
         ram $ram_next_puff_len_us = i+j
-    }        
+    }
 }
 
 :lrns_enrich_msg
@@ -160,7 +183,7 @@ func learn_smap {
             struct_write $ram_smap
             callx  set_text_flag  :lrns_enrich_msg
         }
-        
+
         // dump smap if we haven't done so lately.
         ram a = $ram_last_learn_second
         ram b = $ram_seconds_cnt
@@ -186,7 +209,7 @@ func interpret_o2 {
         if a gt b {
             ram $ram_o2_state = $o2_state_lean
             ram $ram_o2_been_lean = 1
-            // callx  set_text_flag  :o2_lean_msg            
+            // callx  set_text_flag  :o2_lean_msg
         }
     }
     if a ne $o2_state_rich {
@@ -197,7 +220,7 @@ func interpret_o2 {
         if a lt b {
             ram $ram_o2_state = $o2_state_rich
             ram $ram_o2_been_rich = 1
-            // callx  set_text_flag  :o2_rich_msg            
+            // callx  set_text_flag  :o2_rich_msg
         }
     }
 }
@@ -229,7 +252,7 @@ func find_rpm_cell {rpm in pa} {cell out pa} {
     j = -1
     rtn i+j
 }
-    
+
 func dump_smap_cmd {
     puteol
     ram pa = $ram_avg_rpm
@@ -279,7 +302,7 @@ func load_tps_enrich_cmd {
         // getchar
     // }
 }
-    
+
 func load_smap_cmd {
     for {i = 0} {i lt $num_rpm_cells} step j = 1 {
         call  get4x
@@ -297,7 +320,7 @@ func clear_smap_cmd {
         struct_write $ram_smap
     }
 }
-    
+
 func load_tps_ref_cmd {
     for {i = 0} {i lt $num_tps_cells} step j = 1 {
         call  get4x

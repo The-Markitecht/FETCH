@@ -1,3 +1,26 @@
+// FETCH
+// Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+// http://www.TheMarkitecht.com
+//
+// Project home:  http://github.com/The-Markitecht/FETCH
+// FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+//
+// This file is part of FETCH.
+//
+// FETCH is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// FETCH is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
+
 
 ram_define      ram_terminal_connected
 
@@ -66,7 +89,7 @@ func parse_key {key in pa} {
     "OK\x0"
 
 func parse_command {
-    x = :cmd_table    
+    x = :cmd_table
     :next_cmd
         fetch a from x
         br az :done
@@ -78,14 +101,14 @@ func parse_command {
             asc b = " "
             if a ne b {
                 //asc b = "*"
-                //br eq :matched  
+                //br eq :matched
                     //// parameter character.  succeed early.
                 struct b = $ram_key_buf . i
                 a = y
                 bn eq :no_match
             }
         }
-        
+
         // at this point we have a match on the record beginning at x.
         :matched
         callx  set_text_flag  :cmd_ack_msg
@@ -93,12 +116,12 @@ func parse_command {
         fetch rtna from x+y
         call_indirect
         jmp :done
-        
+
         :no_match
         // if ram_terminal_connected is still 0, quit searching after the very first command in the table.
         ram a = $ram_terminal_connected
         br az :done
-        
+
         y = (($key_buf_len / 2) + 1)
         x = x+y
     jmp :next_cmd
@@ -108,30 +131,30 @@ func parse_command {
 func hello_cmd {
     ram $ram_terminal_connected = 1
 }
-    
+
 func set_plan_stop_cmd {
     ram rtna = $ram_destroy_plan_func
     call_indirect
     callx  init_plan_stop
 }
-    
+
 func set_plan_crank_cmd {
     ram rtna = $ram_destroy_plan_func
     call_indirect
     callx  init_plan_crank
 }
-    
+
 func set_plan_run_cmd {
     ram rtna = $ram_destroy_plan_func
     call_indirect
     callx  init_plan_run
 }
-    
+
 func status_off_cmd {
     ram $ram_enable_status_report = 0
 }
-    
+
 func status_on_cmd {
     ram $ram_enable_status_report = 1
 }
-    
+

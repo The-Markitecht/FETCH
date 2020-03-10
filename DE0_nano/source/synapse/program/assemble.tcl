@@ -1,3 +1,26 @@
+# FETCH
+# Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+# http://www.TheMarkitecht.com
+#
+# Project home:  http://github.com/The-Markitecht/FETCH
+# FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+#
+# This file is part of FETCH.
+#
+# FETCH is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# FETCH is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
+
 
 # assembler library for Synapse316 mcu.
 
@@ -37,13 +60,13 @@ set ::adest [dict create r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 \
     bn      [e 0x39]    \
     rtna    [e 0x3e]    \
     swapra  [e 0x3f]    \
-    ]    
+    ]
 
 set ::flagsrc [dict create always 15 \
     eq0 7       gt0 6     lt0 5 \
     ad0c 4     and0z 3  \
-    4z 2    2z 1    0z 0    ] 
-    
+    4z 2    2z 1    0z 0    ]
+
 set ::latency [dict create]
 
 set ::dest_shift 10
@@ -84,20 +107,20 @@ proc expander_name {reference} {
 }
 
 proc expander_data_reg {reference} {
-    # return the register number (a Tcl integer) of the DATA register of the 
-    # bus expander required to access the given register name.  
+    # return the register number (a Tcl integer) of the DATA register of the
+    # bus expander required to access the given register name.
     return [dest [expander_name $reference]]
 }
 
 proc expander_addr_reg {reference} {
-    # return the register number (a Tcl integer) of the ADDRESS register of the 
-    # bus expander required to access the given register name.  
+    # return the register number (a Tcl integer) of the ADDRESS register of the
+    # bus expander required to access the given register name.
     return [dest [expander_name $reference]_addr]
 }
 
 proc indirect_reg {reference} {
     # return the register number (a Tcl integer) of the given reference, within the EXPANDED (the indirect) address space.
-    return [string trim [string range $reference 0 [string first {@} $reference]-1]]    
+    return [string trim [string range $reference 0 [string first {@} $reference]-1]]
 }
 
 proc label {name} {
@@ -121,7 +144,7 @@ proc set_label {name} {
 #    if {[dict exists $::labels $label]} {
 #        error "redefined label: $label"
 #    }
-    dict set ::labels $name $::ipr   
+    dict set ::labels $name $::ipr
     return $name
 }
 
@@ -143,7 +166,7 @@ proc parse_assignment {dest eq src} {
     # this list will be more than one ROM word if e.g. a 16-bit immediate constant or a branch target is found.
     # bus expander access is fully supported in src or dest or both, even if the source
     # is an operator which has latency.
-    
+
     set dest [string tolower $dest]
     set src [string tolower $src]
     set opcodes [list]
@@ -167,8 +190,8 @@ proc parse_assignment {dest eq src} {
                     error "source and destination use the same bus expander: $dest $eq $src"
                 }
             }
-            if {[dict exists $::latency $src]} {        
-                # insert nop's to allow for operator result latency.  
+            if {[dict exists $::latency $src]} {
+                # insert nop's to allow for operator result latency.
                 # to override this, program can use proper names of result registers instead of shorthand aliases.
                 # also fewer nop's are needed if some opcodes are already packed e.g. expander accesses.
                 set num_nops [e [dict get $::latency $src] - [llength $opcodes]]
@@ -209,10 +232,10 @@ proc parse_assignment {dest eq src} {
         lappend opcodes $addr
     } else {
         error "syntax error: $dest $eq $src"
-    }    
+    }
     return $opcodes
 }
-    
+
 proc parse3 {dest eq src lin} {
     # parse and emit the given source line, containing the given
     # 3 tokens of text.  this includes assignments and branches.
@@ -221,7 +244,7 @@ proc parse3 {dest eq src lin} {
         emit_word $op $lin
         set lin \"
     }
-}  
+}
 
 proc parse_expressions {lin} {
     # evaluate any parenthesized expressions in the given string.  return the string with results substituted.
@@ -236,7 +259,7 @@ proc parse_expressions {lin} {
     }
     return $lin
 }
-    
+
 proc parse_line {lin} {
     # parse a whole line of assembler file as input.  emit any resulting bytes into the ROM file.
     set lin [string trim $lin]
@@ -275,7 +298,7 @@ proc parse_line {lin} {
         }
     } elseif {[string length $lin] == 0} {
         emit_comment $lin ;# blank line for readability.
-    } elseif {$comment} {        
+    } elseif {$comment} {
         emit_comment $lin ;# comment line
     } elseif {[string equal -length 1 $lin \" ]} {
         # string constant line.  note: NO DELIMITER is added here.  e.g. if a null terminator is needed it must be specified explicitly.
@@ -327,7 +350,7 @@ proc parse_line {lin} {
             emit_word $sublin $lin ;# simply insert it into the ROM as-is.
         } else {
             error "syntax error: $sublin"
-        }    
+        }
     }
 }
 
@@ -388,7 +411,7 @@ proc pack_small_constant {dest_addr constant} {
 
 namespace eval ::asm {
     # these procs may be redefined in other files to provide more functionality.
-    
+
     proc start_file_handler {} {
     }
 
@@ -430,7 +453,7 @@ proc parse_count_list {asm_lines} {
 
 proc handle_assembly_error {msg} {
     set fn [file join [pwd] $::src_fn]
-    
+
     # use puts, not console.
     puts stderr "\nError: $msg"
     puts stderr "On pass $::asm_pass, line $::lnum of $fn"
@@ -452,11 +475,11 @@ proc open_mif {fn num_words} {
     puts $f "
         DEPTH = $num_words ;  -- The size of memory in words
         WIDTH = 16;                   -- bits per data word
-        ADDRESS_RADIX = HEX;          
-        DATA_RADIX = HEX;             
-        CONTENT                       
+        ADDRESS_RADIX = HEX;
+        DATA_RADIX = HEX;
+        CONTENT
         BEGIN
-    "    
+    "
     return $f
 }
 
@@ -480,7 +503,7 @@ proc parse_pass {asm_lines pass_num} {
     namespace eval ::asm {}
     if {[catch {
         ::asm::start_file_handler
-        parse_count_list $asm_lines 
+        parse_count_list $asm_lines
         ::asm::end_file_handler
     } err]} {
         handle_assembly_error $err
@@ -510,29 +533,29 @@ proc assemble_file {src_fn rom_fn} {
     close $f
 
     # catalog of assembler loop passes.
-    set ::pass(func)        1 ;# determine regs used by functions (affects ipr), and print the echo text to console. 
+    set ::pass(func)        1 ;# determine regs used by functions (affects ipr), and print the echo text to console.
     set ::pass(calls)       2 ;# determine regs used by call wrappers (affects ipr) (uses data from pass(func))
     set ::pass(label)       3 ;# compute label addresses using accurate ipr.
     set ::pass(emit)        4 ;# emit opcodes into ROM file using real label addresses.
     set ::pass(first)       $::pass(func)
     set ::pass(final)       $::pass(emit)
-    
+
     #proc report args {puts [info level 0]}
     #proc report args {puts "report: [lindex [lindex $args 0] 0]"}
     #proc report args {puts "report: $args"}
     #trace add execution parse_line enterstep report
 
     set ::func_regs [dict create]
-    parse_pass $asm_lines $::pass(func) 
+    parse_pass $asm_lines $::pass(func)
 
-    parse_pass $asm_lines $::pass(calls) 
-    
+    parse_pass $asm_lines $::pass(calls)
+
     parse_pass $asm_lines $::pass(label)
     set len_words $::ipr
     if {$len_words > $::asm::assembler_max_words} {
         error "Code size $len_words exceeds code memory size $::asm::assembler_max_words words."
     }
-    
+
     set ::rom_file [open $::rom_fn w]
     puts $::rom_file "
         `include \"header.v\"
@@ -541,14 +564,14 @@ proc assemble_file {src_fn rom_fn} {
             input wire\[15:0\] addr
             ,output wire\[15:0\] data
         );
-            assign data = 
-    "    
+            assign data =
+    "
     set ::mif_file [open_mif $::mif_fn $::asm::assembler_max_words]
     set ::bin_file [open $::bin_fn w]
     fconfigure $::bin_file -translation binary
     puts -nonewline $::bin_file [format %c%c [e {$len_words & 0xff}] [e {($len_words >> 8) & 0xff}] ]
     parse_pass $asm_lines $::pass(emit)
-    puts $::rom_file {        
+    puts $::rom_file {
                 16'hxxxx;
         endmodule
     }

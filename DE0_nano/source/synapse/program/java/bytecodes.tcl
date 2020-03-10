@@ -1,3 +1,26 @@
+# FETCH
+# Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+# http://www.TheMarkitecht.com
+#
+# Project home:  http://github.com/The-Markitecht/FETCH
+# FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+#
+# This file is part of FETCH.
+#
+# FETCH is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# FETCH is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
+
 namespace eval ::java {
 
     bytecode 0x32 aaload {
@@ -551,7 +574,7 @@ namespace eval ::java {
 
     bytecode 0x74 ineg {
         jpop a
-        b = -1 
+        b = -1
         jpush xor
     }
 
@@ -608,7 +631,7 @@ trouble with that idea is method calls.  a method using 50 locals, even if the f
 one per cycle.  also the opposite happens on return.  that's where a RAM-based stack run by a
 soft JVM is much faster.  allocating the 50 is just a matter of incrementing the SP by 50.
 
-a good compromise: a unified stack (operands + locals + call stack) in dual-port M9k, 
+a good compromise: a unified stack (operands + locals + call stack) in dual-port M9k,
 managed by synapse.  a set of operators taking their operands from those 2 ports.
 the synapse then copies a result from one of those to an appropriate RAM cell (determined
 at compile time) (could be operands or locals) and adjusts the SP.
@@ -619,7 +642,7 @@ one adder for each ram port, each with its own offset register.
 would that really be any faster than a simple 1-port M9k and a soft JVM brute-forced by the synapse??
 (assuming an SP-relative address adder is provided.)
 not sure.  either way, each operand must be set up by loading its offset.  then its value
-retrieved (regardless of whether the value is directly accessible by synapse).  
+retrieved (regardless of whether the value is directly accessible by synapse).
 then operated.  then result offset loaded.  then result stored.
 
 yeah the 2-port is better.  synapse could load the result offset while operator is
@@ -636,13 +659,13 @@ copy result to SP).  the dedicated adder is identical to the synapse "accumulato
 accumulators weren't used then because they couldn't fully replace general purpose adders, and
 the redundancy took up too much area for pure synapse MCU.  but for java, bigger area is OK.
 
-"glue logic" of the 2-port design is really java execution logic.  includes a 
+"glue logic" of the 2-port design is really java execution logic.  includes a
 highly sequential FSM to drive timing.  the FSM is managed and driven by the synapse.
 so the synapse can be stripped of some of its operators for area & speed.
 synapse only has to implement a kind of "microcode" for the java logic, except for special
 cases like class loading, method calling, or native call marshaling.
 
-for a typical java instruction the synapse would: 
+for a typical java instruction the synapse would:
 1 cycle: load both operand offsets from its exr (small constant).
     some timing info can also be derived from the register address written.
 1 cycle: write the offset to address the bytecode result (could be operands or locals).
@@ -656,7 +679,7 @@ for a typical java instruction the synapse would:
 the bytecode scripts should call generalized tcl procs for each of those steps, to help
 decouple the bytecode scripts from the java logic implementation.
 then some of the scripts become more declarative and less imperative.
-    
+
 an advantage of the hardware-assisted M9k soft JVM (the 2-port design) is no need for
 e.g. data flow analysis at compile time.  nor register/resource assigments by the compiler.
 (those things are involved in most other solutions for eliminating operand push/pop cycles.)
@@ -664,14 +687,14 @@ the compiler can be fairly simple, kind of like my first attempt here.  just the
 scripts have to be carefully written to drive the java logic correctly and not violate its timing.
 they're tightly coupled to the java logic.
 
-there are about 60 kbytes of m9k available today.  
+there are about 60 kbytes of m9k available today.
 that's the max size of the unified java stack (operands + locals + call stack).
 that should be fine as long as the object heap is elsewhere (SDRAM).
 so getfield will be slower (7-10 cycles).
 
 SP can be instrumented by hardware to report the max stack usage.
 
-the hardware-assisted M9k soft JVM (the 2-port design) 
+the hardware-assisted M9k soft JVM (the 2-port design)
 might take up as many cycles as the brute-force approach i already have.
 synapse makes brute-force so easy, and the bytecodes i implemented so far don't have
 pushes/pops on them that the soft JVM wouldn't have.
@@ -706,7 +729,7 @@ hardware (synapse operators):
     obsolete: jd = java stack data bits.  r/w.  to/from m9k, or jop regs if jspinc < NUM_JOP_REGS.
         this might be further complicated by accessing locals with jsofad.
         but do i even need this??  jpop and the arithmetic operators might obsolete this.
-    jsp = java stack pointer.  r/w.  
+    jsp = java stack pointer.  r/w.
     obsolete: jsp+1 = reads as jsp incremented.  writes go to the j stack and auto-increments jsp.
     obsolete: jsp-1 = reads as jsp decremented.  writes ignored.
     jpush = write-only destination that writes to jop0 and causes a j stack push (all jop's shift, jop3 to m9k).
@@ -730,7 +753,7 @@ hardware (not directly adressible by synapse):
         write to jspinc.  end it after about 2 cycles, or the next access to j stack data?
     obsolete: jspsum = jsp adder result = jsp + jspinc.  read only.
     obsolete: jfsum = jframe adder result = jframe + jfinc.  read only.
-        
+
 how to utilize synapse native operator regs?  at all??  no.  avoid them for java data,
 to prevent any possibility of contention during implementation.  use only for control or
 out-of-band work.
@@ -741,21 +764,21 @@ not really.  just burns a few cycles.  adjusting up:
     further increment jsp by the desired amount, less NUM_JOP_REGS.
 adjusting down is the opposite:
     decrement jsp by the desired amount, less NUM_JOP_REGS.  minimum = 0.
-    jpop once for each unit of desired decrement, limit = NUM_JOP_REGS. 
+    jpop once for each unit of desired decrement, limit = NUM_JOP_REGS.
 
-all that can really be done just as well on 1 ram port.  the jstack machine is basically a 
+all that can really be done just as well on 1 ram port.  the jstack machine is basically a
 memory addressing circuit anyway.  it works mostly by muxing the right addresses onto a ram port.
 if it does that well enough, then the mcu doesn't need a second port for random accesses.
-    
+
 implement a few bytecodes for the j stack machine to validate the machine before implementing in verilog.
-    
+
     bytecode 0x78 ishl {
         jpop j
         jpop a
-        b = 0x1f 
-        i = and  
-        a = j    
-        j = -1   
+        b = 0x1f
+        i = and
+        a = j
+        j = -1
         br iz [jlabel done]
         j: again:
         a = a<<1

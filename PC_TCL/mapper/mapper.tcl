@@ -1,10 +1,32 @@
+# FETCH
+# Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+# http://www.TheMarkitecht.com
+#
+# Project home:  http://github.com/The-Markitecht/FETCH
+# FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+#
+# This file is part of FETCH.
+#
+# FETCH is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# FETCH is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
 
-# to do:  
+
+# to do:
 # function for term center marker bounds.
 #   better, a function to just set them.
 # bench testing
 # arrow keys move center of term while focus is in center coordinate fields.
-    # isn't it better to just drag & drop center marker?  
+    # isn't it better to just drag & drop center marker?
     # no.  have to be able to move way outside of map bounds while observing area of effect.
 
 # useful terms:
@@ -36,7 +58,7 @@ proc init_port {port_num} {
     fconfigure $::port -blocking 0 -buffering none -mode 115200,n,8,1 -handshake none -translation cr
     ::read_interval_ms = 300
     ::read_interval_enabled = 1
-    scheduled_read_port 
+    scheduled_read_port
     tx hello
 }
 
@@ -75,9 +97,9 @@ proc scan_data {data} {
         if {$value ne {}} {
             ::data($name) = $value
         }
-    }          
-    
-    # update GUI run marks 
+    }
+
+    # update GUI run marks
     if {[info exists ::data(map)]} {
         m = [split $::data(map) ,]
         if {[llength $m] == 2} {
@@ -109,7 +131,7 @@ proc scan_data {data} {
         if {[info exists ::data(s$i)]} {
             ::sensor_hex($i) = "0x$::data(s$i)"
             ::sensor_dec($i) := int($::sensor_hex($i))
-            ::sensor_degf($i) = "[adc_to_degf $::sensor_dec($i)] F" 
+            ::sensor_degf($i) = "[adc_to_degf $::sensor_dec($i)] F"
         }
     }
 }
@@ -162,10 +184,10 @@ proc adc_to_degf {adc} {
     }
 
     # cubic polynomial from test run 2015/3/31.
-    return [e {int( 
-            0.0000000179780888794392 * $adc ** 3 
+    return [e {int(
+            0.0000000179780888794392 * $adc ** 3
             - 0.000143319023091959 * $adc ** 2
-            + 0.499930154162973 * double($adc) 
+            + 0.499930154162973 * double($adc)
             -307.47204516067
     ) }]
 }
@@ -198,7 +220,7 @@ proc load_maps {fn} {
 
     # sensor friendly names in order 0 thru 7.
     ::sensor_name = [list {} {} {Engine Block} {Transmission} {} {} {} {}]
-    
+
     if {[file extension $fn] eq {}} {
         append fn .map
     }
@@ -207,12 +229,12 @@ proc load_maps {fn} {
     f = [open $fn r]
     array set content [read $f]
     close $f
-    
+
     foreach lst {::afrc_map  ::maf_ref  ::rpm_ref} {
         $lst = $content([string trim $lst :])
     }
     foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable
-        ::block_temp_ref  ::block_temp_map  
+        ::block_temp_ref  ::block_temp_map
         ::afterstart_ref  ::afterstart_map} {
         catch {unset $ary}
         i = 0
@@ -221,16 +243,16 @@ proc load_maps {fn} {
             incr i
         }
     }
-    
+
     if {$::max_terms != [array size ::term_expr]} {
         error "Expected $::max_terms terms but found [array size ::term_expr]."
     }
-     
-    ::afrc_maf_rows = [llength $::afrc_map] 
-    ::afrc_rpm_cols = [llength [::afrc_map ^ 0]]            
+
+    ::afrc_maf_rows = [llength $::afrc_map]
+    ::afrc_rpm_cols = [llength [::afrc_map ^ 0]]
     ::block_temp_map_idx = 0
     ::afterstart_map_idx = 0
-    
+
     clear_sent
 }
 
@@ -244,7 +266,7 @@ proc sav {fn} {
         content([string = trim $lst :]) [set $lst]
     }
     foreach ary {::term_center_x  ::term_center_y  ::term_expr  ::term_enable
-        ::block_temp_ref  ::block_temp_map  
+        ::block_temp_ref  ::block_temp_map
         ::afterstart_ref  ::afterstart_map} {
         content([string = trim $ary :]) [to_list $ary]
     }
@@ -369,7 +391,7 @@ proc eval_term {term_num  ex  row  col} {
 
 proc calc_afrc_map {} {
     clear_sent
-    #patch: upgrade from clear_sent to clear_sent_row    
+    #patch: upgrade from clear_sent to clear_sent_row
     for {set row 0} {$row < $::afrc_maf_rows} {incr row} {
         for {set col 0} {$col < $::afrc_rpm_cols} {incr col} {
             sum = 0
@@ -405,7 +427,7 @@ proc mapset {col row value} {
 }
 
 proc bounds {col row} {
-    return [list [e $col * 30 + 10] [e $row * 10 + 10] [e $col * 30 + 10 + 30] [e $row * 10 + 20]] 
+    return [list [e $col * 30 + 10] [e $row * 10 + 10] [e $col * 30 + 10 + 30] [e $row * 10 + 20]]
 }
 
 proc color {value} {
@@ -422,12 +444,12 @@ proc show_cell {cnv id col row} {
     rpm = [::rpm_ref ^ $col]
     ::cell_text = "[lindex $::afrc_map $row $col] at $col , $row\n$rpm RPM, $flow MAF"
     lassign [$cnv coords $id] x y
-    $cnv coords cell_text $x [e {$y - 5}] 
-    $cnv itemconfigure cell_text -state normal 
+    $cnv coords cell_text $x [e {$y - 5}]
+    $cnv itemconfigure cell_text -state normal
 }
 
 proc hide_cell {cnv id col row} {
-    $cnv itemconfigure cell_text -state hidden 
+    $cnv itemconfigure cell_text -state hidden
 }
 
 proc set_term_error {term msg} {
@@ -440,7 +462,7 @@ proc set_term_error {term msg} {
 }
 
 proc enable_all_terms {cmd} {
-    for {set i 0} {$i < $::max_terms} {incr i} {    
+    for {set i 0} {$i < $::max_terms} {incr i} {
         .win.tools.terms.term${i}.enable $cmd
     }
     calc_afrc_map
@@ -451,7 +473,7 @@ proc focus_term {term} {
 }
 
 proc focused_term {term} {
-    .win.c itemconfigure center$term -outline green -width 5 
+    .win.c itemconfigure center$term -outline green -width 5
 }
 
 proc unfocused_term {term} {
@@ -459,13 +481,13 @@ proc unfocused_term {term} {
 }
 
 proc set_term_center {term} {
-    lassign [bounds $::term_center_x($term) $::term_center_y($term)] x1 y1 x2 y2  
+    lassign [bounds $::term_center_x($term) $::term_center_y($term)] x1 y1 x2 y2
     incr x1 -4
     incr y1 -4
     incr x2 4
     incr y2 4
     .win.c create oval $x1 $y1 $x2 $y2 -tags center$term
-}    
+}
 
 proc move_term {term dx dy} {
     incr ::term_center_x($term) $dx
@@ -474,7 +496,7 @@ proc move_term {term dx dy} {
 }
 
 proc refresh_afrc_run_mark {col_hex row_hex} {
-    lassign [bounds 0x$col_hex 0x$row_hex] x1 y1 x2 y2  
+    lassign [bounds 0x$col_hex 0x$row_hex] x1 y1 x2 y2
     incr x1 4
     incr y1 -10
     incr x2 -4
@@ -497,9 +519,9 @@ proc print_rx {msg} {
     t = .win.tools.console.rx
     $t insert end $msg
     while {[$t count -displaylines 1.0 end] > 60} {
-        $t delete 1.0 {10.end + 1 display chars} 
-    } 
-    $t see end    
+        $t delete 1.0 {10.end + 1 display chars}
+    }
+    $t see end
     update idletasks
 }
 
@@ -509,9 +531,9 @@ proc print_tcl {msg} {
     t = .win.tools.console.tcl
     $t insert end $msg
     while {[$t count -displaylines 1.0 end] > 1000} {
-        $t delete 1.0 {10.end + 1 display chars} 
-    } 
-    $t see end    
+        $t delete 1.0 {10.end + 1 display chars}
+    }
+    $t see end
     update idletasks
 }
 
@@ -521,7 +543,7 @@ proc run_tcl {} {
     if {[string range $cmd 0 [string length $::prompt]-1] == $::prompt} {
         cmd = [string range $cmd [string length $::prompt] end]
     }
-    #print_tcl "\n$cmd\n"    
+    #print_tcl "\n$cmd\n"
     if {[catch {set result [eval $cmd]} err]} {
         print_tcl \n$err\n$::errorInfo\n$::prompt
     } else {
@@ -545,9 +567,9 @@ proc btest_run_chunk {body} {
         chunk = [string range $body 0 ${delim}-1]
         body =  [string range $body ${delim}+1 end]
     }
-    
+
     namespace eval ::bt $chunk
-    
+
     if {[string length $body] > 0} {
         after 100 [list btest_run_chunk $body]
     }
@@ -556,7 +578,7 @@ proc btest_run_chunk {body} {
 proc suite1 {} {
     load_maps default
     send_all_maps
-    
+
     load_sim sim_program
 }
 
@@ -581,7 +603,7 @@ proc init_gui {} {
     toplevel $w
     wm title $w Mapper
     wm deiconify $w
-#    wm state $w zoomed 
+#    wm state $w zoomed
     bind $w <Destroy> {
         exit
     }
@@ -614,11 +636,11 @@ $c bind $id <Button-1> "
             refresh_cell $col $row
         }
     }
-    
+
     # movable items on map canvas
     t = ${w}.cell_text
     ::cell_text = {}
-    label $t -textvariable ::cell_text  -justify center 
+    label $t -textvariable ::cell_text  -justify center
     $c create window 0 0 -tags cell_text -state hidden -window $t -height 25 -width 140 -anchor s
 
     ::afrc_run_mark = {}
@@ -626,13 +648,13 @@ $c bind $id <Button-1> "
 
     # tools frame
     tools = ${w}.tools
-    frame $tools -relief sunken -borderwidth 2 
+    frame $tools -relief sunken -borderwidth 2
     pack $tools -side left -expand yes -fill both
-    
+
     btns = ${tools}.btns
     frame $btns -relief flat -borderwidth 2
-    pack $btns -side top -expand no -fill x    
-    
+    pack $btns -side top -expand no -fill x
+
     ts = [frame $btns.tabselect]
     pack $ts -side left -expand no -fill none -padx 2
     b = [radiobutton $ts.terms -text Terms -font "-size 18" -command refresh_show_tab -variable ::show_tab -value terms]
@@ -643,11 +665,11 @@ $c bind $id <Button-1> "
     grid $b -row 0 -column 1 -sticky w
     b = [radiobutton $ts.none -text None -font "-size 18" -command refresh_show_tab -variable ::show_tab -value none]
     grid $b -row 1 -column 1 -sticky w
-    
+
     b = ${btns}.calc
     button $b -text Calculate -font "-size 20" -command calc_afrc_map
     pack $b -side left -expand no -fill none -padx 2
-    
+
     b = ${btns}.send
     button $b -text {Send AFRC} -font "-size 20" -command send_afrc_map
     pack $b -side left -expand no -fill none -padx 2
@@ -659,7 +681,7 @@ $c bind $id <Button-1> "
     b = ${btns}.enable_all
     button $b -text {All Terms} -font "-size 14" -command "enable_all_terms select"
     pack $b -side left -expand no -fill none -padx 2
-    
+
     b = ${btns}.disable_all
     button $b -text None -font "-size 14" -command "enable_all_terms deselect"
     pack $b -side left -expand no -fill none -padx 2
@@ -672,13 +694,13 @@ $c bind $id <Button-1> "
     terms = ${tools}.terms
     frame $terms -relief sunken -borderwidth 2
 #    pack $terms -side top -expand no -fill x
-    
+
     for {set i 0} {$i < $::max_terms} {incr i} {
         # terms grid
         f = ${terms}.term$i
         frame $f -relief sunken -borderwidth 2
         pack $f -side top -expand no -fill x
-        
+
         desc = ${f}.desc
         entry $desc -textvariable ::term_desc($i) -justify center
         pack $desc -side bottom -expand yes -fill x
@@ -720,13 +742,13 @@ $c bind $id <Button-1> "
         bind $ex <FocusIn> "focused_term $i"
         bind $ex <FocusOut> "unfocused_term $i"
 
-        # term center markers  
+        # term center markers
         id = [$c create oval 0 0 10 10 -tags center$i]
         set_term_center $i
         unfocused_term $i
         $c bind $id <Button-1> "focus_term $i"
     }
-    
+
     # refs grid
     refs = ${tools}.refs
     frame $refs -relief sunken -borderwidth 2
@@ -775,19 +797,19 @@ bind $lbl <Button-1> {
     scan_data {03f1: rpm=0000 pfl=0000,0000 o2=0000 tp=0a7e,0543,0 map=0003,000d bti=0004 asi=0006 s7=0fff s6=0fff s5=0fff s4=0fff s3=0400 s2=0500 s1=0fff s0=0fff pl=STP mt=0000 tf=}
 }
     }
-    
+
     # bench test controls
     btest = ${tools}.btest
     frame $btest -relief sunken -borderwidth 2
 #    pack $btest -side top -expand no -fill x
     button $btest.suite1 -text {Start suite 1} -command {btest_start suite1}
     pack $btest.suite1 -side left -expand no -fill none
-    
+
     # serial display & Tcl console
     cnsl = ${tools}.console
     frame $cnsl -relief sunken -borderwidth 2
     pack $cnsl -side top -expand yes -fill both
-    
+
     tcl = ${cnsl}.tcl
     text $tcl -font {Courier 11} -wrap char -height 5
     pack $tcl -side bottom -expand no -fill x
@@ -808,16 +830,16 @@ bind $lbl <Button-1> {
 
 if {[catch {
     console show
-    
-    
+
+
     load_maps default.map
-    
+
     init_gui
 
     init_port 22
-    
+
     vwait forever
-    
+
 } err]} {
     puts "foreground error: \n$err\n$errorInfo"
 #    exit

@@ -1,13 +1,36 @@
-// #########################################################################
-// assembly source code.    
+// FETCH
+// Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+// http://www.TheMarkitecht.com
+//
+// Project home:  http://github.com/The-Markitecht/FETCH
+// FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+//
+// This file is part of FETCH.
+//
+// FETCH is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// FETCH is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
 
-//TODO: tokenize all input conditions.  
+
+// #########################################################################
+// assembly source code.
+
+//TODO: tokenize all input conditions.
 // continuously send the token stream up to the PC for buffering, reassembly, and pattern matching.
 // format a token as words separated by spaces, ending in a newline.
 // PC pass those directly to a Tcl interp?  easy to track test state that way, effectively operating
 // state machines in Tcl.  that goes against pattern matching by regex.
 // might be needed instead of regex due to pattern complexity.  surely will accelerate the
-// development by giving specific error messages, instead of leaving me to guess and troubleshoot 
+// development by giving specific error messages, instead of leaving me to guess and troubleshoot
 // a regex at each test failure.
 // include timestamp as first parm of each token.  8 hex digit us linear.  that's 71 minutes range.
 // simulator input script should be similar.
@@ -16,7 +39,7 @@
     jmp :main
 
     declare_system_dimensions
-    
+
     // register file configuration.
     // beyond top_populated_ext_reg the external address space is stubbed as "don't care" values by the Synapse core.
     // that doesn't affect operator results and other addresses implemented internally by the Synapse core.
@@ -25,7 +48,7 @@
     vdefine num_gp 18
     vdefine top_gp ($num_gp - 1)
 
-    // application-specific register aliases.    
+    // application-specific register aliases.
     alias_both ga                   6               "ga"
     alias_both gb                   7               "gb"
     alias_both gc                   8               "gc"
@@ -38,7 +61,7 @@
     alias_both pb                   15              "pb"
     alias_both pc                   16              "pc"
     alias_both pd                   17              "pd"
-    setvar counter $top_gp    
+    setvar counter $top_gp
     alias_both rstk                 [incr counter]  "//rstk"
 
     alias_both event_priority       [incr counter]  "ev_pri"
@@ -79,7 +102,7 @@
         // range 0 to 1023 = 0x3ff at the ADC.
     alias_both adc_o2               [incr counter]  "adco2"
     alias_both adc_tps              [incr counter]  "adctps"
-    
+
     vdefine     anmux_num_channels      8
     alias_src  anmux_read           [incr counter]  "anmuxrd"
     alias_both anmux_block_temp     [incr counter]  "anblock"
@@ -90,19 +113,19 @@
 
     alias_both fduart_data          [incr counter]  "//uartdt"
     alias_both fduart_status        [incr counter]  "uartstat"
-    
+
     alias_both leds                 [incr counter]  "leds"
-    
+
     emit_debugger_register_table  counter
 
     // error code constants.
     setvar err_rx_overflow              0xfffe
     setvar err_tx_overflow              0xfffd
-    
+
     // string resources
     :boot_msg
         "SIM\r\n\x0"
-    
+
     // libraries.  set calling convention FIRST to ensure correct assembly of lib funcs.
     convention_formal
     include ../peripheral/driver/event_controller.asm
@@ -122,32 +145,32 @@
         "
     }
 >>
-            
+
     // #########################################################################
-    :main  
-    
+    :main
+
     // keep the real hardware occupied and powered up during testing.
     power_duty = $power_duty_holding
-    
+
     // signal boot-up
     send_tkn :boot_msg
-    
+
     // set up event capture logic.
     puffing = 0
-    
+
     // set up an engine running state.
-    ign_period = ([rpm_to_jf 1000])  
+    ign_period = ([rpm_to_jf 1000])
     scroll_dir = 1
     mstimer0 = 1
-    
+
     // start handling events.
     soft_event = $event_controller_reset_mask
     soft_event = 0
     jmp :poll_events
-        
-    // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.  
+
+    // event table;  begins with a null handler because that's the event 0 position, the MOST URGENT position.
     // event 0 not used in this app anyway.
-    :event_table    
+    :event_table
     ([label :poll_events])
     ([label :ustimer0_handler])
     ([label :ign_pulse_done_handler])
@@ -162,12 +185,12 @@
     ([label :softevent2_handler])
     ([label :softevent1_handler])
     ([label :softevent0_handler])
-    
+
     // #########################################################################
 
 :start_puffing_tkn
     "pufon"
-    
+
 event puff1_capture_handler
     a = puff1cnt
     a = a>>4
@@ -217,14 +240,14 @@ end_event
 
 func parse_key {key in pa} {
 }
-    
+
 event uart_rx_handler
     :again
         pollchar
         x = a
         if x eq -1 {
             event_return
-        }                        
+        }
         callx  parse_key  x
     jmp :again
 end_event
@@ -232,23 +255,23 @@ end_event
 event uart_rx_overflow_handler
     error_halt_code $err_rx_overflow
 end_event
-    
+
 :tx_overflow_msg
     "TXO\x0"
-    
+
 event uart_tx_overflow_handler
     // error_halt_code $err_tx_overflow
-end_event    
-    
+end_event
+
 event softevent3_handler
 end_event
-    
+
 event softevent2_handler
 end_event
-    
+
 event softevent1_handler
 end_event
-    
+
 event softevent0_handler
 end_event
 

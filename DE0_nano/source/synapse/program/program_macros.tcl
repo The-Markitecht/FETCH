@@ -1,3 +1,26 @@
+# FETCH
+# Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+# http://www.TheMarkitecht.com
+#
+# Project home:  http://github.com/The-Markitecht/FETCH
+# FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+#
+# This file is part of FETCH.
+#
+# FETCH is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# FETCH is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
+
 
 # define any application-specific macros or functions here.
 
@@ -6,9 +29,9 @@ namespace eval ::asm {
     proc show_error_code {lin error_code} {
         parse3 leds = $error_code "$lin // leds = $error_code"
     }
-    
+
     proc error_halt {lin} {
-        jmp $lin $::ipr  
+        jmp $lin $::ipr
     }
 
     proc error_halt_code {lin error_code} {
@@ -17,8 +40,8 @@ namespace eval ::asm {
     }
 
     proc ::set_editor_tag {name  {return_type {}}  {parms {}}} {
-        puts $::editor_tags "${name}|${return_type}|${parms}|" 
-    }        
+        puts $::editor_tags "${name}|${return_type}|${parms}|"
+    }
 
     proc declare_system_dimensions {lin} {
         # each vdefine here is auto-generated into a _defines.v file.
@@ -32,7 +55,7 @@ namespace eval ::asm {
             setvar assembler_max_words      $code_size_max_words
         }
     }
-    
+
     proc ram_define {lin name {size_bytes 2}} {
         # ram_counter must increment after memorizing, because the size may vary from one call to the next.
         setvar $lin $name $::asm::ram_counter
@@ -46,7 +69,7 @@ namespace eval ::asm {
     }
 
     proc ram {lin left eq right} {
-        # read or write RAM depending on direction of the assignment statement 
+        # read or write RAM depending on direction of the assignment statement
         # (which side has the RAM address in hi'lo format).
         if {[string first {'} $left] >= 0} {
             ram_write $lin $left $eq $right
@@ -56,7 +79,7 @@ namespace eval ::asm {
             error "invalid RAM address format"
         }
     }
-    
+
     proc ram_read {lin reg_name eq addr} {
         lassign [split $addr {'}] hi lo
         parse3 av_ad_hi $eq [expr {$hi}] "$lin // av_ad_hi = $hi"
@@ -75,15 +98,15 @@ namespace eval ::asm {
     proc ram_from_int {addr} {
         # pass an address in Tcl integer format.
         # returns the address in hi'lo format, for use with other macros.
-        
+
         set hi [expr {$addr >> 16}]
         set lo [expr {$addr & 0xffff}]
         return ${hi}'$lo
     }
-    
+
     proc ram_to_int {addr} {
         # pass an address in hi'lo format.  (Tcl integer is also acceptable.)
-        # returns the address in Tcl integer format.        
+        # returns the address in Tcl integer format.
         if {[string first {'} $addr] < 0} {return [expr {$addr}]}
         lassign [split $addr {'}] hi lo
         return [expr {($hi << 16) | $lo}]
@@ -94,5 +117,5 @@ namespace eval ::asm {
             error "RPM too low"
         }
         return [expr { int( 700000 / $rpm )}]
-    }    
-}    
+    }
+}

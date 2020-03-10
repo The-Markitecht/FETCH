@@ -1,20 +1,44 @@
+/*
+FETCH
+Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+http://www.TheMarkitecht.com
+
+Project home:  http://github.com/The-Markitecht/FETCH
+FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+
+This file is part of FETCH.
+
+FETCH is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FETCH is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 
 `include <header.v>
 
-// logic analyzer using m9k RAM block.  
+// logic analyzer using m9k RAM block.
 // to be integrated into debugging supervisor and driven by it.
 
 module analyzer #(
     NUM_TRIGGERS = 2
     ,MAX_TRIGGER = NUM_TRIGGERS - 1
 ) (
-     input wire                  sysclk            
-    ,input wire                  sysreset          
+     input wire                  sysclk
+    ,input wire                  sysreset
 
     ,input wire[15:0]           data_probe
     ,input wire[15:0]           trigger_probe
-    
-); 
+
+);
 
 need synchronizers on probe signals.
 
@@ -27,7 +51,7 @@ need mcu driver module, to set triggers, arm, upload with checksum.
 need PC debugger function to receive upload with checksum, write to GTKwave vector file.
 
 visor and PC debugger should not busy-wait during capture.  let capture happen in
-background, like visor lets target mcu run full speed in background. 
+background, like visor lets target mcu run full speed in background.
 
 
 //std_reg[MAX_TRIGGER:0] mask_reg(sysclk, sysreset, mask0, r_load_data, mask0_load);
@@ -50,7 +74,7 @@ end
 
 // one-hot states:
 // idle.  = all regs 0.
-// armed.  
+// armed.
 // capturing.
 reg armed = 0;
 reg capturing = 0;
@@ -78,21 +102,21 @@ always_ff @(posedge sysclk, posedge sysreset) begin
     end
 end
 
-// on-chip single-ported M9K RAM for captured values.  
+// on-chip single-ported M9K RAM for captured values.
 wire[31:0] cap_data = {repeat_cnt, data_probe};
 wire[31:0] cap_q;
 wire cap_wren = capturing;
 analyzer_m9k  cap_ram (
-	.address_a ( cap_addr ),
-	.address_b ( 0 ),
-	.clock_a ( sysclk ),
-	.clock_b ( 0 ),
-	.data_a ( cap_data ),
-	.data_b ( 16'd0 ),
-	.wren_a ( cap_wren ),
-	.wren_b ( 1'd0 ),
-	.q_a ( cap_q ),
-	.q_b (  )
+    .address_a ( cap_addr ),
+    .address_b ( 0 ),
+    .clock_a ( sysclk ),
+    .clock_b ( 0 ),
+    .data_a ( cap_data ),
+    .data_b ( 16'd0 ),
+    .wren_a ( cap_wren ),
+    .wren_b ( 1'd0 ),
+    .q_a ( cap_q ),
+    .q_b (  )
 );
 
 endmodule

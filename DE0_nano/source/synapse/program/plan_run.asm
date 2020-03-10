@@ -1,3 +1,26 @@
+// FETCH
+// Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+// http://www.TheMarkitecht.com
+//
+// Project home:  http://github.com/The-Markitecht/FETCH
+// FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+//
+// This file is part of FETCH.
+//
+// FETCH is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// FETCH is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
+
 :plan_name_run
     "RN\x0"
 
@@ -29,10 +52,10 @@ setvar      run_manual_trim_step        192
 
 ram_define  ram_total_trim
 
-ram_define  ram_tps_avg             
+ram_define  ram_tps_avg
 setvar      tps_history_len         4
-ram_define  ram_tps_history         ($tps_history_len * 2)    
-    
+ram_define  ram_tps_history         ($tps_history_len * 2)
+
 func trim_lean_cmd {
     ram a = $ram_run_manual_trim
     if a eq 0 {
@@ -84,7 +107,7 @@ func init_plan_run {
     ram $ram_run_manual_trim = $trim_unity
     ram $ram_o2_trim = $trim_unity
     ram $ram_total_trim = 0
-    
+
     // memorize state.
     ram $ram_plan_name = :plan_name_run
     ram $ram_puff_len_func = :puff_len_run
@@ -100,7 +123,7 @@ func combine_trim {total in pa} {increment in pb} {out_total out pa} {
     // the new total trim.  this process is complicated by the decision to keep the
     // 0.5 offset in the integer representation scheme.  that's done in case i ever
     // have to calculate puff without the aid of a hardware multiplier.
-    // the process is to add the offset to each argument, multiply them, 
+    // the process is to add the offset to each argument, multiply them,
     // undo the offsets, and saturate to prevent excess accumulation.
     a = total
     b = $trim_unity
@@ -158,13 +181,13 @@ func puff_len_run {
     br az :abort
     ram a = $ram_maf_valid
     br az :abort
-    
+
     // look up Air/Fuel Ratio Correction in AFRC map.
     ram pa = $ram_afrc_maf_row_idx
     ram pb = $ram_afrc_rpm_col_idx
     callx fetch_afrc pa pb ga
     // now ga = total trim factor as integer.
-    
+
     // apply block temperature trim factor.
     ram b = $ram_block_temp_trim
     callx combine_trim ga b ga
@@ -177,16 +200,16 @@ func puff_len_run {
     // apply stoich learning trim factor.
     ram b = $ram_o2_trim
     callx combine_trim ga b ga
-    
+
     // apply manual trim factor.
     ram b = $ram_run_manual_trim
     callx combine_trim ga b ga
 
     // final multiplication for puff length.
-    // (MAF linear flow) * (stoich ratio constant) * (total trim as floating point) = (puff length jf).  
+    // (MAF linear flow) * (stoich ratio constant) * (total trim as floating point) = (puff length jf).
     // here the total trim float will have to be represented as a fraction (num/denom).
     // stoich ratio constant (8) (really the conversion factor from linear
-    // flow to nominal jf)  is folded into that denominator (16384) at compile time.  
+    // flow to nominal jf)  is folded into that denominator (16384) at compile time.
     // that makes denom = 2048 = 11 bits.  so:
     // gb = (puff len jf) = (MAF linear flow) * [(total trim) + trim_unity] >> 11
     a = ga
@@ -212,8 +235,8 @@ func puff_len_run {
     b = gb
     gb = or
 
-    // clamp the (puff length jf) to sane range.  
-    // max is the floating duty cycle.  7/8 of puff cycle, or 87.5%.  
+    // clamp the (puff length jf) to sane range.
+    // max is the floating duty cycle.  7/8 of puff cycle, or 87.5%.
     ram a = $ram_ign_avg_jf
     a = a>>1
     a = a>>1
@@ -230,7 +253,7 @@ func puff_len_run {
 
     // shut off puff during closed throttle engine braking.
     //patch: not implemented.
-        
+
     // memorize total puff.
     ram $ram_next_puff_len_us = ga
 
@@ -270,7 +293,7 @@ func interpret_puff_count {
         }
     }
     struct b = $ram_afterstart_map . ($afterstart_num_cells - 1)
-    ram $ram_afterstart_trim = b    
+    ram $ram_afterstart_trim = b
     :done
 }
 

@@ -1,25 +1,47 @@
+# FETCH
+# Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+# http://www.TheMarkitecht.com
+#
+# Project home:  http://github.com/The-Markitecht/FETCH
+# FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+#
+# This file is part of FETCH.
+#
+# FETCH is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# FETCH is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
 
 proc assemble_with_macros {src_fn rom_fn} {
     source assemble.tcl ;# reset the global lists of aliases, labels, etc.
     source system_macros.tcl
     source program_macros.tcl
-    
+
     set vdfn "[file rootname $src_fn]_defines.v"
     puts "writing $vdfn"
     set ::vdefines [open $vdfn w]
-        
+
     set etfn "[file rootname $src_fn]_tags.txt"
     puts "writing $etfn"
     set ::editor_tags [open $etfn w]
 
     assemble_file  $src_fn "[file rootname $src_fn].v"
-    
+
     # puts $::f [verilog_define_labels * asm_]
     puts "closing $vdfn"
     close $::vdefines
-    
+
     close $::editor_tags
-    
+
     #file rename -force "[file rootname $src_fn].mif" ../
 }
 

@@ -1,3 +1,27 @@
+/*
+FETCH
+Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+http://www.TheMarkitecht.com
+
+Project home:  http://github.com/The-Markitecht/FETCH
+FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+
+This file is part of FETCH.
+
+FETCH is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FETCH is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 `include <header.v>
 
 module testbench ();
@@ -22,25 +46,25 @@ wire sysreset = rst2;
 wire timer_enable = 1'b1;
 reg[5:0] counter1m = 0;
 wire pulse1m = (counter1m == 6'd50) && timer_enable;
-always_ff @(posedge sysclk) 
+always_ff @(posedge sysclk)
     counter1m <= (pulse1m ? 6'd0 : counter1m + 6'd1);
-// slower realtime counters.  these are dividers fed by the 1 MHz.    
+// slower realtime counters.  these are dividers fed by the 1 MHz.
 wire pulse50k;
 cdtimer16 counter50k (
-     .sysclk          ( sysclk )  
-    ,.sysreset        ( sysreset )  
+     .sysclk          ( sysclk )
+    ,.sysreset        ( sysreset )
     ,.data_out        (  )
-    ,.data_in         ( 16'd20 )  
+    ,.data_in         ( 16'd20 )
     ,.load            ( pulse50k )
     ,.counter_event   ( pulse1m )
     ,.expired         ( pulse50k )
 );
 wire pulse1k;
 cdtimer16 counter1k (
-     .sysclk          ( sysclk )  
-    ,.sysreset        ( sysreset )  
+     .sysclk          ( sysclk )
+    ,.sysreset        ( sysreset )
     ,.data_out        (  )
-    ,.data_in         ( 16'd50 )  
+    ,.data_in         ( 16'd50 )
     ,.load            ( pulse1k )
     ,.counter_event   ( pulse50k )
     ,.expired         ( pulse1k )
@@ -63,14 +87,14 @@ puff_timer puff1 (
     ,.puff_event            (puff1_event)
     ,.puff_enable            (en)
 );
-   
-initial	begin
+
+initial begin
     $dumpfile("testbench.vcd");
     $dumpvars;
 
     // times are nanoseconds.
     #1000 en = 1;
-    
+
     #5000000 ign_coil_wht = 1;
     #5000000 ign_coil_wht = 0;
     #5000000 ign_coil_wht = 1;
@@ -79,7 +103,7 @@ initial	begin
     #5000000 ign_coil_wht = 0;
     #5000000 ign_coil_wht = 1;
     #5000000 ign_coil_wht = 0;
-         
+
     #5000000 ign_coil_wht = 1;
     #5000000 ign_coil_wht = 0;
     #5000000 ign_coil_wht = 1;
@@ -88,7 +112,7 @@ initial	begin
     #5000000 ign_coil_wht = 0;
     #5000000 ign_coil_wht = 1;
     #5000000 ign_coil_wht = 0;
-         
+
     #5000000 ign_coil_wht = 1;
     #5000000 ign_coil_wht = 0;
     #5000000 ign_coil_wht = 1;
@@ -97,7 +121,7 @@ initial	begin
     #5000000 ign_coil_wht = 0;
     #5000000 ign_coil_wht = 1;
     #5000000 ign_coil_wht = 0;
-         
+
     // ti000meout case
     #7000000 ign_coil_wht = 1;
     #7000000 ign_coil_wht = 0;
@@ -107,7 +131,7 @@ initial	begin
     #7000000 ign_coil_wht = 0;
     #7000000 ign_coil_wht = 1;
     #7000000 ign_coil_wht = 0;
-         
+
     #5000000 ign_coil_wht = 1;
     #5000000 ign_coil_wht = 0;
     #5000000 ign_coil_wht = 1;
@@ -116,7 +140,7 @@ initial	begin
     #5000000 ign_coil_wht = 0;
     #5000000 ign_coil_wht = 1;
     #5000000 ign_coil_wht = 0;
-         
+
     #5000000 ign_coil_wht = 1;
     #5000000 ign_coil_wht = 0;
     #5000000 ign_coil_wht = 1;
@@ -126,8 +150,8 @@ initial	begin
     #5000000 ign_coil_wht = 0;
     #5000000 ign_coil_wht = 1;
     #5000000 ign_coil_wht = 0;
-    
+
     #4000000 $stop;
 end
-    
-endmodule    
+
+endmodule

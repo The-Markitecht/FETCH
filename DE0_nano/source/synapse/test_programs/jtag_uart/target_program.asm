@@ -1,6 +1,29 @@
+// FETCH
+// Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+// http://www.TheMarkitecht.com
+//
+// Project home:  http://github.com/The-Markitecht/FETCH
+// FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+//
+// This file is part of FETCH.
+//
+// FETCH is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// FETCH is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+
+
 // #########################################################################
-// assembly source code.    
-// to write some data on the UART.    
+// assembly source code.
+// to write some data on the UART.
 
     // register file configuration
     vdefine NUM_REGS 32
@@ -9,25 +32,25 @@
     vdefine TOP_GP ($NUM_GP - 1)
     vdefine IO $NUM_GP
 
-    // application-specific register aliases.    
-    alias_both g6                   6 
+    // application-specific register aliases.
+    alias_both g6                   6
     alias_both g7                   7
     setvar counter $TOP_GP
     alias_src  keys                 [incr counter]
-    alias_both leds                 [incr counter] 
-    alias_both rstk                 [incr counter] 
-    
-    alias_both anmux_ctrl           [incr counter] 
+    alias_both leds                 [incr counter]
+    alias_both rstk                 [incr counter]
+
+    alias_both anmux_ctrl           [incr counter]
         vdefine     anmux_enable_mask       0x0008
-            
-    alias_both de0nano_adc_ctrl     [incr counter] 
+
+    alias_both de0nano_adc_ctrl     [incr counter]
         vdefine     de0nano_adc_csn_mask         0x0004
         vdefine     de0nano_adc_sck_mask         0x0002
         vdefine     de0nano_adc_mo_mask          0x0001
         vdefine     de0nano_adc_mi_mask          0x0001
-            
+
     alias_both av_write_data        [incr counter]
-    alias_src  av_read_data	        [incr counter]
+    alias_src  av_read_data         [incr counter]
     alias_both av_ad_hi             [incr counter]
     alias_both av_ad_lo             [incr counter]
         // all Avalon addresses are BYTE addresses.  all Avalon sizes are in BYTES.
@@ -49,11 +72,11 @@
         // - reading jtag_uart_data_msw also counts as a FIFO read, causing loss of a data byte,
         // probably because jtag uart has no byteenable wires.
         // - on write, the data is lost if the write FIFO is full.  Avalon is not stalled.
-        
+
     convention_gpx
-    
+
     jmp :main
-    
+
     // register names for use by debugger.
     ([src rstk])
     "\r\n     a"
@@ -66,28 +89,28 @@
     "      g7"
     "\r\n  keys"
     "    leds"
-    
+
     // libraries
     include lib/string.asm
     include lib/jtag_uart.asm
     include lib/console.asm
     include lib/time.asm
     include lib/de0nano_adc.asm
-    
+
     // ////////////////////////////////////////////
     :main
-    
+
     // pass counter in x.
     x = 0
     y = 1
-    
+
     :next_pass
     leds = x
     a = x
-    call :put4x 
+    call :put4x
     putasc ":"
     putasc " "
-    
+
     // unit 2 (better built sensor)
     putasc "s"
     putasc "2"
@@ -95,7 +118,7 @@
     a = 0
     call :anmux_read_chn
     call :put4x
-    
+
     // unit 1 (shoddy built sensor)
     putasc " "
     putasc "s"
@@ -114,10 +137,10 @@
     a = 2
     call :anmux_read_chn
     call :put4x
-    
+
     puteol
     a = 1000
     call :spinwait
-    
+
     x = x+y
     jmp :next_pass

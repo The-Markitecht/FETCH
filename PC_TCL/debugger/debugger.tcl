@@ -1,3 +1,24 @@
+# FETCH
+# Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+# http://www.TheMarkitecht.com
+#
+# Project home:  http://github.com/The-Markitecht/FETCH
+# FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+#
+# This file is part of FETCH.
+#
+# FETCH is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# FETCH is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
 
 package ifneeded MityBuild 3.0 {
     source J:/temp/MityBuild/libMityBuild
@@ -76,7 +97,7 @@ proc wait_delim {delimiter timeout_ms} {
                 if {[string first = $ln] == -1} {
                     append small $ln \n
                 }
-            }            
+            }
             puts $small
             return [list 1 $small]
         }
@@ -91,25 +112,25 @@ proc send_and_wait {msg  timeout_ms} {
 }
 
 proc send_program {mif_fn} {
-    parts = [split $mif_fn .] 
+    parts = [split $mif_fn .]
     parts ^ end = bin
     bin_fn = [join $parts .]
-    
+
     f = [open $bin_fn r]
     fconfigure $f -translation binary
     bin = [read $f]
     close $f
-    
+
     fletcher16_init local_sum
     binary scan $bin c2c* junk values ;# length header is discarded here.
     foreach v $values {
         fletcher16_input8 local_sum [e {$v & 0xff}]
     }
     sum = [fletcher16_result local_sum]
-    
+
     tx l
     tx_bin $bin 0 [string length $bin]
-    
+
     lassign [wait_delim > 3000] ok buf
     if { ! $ok} {
         puts "\n-- ERROR: visor unresponsive\n"
@@ -132,7 +153,7 @@ proc send_program {mif_fn} {
     return 1
 }
 
-port_num = [::argv ^ 0] 
+port_num = [::argv ^ 0]
 mif_fn = [::argv ^ 1]
 
 ::prompt_count = 0

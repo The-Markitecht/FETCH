@@ -1,5 +1,28 @@
+// FETCH
+// Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+// http://www.TheMarkitecht.com
+//
+// Project home:  http://github.com/The-Markitecht/FETCH
+// FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+//
+// This file is part of FETCH.
+//
+// FETCH is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// FETCH is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
 
-    // alias_both de0nano_adc_ctrl     [incr counter] 
+
+
+    // alias_both de0nano_adc_ctrl     [incr counter]
         // vdefine     de0nano_adc_csn_mask         0x0004
         // vdefine     de0nano_adc_sck_mask         0x0002
         // vdefine     de0nano_adc_mo_mask          0x0001
@@ -7,7 +30,7 @@
 
 // wire[15:0] de0nadc_ctrl;
 // std_reg #(.WIDTH(3)) de0nano_adc_ctrl_reg(sysclk, sysreset, de0nadc_ctrl, r_load_data[2:0], r_load[`DR_DE0NANO_ADC_CTRL]);
-// assign r[`DR_DE0NANO_ADC_CTRL] = {15'b0, ADC_SDAT};         
+// assign r[`DR_DE0NANO_ADC_CTRL] = {15'b0, ADC_SDAT};
 // assign ADC_CS_N =  de0nadc_ctrl[2];
 // assign ADC_SCLK =  de0nadc_ctrl[1];
 // assign ADC_SADDR = de0nadc_ctrl[0];
@@ -85,9 +108,9 @@ func de0nano_adc_read
     b = 16
     call :spi_exchange
 end_func
-    
+
 // pass desired anmux channel in a.
-// after this returns, CALLER MUST WAIT for muxer & current driver to 
+// after this returns, CALLER MUST WAIT for muxer & current driver to
 // settle down.  some delay for that is absolutely required (per testing).
 // 5 ms wait works well 2015/04.
 func anmux_set_chn
@@ -101,7 +124,7 @@ func anmux_get_chn
     b = $anmux_channel_mask
     a = and
 end_func
-    
+
 // return ADC reading in a.  this assumes anmux_set_chn was called some time ago.
 func anmux_convert
     // read ADC channel 7.  12 bits resolution.

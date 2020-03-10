@@ -1,3 +1,27 @@
+/*
+FETCH
+Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+http://www.TheMarkitecht.com
+
+Project home:  http://github.com/The-Markitecht/FETCH
+FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+
+This file is part of FETCH.
+
+FETCH is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FETCH is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 
 // bare-minimal version of my Verilog UART for small devices like CPLD's.
 
@@ -20,13 +44,13 @@ module uart_v2_tx #(
     ,output        tx_line
     ,output        tx_busy
 );
-    reg[5:0] sample_cnt = 6'd0; 
+    reg[5:0] sample_cnt = 6'd0;
     assign tx_busy = | sample_cnt;
 
-    // tx_shifter includes an extra bit for the start bit.  
-    reg[8:0] tx_shifter = {9{LINE_IDLE_LEVEL}}; 
+    // tx_shifter includes an extra bit for the start bit.
+    reg[8:0] tx_shifter = {9{LINE_IDLE_LEVEL}};
     assign tx_line = tx_shifter[0];
-    
+
     always @(posedge uart_sample_clk) begin
         if (load_data && ! tx_busy) begin
             tx_shifter <= { parallel_in ^ {8{LINE_DATA_INVERT}}, ! LINE_IDLE_LEVEL }; // tack on the start bit ahead of the LSB of the data.
@@ -36,7 +60,7 @@ module uart_v2_tx #(
             sample_cnt <= sample_cnt - 1'b1;
         end else if (tx_busy)
             sample_cnt <= sample_cnt - 1'b1;
-    end 
+    end
 endmodule
 
 module uart_v2_rx #(
@@ -50,13 +74,13 @@ module uart_v2_rx #(
 );
     reg[7:0] rx_shifter = 8'd0;
     assign parallel_out = rx_shifter; // output comes directly from the shifter to save area.
-    reg[4:0] sample_cnt = 5'd0; // assumed to roll over without explicit load.  
+    reg[4:0] sample_cnt = 5'd0; // assumed to roll over without explicit load.
     //wire[2:0] bit_cnt = sample_cnt[4:2]; // not needed.
     wire never = 1'b0;
 
     // state machine uart_rx_fsm holds state in rx_state
     reg[2:0] rx_state ;
-        
+
     assign rx_busy =
           rx_state == 3'd0 ? ( 1'b0 )
         : rx_state == 3'd1 ? ( 1'b0 )
@@ -68,38 +92,38 @@ module uart_v2_rx #(
     always @ ( posedge ( uart_sample_clk )) begin
 
         if ((( never ) == 1'b1) || (rx_state == 3'd0)) begin
-            // reset 
-                
-            rx_state <= ((( never ) == 1'b1) ? 3'd0 /* stay */ : 3'd1 /* proceed */) ; 
+            // reset
+
+            rx_state <= ((( never ) == 1'b1) ? 3'd0 /* stay */ : 3'd1 /* proceed */) ;
 
         end else if (rx_state == 3'd1) begin
-            // state IDLE 
-                
-            rx_state <= ((rx_line == LINE_IDLE_LEVEL) ? 3'd1 /* stay */ : 3'd2 /* proceed */) ; 
+            // state IDLE
+
+            rx_state <= ((rx_line == LINE_IDLE_LEVEL) ? 3'd1 /* stay */ : 3'd2 /* proceed */) ;
 
         end else if (rx_state == 3'd2) begin
-            // state STARTWAIT1 
-                
-            
-            rx_state <= 3'd3 /* proceed */ ; 
+            // state STARTWAIT1
+
+
+            rx_state <= 3'd3 /* proceed */ ;
 
         end else if (rx_state == 3'd3) begin
-            // state RECEIVING 
-                
+            // state RECEIVING
+
             sample_cnt <= ( sample_cnt + 5'd1);
             rx_shifter <= (  ( & sample_cnt[1:0]) ? {rx_line ^ LINE_DATA_INVERT, rx_shifter[7:1]} : rx_shifter );
-            rx_state <= (( & sample_cnt ) ? 3'd4 /* proceed */ : 3'd3 /* stay */) ; 
+            rx_state <= (( & sample_cnt ) ? 3'd4 /* proceed */ : 3'd3 /* stay */) ;
 
         end else if (rx_state == 3'd4) begin
-            // state STOPWAIT 
-                
-            rx_state <= ((rx_line == LINE_IDLE_LEVEL) ? 3'd1 /* IDLE */ : 3'd4 /* stay */) ; 
+            // state STOPWAIT
+
+            rx_state <= ((rx_line == LINE_IDLE_LEVEL) ? 3'd1 /* IDLE */ : 3'd4 /* stay */) ;
 
         end else begin
             // unknown state; reset.
             rx_state <= 0;
         end
     end
-        
+
 
 endmodule

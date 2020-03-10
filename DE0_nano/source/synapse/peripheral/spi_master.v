@@ -1,3 +1,27 @@
+/*
+FETCH
+Copyright 2009 Mark Hubbard, a.k.a. "TheMarkitecht"
+http://www.TheMarkitecht.com
+
+Project home:  http://github.com/The-Markitecht/FETCH
+FETCH is the Fluent Engine and Transmission Controller Hardware for sports cars.
+
+This file is part of FETCH.
+
+FETCH is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FETCH is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with FETCH.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 `include <header.v>
 
 module spi_master #(
@@ -5,34 +29,34 @@ module spi_master #(
     ,parameter MSB = WIDTH - 1
     ,parameter SPI_CLOCK_DIVISOR = 65536
 ) (
-     input wire                  sysclk            
-    ,input wire                  sysreset          
+     input wire                  sysclk
+    ,input wire                  sysreset
 
     ,output wire[MSB:0]          mi_data
     ,input wire[MSB:0]           mo_data
     ,input wire                  mo_load
     ,output wire                 busy
-    
+
     ,output wire                 spi_mo
     ,output wire                 spi_cs
     ,output wire                 spi_sck
     ,input wire                  spi_mi
-    
-);      
+
+);
     // SPI master for MSB-first exchange, of any fixed width up to 511 bits.
     // all signals are synchronized to sysclk rising edge.
-    // a built-in 16-bit clock scaler can generate spi_sck frequencies from 
+    // a built-in 16-bit clock scaler can generate spi_sck frequencies from
     // sysclk / 2 to sysclk / 65536.
     // spi_mi is sampled on the RISING edge of spi_sck (virtually).
     // spi_mo is shifted on the FALLING edge of spi_sck.
     // module interface is compatible with a Synapse316 host system, even when WIDTH > 16.
-    
+
     // dedicated clock divider from sysclk to SPI clock, to ensure consistent timing.
     // timing supplied by an external prescaler would surely be inconsistent at the start & end of the transaction.
     reg[15:0] scaler = 0;
-    localparam SCALER_START = (SPI_CLOCK_DIVISOR / 2) - 1;   
+    localparam SCALER_START = (SPI_CLOCK_DIVISOR / 2) - 1;
         // scaler must count down each HALF of a bit period (each spi_sck phase).
-    
+
     // shift register & bit counter
     reg[MSB:0] r = 0;
     assign mi_data = r;
@@ -47,7 +71,7 @@ module spi_master #(
             cnt <= 0;
             r <= 0;
             scaler <= 0;
-            spi_sck_reg <= 0; 
+            spi_sck_reg <= 0;
         end else if (mo_load) begin
             cnt <= WIDTH;
             r <= mo_data;
